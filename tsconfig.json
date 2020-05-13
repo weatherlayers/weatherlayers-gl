@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "lib": ["dom", "esnext"],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "types": ["@webgpu/types"]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.js"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.js",
+    "node_modules"
+  ]
+}
