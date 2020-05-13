@@ -22,11 +22,35 @@ export function weather(canvas, metadata, image) {
     const fragmentShaderSource = `
         precision highp float;
 
+        #define PI 3.1415926535897932384626433832795
+        #define VAR1_MIN ${metadata.var1Min}
+        #define VAR1_MAX ${metadata.var1Max}
+        #define VAR2_MIN ${metadata.var2Min}
+        #define VAR2_MAX ${metadata.var2Max}
+
         uniform sampler2D image;
         varying vec2 v_texCoord;
+
+        float square(float x) {
+            return x * x;
+        }
+
+        vec3 interpolateSinebow(float t) {
+            t = t - 0.2;
+            return vec3(
+              square(sin(PI * (t + 0.0 / 3.0))),
+              square(sin(PI * (t + 1.0 / 3.0))),
+              square(sin(PI * (t + 2.0 / 3.0)))
+            );
+          }
         
         void main() {
-            gl_FragColor = texture2D(image, v_texCoord);
+            vec4 vector = texture2D(image, v_texCoord);
+            float var1 = VAR1_MIN + vector.x * (VAR1_MAX - VAR1_MIN);
+            float var2 = VAR2_MIN + vector.x * (VAR2_MAX - VAR2_MIN);
+            float length = sqrt(square(var1) + square(var2));
+            vec3 color = interpolateSinebow(min(length, 100.0) / 100.0);
+            gl_FragColor = vec4(color, 1);
         }
     `;
 
