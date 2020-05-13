@@ -12,9 +12,9 @@ function parseGrib(grib) {
 /**
  * @param {Record<string, any>} var1
  * @param {Record<string, any>?} var2
- * @return {{ metadata: Record<string, any>; texture: PNG; }}
+ * @return {{ metadata: Record<string, any>; image: PNG; }}
 */
-function gribToTexture(var1, var2) {
+function gribToImage(var1, var2) {
     /**
      * @param {number} date
      * @param {number} time
@@ -39,7 +39,7 @@ function gribToTexture(var1, var2) {
         var2Max: var2 ? var2.maximum : undefined
     };
     
-    const texture = new PNG({
+    const image = new PNG({
         colorType: 2,
         filterType: 4,
         width: width,
@@ -50,20 +50,20 @@ function gribToTexture(var1, var2) {
         for (let x = 0; x < width; x++) {
             const i = (y * width + x) * 4;
             const k = y * width + (x + width * 7 / 12) % width; // wrap at 210 meridian, same as earth.nullschool.net
-            texture.data[i + 0] = Math.floor(255 * (var1.values[k] - var1.minimum) / (var1.maximum - var1.minimum));
-            texture.data[i + 1] = var2 ? Math.floor(255 * (var2.values[k] - var2.minimum) / (var2.maximum - var2.minimum)) : 0;
-            texture.data[i + 2] = 0;
-            texture.data[i + 3] = 255;
+            image.data[i + 0] = Math.floor(255 * (var1.values[k] - var1.minimum) / (var1.maximum - var1.minimum));
+            image.data[i + 1] = var2 ? Math.floor(255 * (var2.values[k] - var2.minimum) / (var2.maximum - var2.minimum)) : 0;
+            image.data[i + 2] = 0;
+            image.data[i + 3] = 255;
         }
     }
 
-    return { metadata, texture };
+    return { metadata, image };
 }
 
 const gribFilename = process.argv[2];
 const layerFilenamePrefix = process.argv[3];
 const metadataFilename = `${layerFilenamePrefix}.json`;
-const textureFilename = `${layerFilenamePrefix}.png`;
+const imageFilename = `${layerFilenamePrefix}.png`;
 
 const gribMessages = parseGrib(JSON.parse(fs.readFileSync(gribFilename, { encoding: 'utf8' })));
 
@@ -71,7 +71,7 @@ const gribMessages = parseGrib(JSON.parse(fs.readFileSync(gribFilename, { encodi
 const ugrd = /** @type {Record<string, any>} */ (gribMessages.find(x => x.parameterCategory === 2 && x.parameterNumber === 2));
 const vgrd = /** @type {Record<string, any>} */ (gribMessages.find(x => x.parameterCategory === 2 && x.parameterNumber === 3));
 
-const { metadata, texture } = gribToTexture(ugrd, vgrd);
+const { metadata, image } = gribToImage(ugrd, vgrd);
 
 fs.writeFileSync(metadataFilename, JSON.stringify(metadata, null, 4) + '\n');
-texture.pack().pipe(fs.createWriteStream(textureFilename));
+image.pack().pipe(fs.createWriteStream(imageFilename));
