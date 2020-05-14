@@ -8,10 +8,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     canvas.style.height = '100vh';
     document.body.appendChild(canvas);
 
-    const metadata = await (await fetch('../data/gfs/2020051300.json')).json();
+    const layerFilenamePrefix = '../data/gfs/2020051406';
+    const metadataFilename = `${layerFilenamePrefix}.json`;
+    const imageFilename = `${layerFilenamePrefix}.png`;
+
+    const metadata = await (await fetch(metadataFilename)).json();
     
     const image = new Image();
-    image.src = '../data/gfs/2020051300.png';
+    image.src = imageFilename;
     await new Promise(resolve => image.onload = resolve);
 
     weather(canvas, metadata, image);

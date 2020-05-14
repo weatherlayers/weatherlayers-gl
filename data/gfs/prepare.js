@@ -25,19 +25,15 @@ function gribToImage(var1, var2) {
         return `${dateString.substr(0, 4)}-${dateString.substr(4, 2)}-${dateString.substr(6, 2)}T${time < 10 ? '0' + time : time}:00Z`;
     }
 
+    const source = 'https://nomads.ncep.noaa.gov';
+    const date = gfsDateTimeToIsoString(var1.dataDate, var1.dataTime);
     const width = var1.Ni;
     const height = var1.Nj - 1;
+    const min = var2 ? Math.min(var1.minimum, var2.minimum) : var1.minimum;
+    const max = var2 ? Math.max(var1.maximum, var2.maximum) : var1.maximum;
+    const delta = max - min;
 
-    const metadata = {
-        source: 'https://nomads.ncep.noaa.gov',
-        date: gfsDateTimeToIsoString(var1.dataDate, var1.dataTime),
-        width: width,
-        height: height,
-        var1Min: var1.minimum,
-        var1Max: var1.maximum,
-        var2Min: var2 ? var2.minimum : undefined,
-        var2Max: var2 ? var2.maximum : undefined
-    };
+    const metadata = { source, date, width, height, min, max };
     
     const image = new PNG({
         colorType: 2,
@@ -50,8 +46,8 @@ function gribToImage(var1, var2) {
         for (let x = 0; x < width; x++) {
             const i = (y * width + x) * 4;
             const k = y * width + (x + width * 7 / 12) % width; // wrap at 210 meridian, same as earth.nullschool.net
-            image.data[i + 0] = Math.floor(255 * (var1.values[k] - var1.minimum) / (var1.maximum - var1.minimum));
-            image.data[i + 1] = var2 ? Math.floor(255 * (var2.values[k] - var2.minimum) / (var2.maximum - var2.minimum)) : 0;
+            image.data[i + 0] = Math.floor(255 * (var1.values[k] - min) / delta);
+            image.data[i + 1] = var2 ? Math.floor(255 * (var2.values[k] - min) / delta) : 0;
             image.data[i + 2] = 0;
             image.data[i + 3] = 255;
         }
