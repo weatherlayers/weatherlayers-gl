@@ -10,18 +10,18 @@
     "sourceMap": true,
     "allowJs": true,
     "checkJs": true,
+    "resolveJsonModule": true,
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "types": ["@webgpu/types"]
+    "noUnusedParameters": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.js"
+    "src/**/*.ts",
+    "src/**/*.js"
   ],
   "exclude": [
-    "**/*.test.ts",
-    "**/*.test.js",
+    "src/**/*.test.ts",
+    "src/**/*.test.js",
     "node_modules"
   ]
 }

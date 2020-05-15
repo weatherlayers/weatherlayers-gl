@@ -1,5 +1,2 @@
 /node_modules
-
-/data/gfs/*.grib
-/data/gfs/*.json
-/data/gfs/*.png
+/dist

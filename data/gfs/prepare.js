@@ -33,7 +33,7 @@ function gribToImage(var1, var2) {
     const max = var2 ? Math.max(var1.maximum, var2.maximum) : var1.maximum;
     const delta = max - min;
 
-    const metadata = { source, date, width, height, min, max };
+    const metadata = { source, date, width, height, min, max, delta };
     
     const image = new PNG({
         colorType: 2,
@@ -55,6 +55,7 @@ function gribToImage(var1, var2) {
 
     return { metadata, image };
 }
+
 
 const gribFilename = process.argv[2];
 const layerFilenamePrefix = process.argv[3];

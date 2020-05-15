@@ -4,8 +4,8 @@ set -eu
 
 DIR="$(dirname $0)"
 
-DATE="20200514" # YYYYMMDD
-TIME="06" # 00, 06, 12, 18
+DATE="20200515" # YYYYMMDD
+TIME="00" # 00, 06, 12, 18
 OFFSET="f000" # 3-hourly up to 10 days, 12-hourly up to 16 days
 RESOLUTION="0p25" # 0p25, 0p50 or 1p00
 LEVEL="lev_10_m_above_ground=on"
