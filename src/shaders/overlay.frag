@@ -8,7 +8,6 @@ precision highp float;
 uniform sampler2D sImage;
 uniform float uMin;
 uniform float uMax;
-uniform float uDelta;
 
 varying vec2 vTexCoord;
 
@@ -20,8 +19,9 @@ void main() {
         }
     }
 
+    float delta = uMax - uMin;
     vec2 textureVector = texture2D(sImage, vTexCoord).rg;
-    vec2 speedVector = uMin + textureVector * uDelta;
+    vec2 speedVector = uMin + textureVector * delta;
     float speed = length(speedVector);
     vec4 color = windColor(speed);
     gl_FragColor = color;

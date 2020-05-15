@@ -41,6 +41,5 @@ export function drawWeather(canvas, metadata, image) {
     gl.uniform1i(program.uniforms['sImage'], 0);
     gl.uniform1f(program.uniforms['uMin'], metadata.min);
     gl.uniform1f(program.uniforms['uMax'], metadata.max);
-    gl.uniform1f(program.uniforms['uDelta'], metadata.delta);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, position.length);
 }

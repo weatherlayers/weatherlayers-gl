@@ -33,7 +33,7 @@ function gribToImage(var1, var2) {
     const max = var2 ? Math.max(var1.maximum, var2.maximum) : var1.maximum;
     const delta = max - min;
 
-    const metadata = { source, date, width, height, min, max, delta };
+    const metadata = { source, date, width, height, min, max };
     
     const image = new PNG({
         colorType: 2,
