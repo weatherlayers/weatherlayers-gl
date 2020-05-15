@@ -13,9 +13,7 @@
   },
   "author": "Jan Zak <zj@zakjan.cz>",
   "private": true,
-  "dependencies": {
-    "glslify": "^7.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
