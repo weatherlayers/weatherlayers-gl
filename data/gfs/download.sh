@@ -21,4 +21,4 @@ fi
 
 node "${DIR}/prepare.js" "${LAYER_FILENAME_PREFIX}.grib.json" "${LAYER_FILENAME_PREFIX}"
 
-# rm "${LAYER_FILENAME_PREFIX}.grib" "${LAYER_FILENAME_PREFIX}.json"
+# rm "${LAYER_FILENAME_PREFIX}.grib" "${LAYER_FILENAME_PREFIX}.grib.json"

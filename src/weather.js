@@ -1,6 +1,6 @@
-import { createProgram, createTexture, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
-import vertexShaderSource from './shaders/overlay.vert';
-import fragmentShaderSource from './shaders/overlay.frag';
+import { createArrayTexture } from './webgl-common.js';
+import { createOverlayProgram, createOverlayPositionBuffer, createOverlayTexture, drawOverlay } from './overlay.js';
+import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -8,38 +8,28 @@ import fragmentShaderSource from './shaders/overlay.frag';
  * @param {HTMLImageElement} image
  */
 export function drawWeather(canvas, metadata, image) {
+    const particlesCount = 1024;
+    // const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
+    // const speedFactor = 0.25; // how fast the particles move
+    // const dropRate = 0.003; // how often the particles move to a random place
+    // const dropRateBump = 0.01; // drop rate increase relative to individual particle speed
+
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
 
-    // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const position = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
-    const positionBuffer = createBuffer(gl, new Float32Array(position.flat()));
-    
-    // convert dst pixel coords to clipspace coords
-    // https://stackoverflow.com/questions/12250953/drawing-an-image-using-webgl
-    const dstX = 0;
-    const dstY = 0;
-    const dstWidth = 1440;
-    const dstHeight = 720;
-    const clipX = dstX / gl.canvas.width  *  2 - 1;
-    const clipY = dstY / gl.canvas.height * -2 + 1;
-    const clipWidth = dstWidth  / gl.canvas.width  *  2;
-    const clipHeight = dstHeight / gl.canvas.height * -2;
-    const matrix = [
-        clipWidth, 0, 0,
-        0, clipHeight, 0,
-        clipX, clipY, 1,
-    ];
+    const particlesState = initParticlesState(particlesCount);
 
-    const texture = createTexture(gl, image);
+    // particles state textures, for the current and the previous state
+    const particlesStateWidth = Math.ceil(Math.sqrt(particlesState.length / 4));
+    let particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
+    let particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
 
-    const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
+    const overlayProgram = createOverlayProgram(gl);
+    const overlayPositionBuffer = createOverlayPositionBuffer(gl);
+    const overlayTexture = createOverlayTexture(gl, image);
 
-    gl.useProgram(program.program);
-    bindAttribute(gl, positionBuffer, program.attributes['aPosition'], position[0].length);
-    bindTexture(gl, texture, 0);
-    gl.uniformMatrix3fv(program.uniforms['uMatrix'], false, matrix);
-    gl.uniform1i(program.uniforms['sImage'], 0);
-    gl.uniform1f(program.uniforms['uMin'], metadata.min);
-    gl.uniform1f(program.uniforms['uMax'], metadata.max);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, position.length);
+    const particlesProgram = createParticlesProgram(gl);
+    const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
+
+    drawOverlay(gl, overlayProgram, overlayPositionBuffer, metadata, overlayTexture);
+    drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
 }

@@ -1,4 +1,6 @@
 /** @typedef {{ program: WebGLProgram; attributes: Record<string, GLint>; uniforms: Record<string, WebGLUniformLocation>; }} WebGLProgramWrapper */
+/** @typedef {{ buffer: WebGLBuffer; x: number; y: number; }} WebGLBufferWrapper */
+/** @typedef {{ texture: WebGLTexture; x: number; y: number; }} WebGLTextureWrapper */
 
 /**
  * @param {number} value
@@ -66,10 +68,27 @@ export function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {HTMLImageElement} image
- * @return {WebGLTexture}
+ * @param {number[] | number[][]} data
+ * @returns {WebGLBufferWrapper}
  */
-export function createTexture(gl, image) {
+export function createBuffer(gl, data) {
+    const buffer = /** @type WebGLBuffer */ (gl.createBuffer());
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.flat()), gl.STATIC_DRAW);
+
+    const x = data.length;
+    const y = Array.isArray(data[0]) ? data[0].length : 1;
+
+    const wrapper = /** @type WebGLBufferWrapper */ ({ buffer, x, y });
+    return wrapper;
+}
+
+/**
+ * @param {WebGLRenderingContext} gl
+ * @param {HTMLImageElement} image
+ * @return {WebGLTextureWrapper}
+ */
+export function createImageTexture(gl, image) {
     const texture = /** @type WebGLTexture */ (gl.createTexture());
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -78,19 +97,33 @@ export function createTexture(gl, image) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    return texture;
+
+    const x = image.width;
+    const y = image.height;
+
+    const wrapper = /** @type WebGLTextureWrapper */ ({ texture, x, y });
+    return wrapper;
 }
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {Float32Array} data
- * @returns {WebGLBuffer}
+ * @param {Uint8Array} data
+ * @param {number} x
+ * @param {number} y
+ * @return {WebGLTextureWrapper}
  */
-export function createBuffer(gl, data) {
-    const buffer = /** @type WebGLBuffer */ (gl.createBuffer());
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-    return buffer;
+export function createArrayTexture(gl, data, x, y) {
+    const texture = /** @type WebGLTexture */ (gl.createTexture());
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, x, y, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    const wrapper = /** @type WebGLTextureWrapper */ ({ texture, x, y });
+    return wrapper;
 }
 
 /**
