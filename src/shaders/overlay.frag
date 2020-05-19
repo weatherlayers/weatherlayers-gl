@@ -23,6 +23,6 @@ void main() {
     vec2 textureVector = texture2D(sImage, vTexCoord).rg;
     vec2 speedVector = uMin + textureVector * delta;
     float speed = length(speedVector);
-    vec4 color = windColor(speed);
+    vec4 color = windColor(speed, 0.4);
     gl_FragColor = color;
 }

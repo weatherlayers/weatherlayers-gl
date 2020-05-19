@@ -147,3 +147,24 @@ export function bindTexture(gl, texture, unit) {
     gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 }
+
+/**
+ * @param {WebGLRenderingContext} gl
+ * @return {WebGLFramebuffer}
+ */
+export function createFramebuffer(gl) {
+    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
+    return framebuffer;
+}
+
+/**
+ * @param {WebGLRenderingContext} gl
+ * @param {WebGLFramebuffer | null} framebuffer
+ * @param {WebGLTexture?} [texture]
+ */
+export function bindFramebuffer(gl, framebuffer, texture) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    if (framebuffer && texture) {
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+    }
+}

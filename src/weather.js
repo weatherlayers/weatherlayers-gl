@@ -1,6 +1,7 @@
-import { createArrayTexture } from './webgl-common.js';
+import { createArrayTexture, createFramebuffer } from './webgl-common.js';
 import { createOverlayProgram, createOverlayPositionBuffer, createOverlayTexture, drawOverlay } from './overlay.js';
 import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
+import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -30,6 +31,59 @@ export function drawWeather(canvas, metadata, image) {
     const particlesProgram = createParticlesProgram(gl);
     const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
 
-    drawOverlay(gl, overlayProgram, overlayPositionBuffer, metadata, overlayTexture);
-    drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
+    const stepProgram = createStepProgram(gl);
+    const stepPositionBuffer = createStepPositionBuffer(gl);
+    const stepFramebuffer = createFramebuffer(gl);
+
+    let playing = true;
+    let raf = /** @type ReturnType<setTimeout> | null */ (null);
+
+    function draw() {
+        drawOverlay(gl, overlayProgram, overlayPositionBuffer, metadata, overlayTexture);
+        drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
+
+        computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1);
+
+        const temp = particlesStateTexture0;
+        particlesStateTexture0 = particlesStateTexture1;
+        particlesStateTexture1 = temp;
+    }
+
+    function run() {
+        draw();
+        if (playing) {
+            raf = setTimeout(run, 1 / 60);
+        }
+    }
+
+    function play() {
+        if (playing) {
+            return;
+        }
+
+        playing = true;
+        run();
+    }
+
+    function pause() {
+        if (!playing) {
+            return;
+        }
+
+        playing = false;
+        if (raf) {
+            clearTimeout(raf);
+            raf = null;
+        }
+    }
+
+    run();
+
+    return {
+        get playing() {
+            return playing;
+        },
+        play,
+        pause
+    }
 }
