@@ -1,14 +1,14 @@
-import { createArrayTexture, createFramebuffer } from './webgl-common.js';
-import { createOverlayProgram, createOverlayPositionBuffer, createOverlayTexture, drawOverlay } from './overlay.js';
+import { createImageTexture, createArrayTexture, createFramebuffer } from './webgl-common.js';
+import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
 import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {Record<string, any>} metadata
- * @param {HTMLImageElement} image
+ * @param {Record<string, any>} weatherMetadata
+ * @param {HTMLImageElement} weatherImage
  */
-export function drawWeather(canvas, metadata, image) {
+export function drawWeather(canvas, weatherMetadata, weatherImage) {
     const particlesCount = 1024;
     // const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
     // const speedFactor = 0.25; // how fast the particles move
@@ -16,6 +16,8 @@ export function drawWeather(canvas, metadata, image) {
     // const dropRateBump = 0.01; // drop rate increase relative to individual particle speed
 
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
+
+    const weatherTexture = createImageTexture(gl, weatherImage);
 
     const particlesState = initParticlesState(particlesCount);
 
@@ -26,7 +28,6 @@ export function drawWeather(canvas, metadata, image) {
 
     const overlayProgram = createOverlayProgram(gl);
     const overlayPositionBuffer = createOverlayPositionBuffer(gl);
-    const overlayTexture = createOverlayTexture(gl, image);
 
     const particlesProgram = createParticlesProgram(gl);
     const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
@@ -36,13 +37,13 @@ export function drawWeather(canvas, metadata, image) {
     const stepFramebuffer = createFramebuffer(gl);
 
     let playing = true;
-    let raf = /** @type ReturnType<setTimeout> | null */ (null);
+    let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
-        drawOverlay(gl, overlayProgram, overlayPositionBuffer, metadata, overlayTexture);
+        drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
         drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
 
-        computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1);
+        computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture);
 
         const temp = particlesStateTexture0;
         particlesStateTexture0 = particlesStateTexture1;
@@ -52,7 +53,7 @@ export function drawWeather(canvas, metadata, image) {
     function run() {
         draw();
         if (playing) {
-            raf = setTimeout(run, 1 / 60);
+            raf = requestAnimationFrame(run);
         }
     }
 
@@ -72,7 +73,7 @@ export function drawWeather(canvas, metadata, image) {
 
         playing = false;
         if (raf) {
-            clearTimeout(raf);
+            cancelAnimationFrame(raf);
             raf = null;
         }
     }

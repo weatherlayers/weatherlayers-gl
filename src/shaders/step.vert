@@ -1,5 +1,5 @@
 attribute vec2 aPosition;
-varying vec2 vTexCoord;
+varying vec2 vTexCoord; // <0,1>
 
 void main() {
     vTexCoord = (aPosition + 1.0) / 2.0;
