@@ -8,6 +8,7 @@ precision highp float;
 #pragma glslify: windColor = require('./color-schemas')
 
 uniform sampler2D sWeather;
+uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
 uniform float uWeatherMax;
 
@@ -21,12 +22,11 @@ void main() {
         }
     }
 
-    vec4 color;
+    vec2 speed = getSpeed(sWeather, uWeatherResolution, vTexCoord, uWeatherMin, uWeatherMax);
+    vec4 color = windColor(length(speed), 0.4);
+
     if (SHOW_ORIGINAL) {
         color = texture2D(sWeather, vTexCoord);
-    } else {
-        vec2 speed = getSpeed(sWeather, uWeatherMin, uWeatherMax, vTexCoord);
-        color = windColor(length(speed), 0.4);
     }
 
     gl_FragColor = color;

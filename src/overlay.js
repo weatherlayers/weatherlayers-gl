@@ -54,6 +54,7 @@ export function drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMe
     bindTexture(gl, weatherTexture.texture, 0);
     gl.uniformMatrix3fv(overlayProgram.uniforms['uMatrix'], false, matrix);
     gl.uniform1i(overlayProgram.uniforms['sWeather'], 0);
+    gl.uniform2f(overlayProgram.uniforms['uWeatherResolution'], weatherTexture.x, weatherTexture.y);
     gl.uniform1f(overlayProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(overlayProgram.uniforms['uWeatherMax'], weatherMetadata.max);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, overlayPositionBuffer.x);
