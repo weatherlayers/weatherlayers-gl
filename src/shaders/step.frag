@@ -21,7 +21,7 @@ void main() {
     // float distortion = cos(radians(position.y * 180.0 - 90.0));
     // vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
     vec2 offset = speed * 0.0001 * uSpeedFactor;
-    vec2 newPosition = fract(position + offset); // <0,1>
+    vec2 newPosition = fract(position + offset + 1.0); // <0,1>
 
     // pack position back into RGBA
     vec4 newPackedPosition = vec4(fract(newPosition * 255.0), floor(newPosition * 255.0) / 255.0);
