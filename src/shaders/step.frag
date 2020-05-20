@@ -8,22 +8,28 @@ uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
 uniform float uWeatherMax;
 uniform float uSpeedFactor;
-varying vec2 vTexCoord; // <0,1>
+varying vec2 vTexCoord;
 
 void main() {
     vec4 packedPosition = texture2D(sState, vTexCoord);
 
     // unpack the position from RGBA
-    vec2 position = packedPosition.rg / 255.0 + packedPosition.ba; // <0,1>
+    vec2 position = vec2(
+        packedPosition.r / 255.0 + packedPosition.b,
+        packedPosition.g / 255.0 + packedPosition.a
+    );
 
     // move the position
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
-    // float distortion = cos(radians(position.y * 180.0 - 90.0));
-    // vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
-    vec2 offset = speed * 0.0001 * uSpeedFactor;
-    vec2 newPosition = fract(position + offset + 1.0); // <0,1>
+    float distortion = cos(radians(position.y * 180.0 - 90.0));
+    vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
+    vec2 newPosition = fract(position + offset + 1.0);
 
     // pack position back into RGBA
-    vec4 newPackedPosition = vec4(fract(newPosition * 255.0), floor(newPosition * 255.0) / 255.0);
+    vec4 newPackedPosition = vec4(
+        fract(newPosition * 255.0),
+        floor(newPosition * 255.0) / 255.0
+    );
+
     gl_FragColor = newPackedPosition;
 }

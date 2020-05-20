@@ -9,7 +9,7 @@ import { createStepProgram, createStepPositionBuffer, computeStep } from './step
  * @param {HTMLImageElement} weatherImage
  */
 export function drawWeather(canvas, weatherMetadata, weatherImage) {
-    const particlesCount = 1024;
+    const particlesCount = 1024 * 64;
     // const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
     // const speedFactor = 0.25; // how fast the particles move
     // const dropRate = 0.003; // how often the particles move to a random place
@@ -41,7 +41,7 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
 
     function draw() {
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
-        drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
+        drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0);
 
         computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture);
 

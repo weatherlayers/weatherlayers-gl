@@ -20,7 +20,7 @@ export function createOverlayProgram(gl) {
  */
 export function createOverlayPositionBuffer(gl) {
     // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const overlayPosition = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+    const overlayPosition = [[0, 0], [0, 1], [1, 0], [1, 1]];
     const overlayPositionBuffer = createBuffer(gl, overlayPosition);
     return overlayPositionBuffer;
 }

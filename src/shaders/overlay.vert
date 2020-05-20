@@ -1,3 +1,5 @@
+precision mediump float;
+
 attribute vec2 aPosition;
 uniform mat3 uMatrix;
 varying vec2 vTexCoord;

@@ -34,13 +34,8 @@ vec4 extendedSinebowColor(float i, float a) {
         fadeToWhite((i - BOUNDARY) / (1.0 - BOUNDARY), a);
 }
 
-/**
- * @param {float} speed - speed [m/s]
- * @param {float} a - alpha
- * @return {vec4} color
- */
-vec4 windColor(float speed, float a) {
+vec4 windSpeedColor(float speed, float a) {
     return extendedSinebowColor(min(speed, 100.0) / 100.0, a);
 }
 
-#pragma glslify: export(windColor)
+#pragma glslify: export(windSpeedColor)

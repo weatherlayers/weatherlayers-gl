@@ -11,14 +11,6 @@ vec4 texture2DBilinear(sampler2D texture, vec2 resolution, vec2 position) {
     return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y);
 }
 
-/**
- * @param {sampler2D} texture - speed vector texture, <min,max> [m/s] packed as <0,1>
- * @param {vec2} resolution
- * @param {vec2} position - position <0,1> to get the speed at
- * @param {float} minValue - min speed [m/s]
- * @param {float} maxValue - max speed [m/s]
- * @return {vec2} speed [m/s]
- */
 vec2 getSpeed(sampler2D texture, vec2 resolution, vec2 position, float minValue, float maxValue) {
     // vec2 packedSpeed = texture2D(texture, position).rg; // lower-res hardware linear filtering
     vec2 packedSpeed = texture2DBilinear(texture, resolution, position).rg;

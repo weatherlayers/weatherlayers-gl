@@ -1,17 +1,20 @@
+precision mediump float;
+
 attribute float aIndex;
-uniform sampler2D sState0; // current particle state, xy = x, zw = y
-uniform sampler2D sState1; // last particle state, xy = x, zw = y
-uniform vec2 uStateDimensions;
+uniform sampler2D sState;
+uniform vec2 uStateResolution;
 
 void main() {
-    vec2 positionCoord = vec2(fract(aIndex / uStateDimensions.x), floor(aIndex / uStateDimensions.x) / uStateDimensions.y);
+    vec4 packedPosition = texture2D(sState, vec2(
+        fract(aIndex / uStateResolution.x),
+        floor(aIndex / uStateResolution.x) / uStateResolution.y
+    ));
 
-    vec4 packedPosition0 = texture2D(sState0, positionCoord);
-    vec4 packedPosition1 = texture2D(sState1, positionCoord);
-
-    vec2 position0 = fract(packedPosition0.rg / 255.5 + packedPosition0.ba); // current particle position
-    vec2 position1 = fract(packedPosition1.rg / 255.5 + packedPosition1.ba); // last particle position
+    vec2 position = vec2(
+        packedPosition.r / 255.0 + packedPosition.b,
+        packedPosition.g / 255.0 + packedPosition.a
+    );
 
     gl_PointSize = 1.0;
-    gl_Position = vec4(position0 * 2.0 - 1.0, 0, 1);
+    gl_Position = vec4(2.0 * position.x - 1.0, 1.0 - 2.0 * position.y, 0, 1);
 }

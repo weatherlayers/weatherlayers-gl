@@ -1,11 +1,11 @@
-precision highp float;
+precision mediump float;
 
 #define SHOW_GRID false
 #define GRID_SIZE 8.0
 #define SHOW_ORIGINAL false
 
 #pragma glslify: getSpeed = require('./speed')
-#pragma glslify: windColor = require('./color-schemas')
+#pragma glslify: windSpeedColor = require('./color')
 
 uniform sampler2D sWeather;
 uniform vec2 uWeatherResolution;
@@ -23,7 +23,7 @@ void main() {
     }
 
     vec2 speed = getSpeed(sWeather, uWeatherResolution, vTexCoord, uWeatherMin, uWeatherMax);
-    vec4 color = windColor(length(speed), 0.4);
+    vec4 color = windSpeedColor(length(speed), 0.4);
 
     if (SHOW_ORIGINAL) {
         color = texture2D(sWeather, vTexCoord);

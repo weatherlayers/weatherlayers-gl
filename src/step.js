@@ -37,8 +37,8 @@ export function createStepPositionBuffer(gl) {
  * @param {WebGLTextureWrapper} weatherTexture
  */
 export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture) {
-    bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
     gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
+    bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
 
     gl.useProgram(stepProgram.program);
     bindAttribute(gl, stepPositionBuffer.buffer, stepProgram.attributes['aPosition'], stepPositionBuffer.y);
@@ -46,7 +46,7 @@ export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer
     bindTexture(gl, weatherTexture.texture, 1);
     gl.uniform1i(stepProgram.uniforms['sState'], 0);
     gl.uniform2f(stepProgram.uniforms['uStateDimensions'], particlesStateTexture0.x, particlesStateTexture0.y);
-    gl.uniform1i(stepProgram.uniforms['sWeather'], 0);
+    gl.uniform1i(stepProgram.uniforms['sWeather'], 1);
     gl.uniform2f(stepProgram.uniforms['uWeatherResolution'], weatherTexture.x, weatherTexture.y);
     gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
@@ -54,5 +54,5 @@ export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, stepPositionBuffer.x);
 
     bindFramebuffer(gl, null);
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 }
