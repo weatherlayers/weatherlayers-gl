@@ -1,7 +1,7 @@
 precision mediump float;
 
 #pragma glslify: random = require('glsl-random')
-#pragma glslify: getSpeed = require('./speed')
+#pragma glslify: getSpeed = require('./_speed')
 
 uniform sampler2D sState;
 uniform sampler2D sWeather;

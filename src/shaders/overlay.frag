@@ -4,8 +4,8 @@ precision mediump float;
 #define GRID_SIZE 8.0
 #define SHOW_ORIGINAL false
 
-#pragma glslify: getSpeed = require('./speed')
-#pragma glslify: windSpeedColor = require('./color')
+#pragma glslify: getSpeed = require('./_speed')
+#pragma glslify: windSpeedColor = require('./_color')
 
 uniform sampler2D sWeather;
 uniform vec2 uWeatherResolution;

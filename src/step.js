@@ -1,5 +1,5 @@
 
-import { createProgram, createImageTexture, createBuffer, bindAttribute, bindTexture, bindFramebuffer } from './webgl-common.js';
+import { createProgram, createBuffer, bindFramebuffer, bindAttribute, bindTexture } from './webgl-common.js';
 import stepVertexShaderSource from './shaders/step.vert';
 import stepFragmentShaderSource from './shaders/step.frag';
 
@@ -29,14 +29,14 @@ export function createStepPositionBuffer(gl) {
 /**
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgramWrapper} stepProgram
- * @param {WebGLBufferWrapper} stepPositionBuffer
  * @param {WebGLFramebuffer} stepFramebuffer
+ * @param {WebGLBufferWrapper} stepPositionBuffer
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
  */
-export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture) {
+export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture) {
     gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
     bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
 

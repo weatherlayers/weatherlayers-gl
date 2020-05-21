@@ -2,6 +2,8 @@ import { createImageTexture, createArrayTexture, createFramebuffer } from './web
 import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
 import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
+import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
+import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -9,7 +11,7 @@ import { createStepProgram, createStepPositionBuffer, computeStep } from './step
  * @param {HTMLImageElement} weatherImage
  */
 export function drawWeather(canvas, weatherMetadata, weatherImage) {
-    const particlesCount = 1024 * 64;
+    const particlesCount = 1024 * 4;
     // const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
     // const speedFactor = 0.25; // how fast the particles move
     // const dropRate = 0.003; // how often the particles move to a random place
@@ -26,28 +28,45 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     let particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
     let particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
 
-    const overlayProgram = createOverlayProgram(gl);
-    const overlayPositionBuffer = createOverlayPositionBuffer(gl);
-
-    const particlesProgram = createParticlesProgram(gl);
-    const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
+    // particles screen textures, for the current and the previous state
+    let particlesScreenTexture0 = createArrayTexture(gl, null, gl.canvas.width, gl.canvas.height);
+    let particlesScreenTexture1 = createArrayTexture(gl, null, gl.canvas.width, gl.canvas.height);
 
     const stepProgram = createStepProgram(gl);
     const stepPositionBuffer = createStepPositionBuffer(gl);
     const stepFramebuffer = createFramebuffer(gl);
 
+    const overlayProgram = createOverlayProgram(gl);
+    const overlayPositionBuffer = createOverlayPositionBuffer(gl);
+
+    const particlesProgram = createParticlesProgram(gl);
+    const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
+    const particlesFramebuffer = createFramebuffer(gl);
+
+    const fadeProgram = createFadeProgram(gl);
+    const fadeIndexBuffer = createFadeIndexBuffer(gl);
+
+    const copyProgram = createCopyProgram(gl);
+    const copyIndexBuffer = createCopyIndexBuffer(gl);
+
     let playing = true;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
+        computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture);
+
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
-        drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0);
 
-        computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture);
+        drawFade(gl, fadeProgram, particlesFramebuffer, fadeIndexBuffer, particlesScreenTexture0, particlesScreenTexture1);
+        drawParticles(gl, particlesProgram, particlesFramebuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particlesScreenTexture0, particlesScreenTexture1);
 
-        const temp = particlesStateTexture0;
-        particlesStateTexture0 = particlesStateTexture1;
-        particlesStateTexture1 = temp;
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        drawCopy(gl, copyProgram, copyIndexBuffer, particlesScreenTexture1);
+        gl.disable(gl.BLEND);
+
+        [particlesStateTexture1, particlesStateTexture0] = [particlesStateTexture0, particlesStateTexture1];
+        [particlesScreenTexture1, particlesScreenTexture0] = [particlesScreenTexture0, particlesScreenTexture1];
     }
 
     function run() {

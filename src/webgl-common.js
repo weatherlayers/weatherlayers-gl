@@ -48,14 +48,14 @@ export function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
         throw new Error(/** @type string */ (gl.getProgramInfoLog(program)));
     }
 
-    const attributes = /** @type WebGLProgramWrapper["attributes"] */ ({});
+    const attributes = /** @type WebGLProgramWrapper['attributes'] */ ({});
     const attributesCount = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
     for (let i = 0; i < attributesCount; i++) {
         const attribute = /** @type WebGLActiveInfo */ (gl.getActiveAttrib(program, i));
         attributes[attribute.name] = gl.getAttribLocation(program, attribute.name);
     }
 
-    const uniforms = /** @type WebGLProgramWrapper["uniforms"] */ ({});
+    const uniforms = /** @type WebGLProgramWrapper['uniforms'] */ ({});
     const uniformsCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformsCount; i++) {
         const uniform = /** @type WebGLActiveInfo */ (gl.getActiveUniform(program, i));
@@ -107,7 +107,7 @@ export function createImageTexture(gl, image) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {Uint8Array} data
+ * @param {Uint8Array | null} data
  * @param {number} x
  * @param {number} y
  * @return {WebGLTextureWrapper}
