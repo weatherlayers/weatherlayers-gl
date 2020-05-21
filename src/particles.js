@@ -47,9 +47,7 @@ export function createParticlesIndexBuffer(gl, particlesCount) {
  */
 export function drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture) {
     gl.useProgram(particlesProgram.program);
-    bindAttribute(gl, particlesIndexBuffer.buffer, particlesProgram.attributes['aIndex'], particlesIndexBuffer.y);
-    bindTexture(gl, particlesStateTexture.texture, 0);
-    gl.uniform1i(particlesProgram.uniforms['sState'], 0);
-    gl.uniform2f(particlesProgram.uniforms['uStateResolution'], particlesStateTexture.x, particlesStateTexture.y);
+    bindAttribute(gl, particlesIndexBuffer, particlesProgram.attributes['aIndex']);
+    bindTexture(gl, particlesStateTexture, particlesProgram.uniforms['sState'], particlesProgram.uniforms['uStateResolution'], 0);
     gl.drawArrays(gl.POINTS, 0, particlesIndexBuffer.x);
 }

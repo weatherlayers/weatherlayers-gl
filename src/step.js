@@ -41,13 +41,9 @@ export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer
     bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
 
     gl.useProgram(stepProgram.program);
-    bindAttribute(gl, stepPositionBuffer.buffer, stepProgram.attributes['aPosition'], stepPositionBuffer.y);
-    bindTexture(gl, particlesStateTexture0.texture, 0);
-    bindTexture(gl, weatherTexture.texture, 1);
-    gl.uniform1i(stepProgram.uniforms['sState'], 0);
-    gl.uniform2f(stepProgram.uniforms['uStateDimensions'], particlesStateTexture0.x, particlesStateTexture0.y);
-    gl.uniform1i(stepProgram.uniforms['sWeather'], 1);
-    gl.uniform2f(stepProgram.uniforms['uWeatherResolution'], weatherTexture.x, weatherTexture.y);
+    bindAttribute(gl, stepPositionBuffer, stepProgram.attributes['aPosition']);
+    bindTexture(gl, particlesStateTexture0, stepProgram.uniforms['sState'], stepProgram.uniforms['uStateResolution'], 0);
+    bindTexture(gl, weatherTexture, stepProgram.uniforms['sWeather'], stepProgram.uniforms['uWeatherResolution'], 1);
     gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
     gl.uniform1f(stepProgram.uniforms['uSpeedFactor'], 0.25);

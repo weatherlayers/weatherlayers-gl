@@ -128,24 +128,27 @@ export function createArrayTexture(gl, data, x, y) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {WebGLBuffer} buffer
+ * @param {WebGLBufferWrapper} buffer
  * @param {GLint} attribute
- * @param {number} componentsCount
  */
-export function bindAttribute(gl, buffer, attribute, componentsCount) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+export function bindAttribute(gl, buffer, attribute) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
     gl.enableVertexAttribArray(attribute);
-    gl.vertexAttribPointer(attribute, componentsCount, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(attribute, buffer.y, gl.FLOAT, false, 0, 0);
 }
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {WebGLTexture} texture
+ * @param {WebGLTextureWrapper} texture
+ * @param {WebGLUniformLocation} textureUniform
+ * @param {WebGLUniformLocation} resolutionUniform
  * @param {number} unit
  */
-export function bindTexture(gl, texture, unit) {
+export function bindTexture(gl, texture, textureUniform, resolutionUniform, unit) {
     gl.activeTexture(gl.TEXTURE0 + unit);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+    gl.uniform1i(textureUniform, unit);
+    gl.uniform2f(resolutionUniform, texture.x, texture.y);
 }
 
 /**
