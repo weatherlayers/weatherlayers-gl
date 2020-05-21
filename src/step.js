@@ -42,11 +42,14 @@ export function computeStep(gl, stepProgram, stepPositionBuffer, stepFramebuffer
 
     gl.useProgram(stepProgram.program);
     bindAttribute(gl, stepPositionBuffer, stepProgram.attributes['aPosition']);
-    bindTexture(gl, particlesStateTexture0, stepProgram.uniforms['sState'], stepProgram.uniforms['uStateResolution'], 0);
+    bindTexture(gl, particlesStateTexture0, stepProgram.uniforms['sState'], null, 0);
     bindTexture(gl, weatherTexture, stepProgram.uniforms['sWeather'], stepProgram.uniforms['uWeatherResolution'], 1);
     gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
     gl.uniform1f(stepProgram.uniforms['uSpeedFactor'], 0.25);
+    gl.uniform1f(stepProgram.uniforms['uDropRate'], 0.003);
+    gl.uniform1f(stepProgram.uniforms['uDropRateBump'], 0.01);
+    gl.uniform1f(stepProgram.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, stepPositionBuffer.x);
 
     bindFramebuffer(gl, null);

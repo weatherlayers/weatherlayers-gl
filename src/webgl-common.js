@@ -141,14 +141,16 @@ export function bindAttribute(gl, buffer, attribute) {
  * @param {WebGLRenderingContext} gl
  * @param {WebGLTextureWrapper} texture
  * @param {WebGLUniformLocation} textureUniform
- * @param {WebGLUniformLocation} resolutionUniform
+ * @param {WebGLUniformLocation | null} resolutionUniform
  * @param {number} unit
  */
 export function bindTexture(gl, texture, textureUniform, resolutionUniform, unit) {
     gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, texture.texture);
     gl.uniform1i(textureUniform, unit);
-    gl.uniform2f(resolutionUniform, texture.x, texture.y);
+    if (resolutionUniform) {
+        gl.uniform2f(resolutionUniform, texture.x, texture.y);
+    }
 }
 
 /**

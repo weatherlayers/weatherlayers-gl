@@ -5,10 +5,12 @@ uniform sampler2D sState;
 uniform vec2 uStateResolution;
 
 void main() {
-    vec4 packedPosition = texture2D(sState, vec2(
+    vec2 texCoord = vec2(
         fract(aIndex / uStateResolution.x),
         floor(aIndex / uStateResolution.x) / uStateResolution.y
-    ));
+    );
+
+    vec4 packedPosition = texture2D(sState, texCoord);
 
     vec2 position = vec2(
         packedPosition.r / 255.0 + packedPosition.b,
