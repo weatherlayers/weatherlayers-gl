@@ -46,12 +46,14 @@ export function createParticlesBuffer(gl, particlesCount) {
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {number} particleSize
+ * @param {Float32Array} particleColor
  */
-export function drawParticles(gl, program, buffer, particlesStateTexture0, particlesStateTexture1, particleSize) {
+export function drawParticles(gl, program, buffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState'], program.uniforms['uStateResolution'], 0);
     gl.uniform2f(program.uniforms['uScreenResolution'], gl.canvas.width, gl.canvas.height);
     gl.uniform1f(program.uniforms['uParticleSize'], particleSize);
+    gl.uniform4fv(program.uniforms['uParticleColor'], particleColor);
     gl.drawArrays(gl.POINTS, 0, buffer.x);
 }
