@@ -32,10 +32,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     gui.width = 300;
     gui.add(weather.config, 'particlesCount', 1, 1024 * 1024).step(1).onChange(weather.updateConfig);
     gui.add(weather.config, 'particleSize', 0.5, 5).step(0.5);
-    gui.add(weather.config, 'fadeOpacity', 0.96, 0.999).step(0.001);
+    gui.add(weather.config, 'fadeOpacity', 0.96, 0.999).step(0.001).updateDisplay();
     gui.add(weather.config, 'speedFactor', 0.05, 1.0).step(0.01);
     gui.add(weather.config, 'dropRate', 0, 0.1).step(0.01);
     gui.add(weather.config, 'dropRateBump', 0, 0.2).step(0.01);
     gui.add(weather.config, 'retina').onChange(weather.resize);
-    gui.updateDisplay();
 });
