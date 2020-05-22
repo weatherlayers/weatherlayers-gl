@@ -25,6 +25,8 @@ export async function drawWeather(canvas, config) {
     const weatherTexture = createImageTexture(gl, weatherImage);
 
     // particles state textures, for the current and the previous state
+    /** @type ReturnType<createParticlesIndexBuffer> */
+    let particlesIndexBuffer;
     /** @type ReturnType<createArrayTexture> */
     let particlesStateTexture0;
     /** @type ReturnType<createArrayTexture> */
@@ -33,6 +35,7 @@ export async function drawWeather(canvas, config) {
         const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
         const particlesState = initParticlesState(particlesStateResolution * particlesStateResolution);
 
+        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
     }
@@ -79,7 +82,6 @@ export async function drawWeather(canvas, config) {
     resize();
 
     const quadBuffer = createQuadBuffer(gl);
-    const particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
 
     const stepProgram = createStepProgram(gl);
     const fadeProgram = createFadeProgram(gl);

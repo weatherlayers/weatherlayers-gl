@@ -37,4 +37,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (window.devicePixelRatio !== 1) {
         gui.add(weather.config, 'retina').onChange(weather.resize);
     }
+    gui.updateDisplay();
 });
