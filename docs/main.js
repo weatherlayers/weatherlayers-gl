@@ -36,7 +36,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     gui.addColor(weather.config, 'particleColor');
     gui.add(weather.config, 'fadeOpacity', 0.96, 0.999, 0.001).updateDisplay();
     gui.add(weather.config, 'speedFactor', 0.05, 1.0, 0.01);
-    gui.add(weather.config, 'dropRate', 0, 0.1, 0.01);
+    gui.add(weather.config, 'dropRate', 0, 0.1, 0.001);
     gui.add(weather.config, 'dropRateBump', 0, 0.2, 0.01);
     gui.add(weather.config, 'retina').onChange(weather.resize);
 });
