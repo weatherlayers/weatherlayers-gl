@@ -1,8 +1,8 @@
 import { createImageTexture, createArrayTexture, createFramebuffer, bindFramebuffer } from './webgl-common.js';
-import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
-import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
+import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
+import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
 import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
 
 /** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
@@ -43,15 +43,15 @@ export async function drawWeather(canvas, config) {
     const stepPositionBuffer = createStepPositionBuffer(gl);
     const stepFramebuffer = createFramebuffer(gl);
 
-    const overlayProgram = createOverlayProgram(gl);
-    const overlayPositionBuffer = createOverlayPositionBuffer(gl);
-
     const fadeProgram = createFadeProgram(gl);
     const fadeIndexBuffer = createFadeIndexBuffer(gl);
 
     const particlesProgram = createParticlesProgram(gl);
     const particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
     const particlesFramebuffer = createFramebuffer(gl);
+
+    const overlayProgram = createOverlayProgram(gl);
+    const overlayPositionBuffer = createOverlayPositionBuffer(gl);
 
     const copyProgram = createCopyProgram(gl);
     const copyIndexBuffer = createCopyIndexBuffer(gl);
@@ -60,19 +60,17 @@ export async function drawWeather(canvas, config) {
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
-        gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
+        gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, config.speedFactor, config.dropRate, config.dropRateBump);
-        bindFramebuffer(gl, null);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-        drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
 
         bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         drawFade(gl, fadeProgram, fadeIndexBuffer, particlesScreenTexture0, config.fadeOpacity);
         drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
-        bindFramebuffer(gl, null);
 
+        bindFramebuffer(gl, null);
+        drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         drawCopy(gl, copyProgram, copyIndexBuffer, particlesScreenTexture1);
