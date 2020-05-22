@@ -1,5 +1,5 @@
-import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
-import copyVertexShaderSource from './shaders/copy.vert';
+import { createProgram, bindAttribute, bindTexture } from './webgl-common.js';
+import quadVertexShaderSource from './shaders/quad.vert';
 import copyFragmentShaderSource from './shaders/copy.frag';
 
 /** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
@@ -11,29 +11,18 @@ import copyFragmentShaderSource from './shaders/copy.frag';
  * @return {WebGLProgramWrapper}
  */
 export function createCopyProgram(gl) {
-    return createProgram(gl, copyVertexShaderSource, copyFragmentShaderSource);
+    return createProgram(gl, quadVertexShaderSource, copyFragmentShaderSource);
 }
 
 /**
  * @param {WebGLRenderingContext} gl
- * @return {WebGLBufferWrapper}
- */
-export function createCopyIndexBuffer(gl) {
-    // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const copyPosition = [[0, 0], [0, 1], [1, 0], [1, 1]];
-    const copyPositionBuffer = createBuffer(gl, copyPosition);
-    return copyPositionBuffer;
-}
-
-/**
- * @param {WebGLRenderingContext} gl
- * @param {WebGLProgramWrapper} copyProgram
- * @param {WebGLBufferWrapper} copyPositionBuffer
+ * @param {WebGLProgramWrapper} program
+ * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} screenTexture
  */
-export function drawCopy(gl, copyProgram, copyPositionBuffer, screenTexture) {
-    gl.useProgram(copyProgram.program);
-    bindAttribute(gl, copyPositionBuffer, copyProgram.attributes['aPosition']);
-    bindTexture(gl, screenTexture, copyProgram.uniforms['sScreen'], null, 0);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, copyPositionBuffer.x);
+export function drawCopy(gl, program, buffer, screenTexture) {
+    gl.useProgram(program.program);
+    bindAttribute(gl, buffer, program.attributes['aPosition']);
+    bindTexture(gl, screenTexture, program.uniforms['sScreen'], null, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

@@ -1,6 +1,6 @@
 
-import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
-import stepVertexShaderSource from './shaders/step.vert';
+import { createProgram, bindAttribute, bindTexture } from './webgl-common.js';
+import quadVertexShaderSource from './shaders/quad.vert';
 import stepFragmentShaderSource from './shaders/step.frag';
 
 /** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
@@ -12,24 +12,13 @@ import stepFragmentShaderSource from './shaders/step.frag';
  * @return {WebGLProgramWrapper}
  */
 export function createStepProgram(gl) {
-    return createProgram(gl, stepVertexShaderSource, stepFragmentShaderSource);
+    return createProgram(gl, quadVertexShaderSource, stepFragmentShaderSource);
 }
 
 /**
  * @param {WebGLRenderingContext} gl
- * @return {WebGLBufferWrapper}
- */
-export function createStepPositionBuffer(gl) {
-    // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const stepPosition = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
-    const stepPositionBuffer = createBuffer(gl, stepPosition);
-    return stepPositionBuffer;
-}
-
-/**
- * @param {WebGLRenderingContext} gl
- * @param {WebGLProgramWrapper} stepProgram
- * @param {WebGLBufferWrapper} stepPositionBuffer
+ * @param {WebGLProgramWrapper} program
+ * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} particlesStateTexture
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
@@ -37,16 +26,16 @@ export function createStepPositionBuffer(gl) {
  * @param {number} dropRate
  * @param {number} dropRateBump
  */
-export function computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump) {
-    gl.useProgram(stepProgram.program);
-    bindAttribute(gl, stepPositionBuffer, stepProgram.attributes['aPosition']);
-    bindTexture(gl, particlesStateTexture, stepProgram.uniforms['sState'], null, 0);
-    bindTexture(gl, weatherTexture, stepProgram.uniforms['sWeather'], stepProgram.uniforms['uWeatherResolution'], 1);
-    gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
-    gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
-    gl.uniform1f(stepProgram.uniforms['uSpeedFactor'], speedFactor);
-    gl.uniform1f(stepProgram.uniforms['uDropRate'], dropRate);
-    gl.uniform1f(stepProgram.uniforms['uDropRateBump'], dropRateBump);
-    gl.uniform1f(stepProgram.uniforms['uRandomSeed'], Math.random());
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, stepPositionBuffer.x);
+export function computeStep(gl, program, buffer, particlesStateTexture, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump) {
+    gl.useProgram(program.program);
+    bindAttribute(gl, buffer, program.attributes['aPosition']);
+    bindTexture(gl, particlesStateTexture, program.uniforms['sState'], null, 0);
+    bindTexture(gl, weatherTexture, program.uniforms['sWeather'], program.uniforms['uWeatherResolution'], 1);
+    gl.uniform1f(program.uniforms['uWeatherMin'], weatherMetadata.min);
+    gl.uniform1f(program.uniforms['uWeatherMax'], weatherMetadata.max);
+    gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
+    gl.uniform1f(program.uniforms['uDropRate'], dropRate);
+    gl.uniform1f(program.uniforms['uDropRateBump'], dropRateBump);
+    gl.uniform1f(program.uniforms['uRandomSeed'], Math.random());
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

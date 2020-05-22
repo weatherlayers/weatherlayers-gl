@@ -1,4 +1,4 @@
-import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
+import { createProgram, bindAttribute, bindTexture } from './webgl-common.js';
 import overlayVertexShaderSource from './shaders/overlay.vert';
 import overlayFragmentShaderSource from './shaders/overlay.frag';
 
@@ -16,23 +16,12 @@ export function createOverlayProgram(gl) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @return {WebGLBufferWrapper}
- */
-export function createOverlayPositionBuffer(gl) {
-    // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const overlayPosition = [[0, 0], [0, 1], [1, 0], [1, 1]];
-    const overlayPositionBuffer = createBuffer(gl, overlayPosition);
-    return overlayPositionBuffer;
-}
-
-/**
- * @param {WebGLRenderingContext} gl
- * @param {WebGLProgramWrapper} overlayProgram
- * @param {WebGLBufferWrapper} overlayPositionBuffer
+ * @param {WebGLProgramWrapper} program
+ * @param {WebGLBufferWrapper} buffer
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
  */
-export function drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture) {
+export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture) {
     // convert dst pixel coords to clipspace coords
     // https://stackoverflow.com/questions/12250953/drawing-an-image-using-webgl
     const dstX = 0;
@@ -49,11 +38,11 @@ export function drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMe
         clipX, clipY, 1,
     ];
 
-    gl.useProgram(overlayProgram.program);
-    bindAttribute(gl, overlayPositionBuffer, overlayProgram.attributes['aPosition']);
-    bindTexture(gl, weatherTexture, overlayProgram.uniforms['sWeather'], overlayProgram.uniforms['uWeatherResolution'], 0);
-    gl.uniformMatrix3fv(overlayProgram.uniforms['uMatrix'], false, matrix);
-    gl.uniform1f(overlayProgram.uniforms['uWeatherMin'], weatherMetadata.min);
-    gl.uniform1f(overlayProgram.uniforms['uWeatherMax'], weatherMetadata.max);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, overlayPositionBuffer.x);
+    gl.useProgram(program.program);
+    bindAttribute(gl, buffer, program.attributes['aPosition']);
+    bindTexture(gl, weatherTexture, program.uniforms['sWeather'], program.uniforms['uWeatherResolution'], 0);
+    gl.uniformMatrix3fv(program.uniforms['uMatrix'], false, matrix);
+    gl.uniform1f(program.uniforms['uWeatherMin'], weatherMetadata.min);
+    gl.uniform1f(program.uniforms['uWeatherMax'], weatherMetadata.max);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }
