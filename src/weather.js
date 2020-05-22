@@ -12,10 +12,10 @@ import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
  */
 export function drawWeather(canvas, weatherMetadata, weatherImage) {
     const particlesCount = 1024 * 4;
-    // const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
-    // const speedFactor = 0.25; // how fast the particles move
-    // const dropRate = 0.003; // how often the particles move to a random place
-    // const dropRateBump = 0.01; // drop rate increase relative to individual particle speed
+    const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
+    const speedFactor = 0.25; // how fast the particles move
+    const dropRate = 0.003; // how often the particles move to a random place
+    const dropRateBump = 0.01; // drop rate increase relative to individual particle speed
 
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
 
@@ -39,12 +39,12 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     const overlayProgram = createOverlayProgram(gl);
     const overlayPositionBuffer = createOverlayPositionBuffer(gl);
 
+    const fadeProgram = createFadeProgram(gl);
+    const fadeIndexBuffer = createFadeIndexBuffer(gl);
+
     const particlesProgram = createParticlesProgram(gl);
     const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
     const particlesFramebuffer = createFramebuffer(gl);
-
-    const fadeProgram = createFadeProgram(gl);
-    const fadeIndexBuffer = createFadeIndexBuffer(gl);
 
     const copyProgram = createCopyProgram(gl);
     const copyIndexBuffer = createCopyIndexBuffer(gl);
@@ -53,11 +53,11 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
-        computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture);
+        computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump);
 
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
 
-        drawFade(gl, fadeProgram, particlesFramebuffer, fadeIndexBuffer, particlesScreenTexture0, particlesScreenTexture1);
+        drawFade(gl, fadeProgram, particlesFramebuffer, fadeIndexBuffer, particlesScreenTexture0, particlesScreenTexture1, fadeOpacity);
         drawParticles(gl, particlesProgram, particlesFramebuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particlesScreenTexture0, particlesScreenTexture1);
 
         gl.enable(gl.BLEND);

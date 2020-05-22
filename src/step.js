@@ -35,8 +35,11 @@ export function createStepPositionBuffer(gl) {
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
+ * @param {number} speedFactor
+ * @param {number} dropRate
+ * @param {number} dropRateBump
  */
-export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture) {
+export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump) {
     gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
     bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
 
@@ -46,9 +49,9 @@ export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer
     bindTexture(gl, weatherTexture, stepProgram.uniforms['sWeather'], stepProgram.uniforms['uWeatherResolution'], 1);
     gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
-    gl.uniform1f(stepProgram.uniforms['uSpeedFactor'], 0.25);
-    gl.uniform1f(stepProgram.uniforms['uDropRate'], 0.003);
-    gl.uniform1f(stepProgram.uniforms['uDropRateBump'], 0.01);
+    gl.uniform1f(stepProgram.uniforms['uSpeedFactor'], speedFactor);
+    gl.uniform1f(stepProgram.uniforms['uDropRate'], dropRate);
+    gl.uniform1f(stepProgram.uniforms['uDropRateBump'], dropRateBump);
     gl.uniform1f(stepProgram.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, stepPositionBuffer.x);
 

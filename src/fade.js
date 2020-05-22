@@ -32,14 +32,15 @@ export function createFadeIndexBuffer(gl) {
  * @param {WebGLBufferWrapper} fadePositionBuffer
  * @param {WebGLTextureWrapper} particlesScreenTexture0
  * @param {WebGLTextureWrapper} particlesScreenTexture1
+ * @param {number} fadeOpacity
  */
-export function drawFade(gl, fadeProgram, particlesFramebuffer, fadePositionBuffer, particlesScreenTexture0, particlesScreenTexture1) {
+export function drawFade(gl, fadeProgram, particlesFramebuffer, fadePositionBuffer, particlesScreenTexture0, particlesScreenTexture1, fadeOpacity) {
     bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
 
     gl.useProgram(fadeProgram.program);
     bindAttribute(gl, fadePositionBuffer, fadeProgram.attributes['aPosition']);
     bindTexture(gl, particlesScreenTexture0, fadeProgram.uniforms['sScreen'], null, 0);
-    gl.uniform1f(fadeProgram.uniforms['uFadeOpacity'], 0.996);
+    gl.uniform1f(fadeProgram.uniforms['uFadeOpacity'], fadeOpacity);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, fadePositionBuffer.x);
 
     bindFramebuffer(gl, null);
