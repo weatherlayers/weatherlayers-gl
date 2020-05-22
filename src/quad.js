@@ -8,7 +8,7 @@ import { createBuffer } from './webgl-common.js';
  */
 export function createQuadBuffer(gl) {
     // quad = 2 triangles, 4 triangle strip vertices (top left, bottom left, top right, bottom right)
-    const quadPosition = [[0, 0], [0, 1], [1, 0], [1, 1]];
-    const quadPositionBuffer = createBuffer(gl, quadPosition);
-    return quadPositionBuffer;
+    const quad = [[0, 0], [0, 1], [1, 0], [1, 1]];
+    const quadBuffer = createBuffer(gl, quad);
+    return quadBuffer;
 }

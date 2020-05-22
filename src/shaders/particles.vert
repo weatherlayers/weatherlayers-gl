@@ -3,6 +3,8 @@ precision mediump float;
 attribute float aIndex;
 uniform sampler2D sState;
 uniform vec2 uStateResolution;
+uniform vec2 uScreenResolution;
+uniform float uParticleSize;
 
 void main() {
     vec2 texCoord = vec2(
@@ -17,6 +19,6 @@ void main() {
         packedPosition.g / 255.0 + packedPosition.a
     );
 
-    gl_PointSize = 1.0;
+    gl_PointSize = uParticleSize;
     gl_Position = vec4(2.0 * position.x - 1.0, 1.0 - 2.0 * position.y, 0, 1);
 }

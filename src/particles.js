@@ -32,11 +32,11 @@ export function createParticlesProgram(gl) {
  * @param {number} particlesCount
  * @return {WebGLBufferWrapper}
  */
-export function createParticlesIndexBuffer(gl, particlesCount) {
+export function createParticlesBuffer(gl, particlesCount) {
     // indexes in particles state texture
-    const particlesIndex = new Array(particlesCount).fill(undefined).map((_, i) => i);
-    const particlesIndexBuffer = createBuffer(gl, particlesIndex);
-    return particlesIndexBuffer;
+    const particles = new Array(particlesCount).fill(undefined).map((_, i) => i);
+    const particlesBuffer = createBuffer(gl, particles);
+    return particlesBuffer;
 }
 
 /**
@@ -45,10 +45,13 @@ export function createParticlesIndexBuffer(gl, particlesCount) {
  * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
+ * @param {number} particleSize
  */
-export function drawParticles(gl, program, buffer, particlesStateTexture0, particlesStateTexture1) {
+export function drawParticles(gl, program, buffer, particlesStateTexture0, particlesStateTexture1, particleSize) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState'], program.uniforms['uStateResolution'], 0);
+    gl.uniform2f(program.uniforms['uScreenResolution'], gl.canvas.width, gl.canvas.height);
+    gl.uniform1f(program.uniforms['uParticleSize'], particleSize);
     gl.drawArrays(gl.POINTS, 0, buffer.x);
 }
