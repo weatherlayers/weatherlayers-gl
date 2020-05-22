@@ -26,4 +26,15 @@ window.addEventListener('DOMContentLoaded', async () => {
             weather.play();
         }
     });
+
+    const gui = new dat.GUI();
+    gui.width = 300;
+    gui.add(weather.config, 'particlesCount', 1024, 1024 * 1024).step(1).onChange(weather.updateConfig);
+    gui.add(weather.config, 'fadeOpacity', 0.96, 0.999).step(0.001);
+    gui.add(weather.config, 'speedFactor', 0.05, 1.0).step(0.01);
+    gui.add(weather.config, 'dropRate', 0, 0.1).step(0.01);
+    gui.add(weather.config, 'dropRateBump', 0, 0.2).step(0.01);
+    if (window.devicePixelRatio !== 1) {
+        gui.add(weather.config, 'retina').onChange(weather.resize);
+    }
 });

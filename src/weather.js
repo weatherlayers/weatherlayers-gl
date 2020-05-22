@@ -13,23 +13,29 @@ import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
  * @param {MaritraceMapboxWeatherConfig} config
  */
 export async function drawWeather(canvas, config) {
-    const weatherMetadata = await (await fetch(config.weatherMetadata)).json();
-    
-    const weatherImage = new Image();
-    weatherImage.src = config.weatherImage;
-    await new Promise(resolve => weatherImage.onload = resolve);
-
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
     const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
 
+    // load weather files
+    const weatherMetadata = await (await fetch(config.weatherMetadata)).json();
+    const weatherImage = new Image();
+    weatherImage.src = config.weatherImage;
+    await new Promise(resolve => weatherImage.onload = resolve);
     const weatherTexture = createImageTexture(gl, weatherImage);
 
-    const particlesState = initParticlesState(config.particlesCount);
-
     // particles state textures, for the current and the previous state
-    const particlesStateWidth = Math.ceil(Math.sqrt(particlesState.length / 4));
-    let particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
-    let particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
+    /** @type ReturnType<createArrayTexture> */
+    let particlesStateTexture0;
+    /** @type ReturnType<createArrayTexture> */
+    let particlesStateTexture1;
+    function updateConfig() {
+        const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
+        const particlesState = initParticlesState(particlesStateResolution * particlesStateResolution);
+
+        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+    }
+    updateConfig();
 
     // particles screen textures, for the current and the previous state
     /** @type ReturnType<createArrayTexture> */
@@ -39,18 +45,18 @@ export async function drawWeather(canvas, config) {
     /** @type ResizeObserver */
     let resizeObserver;
     function resize() {
-        const dpi = config.retina ? window.devicePixelRatio : 1;
+        const pixelRatio = config.retina ? Math.max(Math.floor(window.devicePixelRatio) || 1, 2) : 1;
 
         if (canvas.parentElement) {
-            canvas.width = canvas.parentElement.clientWidth * dpi;
-            canvas.height = canvas.parentElement.clientHeight * dpi;
+            canvas.width = canvas.parentElement.clientWidth * pixelRatio;
+            canvas.height = canvas.parentElement.clientHeight * pixelRatio;
         }
 
         particlesScreenTexture0 = createArrayTexture(gl, null, canvas.width, canvas.height);
         particlesScreenTexture1 = createArrayTexture(gl, null, canvas.width, canvas.height);
     }
     function initResizeObserver() {
-        if (canvas.parentElement && document.body.contains(canvas)) {
+        if (canvas.parentElement) {
             if (typeof ResizeObserver !== 'undefined') {
                 resizeObserver = new ResizeObserver(resize);
                 resizeObserver.observe(canvas.parentElement);
@@ -60,7 +66,7 @@ export async function drawWeather(canvas, config) {
         }
     }
     function destroyResizeObserver() {
-        if (canvas.parentElement && document.body.contains(canvas)) {
+        if (canvas.parentElement) {
             if (typeof ResizeObserver !== 'undefined') {
                 resizeObserver.disconnect();
             } else {
@@ -154,6 +160,9 @@ export async function drawWeather(canvas, config) {
         get playing() {
             return playing;
         },
+        config,
+        updateConfig,
+        resize,
         play,
         pause,
         destroy
