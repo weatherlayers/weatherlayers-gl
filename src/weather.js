@@ -1,6 +1,6 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
-import { createImageTexture, createArrayTexture, createFramebuffer, bindFramebuffer } from './webgl-common.js';
+import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
 import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
@@ -21,6 +21,7 @@ export async function drawWeather(canvas, config) {
     await new Promise(resolve => weatherImage.onload = resolve);
 
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
+    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
 
     const weatherTexture = createImageTexture(gl, weatherImage);
 
@@ -55,14 +56,12 @@ export async function drawWeather(canvas, config) {
 
     const stepProgram = createStepProgram(gl);
     const stepPositionBuffer = createStepPositionBuffer(gl);
-    const stepFramebuffer = createFramebuffer(gl);
 
     const fadeProgram = createFadeProgram(gl);
     const fadeIndexBuffer = createFadeIndexBuffer(gl);
 
     const particlesProgram = createParticlesProgram(gl);
     const particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
-    const particlesFramebuffer = createFramebuffer(gl);
 
     const overlayProgram = createOverlayProgram(gl);
     const overlayPositionBuffer = createOverlayPositionBuffer(gl);
@@ -74,22 +73,27 @@ export async function drawWeather(canvas, config) {
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
-        bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
+        // draw to particles state texture
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, config.speedFactor, config.dropRate, config.dropRateBump);
 
-        bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
+        // draw to particles screen texture
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         drawFade(gl, fadeProgram, fadeIndexBuffer, particlesScreenTexture0, config.fadeOpacity);
         drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
 
-        bindFramebuffer(gl, null);
+        // draw to canvas
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         drawCopy(gl, copyProgram, copyIndexBuffer, particlesScreenTexture1);
         gl.disable(gl.BLEND);
 
+        // swap particle state and screen textures
         [particlesStateTexture1, particlesStateTexture0] = [particlesStateTexture0, particlesStateTexture1];
         [particlesScreenTexture1, particlesScreenTexture0] = [particlesScreenTexture0, particlesScreenTexture1];
     }
