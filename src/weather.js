@@ -1,5 +1,3 @@
-import ResizeObserver from 'resize-observer-polyfill';
-
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
@@ -7,6 +5,7 @@ import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer,
 import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
 import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
 
+/** @typedef {import('resize-observer-polyfill')} ResizeObserver */
 /** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
@@ -37,6 +36,8 @@ export async function drawWeather(canvas, config) {
     let particlesScreenTexture0;
     /** @type ReturnType<createArrayTexture> */
     let particlesScreenTexture1;
+    /** @type ResizeObserver */
+    let resizeObserver;
     function resize() {
         const dpi = config.retina ? window.devicePixelRatio : 1;
 
@@ -48,10 +49,26 @@ export async function drawWeather(canvas, config) {
         particlesScreenTexture0 = createArrayTexture(gl, null, canvas.width, canvas.height);
         particlesScreenTexture1 = createArrayTexture(gl, null, canvas.width, canvas.height);
     }
-    if (canvas.parentElement) {
-        const resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(canvas.parentElement);
+    function initResizeObserver() {
+        if (canvas.parentElement && document.body.contains(canvas)) {
+            if (typeof ResizeObserver !== 'undefined') {
+                resizeObserver = new ResizeObserver(resize);
+                resizeObserver.observe(canvas.parentElement);
+            } else {
+                window.addEventListener('resize', resize);
+            }
+        }
     }
+    function destroyResizeObserver() {
+        if (canvas.parentElement && document.body.contains(canvas)) {
+            if (typeof ResizeObserver !== 'undefined') {
+                resizeObserver.disconnect();
+            } else {
+                window.removeEventListener('resize', resize);
+            }
+        }
+    }
+    initResizeObserver();
     resize();
 
     const stepProgram = createStepProgram(gl);
@@ -126,6 +143,11 @@ export async function drawWeather(canvas, config) {
         }
     }
 
+    function destroy() {
+        stop();
+        destroyResizeObserver();
+    }
+
     run();
 
     return {
@@ -133,6 +155,7 @@ export async function drawWeather(canvas, config) {
             return playing;
         },
         play,
-        pause
+        pause,
+        destroy
     }
 }

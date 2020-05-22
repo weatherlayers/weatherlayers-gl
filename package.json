@@ -13,9 +13,7 @@
   },
   "author": "Jan Zak <zj@zakjan.cz>",
   "private": true,
-  "dependencies": {
-    "resize-observer-polyfill": "^1.5.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
@@ -26,6 +24,7 @@
     "http-server": "^0.12.3",
     "mapbox-gl": "^1.10.0",
     "pngjs": "^5.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.10.2",
     "rollup-plugin-glslify": "^1.2.0",
@@ -34,6 +33,7 @@
     "typescript": "^3.9.2"
   },
   "peerDependencies": {
-    "mapbox-gl": "^1.10.0"
+    "mapbox-gl": "^1.10.0",
+    "resize-observer-polyfill": "^1.5.1"
   }
 }
