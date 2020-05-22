@@ -5,23 +5,30 @@ import { createStepProgram, createStepPositionBuffer, computeStep } from './step
 import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
 import { createCopyProgram, createCopyIndexBuffer, drawCopy } from './copy.js';
 
+/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
+
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {Record<string, any>} weatherMetadata
- * @param {HTMLImageElement} weatherImage
+ * @param {MaritraceMapboxWeatherConfig} config
  */
-export function drawWeather(canvas, weatherMetadata, weatherImage) {
-    const particlesCount = 1024 * 4;
-    const fadeOpacity = 0.996; // how fast the particle trails fade on each frame
-    const speedFactor = 0.25; // how fast the particles move
-    const dropRate = 0.003; // how often the particles move to a random place
-    const dropRateBump = 0.01; // drop rate increase relative to individual particle speed
+export async function drawWeather(canvas, config) {
+    const weatherMetadata = await (await fetch(config.weatherMetadata)).json();
+    
+    const weatherImage = new Image();
+    weatherImage.src = config.weatherImage;
+    await new Promise(resolve => weatherImage.onload = resolve);
+
+    const dpi = config.retina ? window.devicePixelRatio : 1;
+
+    // TODO: resize canvas on window resize?
+    canvas.width = /** @type HTMLElement */ (canvas.parentElement).clientWidth * dpi;
+    canvas.height = /** @type HTMLElement */ (canvas.parentElement).clientHeight * dpi;
 
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
 
     const weatherTexture = createImageTexture(gl, weatherImage);
 
-    const particlesState = initParticlesState(particlesCount);
+    const particlesState = initParticlesState(config.particlesCount);
 
     // particles state textures, for the current and the previous state
     const particlesStateWidth = Math.ceil(Math.sqrt(particlesState.length / 4));
@@ -43,7 +50,7 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     const fadeIndexBuffer = createFadeIndexBuffer(gl);
 
     const particlesProgram = createParticlesProgram(gl);
-    const particlesIndexBuffer = createParticlesIndexBuffer(gl, particlesCount);
+    const particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
     const particlesFramebuffer = createFramebuffer(gl);
 
     const copyProgram = createCopyProgram(gl);
@@ -55,14 +62,14 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     function draw() {
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
-        computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump);
+        computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, config.speedFactor, config.dropRate, config.dropRateBump);
         bindFramebuffer(gl, null);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
 
         bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
-        drawFade(gl, fadeProgram, fadeIndexBuffer, particlesScreenTexture0, fadeOpacity);
+        drawFade(gl, fadeProgram, fadeIndexBuffer, particlesScreenTexture0, config.fadeOpacity);
         drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
         bindFramebuffer(gl, null);
 
