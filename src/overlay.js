@@ -37,8 +37,8 @@ export function drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMe
     // https://stackoverflow.com/questions/12250953/drawing-an-image-using-webgl
     const dstX = 0;
     const dstY = 0;
-    const dstWidth = 1440;
-    const dstHeight = 720;
+    const dstWidth = gl.canvas.width;
+    const dstHeight = gl.canvas.height;
     const clipX = dstX / gl.canvas.width  *  2 - 1;
     const clipY = dstY / gl.canvas.height * -2 + 1;
     const clipWidth = dstWidth   / gl.canvas.width  *  2;
