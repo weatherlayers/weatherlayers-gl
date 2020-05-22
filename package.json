@@ -13,7 +13,9 @@
   },
   "author": "Jan Zak <zj@zakjan.cz>",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "resize-observer-polyfill": "^1.5.1"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",

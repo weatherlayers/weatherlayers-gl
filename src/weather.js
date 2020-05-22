@@ -1,3 +1,5 @@
+import ResizeObserver from 'resize-observer-polyfill';
+
 import { createImageTexture, createArrayTexture, createFramebuffer, bindFramebuffer } from './webgl-common.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
 import { createFadeProgram, createFadeIndexBuffer, drawFade } from './fade.js';
@@ -18,12 +20,6 @@ export async function drawWeather(canvas, config) {
     weatherImage.src = config.weatherImage;
     await new Promise(resolve => weatherImage.onload = resolve);
 
-    const dpi = config.retina ? window.devicePixelRatio : 1;
-
-    // TODO: resize canvas on window resize?
-    canvas.width = /** @type HTMLElement */ (canvas.parentElement).clientWidth * dpi;
-    canvas.height = /** @type HTMLElement */ (canvas.parentElement).clientHeight * dpi;
-
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
 
     const weatherTexture = createImageTexture(gl, weatherImage);
@@ -36,8 +32,26 @@ export async function drawWeather(canvas, config) {
     let particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateWidth, particlesStateWidth);
 
     // particles screen textures, for the current and the previous state
-    let particlesScreenTexture0 = createArrayTexture(gl, null, gl.canvas.width, gl.canvas.height);
-    let particlesScreenTexture1 = createArrayTexture(gl, null, gl.canvas.width, gl.canvas.height);
+    /** @type ReturnType<createArrayTexture> */
+    let particlesScreenTexture0;
+    /** @type ReturnType<createArrayTexture> */
+    let particlesScreenTexture1;
+    function resize() {
+        const dpi = config.retina ? window.devicePixelRatio : 1;
+
+        if (canvas.parentElement) {
+            canvas.width = canvas.parentElement.clientWidth * dpi;
+            canvas.height = canvas.parentElement.clientHeight * dpi;
+        }
+
+        particlesScreenTexture0 = createArrayTexture(gl, null, canvas.width, canvas.height);
+        particlesScreenTexture1 = createArrayTexture(gl, null, canvas.width, canvas.height);
+    }
+    if (canvas.parentElement) {
+        const resizeObserver = new ResizeObserver(resize);
+        resizeObserver.observe(canvas.parentElement);
+    }
+    resize();
 
     const stepProgram = createStepProgram(gl);
     const stepPositionBuffer = createStepPositionBuffer(gl);
