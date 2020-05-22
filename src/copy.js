@@ -1,4 +1,4 @@
-import { createProgram, createBuffer, bindFramebuffer, bindAttribute, bindTexture } from './webgl-common.js';
+import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
 import copyVertexShaderSource from './shaders/copy.vert';
 import copyFragmentShaderSource from './shaders/copy.frag';
 

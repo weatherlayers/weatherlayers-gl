@@ -1,4 +1,4 @@
-import { createImageTexture, createArrayTexture, createFramebuffer } from './webgl-common.js';
+import { createImageTexture, createArrayTexture, createFramebuffer, bindFramebuffer } from './webgl-common.js';
 import { createOverlayProgram, createOverlayPositionBuffer, drawOverlay } from './overlay.js';
 import { initParticlesState, createParticlesProgram, createParticlesIndexBuffer, drawParticles } from './particles.js';
 import { createStepProgram, createStepPositionBuffer, computeStep } from './step.js';
@@ -53,12 +53,18 @@ export function drawWeather(canvas, weatherMetadata, weatherImage) {
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
-        computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump);
+        gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
+        bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
+        computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump);
+        bindFramebuffer(gl, null);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         drawOverlay(gl, overlayProgram, overlayPositionBuffer, weatherMetadata, weatherTexture);
 
-        drawFade(gl, fadeProgram, particlesFramebuffer, fadeIndexBuffer, particlesScreenTexture0, particlesScreenTexture1, fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesFramebuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particlesScreenTexture0, particlesScreenTexture1);
+        bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
+        drawFade(gl, fadeProgram, fadeIndexBuffer, particlesScreenTexture0, fadeOpacity);
+        drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1);
+        bindFramebuffer(gl, null);
 
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

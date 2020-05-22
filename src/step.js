@@ -1,5 +1,5 @@
 
-import { createProgram, createBuffer, bindFramebuffer, bindAttribute, bindTexture } from './webgl-common.js';
+import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
 import stepVertexShaderSource from './shaders/step.vert';
 import stepFragmentShaderSource from './shaders/step.frag';
 
@@ -29,23 +29,18 @@ export function createStepPositionBuffer(gl) {
 /**
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgramWrapper} stepProgram
- * @param {WebGLFramebuffer} stepFramebuffer
  * @param {WebGLBufferWrapper} stepPositionBuffer
- * @param {WebGLTextureWrapper} particlesStateTexture0
- * @param {WebGLTextureWrapper} particlesStateTexture1
+ * @param {WebGLTextureWrapper} particlesStateTexture
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
  * @param {number} speedFactor
  * @param {number} dropRate
  * @param {number} dropRateBump
  */
-export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer, particlesStateTexture0, particlesStateTexture1, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump) {
-    gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
-    bindFramebuffer(gl, stepFramebuffer, particlesStateTexture1.texture);
-
+export function computeStep(gl, stepProgram, stepPositionBuffer, particlesStateTexture, weatherMetadata, weatherTexture, speedFactor, dropRate, dropRateBump) {
     gl.useProgram(stepProgram.program);
     bindAttribute(gl, stepPositionBuffer, stepProgram.attributes['aPosition']);
-    bindTexture(gl, particlesStateTexture0, stepProgram.uniforms['sState'], null, 0);
+    bindTexture(gl, particlesStateTexture, stepProgram.uniforms['sState'], null, 0);
     bindTexture(gl, weatherTexture, stepProgram.uniforms['sWeather'], stepProgram.uniforms['uWeatherResolution'], 1);
     gl.uniform1f(stepProgram.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(stepProgram.uniforms['uWeatherMax'], weatherMetadata.max);
@@ -54,7 +49,4 @@ export function computeStep(gl, stepProgram, stepFramebuffer, stepPositionBuffer
     gl.uniform1f(stepProgram.uniforms['uDropRateBump'], dropRateBump);
     gl.uniform1f(stepProgram.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, stepPositionBuffer.x);
-
-    bindFramebuffer(gl, null);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 }

@@ -1,4 +1,4 @@
-import { createProgram, createBuffer, bindFramebuffer, bindAttribute, bindTexture } from './webgl-common.js';
+import { createProgram, createBuffer, bindAttribute, bindTexture } from './webgl-common.js';
 import particlesVertexShaderSource from './shaders/particles.vert';
 import particlesFragmentShaderSource from './shaders/particles.frag';
 
@@ -42,20 +42,13 @@ export function createParticlesIndexBuffer(gl, particlesCount) {
 /**
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgramWrapper} particlesProgram
- * @param {WebGLFramebuffer} particlesFramebuffer
  * @param {WebGLBufferWrapper} particlesIndexBuffer
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
- * @param {WebGLTextureWrapper} particlesScreenTexture0
- * @param {WebGLTextureWrapper} particlesScreenTexture1
  */
-export function drawParticles(gl, particlesProgram, particlesFramebuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particlesScreenTexture0, particlesScreenTexture1) {
-    bindFramebuffer(gl, particlesFramebuffer, particlesScreenTexture1.texture);
-
+export function drawParticles(gl, particlesProgram, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1) {
     gl.useProgram(particlesProgram.program);
     bindAttribute(gl, particlesIndexBuffer, particlesProgram.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, particlesProgram.uniforms['sState'], particlesProgram.uniforms['uStateResolution'], 0);
     gl.drawArrays(gl.POINTS, 0, particlesIndexBuffer.x);
-
-    bindFramebuffer(gl, null);
 }
