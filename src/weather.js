@@ -7,7 +7,7 @@ import { createOverlayProgram, drawOverlay } from './overlay.js';
 import { createCopyProgram, drawCopy } from './copy.js';
 
 /** @typedef {import('resize-observer-polyfill')} ResizeObserver */
-/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number, number]; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -99,7 +99,7 @@ export async function drawWeather(canvas, config) {
 
     function draw() {
         const particleSize = config.particleSize * pixelRatio;
-        const particleColor = new Float32Array([config.particleColor[0] / 256, config.particleColor[1] / 256, config.particleColor[2] / 256, config.particleColor[3]]);
+        const particleColor = new Float32Array([config.particleColor[0] / 256, config.particleColor[1] / 256, config.particleColor[2] / 256, config.particleOpacity]);
 
         // draw to particles state texture
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
