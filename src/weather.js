@@ -2,11 +2,14 @@ import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './quad.js';
 import { createStepProgram, computeStep } from './step.js';
 import { createFadeProgram, drawFade } from './fade.js';
-import { initParticlesState, createParticlesProgram, createParticlesBuffer, drawParticles } from './particles.js';
+import { initParticlesState, createParticlesBuffer, createParticlesElementBuffer, createParticlesProgram, drawParticles } from './particles.js';
 import { createOverlayProgram, drawOverlay } from './overlay.js';
 import { createCopyProgram, drawCopy } from './copy.js';
 
-/** @typedef {import('resize-observer-polyfill')} ResizeObserver */
+/** @typedef { import('resize-observer-polyfill') } ResizeObserver */
+/** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
+/** @typedef { import('./webgl-common.js').WebGLBufferWrapper } WebGLBufferWrapper */
+/** @typedef { import('./webgl-common.js').WebGLTextureWrapper } WebGLTextureWrapper */
 /** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
@@ -25,17 +28,20 @@ export async function drawWeather(canvas, config) {
     const weatherTexture = createImageTexture(gl, weatherImage);
 
     // particles state textures, for the current and the previous state
-    /** @type ReturnType<createParticlesBuffer> */
+    /** @type WebGLBufferWrapper */
     let particlesBuffer;
-    /** @type ReturnType<createArrayTexture> */
+    /** @type WebGLBufferWrapper */
+    let particlesElementBuffer;
+    /** @type WebGLTextureWrapper */
     let particlesStateTexture0;
-    /** @type ReturnType<createArrayTexture> */
+    /** @type WebGLTextureWrapper */
     let particlesStateTexture1;
     function updateConfig() {
         const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
         const particlesState = initParticlesState(particlesStateResolution * particlesStateResolution);
 
         particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
+        particlesElementBuffer = createParticlesElementBuffer(gl, config.particlesCount);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
     }
@@ -46,9 +52,9 @@ export async function drawWeather(canvas, config) {
     let pixelRatio;
     /** @type ResizeObserver | undefined */
     let resizeObserver;
-    /** @type ReturnType<createArrayTexture> */
+    /** @type WebGLTextureWrapper */
     let particlesScreenTexture0;
-    /** @type ReturnType<createArrayTexture> */
+    /** @type WebGLTextureWrapper */
     let particlesScreenTexture1;
     function resize() {
         pixelRatio = config.retina ? Math.max(Math.floor(window.devicePixelRatio) || 1, 2) : 1;
@@ -105,13 +111,15 @@ export async function drawWeather(canvas, config) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
+        gl.clear(gl.COLOR_BUFFER_BIT);
         computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, config.speedFactor, config.dropRate, config.dropRateBump);
 
         // draw to particles screen texture
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesElementBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
 
         // draw to canvas
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);

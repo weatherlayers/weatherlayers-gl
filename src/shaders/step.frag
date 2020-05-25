@@ -1,6 +1,8 @@
 precision mediump float;
 
 #pragma glslify: random = require('glsl-random')
+#pragma glslify: unpackPosition = require('./_unpack-position')
+#pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: getSpeed = require('./_speed')
 
 uniform sampler2D sState;
@@ -18,10 +20,7 @@ void main() {
     vec4 packedPosition = texture2D(sState, vTexCoord);
 
     // unpack the position from RGBA
-    vec2 position = vec2(
-        packedPosition.r / 255.0 + packedPosition.b,
-        packedPosition.g / 255.0 + packedPosition.a
-    );
+    vec2 position = unpackPosition(packedPosition);
 
     // move the position, take into account the distortion
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
@@ -37,10 +36,7 @@ void main() {
     newPosition = mix(newPosition, randomPosition, drop);
 
     // pack position back into RGBA
-    vec4 newPackedPosition = vec4(
-        fract(newPosition * 255.0),
-        floor(newPosition * 255.0) / 255.0
-    );
+    vec4 newPackedPosition = packPosition(newPosition);
 
     gl_FragColor = newPackedPosition;
 }

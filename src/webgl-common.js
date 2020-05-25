@@ -85,6 +85,23 @@ export function createBuffer(gl, data) {
 
 /**
  * @param {WebGLRenderingContext} gl
+ * @param {number[]} data
+ * @returns {WebGLBufferWrapper}
+ */
+export function createElementBuffer(gl, data) {
+    const buffer = /** @type WebGLBuffer */ (gl.createBuffer());
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.flat()), gl.STATIC_DRAW);
+
+    const x = data.length;
+    const y = Array.isArray(data[0]) ? data[0].length : 1;
+
+    const wrapper = /** @type WebGLBufferWrapper */ ({ buffer, x, y });
+    return wrapper;
+}
+
+/**
+ * @param {WebGLRenderingContext} gl
  * @param {HTMLImageElement} image
  * @return {WebGLTextureWrapper}
  */

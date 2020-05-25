@@ -34,7 +34,7 @@ function bundle(format, filename, options = {}) {
     plugins: [
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
-      glslify(),
+      glslify({ compress: !!options.minimize }),
       ...(options.minimize ? [terser()] : []),
       ...(options.stats ? [visualizer({
         filename: filename + '.stats.html',
