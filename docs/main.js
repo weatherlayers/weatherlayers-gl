@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const gui = new dat.GUI({ closed: true });
+    const gui = new dat.GUI();
     gui.width = 300;
     gui.add(weather.config, 'particlesCount', 1, 1024 * 1024, 1).onFinishChange(weather.updateConfig);
     gui.add(weather.config, 'particleSize', 0.5, 5, 0.5);
@@ -41,4 +41,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     gui.add(weather.config, 'dropRate', 0, 0.1, 0.001);
     gui.add(weather.config, 'dropRateBump', 0, 0.2, 0.01);
     gui.add(weather.config, 'retina').onChange(weather.resize);
+    gui.close();
 });

@@ -1,7 +1,7 @@
 precision mediump float;
 
-#define EPSILON 0.00001
 #define RANDOM_DIST_THRESHOLD 0.05
+#define STATIC_DIST_THRESHOLD 0.00001
 
 #pragma glslify: random = require('glsl-random')
 #pragma glslify: unpackPosition = require('./_unpack-position')
@@ -36,8 +36,10 @@ void main() {
     float dropRate = uDropRate + length(speed) / length(vec2(uWeatherMax, uWeatherMax)) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
     vec2 randomPosition = vec2(random(seed + 1.3), random(seed + 2.1));
-    float randomDist = length(randomPosition - position);
-    if (randomDist < RANDOM_DIST_THRESHOLD) {
+    if (length(newPosition - position) < STATIC_DIST_THRESHOLD) {
+        drop = 1.0; // randomize static particle
+    }
+    if (length(randomPosition - position) < RANDOM_DIST_THRESHOLD) {
         drop = 0.0; // don't randomize close to the original position
     }
     newPosition = mix(newPosition, randomPosition, drop);
