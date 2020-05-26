@@ -32,7 +32,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const gui = new dat.GUI();
     gui.width = 300;
-    gui.add(weather.config, 'particlesCount', 1, 1024 * 1024, 1).onFinishChange(weather.updateConfig);
+    gui.add(weather.config, 'particlesCount', 1, 1024 * 64 - 1, 1).onFinishChange(weather.updateConfig);
     gui.add(weather.config, 'particleSize', 0.5, 5, 0.5);
     gui.addColor(weather.config, 'particleColor');
     gui.add(weather.config, 'particleOpacity', 0, 1, 0.01);
