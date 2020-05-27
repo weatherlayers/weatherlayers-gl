@@ -1,1 +1,2 @@
-export { drawWeather } from './weather.js';
+export { drawToCanvas } from './canvas.js';
+export { drawToGl } from './gl.js';

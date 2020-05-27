@@ -1,6 +1,6 @@
-import { createBuffer } from './webgl-common.js';
+import { createBuffer } from '../webgl-common.js';
 
-/** @typedef { import('./webgl-common.js').WebGLBufferWrapper } WebGLBufferWrapper */
+/** @typedef {import('../webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 
 /**
  * @param {WebGLRenderingContext} gl

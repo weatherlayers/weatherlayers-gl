@@ -1,37 +1,35 @@
+import { loadMetadata, loadImage } from './load.js';
+import { getPixelRatio } from './pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
-import { createQuadBuffer } from './quad.js';
-import { createStepProgram, computeStep } from './step.js';
-import { createFadeProgram, drawFade } from './fade.js';
-import { initParticlesState, createParticlesBuffer, createParticlesElementBuffer, createParticlesProgram, drawParticles } from './particles.js';
-import { createOverlayProgram, drawOverlay } from './overlay.js';
-import { createCopyProgram, drawCopy } from './copy.js';
+import { createQuadBuffer } from './shaders/quad.js';
+import { createStepProgram, computeStep } from './shaders/step.js';
+import { createFadeProgram, drawFade } from './shaders/fade.js';
+import { initParticlesState, createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
+import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
+import { createCopyProgram, drawCopy } from './shaders/copy.js';
 
-/** @typedef { import('resize-observer-polyfill') } ResizeObserver */
-/** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
-/** @typedef { import('./webgl-common.js').WebGLBufferWrapper } WebGLBufferWrapper */
-/** @typedef { import('./webgl-common.js').WebGLTextureWrapper } WebGLTextureWrapper */
+/** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
+/** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
+/** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
 /** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
- * @param {HTMLCanvasElement} canvas
+ * @param {WebGLRenderingContext} gl
  * @param {MaritraceMapboxWeatherConfig} config
  */
-export async function drawWeather(canvas, config) {
-    const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false }));
-    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
-
+export async function drawToGl(gl, config) {
     // load weather files
-    const weatherMetadata = await (await fetch(config.weatherMetadata)).json();
-    const weatherImage = new Image();
-    weatherImage.src = config.weatherImage;
-    await new Promise(resolve => weatherImage.onload = resolve);
+    const [weatherMetadata, weatherImage] = await Promise.all([
+        loadMetadata(config.weatherMetadata),
+        loadImage(config.weatherImage),
+    ]);
     const weatherTexture = createImageTexture(gl, weatherImage);
 
     // particles state textures, for the current and the previous state
     /** @type WebGLBufferWrapper */
     let particlesBuffer;
     /** @type WebGLBufferWrapper */
-    let particlesElementBuffer;
+    let particlesIndexBuffer;
     /** @type WebGLTextureWrapper */
     let particlesStateTexture0;
     /** @type WebGLTextureWrapper */
@@ -41,7 +39,7 @@ export async function drawWeather(canvas, config) {
         const particlesState = initParticlesState(particlesStateResolution * particlesStateResolution);
 
         particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
-        particlesElementBuffer = createParticlesElementBuffer(gl, config.particlesCount);
+        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
     }
@@ -50,47 +48,20 @@ export async function drawWeather(canvas, config) {
     // particles screen textures, for the current and the previous state
     /** @type number */
     let pixelRatio;
-    /** @type ResizeObserver | undefined */
-    let resizeObserver;
     /** @type WebGLTextureWrapper */
     let particlesScreenTexture0;
     /** @type WebGLTextureWrapper */
     let particlesScreenTexture1;
     function resize() {
-        pixelRatio = config.retina ? Math.max(Math.floor(window.devicePixelRatio) || 1, 2) : 1;
-
-        if (canvas.parentElement) {
-            canvas.width = canvas.parentElement.clientWidth * pixelRatio;
-            canvas.height = canvas.parentElement.clientHeight * pixelRatio;
-        }
+        pixelRatio = getPixelRatio(config.retina);
 
         const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
         particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
         particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
     }
-    function initResizeObserver() {
-        if (canvas.parentElement) {
-            if (typeof ResizeObserver !== 'undefined') {
-                resizeObserver = new ResizeObserver(resize);
-                resizeObserver.observe(canvas.parentElement);
-            } else {
-                window.addEventListener('resize', resize);
-            }
-        }
-    }
-    function destroyResizeObserver() {
-        if (canvas.parentElement) {
-            if (typeof ResizeObserver !== 'undefined') {
-                if (resizeObserver) {
-                    resizeObserver.disconnect();
-                }
-            } else {
-                window.removeEventListener('resize', resize);
-            }
-        }
-    }
-    initResizeObserver();
     resize();
+
+    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
 
     const quadBuffer = createQuadBuffer(gl);
 
@@ -119,7 +90,7 @@ export async function drawWeather(canvas, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesElementBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
 
         // draw to canvas
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -164,7 +135,6 @@ export async function drawWeather(canvas, config) {
 
     function destroy() {
         stop();
-        destroyResizeObserver();
     }
 
     run();
@@ -178,6 +148,6 @@ export async function drawWeather(canvas, config) {
         resize,
         play,
         pause,
-        destroy
-    }
+        destroy,
+    };
 }

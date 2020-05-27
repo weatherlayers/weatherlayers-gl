@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         retina: true,
     };
 
-    const weather = await MaritraceMapboxWeather.drawWeather(canvas, config);
+    const weather = await MaritraceMapboxWeather.drawToCanvas(canvas, config);
 
     playPauseButton.addEventListener('click', () => {
         if (weather.playing) {

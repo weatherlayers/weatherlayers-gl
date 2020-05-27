@@ -1,10 +1,10 @@
-import { createProgram, bindAttribute, bindTexture } from './webgl-common.js';
-import overlayVertexShaderSource from './shaders/overlay.vert';
-import overlayFragmentShaderSource from './shaders/overlay.frag';
+import { createProgram, bindAttribute, bindTexture } from '../webgl-common.js';
+import overlayVertexShaderSource from './overlay.vert';
+import overlayFragmentShaderSource from './overlay.frag';
 
-/** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
-/** @typedef { import('./webgl-common.js').WebGLBufferWrapper } WebGLBufferWrapper */
-/** @typedef { import('./webgl-common.js').WebGLTextureWrapper } WebGLTextureWrapper */
+/** @typedef {import('../webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
+/** @typedef {import('../webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
+/** @typedef {import('../webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -30,7 +30,7 @@ export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture
     const dstHeight = gl.canvas.height;
     const clipX = dstX / gl.canvas.width  *  2 - 1;
     const clipY = dstY / gl.canvas.height * -2 + 1;
-    const clipWidth = dstWidth   / gl.canvas.width  *  2;
+    const clipWidth  = dstWidth  / gl.canvas.width  *  2;
     const clipHeight = dstHeight / gl.canvas.height * -2;
     const matrix = [
         clipWidth, 0, 0,

@@ -1,10 +1,10 @@
-import { createProgram, bindAttribute, bindTexture } from './webgl-common.js';
-import quadVertexShaderSource from './shaders/quad.vert';
-import fadeFragmentShaderSource from './shaders/fade.frag';
+import { createProgram, bindAttribute, bindTexture } from '../webgl-common.js';
+import quadVertexShaderSource from './quad.vert';
+import fadeFragmentShaderSource from './fade.frag';
 
-/** @typedef { import('./webgl-common.js').WebGLProgramWrapper } WebGLProgramWrapper */
-/** @typedef { import('./webgl-common.js').WebGLBufferWrapper } WebGLBufferWrapper */
-/** @typedef { import('./webgl-common.js').WebGLTextureWrapper } WebGLTextureWrapper */
+/** @typedef {import('../webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
+/** @typedef {import('../webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
+/** @typedef {import('../webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
 
 /**
  * @param {WebGLRenderingContext} gl
