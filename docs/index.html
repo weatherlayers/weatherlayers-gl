@@ -5,21 +5,28 @@
     <title>maritrace-mapbox-weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="../dist/maritrace-mapbox-weather.umd.js"></script>
-    <script src="./main.js" type="module"></script>
     <style>
         body {
             margin: 0;
-            background: #000005;
         }
-        #play-pause {
-            position: absolute;
-            top: 4px;
-            left: 8px;
+        #canvas {
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" style="width: 100vw; height: 100vh"></canvas>
-    <button id="play-pause">Play/Pause</button>
+    <canvas id="canvas"></canvas>
+
+<script type="module">
+import { config, initGui } from './config.js';
+
+window.addEventListener('DOMContentLoaded', async () => {
+    const canvas = document.getElementById('canvas');
+    const weather = await MaritraceMapboxWeather.drawToCanvas(canvas, { ...config, backgroundColor: [0, 0, 0], autoStart: true });
+    
+    initGui(weather);
+});
+</script>
 </body>
 </html>

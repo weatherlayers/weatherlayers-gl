@@ -13,6 +13,7 @@ uniform sampler2D sWeather;
 uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
 uniform float uWeatherMax;
+uniform float uOverlayOpacity;
 
 varying vec2 vTexCoord;
 
@@ -25,7 +26,7 @@ void main() {
     }
 
     vec2 speed = getSpeed(sWeather, uWeatherResolution, vTexCoord, uWeatherMin, uWeatherMax);
-    vec4 color = windSpeedColor(length(speed), 0.4);
+    vec4 color = windSpeedColor(length(speed), uOverlayOpacity);
 
     if (SHOW_ORIGINAL) {
         color = texture2D(sWeather, vTexCoord);

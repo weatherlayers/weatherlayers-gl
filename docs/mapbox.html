@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>maritrace-mapbox-weather</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://unpkg.com/three@0.106.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.106.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="../dist/maritrace-mapbox-weather.umd.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Lucida Grande', sans-serif;
+            font-size: 12px;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 0;
+            left: 15px;
+            padding: 4px 8px;
+            width: 220px;
+            background: #111;
+            color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info"></div>
+
+<script type="module">
+import { config, initGui } from './config.js';
+
+function round(value) {
+    return Math.floor(value * 10 ** 6) / 10 ** 6;
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    const map = new mapboxgl.Map({
+        container: 'map',
+        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
+        style: 'mapbox://styles/mapbox/dark-v10',
+        zoom: 18,
+        center: [148.9819, -35.3981],
+        pitch: 60,
+        antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+    });
+
+    const info = document.getElementById('info');
+    const updateInfo = () => {
+        info.innerHTML = `
+            Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
+            Zoom: ${round(map.getZoom())}<br>
+            Pitch: ${round(map.getPitch())}<br>
+            Bearing: ${round(map.getBearing())}
+        `;
+    };
+    map.on('move', updateInfo);
+    map.on('zoom', updateInfo);
+    updateInfo();
+
+    map.on('style.load', function() {
+        // parameters to ensure the model is georeferenced correctly on the map
+        var modelOrigin = [148.9819, -35.39847];
+        var modelAltitude = 0;
+        var modelRotate = [Math.PI / 2, 0, 0];
+        
+        var modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude);
+        
+        // transformation parameters to position, rotate and scale the 3D model onto the map
+        var modelTransform = {
+            translateX: modelAsMercatorCoordinate.x,
+            translateY: modelAsMercatorCoordinate.y,
+            translateZ: modelAsMercatorCoordinate.z,
+            rotateX: modelRotate[0],
+            rotateY: modelRotate[1],
+            rotateZ: modelRotate[2],
+            /* Since our 3D model is in real world meters, a scale transform needs to be
+            * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+            */
+            scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+        };
+
+        var THREE = window.THREE;
+        
+        // configuration of the custom layer for a 3D model per the CustomLayerInterface
+        var threeLayer = {
+            id: 'three',
+            type: 'custom',
+            renderingMode: '3d',
+            onAdd: function(map, gl) {
+                this.camera = new THREE.Camera();
+                this.scene = new THREE.Scene();
+                
+                // create two three.js lights to illuminate the model
+                var directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(0, -70, 100).normalize();
+                this.scene.add(directionalLight);
+                
+                var directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                directionalLight2.position.set(0, 70, 100).normalize();
+                this.scene.add(directionalLight2);
+                
+                // use the three.js GLTF loader to add the 3D model to the three.js scene
+                var loader = new THREE.GLTFLoader();
+                loader.load('https://docs.mapbox.com/mapbox-gl-js/assets/34M_17/34M_17.gltf', function(gltf) {
+                    this.scene.add(gltf.scene);
+                }.bind(this));
+                this.map = map;
+                
+                // use the Mapbox GL JS map canvas for three.js
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: map.getCanvas(),
+                    context: gl,
+                    antialias: true
+                });
+                
+                this.renderer.autoClear = false;
+            },
+            render: function(gl, matrix) {
+                var rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), modelTransform.rotateX);
+                var rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), modelTransform.rotateY);
+                var rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), modelTransform.rotateZ);
+                
+                var m = new THREE.Matrix4().fromArray(matrix);
+                var l = new THREE.Matrix4()
+                    .makeTranslation(modelTransform.translateX, modelTransform.translateY, modelTransform.translateZ)
+                    .scale(new THREE.Vector3(modelTransform.scale, -modelTransform.scale, modelTransform.scale))
+                    .multiply(rotationX)
+                    .multiply(rotationY)
+                    .multiply(rotationZ);
+                
+                this.camera.projectionMatrix = m.multiply(l);
+                this.renderer.state.reset();
+                this.renderer.render(this.scene, this.camera);
+                this.map.triggerRepaint();
+            }
+        };
+        
+        // map.addLayer(threeLayer, 'waterway-label');
+
+        var weatherLayer = {
+            id: 'weather',
+            type: 'custom',
+            renderingMode: '2d',
+            onAdd: async function(map, gl) {
+                this.map = map;
+                this.weather = await MaritraceMapboxWeather.drawToGl(gl, config);
+                
+                this.running = true;
+                const gui = initGui(this.weather);
+                gui.remove(gui.__controllers.find(c => c.property === 'running'));
+                gui.add(this, 'running').onChange(() => this.map.triggerRepaint());
+            },
+            onRemove: function() {
+                if (!this.weather) {
+                    return;
+                }
+
+                this.weather.destroy();
+            },
+            prerender: function(gl, matrix) {
+                if (!this.weather) {
+                    return;
+                }
+
+                if (this.running) {
+                    this.weather.prerender();
+                }
+            },
+            render: function(gl, matrix) {
+                if (!this.weather) {
+                    return;
+                }
+
+                if (this.running) {
+                    this.weather.render();
+                    this.map.triggerRepaint();
+                }
+            }
+        };
+        
+        map.addLayer(weatherLayer, 'waterway-label');
+    });
+});
+</script>
+</body>
+</html>

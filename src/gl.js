@@ -11,7 +11,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; retina: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -71,67 +71,94 @@ export async function drawToGl(gl, config) {
     const overlayProgram = createOverlayProgram(gl);
     const copyProgram = createCopyProgram(gl);
 
-    let playing = true;
+    let running = false;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
-    function draw() {
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    function prerender() {
+        const blendEnabled = gl.isEnabled(gl.BLEND);
+        if (blendEnabled) {
+            gl.disable(gl.BLEND);
+        }
 
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
-        const particleColor = new Float32Array([config.particleColor[0] / 256, config.particleColor[1] / 256, config.particleColor[2] / 256, config.particleOpacity]);
+        const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
         // draw to particles state texture
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
-        // gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
-        // gl.clear(gl.COLOR_BUFFER_BIT);
-        // computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, config.dropRate, config.dropRateBump);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
+        gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, config.dropRate, config.dropRateBump);
 
         // draw to particles screen texture
-        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
-        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        // gl.clear(gl.COLOR_BUFFER_BIT);
-        // drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        // drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
 
-        // draw to canvas
-        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture);
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
-        // gl.disable(gl.BLEND);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // swap particle state and screen textures
         [particlesStateTexture1, particlesStateTexture0] = [particlesStateTexture0, particlesStateTexture1];
         [particlesScreenTexture1, particlesScreenTexture0] = [particlesScreenTexture0, particlesScreenTexture1];
 
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    }
-
-    function run() {
-        draw();
-        if (playing) {
-            raf = requestAnimationFrame(run);
+        if (blendEnabled) {
+            gl.enable(gl.BLEND);
         }
     }
 
-    function play() {
-        if (playing) {
+    function render() {
+        const blendEnabled = gl.isEnabled(gl.BLEND);
+        if (!blendEnabled) {
+            gl.enable(gl.BLEND);
+        }
+
+        if (config.backgroundColor) {
+            gl.clearColor(config.backgroundColor[0] / 255, config.backgroundColor[1] / 255, config.backgroundColor[2] / 255, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+
+        // draw to canvas
+        // gl.blendFunc(gl.ONE, gl.ZERO);
+        // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture, config.overlayOpacity);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
+
+        if (!blendEnabled) {
+            gl.disable(gl.BLEND);
+        }
+    }
+
+    function frame() {
+        prerender();
+        render();
+        if (running) {
+            raf = requestAnimationFrame(frame);
+        }
+    }
+
+    function start() {
+        if (running) {
             return;
         }
 
-        playing = true;
-        run();
+        running = true;
+        frame();
     }
 
-    function pause() {
-        if (!playing) {
+    function stop() {
+        if (!running) {
             return;
         }
 
-        playing = false;
+        running = false;
         if (raf) {
             cancelAnimationFrame(raf);
             raf = null;
@@ -142,17 +169,28 @@ export async function drawToGl(gl, config) {
         stop();
     }
 
-    run();
+    if (config.autoStart) {
+        start();
+    }
 
     return {
-        get playing() {
-            return playing;
+        get running() {
+            return running;
+        },
+        set running(value) {
+            if (value) {
+                this.start();
+            } else {
+                this.stop();
+            }
         },
         config,
         updateConfig,
         resize,
-        play,
-        pause,
+        prerender,
+        render,
+        start,
+        stop,
         destroy,
     };
 }

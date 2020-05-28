@@ -20,8 +20,9 @@ export function createOverlayProgram(gl) {
  * @param {WebGLBufferWrapper} buffer
  * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
+ * @param {number} overlayOpacity
  */
-export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture) {
+export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture, overlayOpacity) {
     // convert dst pixel coords to clipspace coords
     // https://stackoverflow.com/questions/12250953/drawing-an-image-using-webgl
     const dstX = 0;
@@ -44,5 +45,6 @@ export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture
     gl.uniformMatrix3fv(program.uniforms['uMatrix'], false, matrix);
     gl.uniform1f(program.uniforms['uWeatherMin'], weatherMetadata.min);
     gl.uniform1f(program.uniforms['uWeatherMax'], weatherMetadata.max);
+    gl.uniform1f(program.uniforms['uOverlayOpacity'], overlayOpacity);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }
