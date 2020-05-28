@@ -1,5 +1,7 @@
 precision mediump float;
 
+#define SHADER_NAME copy.frag
+
 uniform sampler2D sScreen;
 varying vec2 vTexCoord;
 

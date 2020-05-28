@@ -1,5 +1,6 @@
 precision mediump float;
 
+#define SHADER_NAME particles.vert
 #define EPSILON 0.00001
 #define RANDOM_DIST_THRESHOLD 0.05
 

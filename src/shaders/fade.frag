@@ -1,5 +1,7 @@
 precision mediump float;
 
+#define SHADER_NAME fade.frag
+
 uniform sampler2D sScreen;
 uniform float uFadeOpacity;
 varying vec2 vTexCoord;

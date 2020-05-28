@@ -1,5 +1,7 @@
 precision mediump float;
 
+#define SHADER_NAME overlay.vert
+
 attribute vec2 aPosition;
 uniform mat3 uMatrix;
 varying vec2 vTexCoord;

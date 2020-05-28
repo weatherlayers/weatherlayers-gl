@@ -1,5 +1,6 @@
 precision mediump float;
 
+#define SHADER_NAME overlay.frag
 #define EPSILON 0.00001
 #define SHOW_GRID false
 #define GRID_SIZE 8.0

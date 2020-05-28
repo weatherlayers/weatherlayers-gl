@@ -1,5 +1,6 @@
 precision mediump float;
 
+#define SHADER_NAME step.frag
 #define RANDOM_DIST_THRESHOLD 0.05
 #define STATIC_DIST_THRESHOLD 0.00001
 

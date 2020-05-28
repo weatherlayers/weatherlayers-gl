@@ -75,35 +75,39 @@ export async function drawToGl(gl, config) {
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     function draw() {
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
         const particleColor = new Float32Array([config.particleColor[0] / 256, config.particleColor[1] / 256, config.particleColor[2] / 256, config.particleOpacity]);
 
         // draw to particles state texture
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
-        gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, config.dropRate, config.dropRateBump);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
+        // gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
+        // gl.clear(gl.COLOR_BUFFER_BIT);
+        // computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, config.dropRate, config.dropRateBump);
 
         // draw to particles screen texture
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
+        // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
+        // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        // gl.clear(gl.COLOR_BUFFER_BIT);
+        // drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
+        // drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
 
         // draw to canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
-        gl.disable(gl.BLEND);
+        // gl.enable(gl.BLEND);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
+        // gl.disable(gl.BLEND);
 
         // swap particle state and screen textures
         [particlesStateTexture1, particlesStateTexture0] = [particlesStateTexture0, particlesStateTexture1];
         [particlesScreenTexture1, particlesScreenTexture0] = [particlesScreenTexture0, particlesScreenTexture1];
+
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     function run() {

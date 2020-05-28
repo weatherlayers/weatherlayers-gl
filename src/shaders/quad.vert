@@ -1,5 +1,7 @@
 precision mediump float;
 
+#define SHADER_NAME quad.vert
+
 attribute vec2 aPosition;
 varying vec2 vTexCoord;
 
