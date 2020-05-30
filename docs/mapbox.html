@@ -24,7 +24,6 @@
             top: 0;
             left: 15px;
             padding: 4px 8px;
-            width: 220px;
             background: #111;
             color: #eee;
         }
@@ -46,23 +45,25 @@ window.addEventListener('DOMContentLoaded', async () => {
         container: 'map',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
         style: 'mapbox://styles/mapbox/dark-v10',
-        zoom: 18,
-        center: [148.9819, -35.3981],
-        pitch: 60,
+        zoom: 0,
+        center: [30, 0],
         antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
 
     const info = document.getElementById('info');
     const updateInfo = () => {
+        const matrix = map.transform.customLayerMatrix();
         info.innerHTML = `
             Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
-            Bearing: ${round(map.getBearing())}
+            Bearing: ${round(map.getBearing())}<br><br>
+            Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${i === 0 ? '[' : ''}${Math.round(x)}${i === matrix.length - 1 ? ']' : ','}</span>`).join('')}</div>
         `;
     };
     map.on('move', updateInfo);
     map.on('zoom', updateInfo);
+    map.on('resize', updateInfo);
     updateInfo();
 
     map.on('style.load', function() {
@@ -151,18 +152,25 @@ window.addEventListener('DOMContentLoaded', async () => {
             renderingMode: '2d',
             onAdd: async function(map, gl) {
                 this.map = map;
-                this.weather = await MaritraceMapboxWeather.drawToGl(gl, config);
+                this.weather = await MaritraceMapboxWeather.drawToGl(gl, { ...config, particleOpacity: 0.333, overlayOpacity: 0.1 });
                 
                 this.running = true;
                 const gui = initGui(this.weather);
                 gui.remove(gui.__controllers.find(c => c.property === 'running'));
                 gui.add(this, 'running').onChange(() => this.map.triggerRepaint());
+
+                this.map.on('move', this.weather.resize);
+                this.map.on('zoom', this.weather.resize);
+                this.map.on('resize', this.weather.resize);
             },
             onRemove: function() {
                 if (!this.weather) {
                     return;
                 }
 
+                this.map.off('move', this.weather.resize);
+                this.map.off('zoom', this.weather.resize);
+                this.map.off('resize', this.weather.resize);
                 this.weather.destroy();
             },
             prerender: function(gl, matrix) {
@@ -171,7 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 if (this.running) {
-                    this.weather.prerender();
+                    this.weather.prerender(matrix);
                 }
             },
             render: function(gl, matrix) {
@@ -180,7 +188,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 if (this.running) {
-                    this.weather.render();
+                    this.weather.render(matrix);
                     this.map.triggerRepaint();
                 }
             }

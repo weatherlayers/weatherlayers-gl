@@ -74,15 +74,15 @@ export async function drawToGl(gl, config) {
     let running = false;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
-    function prerender() {
+    function prerender(matrix) {
+        const speedFactor = config.speedFactor * pixelRatio;
+        const particleSize = config.particleSize * pixelRatio;
+        const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
+
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (blendEnabled) {
             gl.disable(gl.BLEND);
         }
-
-        const speedFactor = config.speedFactor * pixelRatio;
-        const particleSize = config.particleSize * pixelRatio;
-        const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
@@ -110,7 +110,7 @@ export async function drawToGl(gl, config) {
         }
     }
 
-    function render() {
+    function render(matrix) {
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (!blendEnabled) {
             gl.enable(gl.BLEND);
@@ -126,7 +126,7 @@ export async function drawToGl(gl, config) {
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture, config.overlayOpacity);
+        drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture, config.overlayOpacity, new Float32Array(matrix));
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);

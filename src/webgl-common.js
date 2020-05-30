@@ -169,3 +169,11 @@ export function bindTexture(gl, texture, textureUniform, resolutionUniform, unit
         gl.uniform2f(resolutionUniform, texture.x, texture.y);
     }
 }
+
+/**
+ * @param {Float32Array} matrix
+ * @return {Float32Array}
+ */
+export function matrixInverse(matrix) {
+    return new window.DOMMatrixReadOnly(matrix).inverse().toFloat32Array();
+}

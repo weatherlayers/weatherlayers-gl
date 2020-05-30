@@ -45,7 +45,7 @@ function gribToImage(var1, var2) {
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             const i = (y * width + x) * 4;
-            const k = y * width + (x + width * 7 / 12) % width; // wrap at 210 meridian, same as earth.nullschool.net
+            const k = y * width + (x + width / 2) % width;
             image.data[i + 0] = Math.floor(255 * (var1.values[k] - min) / delta);
             image.data[i + 1] = var2 ? Math.floor(255 * (var2.values[k] - min) / delta) : 0;
             image.data[i + 2] = 0;
