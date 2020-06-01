@@ -5,7 +5,7 @@ precision mediump float;
 #define RANDOM_DIST_THRESHOLD 0.05
 
 #pragma glslify: transform = require('./_transform')
-#pragma glslify: wgs84ToMercator = require('./_wgs84-to-mercator')
+#pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: unpackPosition = require('./_unpack-position')
 
 attribute float aIndex;
@@ -31,15 +31,10 @@ void main() {
     vec2 position0 = unpackPosition(packedPosition0);
     vec2 position1 = unpackPosition(packedPosition1);
 
-    // position0 = transform(position0, mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
-    // position0 = wgs84ToMercator(position0);
-    // position1 = transform(position1, mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
-    // position1 = wgs84ToMercator(position1);
-
     vec2 dirF = position1 - position0; // forward direction
     vec2 dirFN = normalize(dirF);
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
-    float dist = length(dirF);
+    float dist = length(mercatorToWGS84(position1) - mercatorToWGS84(position0));
 
     vec2 position;
     if (vertexIndex == 0 || vertexIndex == 1) {
