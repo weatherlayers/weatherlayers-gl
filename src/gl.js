@@ -137,8 +137,14 @@ export async function drawToGl(gl, config) {
     }
 
     function frame() {
-        prerender();
-        render();
+        const matrix = new Float32Array([
+            2, 0, 0, 0,
+            0, -2, 0, 0,
+            0, 0, 1, 0,
+            -1, 1, 0, 1,
+        ]);
+        prerender(matrix);
+        render(matrix);
         if (running) {
             raf = requestAnimationFrame(frame);
         }
