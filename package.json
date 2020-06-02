@@ -23,7 +23,6 @@
     "glsl-random": "0.0.5",
     "http-server": "^0.12.3",
     "mapbox-gl": "^1.10.0",
-    "pngjs": "^5.0.0",
     "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.10.2",
