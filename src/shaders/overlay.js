@@ -25,20 +25,10 @@ export function createOverlayProgram(gl) {
  * @param {Float32Array} matrix
  */
 export function drawOverlay(gl, program, buffer, weatherTexture, weatherMin, weatherMax, overlayOpacity, matrix) {
-    const offset = new Float32Array([
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    ]);
-    const offsetInverse = matrixInverse(offset);
-
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, weatherTexture, program.uniforms['sWeather'], program.uniforms['uWeatherResolution'], 0);
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
-    gl.uniformMatrix4fv(program.uniforms['uOffset'], false, offset);
-    gl.uniformMatrix4fv(program.uniforms['uOffsetInverse'], false, offsetInverse);
     gl.uniform1f(program.uniforms['uWeatherMin'], weatherMin);
     gl.uniform1f(program.uniforms['uWeatherMax'], weatherMax);
     gl.uniform1f(program.uniforms['uOverlayOpacity'], overlayOpacity);

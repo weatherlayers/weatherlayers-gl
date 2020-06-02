@@ -28,9 +28,8 @@ void main() {
         }
     }
 
-    vec2 globalWGS84 = mercatorToWGS84(vTexCoord);
-    vec2 localWGS84 = transform(globalWGS84, uOffsetInverse);
-    vec2 speed = getSpeed(sWeather, uWeatherResolution, localWGS84, uWeatherMin, uWeatherMax);
+    vec2 position = mercatorToWGS84(vTexCoord);
+    vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
     vec4 color = windSpeedColor(length(speed), uOverlayOpacity);
 
     if (SHOW_ORIGINAL) {
