@@ -1,4 +1,3 @@
-import { loadImage } from './load.js';
 import { getPixelRatio } from './pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
@@ -11,16 +10,15 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weather: { image: string; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; overlayColorRamp: [number, number, number][]; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weather: { image: HTMLImageElement; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; overlayColorRamp: [number, number, number][]; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {WebGLRenderingContext} gl
  * @param {MaritraceMapboxWeatherConfig} config
  */
-export async function drawToGl(gl, config) {
+export function drawToGl(gl, config) {
     // load weather files
-    const weatherImage = await loadImage(config.weather.image);
-    const weatherTexture = createImageTexture(gl, weatherImage);
+    const weatherTexture = createImageTexture(gl, config.weather.image);
 
     const overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(config.overlayColorRamp.flat()), 16, 16);
 

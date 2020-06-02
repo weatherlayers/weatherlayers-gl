@@ -8,9 +8,9 @@ import { drawToGl } from './gl.js';
  * @param {HTMLCanvasElement} canvas
  * @param {MaritraceMapboxWeatherConfig} config
  */
-export async function drawToCanvas(canvas, config) {
+export function drawToCanvas(canvas, config) {
     const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true }));
-    const maritraceMapboxWeather = await drawToGl(gl, config);
+    const maritraceMapboxWeather = drawToGl(gl, config);
 
     /** @type number */
     let pixelRatio;

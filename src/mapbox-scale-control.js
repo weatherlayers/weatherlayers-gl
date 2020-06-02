@@ -6,11 +6,7 @@ export class ScaleControl {
         this.colorRamp = colorRamp;
     }
 
-    /**
-     * @param {mapboxgl} map
-     */
-    onAdd(map) {
-        this.map = map;
+    onAdd() {
         this.container = document.createElement('div');
         this.container.className = 'mapboxgl-ctrl';
 
@@ -25,7 +21,6 @@ export class ScaleControl {
             this.container.parentNode.removeChild(this.container);
             this.container = undefined;
         }
-        this.map = undefined;
     }
 
     /**

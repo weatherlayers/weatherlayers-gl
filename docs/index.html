@@ -22,8 +22,10 @@
 import { config, initGui } from './config.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
+    config.weather.image = await MaritraceMapboxWeather.loadImage(config.weather.imagePath);
+
     const canvas = document.getElementById('canvas');
-    const weather = await MaritraceMapboxWeather.drawToCanvas(canvas, { ...config, backgroundColor: [0, 0, 0], autoStart: true });
+    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, { ...config, backgroundColor: [0, 0, 0], autoStart: true });
     
     initGui(weather);
 });

@@ -54,7 +54,7 @@ const colorRamp = new Array(256).fill(undefined).map((_, i) => {
 
 export const config = {
     weather: {
-        image: imagePath,
+        imagePath: imagePath,
         min: -128,
         max: 127,
     },
