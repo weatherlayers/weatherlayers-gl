@@ -5,8 +5,8 @@ precision mediump float;
 #define RANDOM_DIST_THRESHOLD 0.05
 
 #pragma glslify: transform = require('./_transform')
-#pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: unpackPosition = require('./_unpack-position')
+#pragma glslify: wgs84ToMercator = require('./_wgs84-to-mercator')
 
 attribute float aIndex;
 uniform sampler2D sState0;
@@ -34,7 +34,7 @@ void main() {
     vec2 dirF = position1 - position0; // forward direction
     vec2 dirFN = normalize(dirF);
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
-    float dist = length(mercatorToWGS84(position1) - mercatorToWGS84(position0));
+    float dist = length(dirF);
 
     vec2 position;
     if (vertexIndex == 0 || vertexIndex == 1) {
@@ -45,6 +45,7 @@ void main() {
     if (dist > RANDOM_DIST_THRESHOLD) {
         position = position0; // don't render path for randomized particle
     }
+    position = wgs84ToMercator(position);
 
     vec2 offsetDir;
     if (vertexIndex == 0) {

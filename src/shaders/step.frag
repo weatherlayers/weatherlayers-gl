@@ -7,8 +7,6 @@ precision mediump float;
 #pragma glslify: random = require('glsl-random')
 #pragma glslify: unpackPosition = require('./_unpack-position')
 #pragma glslify: packPosition = require('./_pack-position')
-#pragma glslify: wgs84ToMercator = require('./_wgs84-to-mercator')
-#pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getSpeed = require('./_speed')
 
 uniform sampler2D sState;
@@ -27,7 +25,6 @@ void main() {
 
     // unpack the position from RGBA
     vec2 position = unpackPosition(packedPosition);
-    position = mercatorToWGS84(position);
 
     // move the position, take into account the distortion
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
@@ -49,7 +46,6 @@ void main() {
     newPosition = mix(newPosition, randomPosition, drop);
 
     // pack position back into RGBA
-    newPosition = wgs84ToMercator(newPosition);
     vec4 newPackedPosition = packPosition(newPosition);
 
     gl_FragColor = newPackedPosition;
