@@ -1,4 +1,4 @@
-import { createProgram, bindAttribute, bindTexture, matrixInverse } from '../webgl-common.js';
+import { createProgram, bindAttribute, bindTexture } from '../webgl-common.js';
 import overlayVertexShaderSource from './overlay.vert';
 import overlayFragmentShaderSource from './overlay.frag';
 

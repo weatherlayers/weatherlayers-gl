@@ -10,7 +10,6 @@ precision mediump float;
 #pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getSpeed = require('./_speed')
 
-uniform mat4 uOffsetInverse;
 uniform sampler2D sWeather;
 uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
