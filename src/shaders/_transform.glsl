@@ -1,5 +1,5 @@
-vec2 transform(vec2 inp, mat4 matrix) {
-    vec4 transformed = matrix * vec4(inp, 1, 1);
+vec2 transform(vec2 position, mat4 matrix) {
+    vec4 transformed = matrix * vec4(position, 0, 1);
     return transformed.xy / transformed.w;
 }
 
