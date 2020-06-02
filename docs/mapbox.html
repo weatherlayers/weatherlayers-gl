@@ -196,6 +196,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         };
         
         map.addLayer(weatherLayer, 'waterway-label');
+
+        map.addControl(new MaritraceMapboxWeather.ScaleControl(config.overlayColorRamp), 'bottom-left');
     });
 });
 </script>
