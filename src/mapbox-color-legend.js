@@ -1,4 +1,4 @@
-export class ScaleControl {
+export class ColorLegend {
     /**
      * @param {[number, number, number][]} colorRamp
      */
@@ -28,14 +28,15 @@ export class ScaleControl {
      */
     createCanvas() {
         const canvas = /** @type HTMLCanvasElement */ (document.createElement('canvas'));
-        canvas.width = 256;
-        canvas.height = 10;
-        canvas.style.imageRendering = "-moz-crisp-edges";
-        canvas.style.imageRendering = "pixelated";
+        canvas.width = this.colorRamp.length;
+        canvas.height = 5;
+        canvas.style.imageRendering = '-moz-crisp-edges';
+        canvas.style.imageRendering = 'pixelated';
+        canvas.style.border = '1px solid #eee';
         const ctx = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
         this.colorRamp.forEach((color, i) => {
             ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-            ctx.fillRect(i, 0, 1, 10);
+            ctx.fillRect(i, 0, 1, canvas.height);
         });
 
         return canvas;

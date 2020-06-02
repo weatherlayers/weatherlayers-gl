@@ -33,6 +33,9 @@ void main() {
     vec2 position0 = unpackPosition(packedPosition0);
     vec2 position1 = unpackPosition(packedPosition1);
 
+    // position0 = transform(position0, uMatrix);
+    // position1 = transform(position1, uMatrix);
+
     vec2 dirF = position1 - position0; // forward direction
     vec2 dirFN = normalize(dirF);
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
@@ -50,6 +53,7 @@ void main() {
     );
 
     position = wgs84ToMercator(position);
+    position = transform(position, uMatrix);
 
     vec2 offsetDir = _if(
         vertexIndex == 0 || vertexIndex == 1,
@@ -64,6 +68,7 @@ void main() {
     vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0);
     position += offsetDir * offset * uPixelSize;
 
-    gl_Position = uMatrix * vec4(position, 0, 1);
+    // gl_Position = uMatrix * vec4(position, 0, 1);
+    gl_Position = vec4(position, 0, 1);
     // gl_Position = vec4(2.0 * position.x - 1.0, 1.0 - 2.0 * position.y, 0, 1);
 }

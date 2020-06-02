@@ -70,15 +70,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         const weatherLayer = new MaritraceMapboxWeather.WeatherLayer(config);
         map.addLayer(weatherLayer, 'waterway-label');
 
-        const scaleControl = new MaritraceMapboxWeather.ScaleControl(config.overlayColorRamp);
-        map.addControl(scaleControl, 'bottom-left');
+        const colorLegend = new MaritraceMapboxWeather.ColorLegend(config.overlayColorRamp);
+        map.addControl(colorLegend, 'bottom-left');
 
         function addGui() {
             if (!weatherLayer.weather) {
                 setTimeout(addGui, 500);
                 return;
             }
-            
+
             const gui = initGui(weatherLayer.weather);
             gui.remove(gui.__controllers.find(c => c.property === 'running'));
             gui.add(weatherLayer, 'running').onChange(() => map.triggerRepaint());
