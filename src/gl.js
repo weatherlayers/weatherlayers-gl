@@ -97,7 +97,7 @@ export async function drawToGl(gl, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
