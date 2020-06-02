@@ -66,9 +66,9 @@ export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTe
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState0'], program.uniforms['uStateResolution'], 0);
     bindTexture(gl, particlesStateTexture1, program.uniforms['sState1'], null, 1);
-    gl.uniform2f(program.uniforms['uCanvasResolution'], gl.canvas.width, gl.canvas.height);
     gl.uniform1f(program.uniforms['uParticleSize'], particleSize);
     gl.uniform4fv(program.uniforms['uParticleColor'], particleColor);
+    gl.uniform2f(program.uniforms['uPixelSize'], 1 / gl.canvas.width, 1 / gl.canvas.height);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer.buffer);
     gl.drawElements(gl.TRIANGLES, indexBuffer.x, gl.UNSIGNED_SHORT, 0);
 }
