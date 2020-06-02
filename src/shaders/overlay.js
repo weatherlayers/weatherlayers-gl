@@ -22,15 +22,17 @@ export function createOverlayProgram(gl) {
  * @param {number} weatherMin
  * @param {number} weatherMax
  * @param {number} overlayOpacity
+ * @param {WebGLTextureWrapper} overlayColorRampTexture
  * @param {Float32Array} matrix
  */
-export function drawOverlay(gl, program, buffer, weatherTexture, weatherMin, weatherMax, overlayOpacity, matrix) {
+export function drawOverlay(gl, program, buffer, weatherTexture, weatherMin, weatherMax, overlayOpacity, overlayColorRampTexture, matrix) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, weatherTexture, program.uniforms['sWeather'], program.uniforms['uWeatherResolution'], 0);
     gl.uniform1f(program.uniforms['uWeatherMin'], weatherMin);
     gl.uniform1f(program.uniforms['uWeatherMax'], weatherMax);
     gl.uniform1f(program.uniforms['uOverlayOpacity'], overlayOpacity);
+    bindTexture(gl, overlayColorRampTexture, program.uniforms['sOverlayColorRamp'], null, 1);
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

@@ -11,7 +11,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weather: { image: string; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weather: { image: string; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; overlayColorRamp: [number, number, number][]; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -21,6 +21,8 @@ export async function drawToGl(gl, config) {
     // load weather files
     const weatherImage = await loadImage(config.weather.image);
     const weatherTexture = createImageTexture(gl, weatherImage);
+
+    const overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(config.overlayColorRamp.flat()), 16, 16);
 
     // particles state textures, for the current and the previous state
     /** @type WebGLBufferWrapper */
@@ -129,7 +131,7 @@ export async function drawToGl(gl, config) {
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, new Float32Array(matrix));
+        drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, overlayColorRampTexture, new Float32Array(matrix));
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);

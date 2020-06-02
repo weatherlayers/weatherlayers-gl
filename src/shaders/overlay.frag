@@ -9,7 +9,6 @@ precision mediump float;
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getSpeed = require('./_speed')
-#pragma glslify: windSpeedColor = require('./_color')
 
 uniform mat4 uOffsetInverse;
 uniform sampler2D sWeather;
@@ -17,6 +16,7 @@ uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
 uniform float uWeatherMax;
 uniform float uOverlayOpacity;
+uniform sampler2D sOverlayColorRamp;
 
 varying vec2 vTexCoord;
 
@@ -30,7 +30,10 @@ void main() {
 
     vec2 position = mercatorToWGS84(vTexCoord);
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
-    vec4 color = windSpeedColor(length(speed), uOverlayOpacity);
+
+    float colorIndex = length(speed) / 256.0;
+    vec2 colorPosition = vec2(fract(16.0 * colorIndex), floor(16.0 * colorIndex) / 16.0);
+    vec4 color = vec4(texture2D(sOverlayColorRamp, colorPosition).rgb, uOverlayOpacity);
 
     if (SHOW_ORIGINAL) {
         color = texture2D(sWeather, vTexCoord);
