@@ -187,8 +187,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
+                this.weather.render(matrix);
+
                 if (this.running) {
-                    this.weather.render(matrix);
                     this.map.triggerRepaint();
                 }
             }
