@@ -71,6 +71,9 @@ export async function drawToGl(gl, config) {
     let running = false;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
+    /**
+     * @param {Float32Array} matrix
+     */
     function prerender(matrix) {
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
@@ -107,6 +110,9 @@ export async function drawToGl(gl, config) {
         }
     }
 
+    /**
+     * @param {Float32Array} matrix
+     */
     function render(matrix) {
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (!blendEnabled) {
