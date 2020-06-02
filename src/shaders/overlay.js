@@ -18,12 +18,13 @@ export function createOverlayProgram(gl) {
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgramWrapper} program
  * @param {WebGLBufferWrapper} buffer
- * @param {Record<string, any>} weatherMetadata
  * @param {WebGLTextureWrapper} weatherTexture
+ * @param {number} weatherMin
+ * @param {number} weatherMax
  * @param {number} overlayOpacity
  * @param {Float32Array} matrix
  */
-export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture, overlayOpacity, matrix) {
+export function drawOverlay(gl, program, buffer, weatherTexture, weatherMin, weatherMax, overlayOpacity, matrix) {
     const offset = new Float32Array([
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -38,8 +39,8 @@ export function drawOverlay(gl, program, buffer, weatherMetadata, weatherTexture
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
     gl.uniformMatrix4fv(program.uniforms['uOffset'], false, offset);
     gl.uniformMatrix4fv(program.uniforms['uOffsetInverse'], false, offsetInverse);
-    gl.uniform1f(program.uniforms['uWeatherMin'], weatherMetadata.min);
-    gl.uniform1f(program.uniforms['uWeatherMax'], weatherMetadata.max);
+    gl.uniform1f(program.uniforms['uWeatherMin'], weatherMin);
+    gl.uniform1f(program.uniforms['uWeatherMax'], weatherMax);
     gl.uniform1f(program.uniforms['uOverlayOpacity'], overlayOpacity);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

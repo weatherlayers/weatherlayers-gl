@@ -1,4 +1,4 @@
-import { loadMetadata, loadImage } from './load.js';
+import { loadImage } from './load.js';
 import { getPixelRatio } from './pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
@@ -11,7 +11,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weatherMetadata: string; weatherImage: string; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weather: { image: string; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -19,10 +19,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  */
 export async function drawToGl(gl, config) {
     // load weather files
-    const [weatherMetadata, weatherImage] = await Promise.all([
-        loadMetadata(config.weatherMetadata),
-        loadImage(config.weatherImage),
-    ]);
+    const weatherImage = await loadImage(config.weather.image);
     const weatherTexture = createImageTexture(gl, weatherImage);
 
     // particles state textures, for the current and the previous state
@@ -90,7 +87,7 @@ export async function drawToGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherMetadata, weatherTexture, speedFactor, config.dropRate, config.dropRateBump);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherTexture, config.weather.min, config.weather.max, speedFactor, config.dropRate, config.dropRateBump);
 
         // draw to particles screen texture
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
@@ -126,7 +123,7 @@ export async function drawToGl(gl, config) {
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        drawOverlay(gl, overlayProgram, quadBuffer, weatherMetadata, weatherTexture, config.overlayOpacity, new Float32Array(matrix));
+        drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, new Float32Array(matrix));
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);

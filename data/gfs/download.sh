@@ -19,6 +19,6 @@ if [ ! -f "${LAYER_FILENAME_PREFIX}.grib.json" ]; then
     grib_dump -j "${LAYER_FILENAME_PREFIX}.grib" > "${LAYER_FILENAME_PREFIX}.grib.json"
 fi
 
-node "${DIR}/prepare.js" "${LAYER_FILENAME_PREFIX}.grib.json" "${LAYER_FILENAME_PREFIX}"
+node "${DIR}/prepare.js" "${LAYER_FILENAME_PREFIX}.grib.json" "${LAYER_FILENAME_PREFIX}.png"
 
 # rm "${LAYER_FILENAME_PREFIX}.grib" "${LAYER_FILENAME_PREFIX}.grib.json"

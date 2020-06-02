@@ -1,10 +1,11 @@
-const pathPrefix = '../data/gfs/2020051500';
-const metadataPath = `${pathPrefix}.json`;
-const imagePath = `${pathPrefix}.png`;
+const imagePath = '../data/gfs/2020051500.png';
 
 export const config = {
-    weatherMetadata: metadataPath,
-    weatherImage: imagePath,
+    weather: {
+        image: imagePath,
+        min: -128,
+        max: 127,
+    },
     particlesCount: 1024 * 4,
     particleSize: 1,
     particleColor: [255, 255, 255],

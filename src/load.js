@@ -1,13 +1,4 @@
 /**
- * @param {string} metadataPath
- * @return {Promise<Record<string, any>>}
- */
-export async function loadMetadata(metadataPath) {
-    const metadata = await (await fetch(metadataPath)).json();
-    return metadata;
-}
-
-/**
  * @param {string} imagePath
  * @return {Promise<HTMLImageElement>}
  */
