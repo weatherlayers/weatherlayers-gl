@@ -3,7 +3,7 @@ import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createStepProgram, computeStep } from './shaders/step.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
-import { initParticlesState, createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
+import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
 
@@ -17,50 +17,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  * @param {MaritraceMapboxWeatherConfig} config
  */
 export function drawToGl(gl, config) {
-    // load weather files
-    const weatherTexture = createImageTexture(gl, config.weather.image);
-
-    const overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(config.overlayColorRamp.flat()), 16, 16);
-
-    // particles state textures, for the current and the previous state
-    /** @type WebGLBufferWrapper */
-    let particlesBuffer;
-    /** @type WebGLBufferWrapper */
-    let particlesIndexBuffer;
-    /** @type WebGLTextureWrapper */
-    let particlesStateTexture0;
-    /** @type WebGLTextureWrapper */
-    let particlesStateTexture1;
-    function updateConfig() {
-        const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
-        const particlesState = initParticlesState(particlesStateResolution * particlesStateResolution);
-
-        particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
-        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
-        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-    }
-    updateConfig();
-
-    // particles screen textures, for the current and the previous state
-    /** @type number */
-    let pixelRatio;
-    /** @type WebGLTextureWrapper */
-    let particlesScreenTexture0;
-    /** @type WebGLTextureWrapper */
-    let particlesScreenTexture1;
-    function resize() {
-        pixelRatio = getPixelRatio(config.retina);
-
-        const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-    }
-    resize();
-
     const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
-
-    const quadBuffer = createQuadBuffer(gl);
 
     const stepProgram = createStepProgram(gl);
     const fadeProgram = createFadeProgram(gl);
@@ -68,8 +25,61 @@ export function drawToGl(gl, config) {
     const overlayProgram = createOverlayProgram(gl);
     const copyProgram = createCopyProgram(gl);
 
+    const quadBuffer = createQuadBuffer(gl);
+    const weatherTexture = createImageTexture(gl, config.weather.image);
+    const overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(config.overlayColorRamp.flat()), 16, 16);
+
+    let initialized = false;
     let running = false;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
+
+    /** @type number */
+    let pixelRatio;
+    
+    /** @type WebGLBufferWrapper */
+    let particlesBuffer;
+    /** @type WebGLBufferWrapper */
+    let particlesIndexBuffer;
+
+    // particles state textures, for the current and the previous state
+    /** @type WebGLTextureWrapper */
+    let particlesStateTexture0;
+    /** @type WebGLTextureWrapper */
+    let particlesStateTexture1;
+
+    // particles screen textures, for the current and the previous state
+    /** @type WebGLTextureWrapper */
+    let particlesScreenTexture0;
+    /** @type WebGLTextureWrapper */
+    let particlesScreenTexture1;
+
+    function resize() {
+        if (initialized) {
+            gl.deleteBuffer(particlesBuffer.buffer);
+            gl.deleteBuffer(particlesIndexBuffer.buffer);
+            gl.deleteTexture(particlesStateTexture0.texture);
+            gl.deleteTexture(particlesStateTexture1.texture);
+            gl.deleteTexture(particlesScreenTexture0.texture);
+            gl.deleteTexture(particlesScreenTexture1.texture);
+        }
+
+        pixelRatio = getPixelRatio(config.retina);
+
+        particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
+        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
+
+        const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
+        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);        
+        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+
+        const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+
+        initialized = true;
+    }
+    resize();
 
     /**
      * @param {Float32Array} matrix
@@ -91,6 +101,18 @@ export function drawToGl(gl, config) {
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
         computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherTexture, config.weather.min, config.weather.max, speedFactor, config.dropRate, config.dropRateBump);
+
+        // const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
+        // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
+        // gl.readPixels(0, 0, particlesStateResolution, particlesStateResolution, gl.RGBA, gl.UNSIGNED_BYTE, state);
+        // const positions = new Array(particlesStateResolution * particlesStateResolution).fill(undefined).map((_, i) => {
+        //     return [
+        //         state[i * 4] / 255 / 255 + state[i * 4 + 2] / 255,
+        //         state[i * 4 + 1] / 255 / 255 + state[i * 4 + 3] / 255
+        //     ];
+        // }).flat();
+        // console.log(state);
+        // console.log(positions);
 
         // draw to particles screen texture
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
@@ -176,6 +198,25 @@ export function drawToGl(gl, config) {
 
     function destroy() {
         stop();
+
+        gl.deleteFramebuffer(framebuffer);
+
+        gl.deleteProgram(stepProgram.program);
+        gl.deleteProgram(fadeProgram.program);
+        gl.deleteProgram(particlesProgram.program);
+        gl.deleteProgram(overlayProgram.program);
+        gl.deleteProgram(copyProgram.program);
+
+        gl.deleteBuffer(quadBuffer.buffer);
+        gl.deleteTexture(weatherTexture.texture);
+        gl.deleteTexture(overlayColorRampTexture.texture);
+
+        gl.deleteBuffer(particlesBuffer.buffer);
+        gl.deleteBuffer(particlesIndexBuffer.buffer);
+        gl.deleteTexture(particlesStateTexture0.texture);
+        gl.deleteTexture(particlesStateTexture1.texture);
+        gl.deleteTexture(particlesScreenTexture0.texture);
+        gl.deleteTexture(particlesScreenTexture1.texture);
     }
 
     if (config.autoStart) {
@@ -194,7 +235,6 @@ export function drawToGl(gl, config) {
             }
         },
         config,
-        updateConfig,
         resize,
         prerender,
         render,

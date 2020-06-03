@@ -7,19 +7,6 @@ import particlesFragmentShaderSource from './particles.frag';
 /** @typedef {import('../webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
 
 /**
- * @param {number} particlesCount
- * @return {Uint8Array}
- */
-export function initParticlesState(particlesCount) {
-    // each pixel holds a particle position encoded as x = RG, y = BA
-    const particleState = new Uint8Array(particlesCount * 4);
-    for (let i = 0; i < particleState.length; i++) {
-        particleState[i] = Math.floor(Math.random() * 256); // randomize the initial particle positions
-    }
-    return particleState;
-}
-
-/**
  * @param {WebGLRenderingContext} gl
  * @param {number} particlesCount
  * @return {WebGLBufferWrapper}

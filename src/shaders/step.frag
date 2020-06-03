@@ -2,11 +2,9 @@ precision mediump float;
 
 #define SHADER_NAME step.frag
 #define EPSILON 0.00001
-#define RANDOM_DIST_THRESHOLD 0.05
 #define STATIC_DIST_THRESHOLD 0.00001
 
 #pragma glslify: random = require('glsl-random')
-#pragma glslify: _if = require('./_if')
 #pragma glslify: unpackPosition = require('./_unpack-position')
 #pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: getSpeed = require('./_speed')
@@ -22,37 +20,38 @@ uniform float uDropRateBump;
 uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
-void main() {
-    vec4 packedPosition = texture2D(sState, vTexCoord);
+vec2 update(vec2 position) {
+    vec2 seed = (position + vTexCoord) * uRandomSeed;
 
-    // unpack the position from RGBA
-    vec2 position = unpackPosition(packedPosition);
-
-    // move the position, take into account the distortion
+    // move the position, take into account WGS84 distortion
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
     float distortion = cos(radians(position.y * 180.0 - 90.0));
     vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
     vec2 newPosition = fract(position + offset + 1.0);
 
     // randomize the position to prevent particles from converging to the areas of low pressure
-    vec2 seed = (position + vTexCoord) * uRandomSeed;
+    // 1st frame: drop
     float dropRate = uDropRate + length(speed) / length(vec2(uWeatherMax, uWeatherMax)) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
-    drop = _if(
-        length(newPosition - position) < STATIC_DIST_THRESHOLD,
-        1.0, // randomize static particle
-        drop
-    );
-    vec2 randomPosition = vec2(random(seed + 1.3), random(seed + 2.1));
-    drop = _if(
-        length(randomPosition - position) < RANDOM_DIST_THRESHOLD,
-        0.0, // don't randomize close to the original position
-        drop
-    );
-    newPosition = mix(newPosition, randomPosition, drop);
+    if (length(newPosition - position) < STATIC_DIST_THRESHOLD) {
+        drop = 1.0; // drop static particle
+    }
+    vec2 dropPosition = vec2(0, 0);
+    newPosition = mix(newPosition, dropPosition, drop);
 
-    // pack position back into RGBA
+    // 2nd frame: randomize
+    if (position == dropPosition) {
+        vec2 randomPosition = vec2(random(seed + 1.3), random(seed + 2.1));
+        newPosition = randomPosition;
+    }
+
+    return newPosition;
+}
+
+void main() {
+    vec4 packedPosition = texture2D(sState, vTexCoord);
+    vec2 position = unpackPosition(packedPosition);
+    vec2 newPosition = update(position);
     vec4 newPackedPosition = packPosition(newPosition);
-
     gl_FragColor = newPackedPosition;
 }

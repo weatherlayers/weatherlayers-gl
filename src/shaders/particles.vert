@@ -2,8 +2,8 @@ precision mediump float;
 
 #define SHADER_NAME particles.vert
 #define EPSILON 0.00001
-#define RANDOM_DIST_THRESHOLD 0.05
 
+#pragma glslify: random = require('glsl-random')
 #pragma glslify: _if = require('./_if')
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: unpackPosition = require('./_unpack-position')
@@ -33,14 +33,28 @@ void main() {
     vec2 position0 = unpackPosition(packedPosition0);
     vec2 position1 = unpackPosition(packedPosition1);
 
-    float dist = length(position1 - position0);
+    vec2 dropPosition = vec2(0, 0);
+    if (position0 == dropPosition) {
+        position0 = position1; // don't render path for randomized particle
+    }
+    if (position1 == dropPosition) {
+        position1 = position0; // don't render path for randomized particle
+    }
+    if (length(position1 - position0) > 0.5) {
+        position1 = position0; // don't render path across for particle that wrapped across the world
+    }
 
     position0 = wgs84ToMercator(position0);
     position0 = transform(position0, uMatrix);
     position1 = wgs84ToMercator(position1);
     position1 = transform(position1, uMatrix);
 
-    vec2 dirFN = normalize(position1 - position0); // forward direction
+    vec2 dirF = position1 - position0;
+    vec2 dirFN = _if(
+        length(dirF) > 0.0,
+        normalize(dirF), // forward direction
+        vec2(1, 0)
+    );
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
 
     vec2 position = _if(
@@ -48,22 +62,15 @@ void main() {
         position0, // left (source)
         position1  // right (target)
     );
-    position = _if(
-        dist > RANDOM_DIST_THRESHOLD,
-        position0, // don't render path for randomized particle
-        position
-    );
-
     vec2 offsetDir = _if(
         vertexIndex == 0 || vertexIndex == 1,
-        -1.0, // left (source)
-        1.0   // right (target)
-    ) * dirFN + _if(
+        -dirFN, // left (source)
+        dirFN   // right (target)
+    ) + _if(
         vertexIndex == 0 || vertexIndex == 2,
-        -1.0, // top
-        1.0   // bottom
-    ) * dirRN;
-
+        -dirRN, // top
+        dirRN   // bottom
+    );
     vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0);
     position += offsetDir * offset * uPixelSize;
 

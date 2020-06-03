@@ -49,6 +49,13 @@ export class WeatherLayer {
             return;
         }
 
+        // this.i = (this.i || 0) + 1;
+        // if (this.i > 100) {
+        //     this.i = 0;
+        //     this.running = false;
+        //     return;
+        // }
+
         if (this.running) {
             this.weather.prerender(new Float32Array(matrix));
         }
