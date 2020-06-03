@@ -40,14 +40,15 @@ void main() {
     if (position1 == dropPosition) {
         position1 = position0; // don't render path for randomized particle
     }
-    if (length(position1 - position0) > 0.5) {
-        position1 = position0; // don't render path across for particle that wrapped across the world
-    }
 
     position0 = wgs84ToMercator(position0);
     position0 = transform(position0, uMatrix);
     position1 = wgs84ToMercator(position1);
     position1 = transform(position1, uMatrix);
+    
+    if (length(position1 - position0) > 0.5) {
+        position1 = position0; // don't render path across for particle that wrapped across the world
+    }
 
     vec2 dirF = position1 - position0;
     vec2 dirFN = _if(
