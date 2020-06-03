@@ -33,13 +33,15 @@ void main() {
     vec2 position0 = unpackPosition(packedPosition0);
     vec2 position1 = unpackPosition(packedPosition1);
 
-    // position0 = transform(position0, uMatrix);
-    // position1 = transform(position1, uMatrix);
+    float dist = length(position1 - position0);
 
-    vec2 dirF = position1 - position0; // forward direction
-    vec2 dirFN = normalize(dirF);
+    position0 = wgs84ToMercator(position0);
+    position0 = transform(position0, uMatrix);
+    position1 = wgs84ToMercator(position1);
+    position1 = transform(position1, uMatrix);
+
+    vec2 dirFN = normalize(position1 - position0); // forward direction
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
-    float dist = length(dirF);
 
     vec2 position = _if(
         vertexIndex == 0 || vertexIndex == 1,
@@ -51,9 +53,6 @@ void main() {
         position0, // don't render path for randomized particle
         position
     );
-
-    position = wgs84ToMercator(position);
-    position = transform(position, uMatrix);
 
     vec2 offsetDir = _if(
         vertexIndex == 0 || vertexIndex == 1,
