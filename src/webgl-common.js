@@ -174,6 +174,6 @@ export function bindTexture(gl, texture, textureUniform, resolutionUniform, unit
  * @param {Float32Array} matrix
  * @return {Float32Array}
  */
-export function matrixInverse(matrix) {
-    return new window.DOMMatrixReadOnly(matrix).inverse().toFloat32Array();
+export function inverseMatrix(matrix) {
+    return new window.DOMMatrixReadOnly(Array.from(matrix)).inverse().toFloat32Array();
 }

@@ -1,5 +1,5 @@
 import { getPixelRatio } from './pixel-ratio.js';
-import { createImageTexture, createArrayTexture } from './webgl-common.js';
+import { createImageTexture, createArrayTexture, inverseMatrix } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createStepProgram, computeStep } from './shaders/step.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
@@ -88,6 +88,7 @@ export function drawToGl(gl, config) {
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
         const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
+        const matrixInverse = inverseMatrix(matrix);
 
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (blendEnabled) {
@@ -100,7 +101,7 @@ export function drawToGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherTexture, config.weather.min, config.weather.max, speedFactor, config.dropRate, config.dropRateBump);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherTexture, config.weather.min, config.weather.max, speedFactor, config.dropRate, config.dropRateBump, matrix, matrixInverse);
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
@@ -111,7 +112,6 @@ export function drawToGl(gl, config) {
         //         state[i * 4 + 1] / 255 / 255 + state[i * 4 + 3] / 255
         //     ];
         // }).flat();
-        // console.log(state);
         // console.log(positions);
 
         // draw to particles screen texture

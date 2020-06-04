@@ -34,21 +34,27 @@ void main() {
     vec2 position1 = unpackPosition(packedPosition1);
 
     vec2 dropPosition = vec2(0, 0);
-    if (position0 == dropPosition) {
-        position0 = position1; // don't render path for randomized particle
-    }
-    if (position1 == dropPosition) {
-        position1 = position0; // don't render path for randomized particle
-    }
+    position0 = _if(
+        position0 == dropPosition,
+        position1, // don't render path for randomized particle
+        position0
+    );
+    position1 = _if(
+        position1 == dropPosition,
+        position0, // don't render path for randomized particle
+        position1
+    );
 
     position0 = wgs84ToMercator(position0);
     position0 = transform(position0, uMatrix);
     position1 = wgs84ToMercator(position1);
     position1 = transform(position1, uMatrix);
     
-    if (length(position1 - position0) > 0.5) {
-        position1 = position0; // don't render path across for particle that wrapped across the world
-    }
+    position1 = _if(
+        length(position1 - position0) > 0.5,
+        position0, // don't render path across for particle that wrapped across the world
+        position1
+    );
 
     vec2 dirF = position1 - position0;
     vec2 dirFN = _if(

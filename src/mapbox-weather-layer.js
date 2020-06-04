@@ -50,7 +50,7 @@ export class WeatherLayer {
         }
 
         // this.i = (this.i || 0) + 1;
-        // if (this.i > 100) {
+        // if (this.i > 1) {
         //     this.i = 0;
         //     this.running = false;
         //     return;
