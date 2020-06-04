@@ -53,11 +53,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const info = document.getElementById('info');
     const updateInfo = () => {
         const matrix = map.transform.customLayerMatrix();
+        let worlds = map.transform.getVisibleUnwrappedCoordinates({x: 0, y: 0, z: 0}).map(x => x.wrap).sort((a, b) => a - b);
+        worlds = worlds.slice(1, worlds.length - 1);
+
         info.innerHTML = `
             Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
-            Bearing: ${round(map.getBearing())}<br><br>
+            Bearing: ${round(map.getBearing())}<br>
+            Worlds: ${worlds.join(', ')}<br><br>
             Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${i === 0 ? '[' : ''}${Math.round(x)}${i === matrix.length - 1 ? ']' : ','}</span>`).join('')}</div>
         `;
     };

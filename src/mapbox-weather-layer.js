@@ -57,7 +57,8 @@ export class WeatherLayer {
         // }
 
         if (this.running) {
-            this.weather.prerender(new Float32Array(matrix));
+            const offsets = this.getWorldOffsets();
+            this.weather.prerender(new Float32Array(matrix), offsets);
         }
     }
 
@@ -70,10 +71,19 @@ export class WeatherLayer {
             return;
         }
 
-        this.weather.render(new Float32Array(matrix));
+        const offsets = this.getWorldOffsets();
+        this.weather.render(new Float32Array(matrix), offsets);
 
         if (this.running) {
             this.map.triggerRepaint();
         }
+    }
+
+    /**
+     * @return {number[]}
+     */
+    getWorldOffsets() {
+        const worldOffsets = this.map.transform.getVisibleUnwrappedCoordinates({z: 0, x: 0, y: 0}).map(x => x.wrap).sort((a, b) => a - b);
+        return worldOffsets.slice(1, worldOffsets.length - 1);
     }
 }

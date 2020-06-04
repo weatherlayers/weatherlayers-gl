@@ -15,6 +15,7 @@ uniform sampler2D sState1;
 uniform vec2 uStateResolution;
 uniform float uParticleSize;
 uniform mat4 uMatrix;
+uniform float uWorldOffset;
 uniform vec2 uPixelSize;
 
 void main() {
@@ -46,15 +47,16 @@ void main() {
     );
 
     position0 = wgs84ToMercator(position0);
-    position0 = transform(position0, uMatrix);
     position1 = wgs84ToMercator(position1);
-    position1 = transform(position1, uMatrix);
     
     position1 = _if(
         length(position1 - position0) > 0.5,
         position0, // don't render path across for particle that wrapped across the world
         position1
     );
+
+    position0 = transform(position0 + vec2(uWorldOffset, 0), uMatrix);
+    position1 = transform(position1 + vec2(uWorldOffset, 0), uMatrix);
 
     vec2 dirF = position1 - position0;
     vec2 dirFN = _if(

@@ -83,8 +83,9 @@ export function drawToGl(gl, config) {
 
     /**
      * @param {Float32Array} matrix
+     * @param {number[]} worldOffsets
      */
-    function prerender(matrix) {
+    function prerender(matrix, worldOffsets) {
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
         const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
@@ -119,7 +120,9 @@ export function drawToGl(gl, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix);
+        for (let worldOffset of worldOffsets) {
+            drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldOffset);
+        }
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -134,8 +137,9 @@ export function drawToGl(gl, config) {
 
     /**
      * @param {Float32Array} matrix
+     * @param {number[]} worldOffsets
      */
-    function render(matrix) {
+    function render(matrix, worldOffsets) {
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (!blendEnabled) {
             gl.enable(gl.BLEND);
@@ -147,13 +151,10 @@ export function drawToGl(gl, config) {
         }
 
         // draw to canvas
-        // gl.blendFunc(gl.ONE, gl.ZERO);
-        // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, overlayColorRampTexture, new Float32Array(matrix));
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        for (let worldOffset of worldOffsets) {
+            drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, overlayColorRampTexture, matrix, worldOffset);
+        }
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
 
         if (!blendEnabled) {
@@ -168,8 +169,9 @@ export function drawToGl(gl, config) {
             0, 0, 1, 0,
             -1, 1, 0, 1,
         ]);
+        const offsets = [new Float32Array([0, 0])];
         prerender(matrix);
-        render(matrix);
+        render(matrix, offsets);
         if (running) {
             raf = requestAnimationFrame(frame);
         }
