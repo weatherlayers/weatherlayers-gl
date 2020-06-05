@@ -56,12 +56,25 @@ window.addEventListener('DOMContentLoaded', async () => {
         let worlds = map.transform.getVisibleUnwrappedCoordinates({x: 0, y: 0, z: 0}).map(x => x.wrap).sort((a, b) => a - b);
         worlds = worlds.slice(1, worlds.length - 1);
 
+        const bounds = map.getBounds();
+        const topLeft = bounds.getNorthWest();
+        const bottomRight = bounds.getSouthEast();
+        const worldBounds = [
+            Math.min(Math.max((topLeft.lng + 180) / 360, 0), 1),
+            Math.min(Math.max((bottomRight.lng + 180) / 360, 0), 1),
+            1 - (topLeft.lat + 90) / 180,
+            1 - (bottomRight.lat + 90) / 180,
+        ];
+
         info.innerHTML = `
             Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
             Bearing: ${round(map.getBearing())}<br>
             Worlds: ${worlds.join(', ')}<br><br>
+            Bounds:<br>
+            ${round(worldBounds[0])}, ${round(worldBounds[1])}<br>
+            ${round(worldBounds[2])}, ${round(worldBounds[3])}<br><br>
             Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${i === 0 ? '[' : ''}${Math.round(x)}${i === matrix.length - 1 ? ']' : ','}</span>`).join('')}</div>
         `;
     };

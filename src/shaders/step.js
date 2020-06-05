@@ -26,10 +26,9 @@ export function createStepProgram(gl) {
  * @param {number} speedFactor
  * @param {number} dropRate
  * @param {number} dropRateBump
- * @param {Float32Array} matrix
- * @param {Float32Array} matrixInverse
+ * @param {[number, number, number, number]} worldBounds
  */
-export function computeStep(gl, program, buffer, particlesStateTexture, weatherTexture, weatherMin, weatherMax, speedFactor, dropRate, dropRateBump, matrix, matrixInverse) {
+export function computeStep(gl, program, buffer, particlesStateTexture, weatherTexture, weatherMin, weatherMax, speedFactor, dropRate, dropRateBump, worldBounds) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, particlesStateTexture, program.uniforms['sState'], null, 0);
@@ -39,8 +38,7 @@ export function computeStep(gl, program, buffer, particlesStateTexture, weatherT
     gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
     gl.uniform1f(program.uniforms['uDropRate'], dropRate);
     gl.uniform1f(program.uniforms['uDropRateBump'], dropRateBump);
-    gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
-    gl.uniformMatrix4fv(program.uniforms['uMatrixInverse'], false, matrixInverse);
+    gl.uniform4fv(program.uniforms['uWorldBounds'], worldBounds);
     gl.uniform1f(program.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

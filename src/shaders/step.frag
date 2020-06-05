@@ -19,18 +19,12 @@ uniform float uWeatherMax;
 uniform float uSpeedFactor;
 uniform float uDropRate;
 uniform float uDropRateBump;
-uniform mat4 uMatrix;
-uniform mat4 uMatrixInverse;
+uniform vec4 uWorldBounds;
 uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
 vec2 update(vec2 position) {
     vec2 seed = (position + vTexCoord) * uRandomSeed;
-
-    // vec2 boundsTL = transform(vec2(0, 0), uMatrixInverse); // 0.5833294886582084, 0.5000076893502499
-    // vec2 boundsBL = transform(vec2(0, 1), uMatrixInverse); // 0.5833294886582084, 0.48684352172241446
-    // vec2 boundsTR = transform(vec2(1, 0), uMatrixInverse); // 0.6164859669357939, 0.5000076893502499
-    // vec2 boundsBR = transform(vec2(1, 1), uMatrixInverse); // 0.6164859669357939, 0.48684352172241446
 
     // move the position, take into account WGS84 distortion
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
@@ -54,12 +48,10 @@ vec2 update(vec2 position) {
     newPosition = mix(newPosition, dropPosition, drop);
 
     // 2nd frame: randomize
-    vec2 randomPosition = vec2(random(seed + 1.3), random(seed + 2.1));
-    // vec2 transformedRandomPosition = transform(randomPosition, uMatrixInverse);
-    // vec2 transformedRandomPosition = vec2(
-    //     (boundsBL.x - boundsTL.x) * randomPosition.y + (boundsBL.x - boundsTL.x + boundsBR.x - boundsTR.x) * randomPosition.x,
-    //     (boundsTR.y - boundsTL.y) * randomPosition.x + (boundsTR.y - boundsTL.y + boundsBR.y - boundsBL.y) * randomPosition.y
-    // );
+    vec2 randomPosition = vec2(
+        mix(uWorldBounds.x, uWorldBounds.y, random(seed + 1.3)),
+        mix(uWorldBounds.z, uWorldBounds.w, random(seed + 2.1))
+    );
     // newPosition = _if(position == dropPosition, randomPosition, newPosition);
     if (position == dropPosition) {
         newPosition = randomPosition;
