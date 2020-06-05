@@ -48,15 +48,14 @@ void main() {
 
     position0 = wgs84ToMercator(position0);
     position1 = wgs84ToMercator(position1);
-    
+    position0 = transform(position0 + vec2(uWorldOffset, 0), uMatrix);
+    position1 = transform(position1 + vec2(uWorldOffset, 0), uMatrix);
+
     position1 = _if(
-        length(position1 - position0) > 0.5,
+        length(position1 - position0) > 0.1,
         position0, // don't render path across for particle that wrapped across the world
         position1
     );
-
-    position0 = transform(position0 + vec2(uWorldOffset, 0), uMatrix);
-    position1 = transform(position1 + vec2(uWorldOffset, 0), uMatrix);
 
     vec2 dirF = position1 - position0;
     vec2 dirFN = _if(

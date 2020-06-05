@@ -36,7 +36,10 @@ vec2 update(vec2 position) {
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
     float distortion = cos(radians(position.y * 180.0 - 90.0));
     vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
-    vec2 newPosition = fract(position + offset + 1.0);
+    vec2 newPosition = vec2(
+        fract(position.x + offset.x + 1.0),
+        clamp(position.y + offset.y, 0.0, 1.0)
+    );
 
     // randomize the position to prevent particles from converging to the areas of low pressure
     // 1st frame: drop
