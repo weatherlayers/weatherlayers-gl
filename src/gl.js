@@ -83,11 +83,12 @@ export function drawToGl(gl, config) {
 
     /**
      * @param {number[]} matrix
+     * @param {number} zoom
      * @param {[[number, number], [number, number]]} worldBounds
      * @param {number[]} worldOffsets
      */
-    function prerender(matrix, worldBounds, worldOffsets) {
-        const speedFactor = config.speedFactor * pixelRatio;
+    function prerender(matrix, zoom, worldBounds, worldOffsets) {
+        const speedFactor = config.speedFactor * pixelRatio / 2 ** Math.min(zoom, 2);
         const particleSize = config.particleSize * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
 
@@ -171,7 +172,7 @@ export function drawToGl(gl, config) {
         ];
         const worldBounds = /** @type [[number, number], [number, number]] */ ([[0, 0], [1, 1]]);
         const worldOffsets = [0];
-        prerender(matrix, worldBounds, worldOffsets);
+        prerender(matrix, 0, worldBounds, worldOffsets);
         render(matrix, worldOffsets);
         if (running) {
             raf = requestAnimationFrame(frame);

@@ -57,9 +57,10 @@ export class WeatherLayer {
         // }
 
         if (this.running) {
+            const zoom = this.map.getZoom();
             const worldBounds = this.getWorldBounds();
             const worldOffsets = this.getWorldOffsets();
-            this.weather.prerender(matrix, worldBounds, worldOffsets);
+            this.weather.prerender(matrix, zoom, worldBounds, worldOffsets);
         }
     }
 
