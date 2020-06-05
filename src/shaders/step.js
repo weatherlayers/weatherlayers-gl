@@ -26,7 +26,7 @@ export function createStepProgram(gl) {
  * @param {number} speedFactor
  * @param {number} dropRate
  * @param {number} dropRateBump
- * @param {[number, number, number, number]} worldBounds
+ * @param {[[number, number], [number, number]]} worldBounds
  */
 export function computeStep(gl, program, buffer, particlesStateTexture, weatherTexture, weatherMin, weatherMax, speedFactor, dropRate, dropRateBump, worldBounds) {
     gl.useProgram(program.program);
@@ -38,7 +38,8 @@ export function computeStep(gl, program, buffer, particlesStateTexture, weatherT
     gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
     gl.uniform1f(program.uniforms['uDropRate'], dropRate);
     gl.uniform1f(program.uniforms['uDropRateBump'], dropRateBump);
-    gl.uniform4fv(program.uniforms['uWorldBounds'], worldBounds);
+    gl.uniform2fv(program.uniforms['uWorldBoundsMin'], worldBounds[0]);
+    gl.uniform2fv(program.uniforms['uWorldBoundsMax'], worldBounds[1]);
     gl.uniform1f(program.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }

@@ -46,8 +46,8 @@ export function createParticlesProgram(gl) {
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {number} particleSize
- * @param {Float32Array} particleColor
- * @param {Float32Array} matrix
+ * @param {[number, number, number, number]} particleColor
+ * @param {number[]} matrix
  * @param {number} worldOffset
  */
 export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldOffset) {

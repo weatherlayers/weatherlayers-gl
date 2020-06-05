@@ -57,9 +57,9 @@ export class WeatherLayer {
         // }
 
         if (this.running) {
-            const worldOffsets = this.getWorldOffsets();
             const worldBounds = this.getWorldBounds();
-            this.weather.prerender(new Float32Array(matrix), worldOffsets, worldBounds);
+            const worldOffsets = this.getWorldOffsets();
+            this.weather.prerender(matrix, worldBounds, worldOffsets);
         }
     }
 
@@ -73,7 +73,7 @@ export class WeatherLayer {
         }
 
         const worldOffsets = this.getWorldOffsets();
-        this.weather.render(new Float32Array(matrix), worldOffsets);
+        this.weather.render(matrix, worldOffsets);
 
         if (this.running) {
             this.map.triggerRepaint();
@@ -81,26 +81,39 @@ export class WeatherLayer {
     }
 
     /**
-     * @return {number[]}
-     */
-    getWorldOffsets() {
-        const worldOffsets = this.map.transform.getVisibleUnwrappedCoordinates({z: 0, x: 0, y: 0}).map(x => x.wrap).sort((a, b) => a - b);
-        return worldOffsets.slice(1, worldOffsets.length - 1);
-    }
-
-    /**
-     * @return {[number, number, number, number]}
+     * @return {[[number, number], [number, number]]}
      */
     getWorldBounds() {
+        if (!this.map) {
+            return [[0, 0], [1, 1]];
+        }
+
         const bounds = this.map.getBounds();
         const topLeft = bounds.getNorthWest();
         const bottomRight = bounds.getSouthEast();
+        /** @type [[number, number], [number, number]] */
         const worldBounds = [
-            Math.min(Math.max((topLeft.lng + 180) / 360, 0), 1),
-            Math.min(Math.max((bottomRight.lng + 180) / 360, 0), 1),
-            1 - (topLeft.lat + 90) / 180,
-            1 - (bottomRight.lat + 90) / 180,
+            [
+                (topLeft.lng + 180) / 360,
+                1 - (topLeft.lat + 90) / 180,
+            ],
+            [
+                (bottomRight.lng + 180) / 360,
+                1 - (bottomRight.lat + 90) / 180,
+            ],
         ];
         return worldBounds;
+    }
+
+    /**
+     * @return {number[]}
+     */
+    getWorldOffsets() {
+        if (!this.map) {
+            return [0];
+        }
+
+        const worldOffsets = this.map.transform.getVisibleUnwrappedCoordinates({z: 0, x: 0, y: 0}).map(x => x.wrap).sort((a, b) => a - b);
+        return worldOffsets.slice(1, worldOffsets.length - 1);
     }
 }

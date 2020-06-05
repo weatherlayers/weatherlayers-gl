@@ -82,14 +82,14 @@ export function drawToGl(gl, config) {
     resize();
 
     /**
-     * @param {Float32Array} matrix
+     * @param {number[]} matrix
+     * @param {[[number, number], [number, number]]} worldBounds
      * @param {number[]} worldOffsets
-     * @param {[number, number, number, number]} worldBounds
      */
-    function prerender(matrix, worldOffsets, worldBounds) {
+    function prerender(matrix, worldBounds, worldOffsets) {
         const speedFactor = config.speedFactor * pixelRatio;
         const particleSize = config.particleSize * pixelRatio;
-        const particleColor = new Float32Array([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
+        const particleColor = /** @type [number, number, number, number] */ ([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
 
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (blendEnabled) {
@@ -136,7 +136,7 @@ export function drawToGl(gl, config) {
     }
 
     /**
-     * @param {Float32Array} matrix
+     * @param {number[]} matrix
      * @param {number[]} worldOffsets
      */
     function render(matrix, worldOffsets) {
@@ -163,15 +163,16 @@ export function drawToGl(gl, config) {
     }
 
     function frame() {
-        const matrix = new Float32Array([
+        const matrix = [
             2, 0, 0, 0,
             0, -2, 0, 0,
             0, 0, 1, 0,
             -1, 1, 0, 1,
-        ]);
-        const offsets = [new Float32Array([0, 0])];
-        prerender(matrix);
-        render(matrix, offsets);
+        ];
+        const worldBounds = /** @type [[number, number], [number, number]] */ ([[0, 0], [1, 1]]);
+        const worldOffsets = [0];
+        prerender(matrix, worldBounds, worldOffsets);
+        render(matrix, worldOffsets);
         if (running) {
             raf = requestAnimationFrame(frame);
         }

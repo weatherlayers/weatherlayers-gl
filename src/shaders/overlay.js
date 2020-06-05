@@ -23,7 +23,7 @@ export function createOverlayProgram(gl) {
  * @param {number} weatherMax
  * @param {number} overlayOpacity
  * @param {WebGLTextureWrapper} overlayColorRampTexture
- * @param {Float32Array} matrix
+ * @param {number[]} matrix
  * @param {number} worldOffset
  */
 export function drawOverlay(gl, program, buffer, weatherTexture, weatherMin, weatherMax, overlayOpacity, overlayColorRampTexture, matrix, worldOffset) {

@@ -19,7 +19,8 @@ uniform float uWeatherMax;
 uniform float uSpeedFactor;
 uniform float uDropRate;
 uniform float uDropRateBump;
-uniform vec4 uWorldBounds;
+uniform vec2 uWorldBoundsMin;
+uniform vec2 uWorldBoundsMax;
 uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
@@ -48,10 +49,8 @@ vec2 update(vec2 position) {
     newPosition = mix(newPosition, dropPosition, drop);
 
     // 2nd frame: randomize
-    vec2 randomPosition = vec2(
-        mix(uWorldBounds.x, uWorldBounds.y, random(seed + 1.3)),
-        mix(uWorldBounds.z, uWorldBounds.w, random(seed + 2.1))
-    );
+    vec2 randomVector = vec2(random(seed + 1.3), random(seed + 2.1));
+    vec2 randomPosition = mod(mix(uWorldBoundsMin, uWorldBoundsMax, randomVector), vec2(1, 1));
     // newPosition = _if(position == dropPosition, randomPosition, newPosition);
     if (position == dropPosition) {
         newPosition = randomPosition;
