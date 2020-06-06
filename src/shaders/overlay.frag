@@ -14,8 +14,9 @@ uniform sampler2D sWeather;
 uniform vec2 uWeatherResolution;
 uniform float uWeatherMin;
 uniform float uWeatherMax;
-uniform float uOverlayOpacity;
+uniform vec2 uOverlayBounds;
 uniform sampler2D sOverlayColorRamp;
+uniform float uOverlayOpacity;
 
 varying vec2 vTexCoord;
 
@@ -30,7 +31,7 @@ void main() {
     vec2 position = mercatorToWGS84(vTexCoord);
     vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
 
-    float colorIndex = length(speed) / 256.0;
+    float colorIndex = (length(speed) - uOverlayBounds.x) / (uOverlayBounds.y - uOverlayBounds.x);
     vec2 colorPosition = vec2(fract(16.0 * colorIndex), floor(16.0 * colorIndex) / 16.0);
     vec4 color = vec4(texture2D(sOverlayColorRamp, colorPosition).rgb, uOverlayOpacity);
 

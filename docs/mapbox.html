@@ -6,6 +6,7 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="../dist/maritrace-mapbox-weather.umd.js"></script>
     <style>
         body {
@@ -51,16 +52,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     const weatherLayer = new MaritraceMapboxWeather.WeatherLayer(config);
-    const colorLegend = new MaritraceMapboxWeather.ColorLegend(config.overlayColorRamp);
+    const colorLegend = new MaritraceMapboxWeather.ColorLegend(config);
+    let initialized = false;
 
     function addGui() {
-        if (!weatherLayer.weather) {
+        if (!initialized) {
             setTimeout(addGui, 500);
             return;
         }
 
-        const gui = initGui(weatherLayer.weather);
-        gui.remove(gui.__controllers.find(c => c.property === 'running'));
+        const gui = initGui(weatherLayer.weather.config, () => {
+            weatherLayer.weather.resize();
+            colorLegend.resize();
+        });
         gui.add(weatherLayer, 'running').onChange(() => map.triggerRepaint());
     }
     addGui();
@@ -91,6 +95,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         map.addLayer(weatherLayer, 'waterway-label');
         map.addControl(colorLegend, 'bottom-left');
         updateInfo();
+        initialized = true;
     });
 });
 </script>

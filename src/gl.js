@@ -1,5 +1,6 @@
 import { getPixelRatio } from './pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
+import { colorRamp } from './color-ramp.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createStepProgram, computeStep } from './shaders/step.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
@@ -10,7 +11,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weather: { image: HTMLImageElement; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlayOpacity: number; overlayColorRamp: [number, number, number][]; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
+/** @typedef {{ weather: { image: HTMLImageElement; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlay: { bounds: [number, number]; colorFunction: (i: number) => [number, number, number, number]; opacity: number; }; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -27,7 +28,6 @@ export function drawToGl(gl, config) {
 
     const quadBuffer = createQuadBuffer(gl);
     const weatherTexture = createImageTexture(gl, config.weather.image);
-    const overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(config.overlayColorRamp.flat()), 16, 16);
 
     let initialized = false;
     let running = false;
@@ -35,6 +35,9 @@ export function drawToGl(gl, config) {
 
     /** @type number */
     let pixelRatio;
+
+    /** @type WebGLTextureWrapper */
+    let overlayColorRampTexture;
     
     /** @type WebGLBufferWrapper */
     let particlesBuffer;
@@ -55,6 +58,7 @@ export function drawToGl(gl, config) {
 
     function resize() {
         if (initialized) {
+            gl.deleteTexture(overlayColorRampTexture.texture);
             gl.deleteBuffer(particlesBuffer.buffer);
             gl.deleteBuffer(particlesIndexBuffer.buffer);
             gl.deleteTexture(particlesStateTexture0.texture);
@@ -64,6 +68,9 @@ export function drawToGl(gl, config) {
         }
 
         pixelRatio = getPixelRatio(config.retina);
+
+        const colors = colorRamp(config.overlay.colorFunction);
+        overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(colors.flat()), 16, 16);
 
         particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
         particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
@@ -154,7 +161,7 @@ export function drawToGl(gl, config) {
         // draw to canvas
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         for (let worldOffset of worldOffsets) {
-            drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlayOpacity, overlayColorRampTexture, matrix, worldOffset);
+            drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
         }
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
 

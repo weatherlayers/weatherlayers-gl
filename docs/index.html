@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>maritrace-mapbox-weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="../dist/maritrace-mapbox-weather.umd.js"></script>
     <style>
         body {
@@ -27,7 +28,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const canvas = document.getElementById('canvas');
     const weather = MaritraceMapboxWeather.drawToCanvas(canvas, { ...config, backgroundColor: [0, 0, 0], autoStart: true });
     
-    initGui(weather);
+    const gui = initGui(weather.config, weather.resize);
+    gui.add(weather, 'running');
 });
 </script>
 </body>
