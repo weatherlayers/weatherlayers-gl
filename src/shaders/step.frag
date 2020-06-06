@@ -12,10 +12,10 @@ precision mediump float;
 #pragma glslify: getSpeed = require('./_speed')
 
 uniform sampler2D sState;
-uniform sampler2D sWeather;
-uniform vec2 uWeatherResolution;
-uniform float uWeatherMin;
-uniform float uWeatherMax;
+uniform sampler2D sSource;
+uniform vec2 uSourceResolution;
+uniform vec2 uSourceBoundsMin;
+uniform vec2 uSourceBoundsMax;
 uniform float uSpeedFactor;
 uniform float uDropRate;
 uniform float uDropRateBump;
@@ -28,17 +28,17 @@ vec2 update(vec2 position) {
     vec2 seed = (position + vTexCoord) * uRandomSeed;
 
     // move the position, take into account WGS84 distortion
-    vec2 speed = getSpeed(sWeather, uWeatherResolution, position, uWeatherMin, uWeatherMax);
+    vec2 speed = getSpeed(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
     float distortion = cos(radians(position.y * 180.0 - 90.0));
     vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
     vec2 newPosition = vec2(
-        fract(position.x + offset.x + 1.0),
-        clamp(position.y + offset.y, 0.0, 1.0)
+        fract(position.x + offset.x + 1.0), // wrap longitude
+        clamp(position.y + offset.y, 0.0, 1.0) // clamp latitude
     );
 
     // randomize the position to prevent particles from converging to the areas of low pressure
     // 1st frame: drop
-    float dropRate = uDropRate + length(speed) / length(vec2(uWeatherMax, uWeatherMax)) * uDropRateBump;
+    float dropRate = uDropRate + length(speed) / length(uSourceBoundsMax) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
     drop = _if(
         length(newPosition - position) < STATIC_DIST_THRESHOLD,
@@ -51,7 +51,7 @@ vec2 update(vec2 position) {
     // 2nd frame: randomize
     vec2 randomVector = vec2(random(seed + 1.3), random(seed + 2.1));
     vec2 randomPosition = mod(mix(uWorldBoundsMin, uWorldBoundsMax, randomVector), vec2(1, 1));
-    // newPosition = _if(position == dropPosition, randomPosition, newPosition);
+    // newPosition = _if(position == dropPosition, randomPosition, newPosition); // why this breaks?
     if (position == dropPosition) {
         newPosition = randomPosition;
     }

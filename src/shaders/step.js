@@ -20,21 +20,20 @@ export function createStepProgram(gl) {
  * @param {WebGLProgramWrapper} program
  * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} particlesStateTexture
- * @param {WebGLTextureWrapper} weatherTexture
- * @param {number} weatherMin
- * @param {number} weatherMax
+ * @param {WebGLTextureWrapper} sourceTexture
+ * @param {[[number, number], [number, number]]} sourceBounds
  * @param {number} speedFactor
  * @param {number} dropRate
  * @param {number} dropRateBump
  * @param {[[number, number], [number, number]]} worldBounds
  */
-export function computeStep(gl, program, buffer, particlesStateTexture, weatherTexture, weatherMin, weatherMax, speedFactor, dropRate, dropRateBump, worldBounds) {
+export function computeStep(gl, program, buffer, particlesStateTexture, sourceTexture, sourceBounds, speedFactor, dropRate, dropRateBump, worldBounds) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, particlesStateTexture, program.uniforms['sState'], null, 0);
-    bindTexture(gl, weatherTexture, program.uniforms['sWeather'], program.uniforms['uWeatherResolution'], 1);
-    gl.uniform1f(program.uniforms['uWeatherMin'], weatherMin);
-    gl.uniform1f(program.uniforms['uWeatherMax'], weatherMax);
+    bindTexture(gl, sourceTexture, program.uniforms['sSource'], program.uniforms['uSourceResolution'], 1);
+    gl.uniform2fv(program.uniforms['uSourceBoundsMin'], sourceBounds[0]);
+    gl.uniform2fv(program.uniforms['uSourceBoundsMax'], sourceBounds[1]);
     gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
     gl.uniform1f(program.uniforms['uDropRate'], dropRate);
     gl.uniform1f(program.uniforms['uDropRateBump'], dropRateBump);

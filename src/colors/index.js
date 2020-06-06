@@ -1,1 +1,1 @@
-export * from './micro.js';
+export * as µ from './micro.js';

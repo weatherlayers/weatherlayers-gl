@@ -11,7 +11,32 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
-/** @typedef {{ weather: { image: HTMLImageElement; min: number; max: number; }; particlesCount: number; particleSize: number; particleColor: [number, number, number]; particleOpacity: number; fadeOpacity: number; speedFactor: number; dropRate: number; dropRateBump: number; overlay: { bounds: [number, number]; colorFunction: (i: number) => [number, number, number, number]; opacity: number; }; retina: boolean; backgroundColor: [number, number, number]; autoStart: boolean; }} MaritraceMapboxWeatherConfig */
+/**
+ * @typedef {{
+ *      source: {
+ *          image: HTMLImageElement;
+ *          bounds: [[number, number], [number, number]];
+ *      };
+ *      particles: {
+ *          count: number;
+ *          size: number;
+ *          color: [number, number, number];
+ *          opacity: number;
+ *          speedFactor: number;
+ *          dropRate: number;
+ *          dropRateBump: number;
+ *          fadeOpacity: number;
+ *      };
+ *      overlay: {
+ *          bounds: [number, number];
+ *          colorFunction: (i: number) => (string | [number, number, number]);
+ *          opacity: number;
+ *      };
+ *      retina: boolean;
+ *      backgroundColor: [number, number, number];
+ *      autoStart: boolean;
+ * }} MaritraceMapboxWeatherConfig
+ */
 
 /**
  * @param {WebGLRenderingContext} gl
@@ -27,7 +52,7 @@ export function drawToGl(gl, config) {
     const copyProgram = createCopyProgram(gl);
 
     const quadBuffer = createQuadBuffer(gl);
-    const weatherTexture = createImageTexture(gl, config.weather.image);
+    const sourceTexture = createImageTexture(gl, config.source.image);
 
     let initialized = false;
     let running = false;
@@ -72,10 +97,10 @@ export function drawToGl(gl, config) {
         const colors = colorRamp(config.overlay.colorFunction);
         overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(colors.flat()), 16, 16);
 
-        particlesBuffer = createParticlesBuffer(gl, config.particlesCount);
-        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particlesCount);
+        particlesBuffer = createParticlesBuffer(gl, config.particles.count);
+        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particles.count);
 
-        const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
+        const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
         const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);        
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
@@ -95,9 +120,9 @@ export function drawToGl(gl, config) {
      * @param {number[]} worldOffsets
      */
     function prerender(matrix, zoom, worldBounds, worldOffsets) {
-        const speedFactor = config.speedFactor * pixelRatio / 2 ** Math.min(zoom, 2);
-        const particleSize = config.particleSize * pixelRatio;
-        const particleColor = /** @type [number, number, number, number] */ ([config.particleColor[0] / 255, config.particleColor[1] / 255, config.particleColor[2] / 255, config.particleOpacity]);
+        const speedFactor = config.particles.speedFactor * pixelRatio / 2 ** Math.min(zoom, 2);
+        const particleSize = config.particles.size * pixelRatio;
+        const particleColor = /** @type [number, number, number, number] */ ([config.particles.color[0] / 255, config.particles.color[1] / 255, config.particles.color[2] / 255, config.particles.opacity]);
 
         const blendEnabled = gl.isEnabled(gl.BLEND);
         if (blendEnabled) {
@@ -110,9 +135,9 @@ export function drawToGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, weatherTexture, config.weather.min, config.weather.max, speedFactor, config.dropRate, config.dropRateBump, worldBounds);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.source.bounds, speedFactor, config.particles.dropRate, config.particles.dropRateBump, worldBounds);
 
-        // const particlesStateResolution = Math.ceil(Math.sqrt(config.particlesCount));
+        // const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
         // gl.readPixels(0, 0, particlesStateResolution, particlesStateResolution, gl.RGBA, gl.UNSIGNED_BYTE, state);
         // const positions = new Array(particlesStateResolution * particlesStateResolution).fill(undefined).map((_, i) => {
@@ -127,7 +152,7 @@ export function drawToGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
+        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.particles.fadeOpacity);
         for (let worldOffset of worldOffsets) {
             drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldOffset);
         }
@@ -161,7 +186,7 @@ export function drawToGl(gl, config) {
         // draw to canvas
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         for (let worldOffset of worldOffsets) {
-            drawOverlay(gl, overlayProgram, quadBuffer, weatherTexture, config.weather.min, config.weather.max, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
+            drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, config.source.bounds, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
         }
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
 
@@ -219,7 +244,7 @@ export function drawToGl(gl, config) {
         gl.deleteProgram(copyProgram.program);
 
         gl.deleteBuffer(quadBuffer.buffer);
-        gl.deleteTexture(weatherTexture.texture);
+        gl.deleteTexture(sourceTexture.texture);
         gl.deleteTexture(overlayColorRampTexture.texture);
 
         gl.deleteBuffer(particlesBuffer.buffer);

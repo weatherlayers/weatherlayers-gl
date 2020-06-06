@@ -40,7 +40,7 @@ function round(value) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.weather.image = await MaritraceMapboxWeather.loadImage(config.weather.imagePath);
+    config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
 
     const map = new mapboxgl.Map({
         container: 'map',

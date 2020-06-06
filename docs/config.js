@@ -1,22 +1,23 @@
 const imagePath = '../data/gfs/2020051500.png';
 
 export const config = {
-    weather: {
+    source: {
         imagePath: imagePath,
-        min: -128,
-        max: 127,
+        bounds: [[-128, -128], [127, 127]],
     },
-    particlesCount: 1024 * 4,
-    particleSize: 1,
-    particleColor: [255, 255, 255],
-    particleOpacity: 0.5,
-    fadeOpacity: 0.996, // how fast the particle trails fade on each frame
-    speedFactor: 0.25, // how fast the particles move
-    dropRate: 0.003, // how often the particles move to a random place
-    dropRateBump: 0.01, // drop rate increase relative to individual particle speed
+    particles: {
+        count: 1024 * 4,
+        size: 1,
+        color: [255, 255, 255],
+        opacity: 0.5,
+        speedFactor: 0.25, // how fast the particles move
+        dropRate: 0.003, // how often the particles move to a random place
+        dropRateBump: 0.01, // drop rate increase relative to individual particle speed
+        fadeOpacity: 0.996, // how fast the particle trails fade on each frame
+    },
     overlay: {
         bounds: [0, 100],
-        colorFunction: MaritraceMapboxWeather.Colors.extendedSinebowColor,
+        colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
         opacity: 0.1,
     },
     retina: true,
@@ -24,7 +25,7 @@ export const config = {
 
 export function initGui(config, update) {
     const colorFunctions = new Map([
-        ['µ.extendedSinebowColor', MaritraceMapboxWeather.Colors.extendedSinebowColor],
+        ['µ.extendedSinebowColor', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
         // https://github.com/d3/d3-scale-chromatic
         // Sequential
         ['d3.interpolateTurbo', d3.interpolateTurbo],
@@ -61,15 +62,17 @@ export function initGui(config, update) {
 
     const gui = new dat.GUI();
     gui.width = 300;
-    gui.add(config, 'particlesCount', 1, 1024 * 64 - 1, 1).onFinishChange(update);
-    gui.add(config, 'particleSize', 0.5, 5, 0.5);
-    gui.addColor(config, 'particleColor');
-    gui.add(config, 'particleOpacity', 0, 1, 0.01);
-    gui.add(config, 'fadeOpacity', 0.96, 1, 0.001).updateDisplay();
-    gui.add(config, 'speedFactor', 0.05, 1, 0.01);
-    gui.add(config, 'dropRate', 0, 0.1, 0.001);
-    gui.add(config, 'dropRateBump', 0, 0.2, 0.01);
-    const overlay = gui.addFolder('Overlay');
+    const particles = gui.addFolder('particles');
+    particles.add(config.particles, 'count', 1, 1024 * 64 - 1, 1).onFinishChange(update);
+    particles.add(config.particles, 'size', 0.5, 5, 0.5);
+    particles.addColor(config.particles, 'color');
+    particles.add(config.particles, 'opacity', 0, 1, 0.01);
+    particles.add(config.particles, 'fadeOpacity', 0.96, 1, 0.001).updateDisplay();
+    particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
+    particles.add(config.particles, 'dropRate', 0, 0.1, 0.001);
+    particles.add(config.particles, 'dropRateBump', 0, 0.2, 0.01);
+    particles.open();
+    const overlay = gui.addFolder('overlay');
     overlay.add(meta.overlay, 'colorFunction', Array.from(colorFunctions.keys())).onChange(() => {
         config.overlay.colorFunction = colorFunctions.get(meta.overlay.colorFunction);
         update();
