@@ -26,7 +26,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
 
     const canvas = document.getElementById('canvas');
-    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, { ...config, backgroundColor: [0, 0, 0], autoStart: true });
+    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, {
+        ...config,
+        particles: {
+            ...config.particles,
+            speedFactor: 0.25,
+        },
+        overlay: {
+            ...config.overlay,
+            opacity: 0.4,
+        },
+        backgroundColor: [0, 0, 0],
+        autoStart: true,
+    });
     
     const gui = initGui(weather.config, weather.resize);
     gui.add(weather, 'running');
