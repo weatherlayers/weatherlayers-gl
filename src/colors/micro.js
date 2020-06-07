@@ -1,3 +1,5 @@
+// source: https://github.com/cambecc/earth/blob/master/public/libs/earth/1.0.0/micro.js
+
 var τ = 2 * Math.PI;
 
 function colorInterpolator(start, end) {
