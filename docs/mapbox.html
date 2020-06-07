@@ -50,9 +50,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         center: [30, 0],
         antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
-
+    map.addControl(new mapboxgl.ScaleControl());
+    
     const weatherLayer = new MaritraceMapboxWeather.WeatherLayer(config);
-    const colorLegend = new MaritraceMapboxWeather.ColorLegend(config);
+    const colorLegend = new MaritraceMapboxWeather.ColorLegend({ title: 'Wind Speed [m/s]', bounds: config.overlay.bounds, ticksCount: 6, colorFunction: config.overlay.colorFunction });
     let initialized = false;
 
     function addGui() {
@@ -63,7 +64,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const gui = initGui(weatherLayer.weather.config, () => {
             weatherLayer.weather.resize();
-            colorLegend.resize();
+            colorLegend.render();
         });
         gui.add(weatherLayer, 'running').onChange(() => map.triggerRepaint());
     }

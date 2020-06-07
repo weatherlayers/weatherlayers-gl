@@ -11,7 +11,7 @@ export function colorRamp(colorFunction, count = 256) {
         if (!color) {
             return /** @type [number, number, number, number] */ ([255, 255, 255, 255]);
         }
-        return /** @type [number, number, number, number] */ ([color[0], color[1], color[2], color[3] !== undefined ? color[3] * 256 : 255]);
+        return /** @type [number, number, number, number] */ ([color[0], color[1], color[2], 255]);
     });
     
     return colors;
