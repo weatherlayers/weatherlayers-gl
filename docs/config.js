@@ -10,7 +10,7 @@ export const config = {
         size: 1,
         color: [255, 255, 255],
         opacity: 0.5,
-        speedFactor: 0.25, // how fast the particles move
+        speedFactor: 0.33, // how fast the particles move
         dropRate: 0.003, // how often the particles move to a random place
         dropRateBump: 0.01, // drop rate increase relative to individual particle speed
         fadeOpacity: 0.996, // how fast the particle trails fade on each frame
@@ -19,6 +19,9 @@ export const config = {
         bounds: [0, 100],
         colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
         opacity: 0.1,
+        legendTitle: 'Wind Speed [m/s]',
+        legendTicksCount: 6,
+        legendWidth: 200,
     },
     retina: true,
 };
