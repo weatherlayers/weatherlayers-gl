@@ -22,7 +22,7 @@ export class WeatherLayer {
      */
     async onAdd(map, gl) {
         this.map = map;
-        this.weather = await drawToGl(gl, { ...this.config, particleOpacity: 0.333, overlayOpacity: 0.1 });
+        this.weather = await drawToGl(gl, this.config);
 
         this.map.on('move', this.weather.resize);
         this.map.on('zoom', this.weather.resize);
