@@ -14,6 +14,7 @@ export class WeatherLegendControl {
         this.container = document.createElement('div');
         this.container.className = 'mapboxgl-ctrl';
         this.container.style.background = 'rgba(255, 255, 255, 0.5)';
+        this.container.style.backdropFilter = 'blur(1px)';
         this.container.style.fontSize = '10px';
         this.container.style.color = '#333';
 
