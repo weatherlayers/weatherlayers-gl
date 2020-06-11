@@ -6,14 +6,14 @@ export const config = {
         bounds: [[-128, -128], [127, 127]],
     },
     particles: {
-        count: 1024 * 4,
-        size: 1,
+        count: 1024,
+        size: 2,
         color: [255, 255, 255],
-        opacity: 0.5,
+        opacity: 0.25,
         speedFactor: 0.33, // how fast the particles move
         dropRate: 0.003, // how often the particles move to a random place
         dropRateBump: 0.01, // drop rate increase relative to individual particle speed
-        fadeOpacity: 0.996, // how fast the particle trails fade on each frame
+        fadeOpacity: 0.95, // how fast the particle trails fade on each frame
     },
     overlay: {
         bounds: [0, 100],
@@ -70,7 +70,7 @@ export function initGui(config, update) {
     particles.add(config.particles, 'size', 0.5, 5, 0.5);
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
-    particles.add(config.particles, 'fadeOpacity', 0.96, 1, 0.001).updateDisplay();
+    particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001).updateDisplay();
     particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
     particles.add(config.particles, 'dropRate', 0, 0.1, 0.001);
     particles.add(config.particles, 'dropRateBump', 0, 0.2, 0.01);

@@ -90,6 +90,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     map.on('zoom', updateInfo);
     map.on('resize', updateInfo);
     updateInfo();
+    map.on('click', e => {
+        const mercator = mapboxgl.MercatorCoordinate.fromLngLat(e.lngLat);
+        info.innerHTML += `<br>Clicked: ${round(e.lngLat.lat)}, ${round(e.lngLat.lng)}; ${round(mercator.x)}, ${round(mercator.y)}`;
+    });
 
     map.on('style.load', () => {
         map.addLayer(weatherLayer, 'waterway-label');

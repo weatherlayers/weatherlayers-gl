@@ -46,6 +46,11 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  * @param {MaritraceMapboxWeatherConfig} config
  */
 export function drawToGl(gl, config) {
+    const ext = gl.getExtension('OES_texture_float');
+    if (!ext) {
+        throw new Error('OES_texture_float WebGL extension is required');
+    }
+
     const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
 
     const stepProgram = createStepProgram(gl);
@@ -104,7 +109,7 @@ export function drawToGl(gl, config) {
         particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particles.count);
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
-        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);        
+        const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
 
@@ -123,7 +128,7 @@ export function drawToGl(gl, config) {
      * @param {number[]} worldOffsets
      */
     function prerender(matrix, zoom, worldBounds, worldOffsets) {
-        const speedFactor = config.particles.speedFactor * pixelRatio / 2 ** Math.min(zoom, 2);
+        const speedFactor = config.particles.speedFactor * pixelRatio / 2 ** zoom;
         const particleSize = config.particles.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.particles.color[0] / 255, config.particles.color[1] / 255, config.particles.color[2] / 255, config.particles.opacity]);
 

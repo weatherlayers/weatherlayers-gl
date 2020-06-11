@@ -1,0 +1,62 @@
+<PAMDataset>
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["Coordinate System imported from GRIB file",DATUM["unnamed",SPHEROID["Sphere",6371229,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST]]</SRS>
+  <GeoTransform> -1.7999975585937500e+02,  2.4999967388589858e-01,  0.0000000000000000e+00,  9.0125000000000000e+01,  0.0000000000000000e+00, -2.4999984749690379e-01</GeoTransform>
+  <Metadata domain="IMAGE_STRUCTURE">
+    <MDI key="INTERLEAVE">PIXEL</MDI>
+  </Metadata>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Area</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Description>10[m] HTGL="Specified height level above ground"</Description>
+    <ColorInterp>Gray</ColorInterp>
+    <Metadata>
+      <MDI key="GRIB_COMMENT">u-component of wind [m/s]</MDI>
+      <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
+      <MDI key="GRIB_ELEMENT">UGRD</MDI>
+      <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
+      <MDI key="GRIB_IDS">CENTER=7(US-NCEP) SUBCENTER=0 MASTER_TABLE=2 LOCAL_TABLE=1 SIGNF_REF_TIME=1(Start_of_Forecast) REF_TIME=2020-05-15T00:00:00Z PROD_STATUS=0(Operational) TYPE=1(Forecast)</MDI>
+      <MDI key="GRIB_PDS_PDTN">0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_ASSEMBLED_VALUES">2 2 2 0 81 0 0 1 0 103 0 10 255 0 0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">2 2 2 0 81 0 0 0 1 0 0 0 0 103 0 0 0 0 10 255 0 0 0 0 0</MDI>
+      <MDI key="GRIB_REF_TIME">1589500800 sec UTC</MDI>
+      <MDI key="GRIB_SHORT_NAME">10-HTGL</MDI>
+      <MDI key="GRIB_UNIT">[m/s]</MDI>
+      <MDI key="GRIB_VALID_TIME">1589500800 sec UTC</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="2">
+    <Description>10[m] HTGL="Specified height level above ground"</Description>
+    <Metadata>
+      <MDI key="GRIB_COMMENT">v-component of wind [m/s]</MDI>
+      <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
+      <MDI key="GRIB_ELEMENT">VGRD</MDI>
+      <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
+      <MDI key="GRIB_IDS">CENTER=7(US-NCEP) SUBCENTER=0 MASTER_TABLE=2 LOCAL_TABLE=1 SIGNF_REF_TIME=1(Start_of_Forecast) REF_TIME=2020-05-15T00:00:00Z PROD_STATUS=0(Operational) TYPE=1(Forecast)</MDI>
+      <MDI key="GRIB_PDS_PDTN">0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_ASSEMBLED_VALUES">2 3 2 0 81 0 0 1 0 103 0 10 255 0 0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">2 3 2 0 81 0 0 0 1 0 0 0 0 103 0 0 0 0 10 255 0 0 0 0 0</MDI>
+      <MDI key="GRIB_REF_TIME">1589500800 sec UTC</MDI>
+      <MDI key="GRIB_SHORT_NAME">10-HTGL</MDI>
+      <MDI key="GRIB_UNIT">[m/s]</MDI>
+      <MDI key="GRIB_VALID_TIME">1589500800 sec UTC</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="3">
+    <Description>10[m] HTGL="Specified height level above ground"</Description>
+    <Metadata>
+      <MDI key="GRIB_COMMENT">v-component of wind [m/s]</MDI>
+      <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
+      <MDI key="GRIB_ELEMENT">VGRD</MDI>
+      <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
+      <MDI key="GRIB_IDS">CENTER=7(US-NCEP) SUBCENTER=0 MASTER_TABLE=2 LOCAL_TABLE=1 SIGNF_REF_TIME=1(Start_of_Forecast) REF_TIME=2020-05-15T00:00:00Z PROD_STATUS=0(Operational) TYPE=1(Forecast)</MDI>
+      <MDI key="GRIB_PDS_PDTN">0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_ASSEMBLED_VALUES">2 3 2 0 81 0 0 1 0 103 0 10 255 0 0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">2 3 2 0 81 0 0 0 1 0 0 0 0 103 0 0 0 0 10 255 0 0 0 0 0</MDI>
+      <MDI key="GRIB_REF_TIME">1589500800 sec UTC</MDI>
+      <MDI key="GRIB_SHORT_NAME">10-HTGL</MDI>
+      <MDI key="GRIB_UNIT">[m/s]</MDI>
+      <MDI key="GRIB_VALID_TIME">1589500800 sec UTC</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

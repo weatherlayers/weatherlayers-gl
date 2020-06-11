@@ -60,7 +60,7 @@ vec2 update(vec2 position) {
     float dropRate = uDropRate + length(speed) / length(uSourceBoundsMax) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
     drop = _if(
-        length(newPosition - position) < STATIC_DIST_THRESHOLD,
+        length(newPosition - position) < STATIC_DIST_THRESHOLD * uSpeedFactor,
         1.0, // drop static particle
         drop
     );
