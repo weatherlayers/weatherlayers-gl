@@ -21,8 +21,13 @@ export class WeatherLayer {
      * @param {WebGLRenderingContext} gl
      */
     onAdd(map, gl) {
+        const weather = drawToGl(gl, this.config);
+        if (!weather) {
+            return;
+        }
+
         this.map = map;
-        this.weather = drawToGl(gl, this.config);
+        this.weather = weather;
 
         this.map.on('move', this.weather.resize);
         this.map.on('zoom', this.weather.resize);

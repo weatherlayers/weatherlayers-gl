@@ -50,7 +50,8 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
 export function drawToGl(gl, config) {
     const ext = gl.getExtension('OES_texture_float');
     if (!ext) {
-        throw new Error('OES_texture_float WebGL extension is required');
+        console.log('OES_texture_float WebGL extension is required');
+        return;
     }
 
     const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
