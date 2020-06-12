@@ -55,8 +55,11 @@ export class WeatherLegendControl {
         scale.style.transform = `translate(${paddingY}px, 22px)`;
         svg.appendChild(scale);
 
+        const imageCanvas = this.renderScale();
         const image = /** @type SVGImageElement */ (document.createElementNS(xmlns, 'image'));
-        image.setAttribute('href', this.renderScale());
+        image.setAttribute('href', imageCanvas.toDataURL());
+        image.setAttribute('width', `${imageCanvas.width}`);
+        image.setAttribute('height', `${imageCanvas.height}`);
         scale.appendChild(image);
 
         const ticks = /** @type SVGGElement */ (document.createElementNS(xmlns, 'g'));
@@ -99,6 +102,6 @@ export class WeatherLegendControl {
             ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
             ctx.fillRect(i, 0, 1, canvas.height);
         }
-        return canvas.toDataURL();
+        return canvas;
     }
 }
