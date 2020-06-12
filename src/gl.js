@@ -128,7 +128,7 @@ export function drawToGl(gl, config) {
      * @param {number[]} worldOffsets
      */
     function prerender(matrix, zoom, worldBounds, worldOffsets) {
-        const speedFactor = config.particles.speedFactor * pixelRatio / 2 ** zoom;
+        const speedFactor = config.particles.speedFactor * pixelRatio / 1.8 ** zoom;
         const particleSize = config.particles.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.particles.color[0] / 255, config.particles.color[1] / 255, config.particles.color[2] / 255, config.particles.opacity]);
 

@@ -31,8 +31,8 @@ void main() {
     vec4 packedPosition0 = texture2D(sState0, texCoord);
     vec4 packedPosition1 = texture2D(sState1, texCoord);
 
-    vec2 position0 = unpackPosition(packedPosition0);
-    vec2 position1 = unpackPosition(packedPosition1);
+    vec2 position0 = packedPosition0.rg;
+    vec2 position1 = packedPosition1.rg;
 
     vec2 dropPosition = vec2(0, 0);
     position0 = _if(

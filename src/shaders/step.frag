@@ -85,8 +85,8 @@ vec2 update(vec2 position) {
 
 void main() {
     vec4 packedPosition = texture2D(sState, vTexCoord);
-    vec2 position = unpackPosition(packedPosition);
+    vec2 position = packedPosition.rg;
     vec2 newPosition = update(position);
-    vec4 newPackedPosition = packPosition(newPosition);
+    vec4 newPackedPosition = vec4(newPosition, 0, 0);
     gl_FragColor = newPackedPosition;
 }
