@@ -36,6 +36,8 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  *          legendWidth: number;
  *      };
  *      retina: boolean;
+ *      minZoom: number;
+ *      maxZoom: number;
  *      backgroundColor: [number, number, number];
  *      autoStart: boolean;
  * }} MaritraceMapboxWeatherConfig

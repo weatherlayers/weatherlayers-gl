@@ -48,7 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         style: 'mapbox://styles/mapbox/dark-v10',
         zoom: 0,
         center: [30, 0],
-        antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+        antialias: true,
     });
 
     const weatherLayer = new MaritraceMapboxWeather.WeatherLayer(config);

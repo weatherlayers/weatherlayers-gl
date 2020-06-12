@@ -24,6 +24,8 @@ export const config = {
         legendWidth: 200,
     },
     retina: true,
+    minZoom: 0,
+    maxZoom: 14,
 };
 
 export function initGui(config, update) {
@@ -83,6 +85,8 @@ export function initGui(config, update) {
     overlay.add(config.overlay, 'opacity', 0, 1, 0.01);
     overlay.open();
     gui.add(config, 'retina').onChange(update);
+    gui.add(config, 'minZoom', 0, 22).onFinishChange(update);
+    gui.add(config, 'maxZoom', 0, 22).onFinishChange(update);
     gui.close();
     return gui;
 }

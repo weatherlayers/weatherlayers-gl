@@ -12,7 +12,7 @@ export class WeatherLayer {
         this.type = 'custom';
         this.renderingMode = '2d';
 
-        this.config = config;
+        this.config = Object.assign({ minZoom: 0, maxZoom: 14 }, config);
         this.running = true;
     }
  
@@ -20,9 +20,9 @@ export class WeatherLayer {
      * @param {mapboxgl.Map} map
      * @param {WebGLRenderingContext} gl
      */
-    async onAdd(map, gl) {
+    onAdd(map, gl) {
         this.map = map;
-        this.weather = await drawToGl(gl, this.config);
+        this.weather = drawToGl(gl, this.config);
 
         this.map.on('move', this.weather.resize);
         this.map.on('zoom', this.weather.resize);
@@ -56,7 +56,7 @@ export class WeatherLayer {
         //     return;
         // }
 
-        if (this.running) {
+        if (this.enabled && this.running) {
             const zoom = this.map.getZoom();
             const worldBounds = this.getWorldBounds();
             const worldOffsets = this.getWorldOffsets();
@@ -76,9 +76,22 @@ export class WeatherLayer {
         const worldOffsets = this.getWorldOffsets();
         this.weather.render(matrix, worldOffsets);
 
-        if (this.running) {
+        if (this.enabled && this.running) {
             this.map.triggerRepaint();
         }
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get enabled() {
+        if (!this.map) {
+            return false;
+        }
+
+        const zoom = this.map.getZoom();
+        const enabled = this.config.minZoom <= zoom && zoom <= this.config.maxZoom;
+        return enabled;
     }
 
     /**
