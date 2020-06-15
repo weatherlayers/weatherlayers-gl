@@ -61,11 +61,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const gui = initGui(weatherLayer.weather.config, () => {
+        const update = () => {
             weatherLayer.weather.resize();
             weatherLegendControl.render();
-        });
-        gui.add(weatherLayer, 'running').onChange(() => map.triggerRepaint());
+            map.triggerRepaint();
+        };
+        const gui = initGui(config, update);
+        gui.add(weatherLayer, 'running').onChange(update);
     }
     addGui();
 

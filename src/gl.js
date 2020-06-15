@@ -63,7 +63,6 @@ export function drawToGl(gl, config) {
     const copyProgram = createCopyProgram(gl);
 
     const quadBuffer = createQuadBuffer(gl);
-    const sourceTexture = createImageTexture(gl, config.source.image);
 
     let initialized = false;
     let running = false;
@@ -71,6 +70,9 @@ export function drawToGl(gl, config) {
 
     /** @type number */
     let pixelRatio;
+
+    /** @type WebGLTextureWrapper */
+    let sourceTexture;
 
     /** @type WebGLTextureWrapper */
     let overlayColorRampTexture;
@@ -94,31 +96,39 @@ export function drawToGl(gl, config) {
 
     function resize() {
         if (initialized) {
+            gl.deleteTexture(sourceTexture.texture);
             gl.deleteTexture(overlayColorRampTexture.texture);
-            gl.deleteBuffer(particlesBuffer.buffer);
-            gl.deleteBuffer(particlesIndexBuffer.buffer);
-            gl.deleteTexture(particlesStateTexture0.texture);
-            gl.deleteTexture(particlesStateTexture1.texture);
-            gl.deleteTexture(particlesScreenTexture0.texture);
-            gl.deleteTexture(particlesScreenTexture1.texture);
+
+            if (config.particles.count > 0) {
+                gl.deleteBuffer(particlesBuffer.buffer);
+                gl.deleteBuffer(particlesIndexBuffer.buffer);
+                gl.deleteTexture(particlesStateTexture0.texture);
+                gl.deleteTexture(particlesStateTexture1.texture);
+                gl.deleteTexture(particlesScreenTexture0.texture);
+                gl.deleteTexture(particlesScreenTexture1.texture);
+            }
         }
 
         pixelRatio = getPixelRatio(config.retina);
 
+        sourceTexture = createImageTexture(gl, config.source.image);
+
         const colors = colorRamp(config.overlay.colorFunction);
         overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(colors.flat()), 16, 16);
 
-        particlesBuffer = createParticlesBuffer(gl, config.particles.count);
-        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particles.count);
+        if (config.particles.count > 0) {
+            particlesBuffer = createParticlesBuffer(gl, config.particles.count);
+            particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particles.count);
 
-        const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
-        const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
-        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+            const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
+            const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
+            particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+            particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
 
-        const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+            const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+            particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+            particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+        }
 
         initialized = true;
     }
@@ -131,6 +141,10 @@ export function drawToGl(gl, config) {
      * @param {number[]} worldOffsets
      */
     function prerender(matrix, zoom, worldBounds, worldOffsets) {
+        if (config.particles.count <= 0) {
+            return;
+        }
+
         const speedFactor = config.particles.speedFactor * pixelRatio / 1.8 ** zoom;
         const particleSize = config.particles.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.particles.color[0] / 255, config.particles.color[1] / 255, config.particles.color[2] / 255, config.particles.opacity]);
@@ -199,7 +213,10 @@ export function drawToGl(gl, config) {
         for (let worldOffset of worldOffsets) {
             drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, config.source.bounds, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
         }
-        drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
+
+        if (config.particles.count > 0) {
+            drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
+        }
 
         if (!blendEnabled) {
             gl.disable(gl.BLEND);

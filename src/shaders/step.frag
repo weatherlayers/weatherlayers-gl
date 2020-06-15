@@ -10,7 +10,7 @@ precision mediump float;
 #pragma glslify: unpackPosition = require('./_unpack-position')
 #pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: transform = require('./_transform')
-#pragma glslify: getSpeed = require('./_speed')
+#pragma glslify: getPositionValues = require('./_get-position-values')
 
 uniform sampler2D sState;
 uniform sampler2D sSource;
@@ -50,14 +50,14 @@ vec2 update(vec2 position) {
     vec2 seed = (position + vTexCoord) * uRandomSeed;
 
     // move the position, take into account WGS84 distortion
-    vec2 speed = getSpeed(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
+    vec2 values = getPositionValues(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
     float distortion = cos(radians(position.y * 180.0 - 90.0));
-    vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
+    vec2 offset = vec2(values.x / distortion, -values.y) * 0.0001 * uSpeedFactor;
     vec2 newPosition = offsetWrapped(position, offset);
 
     // randomize the position to prevent particles from converging to the areas of low pressure
     // 1st frame: drop
-    float dropRate = uDropRate + length(speed) / length(uSourceBoundsMax) * uDropRateBump;
+    float dropRate = uDropRate + length(values) / length(uSourceBoundsMax) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
     drop = _if(
         length(newPosition - position) < STATIC_DIST_THRESHOLD * uSpeedFactor,

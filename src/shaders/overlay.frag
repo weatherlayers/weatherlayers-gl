@@ -6,9 +6,10 @@ precision mediump float;
 #define GRID_SIZE 8.0
 #define SHOW_ORIGINAL false
 
+#pragma glslify: _if = require('./_if')
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
-#pragma glslify: getSpeed = require('./_speed')
+#pragma glslify: getPositionValues = require('./_get-position-values')
 
 uniform sampler2D sSource;
 uniform vec2 uSourceResolution;
@@ -30,9 +31,10 @@ void main() {
     }
 
     vec2 position = mercatorToWGS84(vTexCoord);
-    vec2 speed = getSpeed(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
+    vec2 values = getPositionValues(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
+    float value = _if(uSourceBoundsMin.y == 0.0 && uSourceBoundsMax.y == 0.0, values.x, length(values));
 
-    float colorIndex = (length(speed) - uOverlayBoundsMin) / (uOverlayBoundsMax - uOverlayBoundsMin);
+    float colorIndex = (value - uOverlayBoundsMin) / (uOverlayBoundsMax - uOverlayBoundsMin);
     vec2 colorPosition = vec2(fract(16.0 * colorIndex), floor(16.0 * colorIndex) / 16.0);
     vec4 color = vec4(texture2D(sOverlayColorRamp, colorPosition).rgb, uOverlayOpacity);
 

@@ -12,7 +12,10 @@ export class WeatherLayer {
         this.type = 'custom';
         this.renderingMode = '2d';
 
-        this.config = Object.assign({ minZoom: 0, maxZoom: 14 }, config);
+        config.minZoom = config.minZoom || 0;
+        config.maxZoom = config.maxZoom || 14;
+        this.config = config;
+
         this.running = true;
     }
  
@@ -81,7 +84,7 @@ export class WeatherLayer {
         const worldOffsets = this.getWorldOffsets();
         this.weather.render(matrix, worldOffsets);
 
-        if (this.enabled && this.running) {
+        if (this.enabled && this.running && this.config.particles.count > 0) {
             this.map.triggerRepaint();
         }
     }

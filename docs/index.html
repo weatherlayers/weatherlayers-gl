@@ -22,26 +22,22 @@
 <script type="module">
 import { config, initGui } from './config.js';
 
+config.particles.speedFactor = 0.25;
+config.overlay.opacity = 0.4;
+config.backgroundColor = [0, 0, 0];
+config.autoStart = true;
+
 window.addEventListener('DOMContentLoaded', async () => {
     config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
 
     const canvas = document.getElementById('canvas');
-    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, {
-        ...config,
-        particles: {
-            ...config.particles,
-            speedFactor: 0.25,
-        },
-        overlay: {
-            ...config.overlay,
-            opacity: 0.4,
-        },
-        backgroundColor: [0, 0, 0],
-        autoStart: true,
-    });
+    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, config);
     
-    const gui = initGui(weather.config, weather.resize);
-    gui.add(weather, 'running');
+    const update = () => {
+        weather.resize();
+    };
+    const gui = initGui(config, update);
+    gui.add(weather, 'running').onChange(update);
 });
 </script>
 </body>

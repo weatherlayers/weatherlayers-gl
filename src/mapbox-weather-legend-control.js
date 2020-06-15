@@ -81,7 +81,7 @@ export class WeatherLegendControl {
             tick.appendChild(line);
 
             const value = /** @type SVGTextElement */ (document.createElementNS(xmlns, 'text'));
-            value.innerHTML = `${x}`;
+            value.innerHTML = `${Math.round(x)}`;
             value.style.transform = 'translate(0, 22px)';
             tick.appendChild(value);
         }
