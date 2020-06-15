@@ -1,4 +1,4 @@
-const imagePath = '../data/gfs/2020051500.png';
+const imagePath = '../data/gfs/wind-speed/2020051500.png';
 
 export const config = {
     source: {
