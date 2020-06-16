@@ -78,6 +78,20 @@ const layerConfigs = new Map([
             legendTitle: 'Relative Humidity [%]',
         },
     }],
+    ['gfs/precipitation', {
+        source: {
+            imagePath: '../data/gfs/precipitation/2020061500.png',
+            bounds: [[0, 0], [150, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [0, 150],
+            colorFunction: 'µ.segmentedColorScale/precipitation',
+            legendTitle: 'Next 3-hr Precip Accumulation [kg/m²]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -93,7 +107,7 @@ const colorFunctions = new Map([
         [(291 - 193) / (328 - 193),     [247, 251, 59]],
         [(298 - 193) / (328 - 193),     [235, 167, 21]],
         [(311 - 193) / (328 - 193),     [230, 71, 39]],
-        [(328 - 193) / (328 - 193),     [88, 27, 67]]
+        [(328 - 193) / (328 - 193),     [88, 27, 67]],
     ])],
     ['µ.segmentedColorScale/humidity', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(0 - 0) / (100 - 0), [230, 165, 30]],
@@ -102,6 +116,21 @@ const colorFunctions = new Map([
         [(75 - 0) / (100 - 0), [21, 13, 193]],
         [(90 - 0) / (100 - 0), [75, 63, 235]],
         [(100 - 0) / (100 - 0), [25, 255, 255]],
+    ])],
+    ['µ.segmentedColorScale/precipitation', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        // TPW
+        // [(0 - 0) / (70 - 0), [230, 165, 30]],
+        // [(10 - 0) / (70 - 0), [120, 100, 95]],
+        // [(20 - 0) / (70 - 0), [40, 44, 92]],
+        // [(30 - 0) / (70 - 0), [21, 13, 193]],
+        // [(40 - 0) / (70 - 0), [75, 63, 235]],
+        // [(60 - 0) / (70 - 0), [25, 255, 255]],
+        // [(70 - 0) / (70 - 0), [150, 255, 255]],
+        [(0 - 0) / (150 - 0), [37, 79, 92]],
+        [(2 - 0) / (150 - 0), [240, 248, 255]],
+        [(15 - 0) / (150 - 0), [51, 26, 155]],
+        [(50 - 0) / (150 - 0), [241, 1, 107]], // approximate
+        [(150 - 0) / (150 - 0), [255, 215, 0]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential

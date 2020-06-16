@@ -16,6 +16,5 @@ reference visualization: https://earth.nullschool.net/#2020/06/15/0000Z/wind/sur
 ## Download data
 
 ```
-brew install eccodes
-data/gfs/download.sh
+data/download.sh
 ```

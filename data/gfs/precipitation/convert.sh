@@ -17,7 +17,7 @@ gdalwarp \
 gdal_translate \
     -ot Byte \
     -b 1 \
-    -scale -128 127 0 255 \
+    -scale 0 150 0 255 \
     "$TMP_FILE" \
     "$OUTPUT_FILE"
 
