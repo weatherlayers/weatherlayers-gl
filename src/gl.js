@@ -1,6 +1,6 @@
 import { getPixelRatio } from './pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
-import { colorRamp } from './color-ramp.js';
+import { colorRampCanvas } from './color-ramp.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createStepProgram, computeStep } from './shaders/step.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
@@ -113,8 +113,8 @@ export function drawToGl(gl, config) {
 
         sourceTexture = createImageTexture(gl, config.source.image);
 
-        const colors = colorRamp(config.overlay.colorFunction);
-        overlayColorRampTexture = createArrayTexture(gl, new Uint8Array(colors.flat()), 16, 16);
+        const overlayColorRampCanvas = colorRampCanvas(config.overlay.colorFunction);
+        overlayColorRampTexture = createImageTexture(gl, overlayColorRampCanvas);
 
         if (config.particles.count > 0) {
             particlesBuffer = createParticlesBuffer(gl, config.particles.count);

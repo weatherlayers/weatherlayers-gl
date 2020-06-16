@@ -64,6 +64,20 @@ const layerConfigs = new Map([
             legendTitle: 'Temperature [°C]',
         },
     }],
+    ['gfs/humidity', {
+        source: {
+            imagePath: '../data/gfs/humidity/2020061500.png',
+            bounds: [[0, 0], [100, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [0, 100],
+            colorFunction: 'µ.segmentedColorScale/humidity',
+            legendTitle: 'Relative Humidity [%]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -80,6 +94,14 @@ const colorFunctions = new Map([
         [(298 - 193) / (328 - 193),     [235, 167, 21]],
         [(311 - 193) / (328 - 193),     [230, 71, 39]],
         [(328 - 193) / (328 - 193),     [88, 27, 67]]
+    ])],
+    ['µ.segmentedColorScale/humidity', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(0 - 0) / (100 - 0), [230, 165, 30]],
+        [(25 - 0) / (100 - 0), [120, 100, 95]],
+        [(60 - 0) / (100 - 0), [40, 44, 92]],
+        [(75 - 0) / (100 - 0), [21, 13, 193]],
+        [(90 - 0) / (100 - 0), [75, 63, 235]],
+        [(100 - 0) / (100 - 0), [25, 255, 255]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential

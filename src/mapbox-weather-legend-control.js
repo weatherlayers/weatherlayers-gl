@@ -1,4 +1,4 @@
-import { colorRamp } from './color-ramp.js';
+import { colorRampCanvas } from './color-ramp.js';
 
 /** @typedef {import('./gl.js').MaritraceMapboxWeatherConfig} MaritraceMapboxWeatherConfig */
     
@@ -55,11 +55,12 @@ export class WeatherLegendControl {
         scale.style.transform = `translate(${paddingY}px, 22px)`;
         svg.appendChild(scale);
 
-        const imageCanvas = this.renderScale();
+        const imageCanvas = colorRampCanvas(this.config.overlay.colorFunction, this.config.overlay.legendWidth);
         const image = /** @type SVGImageElement */ (document.createElementNS(xmlns, 'image'));
         image.setAttribute('href', imageCanvas.toDataURL());
-        image.setAttribute('width', `${imageCanvas.width}`);
-        image.setAttribute('height', `${imageCanvas.height}`);
+        image.setAttribute('width', `${this.config.overlay.legendWidth}`);
+        image.setAttribute('height', '5');
+        image.setAttribute('preserveAspectRatio', 'none');
         scale.appendChild(image);
 
         const ticks = /** @type SVGGElement */ (document.createElementNS(xmlns, 'g'));
@@ -85,23 +86,5 @@ export class WeatherLegendControl {
             value.style.transform = 'translate(0, 22px)';
             tick.appendChild(value);
         }
-    }
-
-    renderScale() {
-        const canvas = /** @type HTMLCanvasElement */ (document.createElement('canvas'));
-        canvas.width = this.config.overlay.legendWidth;
-        canvas.height = 5;
-        canvas.style.display = 'block';
-        canvas.style.border = '1px solid #eee';
-        canvas.style.imageRendering = '-moz-crisp-edges';
-        canvas.style.imageRendering = 'pixelated';
-        const ctx = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
-        const colors = colorRamp(this.config.overlay.colorFunction, this.config.overlay.legendWidth);
-        for (let i = 0; i < colors.length; i++) {
-            const color = colors[i];
-            ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-            ctx.fillRect(i, 0, 1, canvas.height);
-        }
-        return canvas;
     }
 }

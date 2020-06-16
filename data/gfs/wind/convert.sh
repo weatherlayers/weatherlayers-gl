@@ -13,10 +13,7 @@ gdalwarp \
     "$TMP_FILE"
 
 # transform into PNG image texture
-# map values from -128..127 float to 0..255 uint8
-# R channel - band 1 (u wind vector)
-# G channel - band 2 (v wind vector)
-# B channel - empty
+# map values to 0..255 uint8
 gdal_translate \
     -ot Byte \
     -b 1 -b 2 -b 2 \

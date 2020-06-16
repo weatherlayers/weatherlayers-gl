@@ -102,7 +102,7 @@ export function createElementBuffer(gl, data) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {HTMLImageElement} image
+ * @param {HTMLImageElement | HTMLCanvasElement} image
  * @return {WebGLTextureWrapper}
  */
 export function createImageTexture(gl, image) {
