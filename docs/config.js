@@ -106,6 +106,20 @@ const layerConfigs = new Map([
             legendTitle: 'CAPE [J/kg]',
         },
     }],
+    ['gfs/tpw', {
+        source: {
+            imagePath: '../data/gfs/tpw/2020061500.png',
+            bounds: [[0, 0], [70, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [0, 70],
+            colorFunction: 'µ.segmentedColorScale/tpw',
+            legendTitle: 'Total Precipitable Water [kg/m²]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -132,14 +146,6 @@ const colorFunctions = new Map([
         [100 / 100, [25, 255, 255]],
     ])],
     ['µ.segmentedColorScale/precipitation', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
-        // TPW
-        // [0 / 70, [230, 165, 30]],
-        // [10 / 70, [120, 100, 95]],
-        // [20 / 70, [40, 44, 92]],
-        // [30 / 70, [21, 13, 193]],
-        // [40 / 70, [75, 63, 235]],
-        // [60 / 70, [25, 255, 255]],
-        // [70 / 70, [150, 255, 255]],
         [0 / 150, [37, 79, 92]],
         [2 / 150, [240, 248, 255]],
         [15 / 150, [51, 26, 155]],
@@ -158,6 +164,15 @@ const colorFunctions = new Map([
         [4000 / 5000, [214, 96, 77]],
         [4500 / 5000, [178, 24, 43]],
         [5000 / 5000, [103, 0, 31]],
+    ])],
+    ['µ.segmentedColorScale/tpw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [0 / 70, [230, 165, 30]],
+        [10 / 70, [120, 100, 95]],
+        [20 / 70, [40, 44, 92]],
+        [30 / 70, [21, 13, 193]],
+        [40 / 70, [75, 63, 235]],
+        [60 / 70, [25, 255, 255]],
+        [70 / 70, [150, 255, 255]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
