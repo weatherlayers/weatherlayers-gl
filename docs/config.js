@@ -53,7 +53,7 @@ const layerConfigs = new Map([
     ['gfs/temperature', {
         source: {
             imagePath: '../data/gfs/temperature/2020061500.png',
-            bounds: [[-128, 0], [127, 0]],
+            bounds: [[193 - 273.15, 0], [328 - 273.15, 0]],
         },
         particles: {
             count: 0,

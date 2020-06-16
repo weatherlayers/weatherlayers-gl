@@ -7,7 +7,7 @@
   <PAMRasterBand band="1">
     <Description>2[m] HTGL="Specified height level above ground"</Description>
     <Metadata>
-      <MDI key="GRIB_COMMENT">Temperature [C]</MDI>
+      <MDI key="GRIB_COMMENT">Temperature [K]</MDI>
       <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
       <MDI key="GRIB_ELEMENT">TMP</MDI>
       <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
@@ -17,7 +17,7 @@
       <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">0 0 2 0 81 0 0 0 1 0 0 0 0 103 0 0 0 0 2 255 0 0 0 0 0</MDI>
       <MDI key="GRIB_REF_TIME">1592179200 sec UTC</MDI>
       <MDI key="GRIB_SHORT_NAME">2-HTGL</MDI>
-      <MDI key="GRIB_UNIT">[C]</MDI>
+      <MDI key="GRIB_UNIT">[K]</MDI>
       <MDI key="GRIB_VALID_TIME">1592179200 sec UTC</MDI>
     </Metadata>
   </PAMRasterBand>
