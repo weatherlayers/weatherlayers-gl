@@ -148,6 +148,20 @@ const layerConfigs = new Map([
             legendTitle: 'Mean Sea Level Pressure [hPa]',
         },
     }],
+    ['gfs/aptmp', {
+        source: {
+            imagePath: '../data/gfs/aptmp/2020061500.png',
+            bounds: [[236 - 273.15, 0], [332 - 273.15, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [236 - 273.15, 332 - 273.15],
+            colorFunction: 'µ.segmentedColorScale/aptmp',
+            legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -181,17 +195,17 @@ const colorFunctions = new Map([
         [150 / 150, [255, 215, 0]],
     ])],
     ['µ.segmentedColorScale/cape', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
-        [0 / 5000, [5, 48, 97]],
-        [500 / 5000, [33, 102, 172]],
-        [1000 / 5000, [67, 147, 195]],
-        [1500 / 5000, [146, 197, 222]],
-        [2000 / 5000, [209, 229, 240]],
-        [2500 / 5000, [247, 247, 247]],
-        [3000 / 5000, [253, 219, 199]],
-        [3500 / 5000, [244, 165, 130]],
-        [4000 / 5000, [214, 96, 77]],
-        [4500 / 5000, [178, 24, 43]],
-        [5000 / 5000, [103, 0, 31]],
+        [0 / 5000, [5, 48, 97]],        // weak
+        [500 / 5000, [33, 102, 172]],   // weak
+        [1000 / 5000, [67, 147, 195]],  // weak
+        [1500 / 5000, [146, 197, 222]], // moderate
+        [2000 / 5000, [209, 229, 240]], // moderate
+        [2500 / 5000, [247, 247, 247]], // moderate
+        [3000 / 5000, [253, 219, 199]], // strong
+        [3500 / 5000, [244, 165, 130]], // strong
+        [4000 / 5000, [214, 96, 77]],   // strong
+        [4500 / 5000, [178, 24, 43]],   // extreme
+        [5000 / 5000, [103, 0, 31]],    // extreme
     ])],
     ['µ.segmentedColorScale/tpw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 70, [230, 165, 30]],
@@ -216,6 +230,20 @@ const colorFunctions = new Map([
         [(101300 - 92000) / (105000 - 92000), [241, 254, 18]],
         [(103000 - 92000) / (105000 - 92000), [228, 246, 223]],
         [(105000 - 92000) / (105000 - 92000), [255, 255, 255]],
+    ])],
+    ['µ.segmentedColorScale/aptmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(241 - 236) / (332 - 236), [255, 255, 255]], // -32 C, -25 F extreme frostbite
+        [(245.5 - 236) / (332 - 236), [6, 82, 255]],
+        [(250 - 236) / (332 - 236), [6, 82, 255]],    // -23 C, -10 F frostbite
+        [(258 - 236) / (332 - 236), [46, 131, 255]],
+        [(266 - 236) / (332 - 236), [46, 131, 255]],  // -7 C, 20 F hypothermia
+        [(280 - 236) / (332 - 236), [0, 0, 0]],       // 7 C, 45 F begin suckage (cold)
+        [(300 - 236) / (332 - 236), [0, 0, 0]],       // 27 C, 80 F begin caution (heat)
+        [(305 - 236) / (332 - 236), [247, 20, 35]],   // 32 C, 90 F extreme caution
+        [(309.5 - 236) / (332 - 236), [247, 20, 35]],
+        [(314 - 236) / (332 - 236), [245, 210, 5]],   // 41 C, 105 F danger
+        [(320.5 - 236) / (332 - 236), [245, 210, 5]],
+        [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
