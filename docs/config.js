@@ -50,9 +50,9 @@ const layerConfigs = new Map([
             legendTitle: 'Wind Speed [m/s]',
         },
     }],
-    ['gfs/temperature', {
+    ['gfs/tmp', {
         source: {
-            imagePath: '../data/gfs/temperature/2020061500.png',
+            imagePath: '../data/gfs/tmp/2020061500.png',
             bounds: [[193 - 273.15, 0], [328 - 273.15, 0]],
         },
         particles: {
@@ -60,13 +60,13 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [193 - 273.15, 328 - 273.15],
-            colorFunction: 'µ.segmentedColorScale/temperature',
+            colorFunction: 'µ.segmentedColorScale/tmp',
             legendTitle: 'Temperature [°C]',
         },
     }],
-    ['gfs/humidity', {
+    ['gfs/rh', {
         source: {
-            imagePath: '../data/gfs/humidity/2020061500.png',
+            imagePath: '../data/gfs/rh/2020061500.png',
             bounds: [[0, 0], [100, 0]],
         },
         particles: {
@@ -74,13 +74,13 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 100],
-            colorFunction: 'µ.segmentedColorScale/humidity',
+            colorFunction: 'µ.segmentedColorScale/rh',
             legendTitle: 'Relative Humidity [%]',
         },
     }],
-    ['gfs/precipitation', {
+    ['gfs/apcp03', {
         source: {
-            imagePath: '../data/gfs/precipitation/2020061500.png',
+            imagePath: '../data/gfs/apcp03/2020061500.png',
             bounds: [[0, 0], [150, 0]],
         },
         particles: {
@@ -88,7 +88,7 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 150],
-            colorFunction: 'µ.segmentedColorScale/precipitation',
+            colorFunction: 'µ.segmentedColorScale/apcp03',
             legendTitle: 'Next 3-hr Precip Accumulation [kg/m²]',
         },
     }],
@@ -166,7 +166,7 @@ const layerConfigs = new Map([
 
 const colorFunctions = new Map([
     ['µ.extendedSinebowColor/wind', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
-    ['µ.segmentedColorScale/temperature', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['µ.segmentedColorScale/tmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(193 - 193) / (328 - 193),     [37, 4, 42]],
         [(206 - 193) / (328 - 193),     [41, 10, 130]],
         [(219 - 193) / (328 - 193),     [81, 40, 40]],
@@ -179,7 +179,7 @@ const colorFunctions = new Map([
         [(311 - 193) / (328 - 193),     [230, 71, 39]],
         [(328 - 193) / (328 - 193),     [88, 27, 67]],
     ])],
-    ['µ.segmentedColorScale/humidity', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['µ.segmentedColorScale/rh', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 100, [230, 165, 30]],
         [25 / 100, [120, 100, 95]],
         [60 / 100, [40, 44, 92]],
@@ -187,7 +187,7 @@ const colorFunctions = new Map([
         [90 / 100, [75, 63, 235]],
         [100 / 100, [25, 255, 255]],
     ])],
-    ['µ.segmentedColorScale/precipitation', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['µ.segmentedColorScale/apcp03', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 150, [37, 79, 92]],
         [2 / 150, [240, 248, 255]],
         [15 / 150, [51, 26, 155]],
