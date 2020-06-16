@@ -134,6 +134,20 @@ const layerConfigs = new Map([
             legendTitle: 'Total Cloud Water [kg/m²]',
         },
     }],
+    ['gfs/prmsl', {
+        source: {
+            imagePath: '../data/gfs/prmsl/2020061500.png',
+            bounds: [[920, 0], [1050, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [920, 1050],
+            colorFunction: 'µ.segmentedColorScale/prmsl',
+            legendTitle: 'Mean Sea Level Pressure [hPa]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -192,6 +206,16 @@ const colorFunctions = new Map([
         [0.0, [5, 5, 89]],
         [0.2, [170, 170, 230]],
         [1.0, [255, 255, 255]],
+    ])],
+    ['µ.segmentedColorScale/prmsl', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(92000 - 92000) / (105000 - 92000), [40, 0, 0]],
+        [(95000 - 92000) / (105000 - 92000), [187, 60, 31]],
+        [(96500 - 92000) / (105000 - 92000), [137, 32, 30]],
+        [(98000 - 92000) / (105000 - 92000), [16, 1, 43]],
+        [(100500 - 92000) / (105000 - 92000), [36, 1, 93]],
+        [(101300 - 92000) / (105000 - 92000), [241, 254, 18]],
+        [(103000 - 92000) / (105000 - 92000), [228, 246, 223]],
+        [(105000 - 92000) / (105000 - 92000), [255, 255, 255]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
