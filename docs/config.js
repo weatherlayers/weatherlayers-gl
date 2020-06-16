@@ -120,6 +120,20 @@ const layerConfigs = new Map([
             legendTitle: 'Total Precipitable Water [kg/m²]',
         },
     }],
+    ['gfs/tcw', {
+        source: {
+            imagePath: '../data/gfs/tcw/2020061500.png',
+            bounds: [[0, 0], [1, 0]],
+        },
+        particles: {
+            count: 0,
+        },
+        overlay: {
+            bounds: [0, 1],
+            colorFunction: 'µ.segmentedColorScale/tcw',
+            legendTitle: 'Total Cloud Water [kg/m²]',
+        },
+    }],
 ]);
 
 const colorFunctions = new Map([
@@ -173,6 +187,11 @@ const colorFunctions = new Map([
         [40 / 70, [75, 63, 235]],
         [60 / 70, [25, 255, 255]],
         [70 / 70, [150, 255, 255]],
+    ])],
+    ['µ.segmentedColorScale/tcw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [0.0, [5, 5, 89]],
+        [0.2, [170, 170, 230]],
+        [1.0, [255, 255, 255]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
