@@ -17,6 +17,14 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  *          image: HTMLImageElement;
  *          bounds: [[number, number], [number, number]];
  *      };
+ *      overlay: {
+ *          bounds: [number, number];
+ *          colorFunction: (i: number) => (string | [number, number, number]);
+ *          opacity: number;
+ *          legendTitle: string;
+ *          legendTicksCount: number;
+ *          legendWidth: number;
+ *      };
  *      particles: {
  *          count: number;
  *          size: number;
@@ -26,14 +34,6 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  *          dropRate: number;
  *          dropRateBump: number;
  *          fadeOpacity: number;
- *      };
- *      overlay: {
- *          bounds: [number, number];
- *          colorFunction: (i: number) => (string | [number, number, number]);
- *          opacity: number;
- *          legendTitle: string;
- *          legendTicksCount: number;
- *          legendWidth: number;
  *      };
  *      retina: boolean;
  *      minZoom: number;
@@ -71,8 +71,6 @@ export function drawToGl(gl, config) {
 
     /** @type number */
     let pixelRatio;
-    /** @type boolean */
-    let particlesEnabled;
 
     /** @type WebGLTextureWrapper */
     let sourceTexture;
@@ -80,6 +78,9 @@ export function drawToGl(gl, config) {
     /** @type WebGLTextureWrapper */
     let overlayColorRampTexture;
     
+    /** @type boolean */
+    let particlesEnabled;
+
     /** @type WebGLBufferWrapper */
     let particlesBuffer;
     /** @type WebGLBufferWrapper */
@@ -117,7 +118,6 @@ export function drawToGl(gl, config) {
         }
 
         pixelRatio = getPixelRatio(config.retina);
-        particlesEnabled = config.particles && config.particles.count > 0;
 
         sourceTexture = createImageTexture(gl, config.source.image);
 
@@ -125,6 +125,8 @@ export function drawToGl(gl, config) {
         overlayColorRampTexture = createImageTexture(gl, overlayColorRampCanvas);
 
         initialized = true;
+
+        particlesEnabled = config.particles && config.particles.count > 0;
 
         if (particlesEnabled) {
             particlesBuffer = createParticlesBuffer(gl, config.particles.count);
