@@ -65,11 +65,14 @@ export function drawToGl(gl, config) {
     const quadBuffer = createQuadBuffer(gl);
 
     let initialized = false;
+    let initializedParticles = false;
     let running = false;
     let raf = /** @type ReturnType<requestAnimationFrame> | null */ (null);
 
     /** @type number */
     let pixelRatio;
+    /** @type boolean */
+    let particlesEnabled;
 
     /** @type WebGLTextureWrapper */
     let sourceTexture;
@@ -99,24 +102,31 @@ export function drawToGl(gl, config) {
             gl.deleteTexture(sourceTexture.texture);
             gl.deleteTexture(overlayColorRampTexture.texture);
 
-            if (config.particles.count > 0) {
+            initialized = false;
+
+            if (initializedParticles) {
                 gl.deleteBuffer(particlesBuffer.buffer);
                 gl.deleteBuffer(particlesIndexBuffer.buffer);
                 gl.deleteTexture(particlesStateTexture0.texture);
                 gl.deleteTexture(particlesStateTexture1.texture);
                 gl.deleteTexture(particlesScreenTexture0.texture);
                 gl.deleteTexture(particlesScreenTexture1.texture);
+
+                initializedParticles = false;
             }
         }
 
         pixelRatio = getPixelRatio(config.retina);
+        particlesEnabled = config.particles && config.particles.count > 0;
 
         sourceTexture = createImageTexture(gl, config.source.image);
 
         const overlayColorRampCanvas = colorRampCanvas(config.overlay.colorFunction);
         overlayColorRampTexture = createImageTexture(gl, overlayColorRampCanvas);
 
-        if (config.particles.count > 0) {
+        initialized = true;
+
+        if (particlesEnabled) {
             particlesBuffer = createParticlesBuffer(gl, config.particles.count);
             particlesIndexBuffer = createParticlesIndexBuffer(gl, config.particles.count);
 
@@ -128,9 +138,9 @@ export function drawToGl(gl, config) {
             const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
             particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
             particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-        }
 
-        initialized = true;
+            initializedParticles = true;
+        }
     }
     resize();
 
@@ -141,7 +151,7 @@ export function drawToGl(gl, config) {
      * @param {number[]} worldOffsets
      */
     function prerender(matrix, zoom, worldBounds, worldOffsets) {
-        if (config.particles.count <= 0) {
+        if (!particlesEnabled) {
             return;
         }
 
@@ -214,7 +224,7 @@ export function drawToGl(gl, config) {
             drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, config.source.bounds, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
         }
 
-        if (config.particles.count > 0) {
+        if (particlesEnabled) {
             drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
         }
 
