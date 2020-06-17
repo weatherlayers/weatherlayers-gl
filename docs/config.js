@@ -31,7 +31,7 @@ const meta = {
         layer: 'gfs/wind',
     },
     overlay: {
-        colorFunction: 'µ.extendedSinebowColor/wind',
+        colorFunction: 'gfs/wind',
     },
 };
 
@@ -46,8 +46,8 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 100],
-            colorFunction: 'µ.extendedSinebowColor/wind',
-            legendTitle: 'Wind Speed [m/s]',
+            colorFunction: 'gfs/wind',
+            legendTitle: 'Wind [m/s]',
         },
     }],
     ['gfs/tmp', {
@@ -60,7 +60,7 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [193 - 273.15, 328 - 273.15],
-            colorFunction: 'µ.segmentedColorScale/tmp',
+            colorFunction: 'gfs/tmp',
             legendTitle: 'Temperature [°C]',
         },
     }],
@@ -74,7 +74,7 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 100],
-            colorFunction: 'µ.segmentedColorScale/rh',
+            colorFunction: 'gfs/rh',
             legendTitle: 'Relative Humidity [%]',
         },
     }],
@@ -88,8 +88,8 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 150],
-            colorFunction: 'µ.segmentedColorScale/apcp03',
-            legendTitle: 'Next 3-hr Precip Accumulation [kg/m²]',
+            colorFunction: 'gfs/apcp03',
+            legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
         },
     }],
     ['gfs/cape', {
@@ -102,8 +102,8 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 5000],
-            colorFunction: 'µ.segmentedColorScale/cape',
-            legendTitle: 'CAPE [J/kg]',
+            colorFunction: 'gfs/cape',
+            legendTitle: 'Convective Available Potential Energy [J/kg]',
         },
     }],
     ['gfs/tpw', {
@@ -116,7 +116,7 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 70],
-            colorFunction: 'µ.segmentedColorScale/tpw',
+            colorFunction: 'gfs/tpw',
             legendTitle: 'Total Precipitable Water [kg/m²]',
         },
     }],
@@ -130,21 +130,21 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [0, 1],
-            colorFunction: 'µ.segmentedColorScale/tcw',
+            colorFunction: 'gfs/tcw',
             legendTitle: 'Total Cloud Water [kg/m²]',
         },
     }],
     ['gfs/prmsl', {
         source: {
             imagePath: '../data/gfs/prmsl/2020061500.png',
-            bounds: [[920, 0], [1050, 0]],
+            bounds: [[92000 / 100, 0], [105000 / 100, 0]],
         },
         particles: {
             count: 0,
         },
         overlay: {
-            bounds: [920, 1050],
-            colorFunction: 'µ.segmentedColorScale/prmsl',
+            bounds: [92000 / 100, 105000 / 100],
+            colorFunction: 'gfs/prmsl',
             legendTitle: 'Mean Sea Level Pressure [hPa]',
         },
     }],
@@ -158,15 +158,15 @@ const layerConfigs = new Map([
         },
         overlay: {
             bounds: [236 - 273.15, 332 - 273.15],
-            colorFunction: 'µ.segmentedColorScale/aptmp',
+            colorFunction: 'gfs/aptmp',
             legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
         },
     }],
 ]);
 
 const colorFunctions = new Map([
-    ['µ.extendedSinebowColor/wind', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
-    ['µ.segmentedColorScale/tmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/wind', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
+    ['gfs/tmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(193 - 193) / (328 - 193),     [37, 4, 42]],
         [(206 - 193) / (328 - 193),     [41, 10, 130]],
         [(219 - 193) / (328 - 193),     [81, 40, 40]],
@@ -179,7 +179,7 @@ const colorFunctions = new Map([
         [(311 - 193) / (328 - 193),     [230, 71, 39]],
         [(328 - 193) / (328 - 193),     [88, 27, 67]],
     ])],
-    ['µ.segmentedColorScale/rh', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/rh', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 100, [230, 165, 30]],
         [25 / 100, [120, 100, 95]],
         [60 / 100, [40, 44, 92]],
@@ -187,14 +187,15 @@ const colorFunctions = new Map([
         [90 / 100, [75, 63, 235]],
         [100 / 100, [25, 255, 255]],
     ])],
-    ['µ.segmentedColorScale/apcp03', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/apcp03', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 150, [37, 79, 92]],
         [2 / 150, [240, 248, 255]],
         [15 / 150, [51, 26, 155]],
-        [50 / 150, [241, 1, 107]], // approximate
+        [50 / 150, [230, 0, 116]],
+        [100 / 150, [255, 215, 0]],
         [150 / 150, [255, 215, 0]],
     ])],
-    ['µ.segmentedColorScale/cape', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/cape', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 5000, [5, 48, 97]],        // weak
         [500 / 5000, [33, 102, 172]],   // weak
         [1000 / 5000, [67, 147, 195]],  // weak
@@ -207,7 +208,7 @@ const colorFunctions = new Map([
         [4500 / 5000, [178, 24, 43]],   // extreme
         [5000 / 5000, [103, 0, 31]],    // extreme
     ])],
-    ['µ.segmentedColorScale/tpw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/tpw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 70, [230, 165, 30]],
         [10 / 70, [120, 100, 95]],
         [20 / 70, [40, 44, 92]],
@@ -216,12 +217,12 @@ const colorFunctions = new Map([
         [60 / 70, [25, 255, 255]],
         [70 / 70, [150, 255, 255]],
     ])],
-    ['µ.segmentedColorScale/tcw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/tcw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0.0, [5, 5, 89]],
         [0.2, [170, 170, 230]],
         [1.0, [255, 255, 255]],
     ])],
-    ['µ.segmentedColorScale/prmsl', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/prmsl', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(92000 - 92000) / (105000 - 92000), [40, 0, 0]],
         [(95000 - 92000) / (105000 - 92000), [187, 60, 31]],
         [(96500 - 92000) / (105000 - 92000), [137, 32, 30]],
@@ -231,7 +232,7 @@ const colorFunctions = new Map([
         [(103000 - 92000) / (105000 - 92000), [228, 246, 223]],
         [(105000 - 92000) / (105000 - 92000), [255, 255, 255]],
     ])],
-    ['µ.segmentedColorScale/aptmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/aptmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(241 - 236) / (332 - 236), [255, 255, 255]], // -32 C, -25 F extreme frostbite
         [(245.5 - 236) / (332 - 236), [6, 82, 255]],
         [(250 - 236) / (332 - 236), [6, 82, 255]],    // -23 C, -10 F frostbite
@@ -275,7 +276,7 @@ const colorFunctions = new Map([
 
 export function initGui(config, update) {
     const gui = new dat.GUI();
-    gui.width = 350;
+    gui.width = 300;
 
     const source = gui.addFolder('source');
     source.add(meta.source, 'layer', Array.from(layerConfigs.keys())).onChange(async () => {
