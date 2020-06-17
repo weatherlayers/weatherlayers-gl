@@ -9,7 +9,7 @@ export const config = {
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
-        legendWidth: 200,
+        legendWidth: 220,
     },
     particles: {
         count: 1024,
