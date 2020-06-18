@@ -21,7 +21,7 @@ export function createStepProgram(gl) {
  * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} particlesStateTexture
  * @param {WebGLTextureWrapper} sourceTexture
- * @param {[[number, number], [number, number]]} sourceBounds
+ * @param {[number, number]} sourceBounds
  * @param {number} speedFactor
  * @param {number} dropRate
  * @param {number} dropRateBump
@@ -32,8 +32,8 @@ export function computeStep(gl, program, buffer, particlesStateTexture, sourceTe
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, particlesStateTexture, program.uniforms['sState'], null, 0);
     bindTexture(gl, sourceTexture, program.uniforms['sSource'], program.uniforms['uSourceResolution'], 1);
-    gl.uniform2fv(program.uniforms['uSourceBoundsMin'], sourceBounds[0]);
-    gl.uniform2fv(program.uniforms['uSourceBoundsMax'], sourceBounds[1]);
+    gl.uniform1f(program.uniforms['uSourceBoundsMin'], sourceBounds[0]);
+    gl.uniform1f(program.uniforms['uSourceBoundsMax'], sourceBounds[1]);
     gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
     gl.uniform1f(program.uniforms['uDropRate'], dropRate);
     gl.uniform1f(program.uniforms['uDropRateBump'], dropRateBump);

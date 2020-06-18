@@ -1,7 +1,6 @@
 export const config = {
     source: {
         imagePath: '../data/gfs/wind/2020061500.png',
-        bounds: [[-128, -128], [127, 127]],
     },
     overlay: {
         bounds: [0, 100],
@@ -12,6 +11,7 @@ export const config = {
         legendWidth: 220,
     },
     particles: {
+        bounds: [-128, 127],
         count: 1024,
         size: 2,
         color: [255, 255, 255],
@@ -39,7 +39,6 @@ const layerConfigs = new Map([
     ['gfs/wind', {
         source: {
             imagePath: '../data/gfs/wind/2020061500.png',
-            bounds: [[-128, -128], [127, 127]],
         },
         overlay: {
             bounds: [0, 100],
@@ -53,7 +52,6 @@ const layerConfigs = new Map([
     ['gfs/tmp', {
         source: {
             imagePath: '../data/gfs/tmp/2020061500.png',
-            bounds: [[193 - 273.15, 0], [328 - 273.15, 0]],
         },
         overlay: {
             bounds: [193 - 273.15, 328 - 273.15],
@@ -67,7 +65,6 @@ const layerConfigs = new Map([
     ['gfs/rh', {
         source: {
             imagePath: '../data/gfs/rh/2020061500.png',
-            bounds: [[0, 0], [100, 0]],
         },
         overlay: {
             bounds: [0, 100],
@@ -81,7 +78,6 @@ const layerConfigs = new Map([
     ['gfs/apcp03', {
         source: {
             imagePath: '../data/gfs/apcp03/2020061500.png',
-            bounds: [[0, 0], [150, 0]],
         },
         overlay: {
             bounds: [0, 150],
@@ -95,7 +91,6 @@ const layerConfigs = new Map([
     ['gfs/cape', {
         source: {
             imagePath: '../data/gfs/cape/2020061500.png',
-            bounds: [[0, 0], [5000, 0]],
         },
         overlay: {
             bounds: [0, 5000],
@@ -109,7 +104,6 @@ const layerConfigs = new Map([
     ['gfs/tpw', {
         source: {
             imagePath: '../data/gfs/tpw/2020061500.png',
-            bounds: [[0, 0], [70, 0]],
         },
         overlay: {
             bounds: [0, 70],
@@ -123,7 +117,6 @@ const layerConfigs = new Map([
     ['gfs/tcw', {
         source: {
             imagePath: '../data/gfs/tcw/2020061500.png',
-            bounds: [[0, 0], [1, 0]],
         },
         overlay: {
             bounds: [0, 1],
@@ -137,7 +130,6 @@ const layerConfigs = new Map([
     ['gfs/prmsl', {
         source: {
             imagePath: '../data/gfs/prmsl/2020061500.png',
-            bounds: [[92000 / 100, 0], [105000 / 100, 0]],
         },
         overlay: {
             bounds: [92000 / 100, 105000 / 100],
@@ -151,7 +143,6 @@ const layerConfigs = new Map([
     ['gfs/aptmp', {
         source: {
             imagePath: '../data/gfs/aptmp/2020061500.png',
-            bounds: [[236 - 273.15, 0], [332 - 273.15, 0]],
         },
         overlay: {
             bounds: [236 - 273.15, 332 - 273.15],

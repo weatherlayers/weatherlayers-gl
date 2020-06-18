@@ -15,8 +15,8 @@ precision mediump float;
 uniform sampler2D sState;
 uniform sampler2D sSource;
 uniform vec2 uSourceResolution;
-uniform vec2 uSourceBoundsMin;
-uniform vec2 uSourceBoundsMax;
+uniform float uSourceBoundsMin;
+uniform float uSourceBoundsMax;
 uniform float uSpeedFactor;
 uniform float uDropRate;
 uniform float uDropRateBump;
@@ -40,24 +40,26 @@ vec2 mixWrapped(vec2 boundsMin, vec2 boundsMax, vec2 ratio) {
 }
 
 bool outOfRangeWrapped(vec2 boundsMin, vec2 boundsMax, vec2 position) {
-    return
+    return (
         outOfRange(boundsMin, boundsMax, position) &&
         outOfRange(boundsMin, boundsMax, position + vec2(-1, 0)) &&
-        outOfRange(boundsMin, boundsMax, position + vec2(1, 0));
+        outOfRange(boundsMin, boundsMax, position + vec2(1, 0))
+    );
 }
 
 vec2 update(vec2 position) {
     vec2 seed = (position + vTexCoord) * uRandomSeed;
 
     // move the position, take into account WGS84 distortion
-    vec2 values = getPositionValues(sSource, uSourceResolution, position, uSourceBoundsMin, uSourceBoundsMax);
+    vec4 values = getPositionValues(sSource, uSourceResolution, position);
+    vec2 speed = mix(vec2(uSourceBoundsMin, uSourceBoundsMin), vec2(uSourceBoundsMax, uSourceBoundsMax), values.yz);
     float distortion = cos(radians(position.y * 180.0 - 90.0));
-    vec2 offset = vec2(values.x / distortion, -values.y) * 0.0001 * uSpeedFactor;
+    vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
     vec2 newPosition = offsetWrapped(position, offset);
 
     // randomize the position to prevent particles from converging to the areas of low pressure
     // 1st frame: drop
-    float dropRate = uDropRate + length(values) / length(uSourceBoundsMax) * uDropRateBump;
+    float dropRate = uDropRate + values.x / length(uSourceBoundsMax) * uDropRateBump;
     float drop = step(1.0 - dropRate, random(seed));
     drop = _if(
         length(newPosition - position) < STATIC_DIST_THRESHOLD * uSpeedFactor,

@@ -15,7 +15,6 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  * @typedef {{
  *      source: {
  *          image: HTMLImageElement;
- *          bounds: [[number, number], [number, number]];
  *      };
  *      overlay: {
  *          bounds: [number, number];
@@ -26,6 +25,7 @@ import { createCopyProgram, drawCopy } from './shaders/copy.js';
  *          legendWidth: number;
  *      };
  *      particles: {
+ *          bounds: [number, number];
  *          count: number;
  *          size: number;
  *          color: [number, number, number];
@@ -172,7 +172,7 @@ export function drawToGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.source.bounds, speedFactor, config.particles.dropRate, config.particles.dropRateBump, worldBounds);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.particles.bounds, speedFactor, config.particles.dropRate, config.particles.dropRateBump, worldBounds);
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.particles.count));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
@@ -223,7 +223,7 @@ export function drawToGl(gl, config) {
         // draw to canvas
         gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         for (let worldOffset of worldOffsets) {
-            drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, config.source.bounds, config.overlay.bounds, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
+            drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, overlayColorRampTexture, config.overlay.opacity, matrix, worldOffset);
         }
 
         if (particlesEnabled) {
@@ -284,6 +284,7 @@ export function drawToGl(gl, config) {
         gl.deleteProgram(copyProgram.program);
 
         gl.deleteBuffer(quadBuffer.buffer);
+
         gl.deleteTexture(sourceTexture.texture);
         gl.deleteTexture(overlayColorRampTexture.texture);
 

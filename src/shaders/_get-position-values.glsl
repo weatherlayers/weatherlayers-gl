@@ -2,20 +2,18 @@
 // see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
 vec4 texture2DBilinear(sampler2D texture, vec2 resolution, vec2 position) {
     vec2 px = 1.0 / resolution;
-    vec2 vc = (floor(position * resolution)) * px;
-    vec2 f = fract(position * resolution);
-    vec4 tl = texture2D(texture, vc);
-    vec4 tr = texture2D(texture, vc + vec2(px.x, 0));
-    vec4 bl = texture2D(texture, vc + vec2(0, px.y));
-    vec4 br = texture2D(texture, vc + px);
-    return mix(mix(tl, tr, f.x), mix(bl, br, f.x), f.y);
+    vec2 floorPosition = (floor(position * resolution)) * px;
+    vec2 fractPosition = fract(position * resolution);
+    vec4 topLeft = texture2D(texture, floorPosition);
+    vec4 topRight = texture2D(texture, floorPosition + vec2(px.x, 0));
+    vec4 bottomLeft = texture2D(texture, floorPosition + vec2(0, px.y));
+    vec4 bottomRight = texture2D(texture, floorPosition + px);
+    return mix(mix(topLeft, topRight, fractPosition.x), mix(bottomLeft, bottomRight, fractPosition.x), fractPosition.y);
 }
 
-vec2 getPositionValues(sampler2D texture, vec2 resolution, vec2 position, vec2 boundsMin, vec2 boundsMax) {
-    // vec2 packedValue = texture2D(texture, position).rg; // lower-res hardware linear filtering
-    vec2 packedValues = texture2DBilinear(texture, resolution, position).rg;
-
-    vec2 values = mix(boundsMin, boundsMax, packedValues);
+vec4 getPositionValues(sampler2D texture, vec2 resolution, vec2 position) {
+    // vec2 values = texture2D(texture, position); // lower-res hardware linear filtering
+    vec4 values = texture2DBilinear(texture, resolution, position);
 
     return values;
 }
