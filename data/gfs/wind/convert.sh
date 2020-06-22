@@ -16,7 +16,7 @@ gdalwarp \
     "$INPUT_FILE" \
     "$TMP_FILE"
 
-# calculate length and bearing
+# calculate length
 gdal_calc.py --calc='sqrt(A * A + B * B)' -A "$TMP_FILE" --A_band=1 -B "$TMP_FILE" --B_band=2 --outfile "$LENGTH_TMP_FILE"
 gdalbuildvrt -b 1 "$U_TMP_FILE" "$TMP_FILE"
 gdalbuildvrt -b 2 "$V_TMP_FILE" "$TMP_FILE"

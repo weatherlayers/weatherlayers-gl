@@ -1,16 +1,17 @@
 export const config = {
-    source: {
-        imagePath: '../data/gfs/wind/2020061500.png',
-    },
     overlay: {
+        imagePath: '../data/gfs/wind/2020061500.png',
         bounds: [0, 100],
         colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
         legendWidth: 220,
+        minZoom: 0,
+        maxZoom: 14,
     },
     particles: {
+        imagePath: '../data/gfs/wind/2020061500.png',
         bounds: [-128, 127],
         count: 1024,
         size: 2,
@@ -20,142 +21,91 @@ export const config = {
         dropRate: 0.003, // how often the particles move to a random place
         dropRateBump: 0.01, // drop rate increase relative to individual particle speed
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
+        retina: true,
+        minZoom: 0,
+        maxZoom: 14,
     },
-    retina: true,
-    minZoom: 0,
-    maxZoom: 14,
 };
 
 const meta = {
-    source: {
-        layer: 'gfs/wind',
-    },
     overlay: {
+        layer: 'gfs/wind',
         colorFunction: 'gfs/wind',
+    },
+    particles: {
+        layer: 'gfs/wind',
     },
 };
 
-const layerConfigs = new Map([
+const overlayLayerConfigs = new Map([
     ['gfs/wind', {
-        source: {
-            imagePath: '../data/gfs/wind/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 100],
-            colorFunction: 'gfs/wind',
-            legendTitle: 'Wind [m/s]',
-        },
-        particles: {
-            count: 1024,
-        },
+        imagePath: '../data/gfs/wind/2020061500.png',
+        bounds: [0, 100],
+        colorFunction: 'gfs/wind',
+        legendTitle: 'Wind [m/s]',
     }],
     ['gfs/tmp', {
-        source: {
-            imagePath: '../data/gfs/tmp/2020061500.png',
-        },
-        overlay: {
-            bounds: [193 - 273.15, 328 - 273.15],
-            colorFunction: 'gfs/tmp',
-            legendTitle: 'Temperature [°C]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/tmp/2020061500.png',
+        bounds: [193 - 273.15, 328 - 273.15],
+        colorFunction: 'gfs/tmp',
+        legendTitle: 'Temperature [°C]',
     }],
     ['gfs/rh', {
-        source: {
-            imagePath: '../data/gfs/rh/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 100],
-            colorFunction: 'gfs/rh',
-            legendTitle: 'Relative Humidity [%]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/rh/2020061500.png',
+        bounds: [0, 100],
+        colorFunction: 'gfs/rh',
+        legendTitle: 'Relative Humidity [%]',
     }],
     ['gfs/apcp03', {
-        source: {
-            imagePath: '../data/gfs/apcp03/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 150],
-            colorFunction: 'gfs/apcp03',
-            legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/apcp03/2020061500.png',
+        bounds: [0, 150],
+        colorFunction: 'gfs/apcp03',
+        legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
     }],
     ['gfs/cape', {
-        source: {
-            imagePath: '../data/gfs/cape/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 5000],
-            colorFunction: 'gfs/cape',
-            legendTitle: 'Convective Available Potential Energy [J/kg]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/cape/2020061500.png',
+        bounds: [0, 5000],
+        colorFunction: 'gfs/cape',
+        legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
     ['gfs/tpw', {
-        source: {
-            imagePath: '../data/gfs/tpw/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 70],
-            colorFunction: 'gfs/tpw',
-            legendTitle: 'Total Precipitable Water [kg/m²]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/tpw/2020061500.png',
+        bounds: [0, 70],
+        colorFunction: 'gfs/tpw',
+        legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
     ['gfs/tcw', {
-        source: {
-            imagePath: '../data/gfs/tcw/2020061500.png',
-        },
-        overlay: {
-            bounds: [0, 1],
-            colorFunction: 'gfs/tcw',
-            legendTitle: 'Total Cloud Water [kg/m²]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/tcw/2020061500.png',
+        bounds: [0, 1],
+        colorFunction: 'gfs/tcw',
+        legendTitle: 'Total Cloud Water [kg/m²]',
     }],
     ['gfs/prmsl', {
-        source: {
-            imagePath: '../data/gfs/prmsl/2020061500.png',
-        },
-        overlay: {
-            bounds: [92000 / 100, 105000 / 100],
-            colorFunction: 'gfs/prmsl',
-            legendTitle: 'Mean Sea Level Pressure [hPa]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/prmsl/2020061500.png',
+        bounds: [92000 / 100, 105000 / 100],
+        colorFunction: 'gfs/prmsl',
+        legendTitle: 'Mean Sea Level Pressure [hPa]',
     }],
     ['gfs/aptmp', {
-        source: {
-            imagePath: '../data/gfs/aptmp/2020061500.png',
-        },
-        overlay: {
-            bounds: [236 - 273.15, 332 - 273.15],
-            colorFunction: 'gfs/aptmp',
-            legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
-        },
-        particles: {
-            count: 0,
-        },
+        imagePath: '../data/gfs/aptmp/2020061500.png',
+        bounds: [236 - 273.15, 332 - 273.15],
+        colorFunction: 'gfs/aptmp',
+        legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
     }],
 ]);
 
-const colorFunctions = new Map([
+const particlesLayerConfigs = new Map([
+    ['none', {
+        imagePath: null,
+        count: 0,
+    }],
+    ['gfs/wind', {
+        imagePath: '../data/gfs/wind/2020061500.png',
+        count: 1024,
+    }],
+]);
+
+const overlayColorFunctions = new Map([
     ['gfs/wind', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
     ['gfs/tmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(193 - 193) / (328 - 193),     [37, 4, 42]],
@@ -269,33 +219,36 @@ export function initGui(config, update) {
     const gui = new dat.GUI();
     gui.width = 300;
 
-    const source = gui.addFolder('source');
-    source.add(meta.source, 'layer', Array.from(layerConfigs.keys())).onChange(async () => {
-        const layerConfig = layerConfigs.get(meta.source.layer);
-        Object.keys(layerConfig).forEach(key => {
-            Object.keys(layerConfig[key]).forEach(key2 => {
-                config[key][key2] = layerConfig[key][key2];
-            });
+    const overlay = gui.addFolder('overlay');
+    overlay.add(meta.overlay, 'layer', Array.from(overlayLayerConfigs.keys())).onChange(async () => {
+        const overlayLayerConfig = overlayLayerConfigs.get(meta.overlay.layer);
+        Object.keys(overlayLayerConfig).forEach(key => {
+            config.overlay[key] = overlayLayerConfig[key];
         });
 
-        config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
-        meta.overlay.colorFunction = layerConfig.overlay.colorFunction;
-        config.overlay.colorFunction = colorFunctions.get(meta.overlay.colorFunction);
+        meta.overlay.colorFunction = overlayLayerConfig.colorFunction;
+        config.overlay.colorFunction = overlayColorFunctions.get(meta.overlay.colorFunction);
 
         gui.updateDisplay();
         update();
     });
-    source.open();
-
-    const overlay = gui.addFolder('overlay');
-    overlay.add(meta.overlay, 'colorFunction', Array.from(colorFunctions.keys())).onChange(() => {
-        config.overlay.colorFunction = colorFunctions.get(meta.overlay.colorFunction);
+    overlay.add(meta.overlay, 'colorFunction', Array.from(overlayColorFunctions.keys())).onChange(() => {
+        config.overlay.colorFunction = overlayColorFunctions.get(meta.overlay.colorFunction);
+        
         update();
     });
     overlay.add(config.overlay, 'opacity', 0, 1, 0.01).onFinishChange(update);
     overlay.open();
 
     const particles = gui.addFolder('particles');
+    particles.add(meta.particles, 'layer', Array.from(particlesLayerConfigs.keys())).onChange(async () => {
+        const particlesLayerConfig = particlesLayerConfigs.get(meta.particles.layer);
+        Object.keys(particlesLayerConfig).forEach(key => {
+            config.particles[key] = particlesLayerConfig[key];
+        });
+
+        update();
+    });
     particles.add(config.particles, 'count', 0, 2 ** 16 - 1, 1).onFinishChange(update);
     particles.add(config.particles, 'size', 0.5, 5, 0.5);
     particles.addColor(config.particles, 'color');
@@ -304,11 +257,9 @@ export function initGui(config, update) {
     particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
     particles.add(config.particles, 'dropRate', 0, 0.1, 0.001);
     particles.add(config.particles, 'dropRateBump', 0, 0.2, 0.01);
+    particles.add(config.particles, 'retina').onChange(update);
     particles.open();
 
-    gui.add(config, 'retina').onChange(update);
-    gui.add(config, 'minZoom', 0, 22).onFinishChange(update);
-    gui.add(config, 'maxZoom', 0, 22).onFinishChange(update);
     gui.close();
 
     return gui;

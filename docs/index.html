@@ -22,22 +22,96 @@
 <script type="module">
 import { config, initGui } from './config.js';
 
-config.particles.speedFactor = 0.25;
 config.overlay.opacity = 0.4;
-config.backgroundColor = [0, 0, 0];
-config.autoStart = true;
+config.overlay.backgroundColor = [0, 0, 0];
+config.particles.speedFactor = 0.15;
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
-
-    const canvas = document.getElementById('canvas');
-    const weather = MaritraceMapboxWeather.drawToCanvas(canvas, config);
+    config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
+    config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
     
-    const update = () => {
-        weather.resize();
-    };
+    const canvas = document.getElementById('canvas');
+
+    const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);
+    canvas.width = canvas.parentElement.clientWidth * pixelRatio;
+    canvas.height = canvas.parentElement.clientHeight * pixelRatio;
+
+    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
+    const overlayGl = MaritraceMapboxWeather.overlayGl(gl, config.overlay);
+    const particlesGl = MaritraceMapboxWeather.particlesGl(gl, config.particles);
+
+    let resizeObserver;
+    function initResizeObserver() {
+        if (typeof window.ResizeObserver !== 'undefined') {
+            resizeObserver = new window.ResizeObserver(update);
+            resizeObserver.observe(canvas.parentElement);
+        } else {
+            window.addEventListener('resize', update);
+        }
+    }
+    initResizeObserver();
+
+    let running = false;
+    let raf = null;
+    function frame() {
+        const matrix = [
+            2, 0, 0, 0,
+            0, -2, 0, 0,
+            0, 0, 1, 0,
+            -1, 1, 0, 1,
+        ];
+        const worldBounds = [[0, 0], [1, 1]];
+        const worldOffsets = [0];
+
+        overlayGl.render(matrix, worldOffsets);
+        particlesGl.prerender(matrix, 0, worldBounds, worldOffsets);
+        particlesGl.render(matrix, worldOffsets);
+
+        if (running) {
+            raf = requestAnimationFrame(frame);
+        }
+    }
+    function start() {
+        if (running) {
+            return;
+        }
+
+        running = true;
+        frame();
+    }
+    function stop() {
+        if (!running) {
+            return;
+        }
+
+        running = false;
+        if (raf) {
+            cancelAnimationFrame(raf);
+            raf = null;
+        }
+    }
+    start();
+    
+    const meta = { running: true };
+    async function update() {
+        const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);
+        canvas.width = canvas.parentElement.clientWidth * pixelRatio;
+        canvas.height = canvas.parentElement.clientHeight * pixelRatio;
+
+        config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
+        config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+
+        if (meta.running) {
+            start();
+        } else {
+            stop();
+        }
+
+        overlayGl.update();
+        particlesGl.update();
+    }
     const gui = initGui(config, update);
-    gui.add(weather, 'running').onChange(update);
+    gui.add(meta, 'running').onChange(update);
 });
 </script>
 </body>

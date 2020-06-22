@@ -40,7 +40,8 @@ function round(value) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.source.image = await MaritraceMapboxWeather.loadImage(config.source.imagePath);
+    config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
+    config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -51,31 +52,35 @@ window.addEventListener('DOMContentLoaded', async () => {
         antialias: true,
     });
 
-    const weatherLayer = new MaritraceMapboxWeather.WeatherLayer(config);
-    const weatherLegendControl = new MaritraceMapboxWeather.WeatherLegendControl(config);
+    const overlayLayer = new MaritraceMapboxWeather.OverlayLayer(config.overlay);
+    const particlesLayer = new MaritraceMapboxWeather.ParticlesLayer(config.particles);
+    const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
     let initialized = false;
 
+    async function update() {
+        config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
+        config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+
+        overlayLayer.update();
+        particlesLayer.update();
+        legendControl.update();
+        map.triggerRepaint();
+    }
     function addGui() {
         if (!initialized) {
             setTimeout(addGui, 500);
             return;
         }
-
-        const update = () => {
-            weatherLayer.weather.resize();
-            weatherLegendControl.render();
-            map.triggerRepaint();
-        };
         const gui = initGui(config, update);
-        gui.add(weatherLayer, 'running').onChange(update);
+        gui.add(particlesLayer, 'running').onChange(update);
     }
     addGui();
 
     const info = document.getElementById('info');
     const updateInfo = () => {
         const matrix = map.transform.customLayerMatrix();
-        const worldOffsets = weatherLayer.getWorldOffsets();
-        const worldBounds = weatherLayer.getWorldBounds();
+        const worldOffsets = MaritraceMapboxWeather.getWorldOffsets(map);
+        const worldBounds = MaritraceMapboxWeather.getWorldBounds(map);
 
         info.innerHTML = `
             Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
@@ -94,19 +99,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateInfo();
     map.on('click', e => {
         const mercator = mapboxgl.MercatorCoordinate.fromLngLat(e.lngLat);
-        const values = weatherLayer.getPositionValues(e.lngLat);
+        const overlayValue = overlayLayer.getPositionValue(e.lngLat);
+        const particlesBearing = particlesLayer.getPositionBearing(e.lngLat);
+
         info.innerHTML += `
             <br><br>
             Clicked:<br>
             ${round(e.lngLat.lat)}, ${round(e.lngLat.lng)}<br>
             ${round(mercator.x)}, ${round(mercator.y)}<br>
-            ${round(values[0])}, ${round(values[1])}, ${round(values[2])}
+            ${round(overlayValue)}, ${round(particlesBearing)}
         `;
     });
 
     map.on('style.load', () => {
-        map.addLayer(weatherLayer, 'waterway-label');
-        map.addControl(weatherLegendControl, 'bottom-left');
+        map.addLayer(overlayLayer, 'waterway-label');
+        map.addLayer(particlesLayer, 'waterway-label');
+        map.addControl(legendControl, 'bottom-left');
         updateInfo();
         initialized = true;
     });

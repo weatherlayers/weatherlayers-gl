@@ -1,6 +1,15 @@
-export { loadImage } from './load-image.js';
-export { drawToCanvas } from './canvas.js';
-export { drawToGl } from './gl.js';
 export * as Colors from './colors/index.js';
-export { WeatherLayer } from './mapbox-weather-layer.js';
-export { WeatherLegendControl } from './mapbox-weather-legend-control.js';
+
+export { loadImage } from './load-image.js';
+export { getPixelRatio } from './get-pixel-ratio.js';
+
+// GL
+export { overlayGl } from './overlay-gl.js';
+export { particlesGl } from './particles-gl.js';
+
+// Mapbox
+export { getWorldBounds } from './get-world-bounds.js';
+export { getWorldOffsets } from './get-world-offsets.js';
+export { OverlayLayer } from './mapbox-overlay-layer.js';
+export { ParticlesLayer } from './mapbox-particles-layer.js';
+export { LegendControl } from './mapbox-legend-control.js';
