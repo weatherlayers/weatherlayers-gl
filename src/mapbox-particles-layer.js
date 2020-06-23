@@ -1,5 +1,4 @@
 import { particlesGl } from './particles-gl.js';
-import { texture2DBilinear } from './texture-2d-bilinear.js';
 import { getEquirectangularPosition } from './get-equirectangular-position.js';
 import { getWorldBounds } from './get-world-bounds.js';
 import { getWorldOffsets } from './get-world-offsets.js';
@@ -117,35 +116,32 @@ export class ParticlesLayer {
 
     /**
      * @param {mapboxgl.LngLat} lngLat
-     * @return {[number, number]}
+     * @return {[number, number] | undefined}
      */
     getPositionValues(lngLat) {
+        if (!this.map || !this.renderer) {
+            return;
+        }
+
         const position = getEquirectangularPosition(lngLat);
-
-        const canvas = /** @type HTMLCanvasElement */ (document.createElement("canvas"));
-        canvas.width = this.config.image.width;
-        canvas.height = this.config.image.height;
-
-        const ctx = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
-        ctx.drawImage(this.config.image, 0, 0);
-
-        const color = texture2DBilinear(ctx, position);
-
-        /** @type [number, number] */
-        const values =  [
-            color[1] / 255 * (this.config.bounds[1] - this.config.bounds[0]) + this.config.bounds[0],
-            color[2] / 255 * (this.config.bounds[1] - this.config.bounds[0]) + this.config.bounds[0],
-        ];
+        const values = this.renderer.getPositionValues(position);
 
         return values;
     }
 
     /**
      * @param {mapboxgl.LngLat} lngLat
-     * @return {number}
+     * @return {number | undefined}
      */
     getPositionBearing(lngLat) {
+        if (!this.map || !this.renderer) {
+            return;
+        }
+
         const values = this.getPositionValues(lngLat);
+        if (!values) {
+            return;
+        }
 
         const bearing = (Math.atan2(values[0], values[1]) * 180 / Math.PI + 360) % 360;
 

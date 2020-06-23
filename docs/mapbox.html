@@ -30,7 +30,11 @@
 </head>
 <body>
     <div id="map"></div>
-    <div id="info"></div>
+    <div id="info">
+        <div id="info1"></div>
+        <br>
+        <div id="info2"></div>
+    </div>
 
 <script type="module">
 import { config, initGui } from './config.js';
@@ -76,13 +80,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     addGui();
 
-    const info = document.getElementById('info');
+    const info1 = document.getElementById('info1');
+    const info2 = document.getElementById('info2');
     const updateInfo = () => {
         const matrix = map.transform.customLayerMatrix();
         const worldOffsets = MaritraceMapboxWeather.getWorldOffsets(map);
         const worldBounds = MaritraceMapboxWeather.getWorldBounds(map);
 
-        info.innerHTML = `
+        info1.innerHTML = `
             Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
@@ -97,17 +102,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     map.on('zoom', updateInfo);
     map.on('resize', updateInfo);
     updateInfo();
-    map.on('click', e => {
+    map.on('mousemove', e => {
         const mercator = mapboxgl.MercatorCoordinate.fromLngLat(e.lngLat);
         const overlayValue = overlayLayer.getPositionValue(e.lngLat);
         const particlesBearing = particlesLayer.getPositionBearing(e.lngLat);
 
-        info.innerHTML += `
-            <br><br>
-            Clicked:<br>
-            ${round(e.lngLat.lat)}, ${round(e.lngLat.lng)}<br>
-            ${round(mercator.x)}, ${round(mercator.y)}<br>
-            ${round(overlayValue)}, ${round(particlesBearing)}
+        info2.innerHTML = `
+            Mouse:<br>
+            Position: ${round(e.lngLat.lat)}, ${round(e.lngLat.lng)}<br>
+            Mercator: ${round(mercator.x)}, ${round(mercator.y)}<br>
+            Values: ${round(overlayValue)}, ${round(particlesBearing)}
         `;
     });
 

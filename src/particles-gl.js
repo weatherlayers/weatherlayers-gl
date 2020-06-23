@@ -5,6 +5,8 @@ import { createStepProgram, computeStep } from './shaders/step.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
 import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
+import { createImageCanvas } from './create-image-canvas.js';
+import { texture2DBilinear } from './texture-2d-bilinear.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -52,6 +54,8 @@ export function particlesGl(gl, config) {
     /** @type number */
     let pixelRatio;
 
+    /** @type HTMLCanvasElement */
+    let sourceCanvas;
     /** @type WebGLTextureWrapper */
     let sourceTexture;
 
@@ -92,6 +96,7 @@ export function particlesGl(gl, config) {
 
         pixelRatio = getPixelRatio(config.retina);
 
+        sourceCanvas = createImageCanvas(config.image);
         sourceTexture = createImageTexture(gl, config.image);
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
@@ -214,11 +219,29 @@ export function particlesGl(gl, config) {
         gl.deleteTexture(particlesScreenTexture1.texture);
     }
 
+    /**
+     * @param {[number, number]} position
+     * @return {[number, number]}
+     */
+    function getPositionValues(position) {
+        const ctx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
+
+        const color = texture2DBilinear(ctx, position);
+        /** @type [number, number] */
+        const values =  [
+            color[1] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
+            color[2] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
+        ];
+
+        return values;
+    }
+
     return {
         config,
         update,
         prerender,
         render,
         destroy,
+        getPositionValues,
     };
 }

@@ -2,6 +2,8 @@ import { createImageTexture } from './webgl-common.js';
 import { colorRampCanvas } from './color-ramp.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
+import { createImageCanvas } from './create-image-canvas.js';
+import { texture2DBilinear } from './texture-2d-bilinear.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -32,6 +34,8 @@ export function overlayGl(gl, config) {
 
     let initialized = false;
 
+    /** @type HTMLCanvasElement */
+    let sourceCanvas;
     /** @type WebGLTextureWrapper */
     let sourceTexture;
 
@@ -51,6 +55,7 @@ export function overlayGl(gl, config) {
             initialized = false;
         }
 
+        sourceCanvas = createImageCanvas(config.image);
         sourceTexture = createImageTexture(gl, config.image);
 
         const overlayColorRampCanvas = colorRampCanvas(config.colorFunction);
@@ -99,10 +104,24 @@ export function overlayGl(gl, config) {
         gl.deleteTexture(overlayColorRampTexture.texture);
     }
 
+    /**
+     * @param {[number, number]} position
+     * @return {number}
+     */
+    function getPositionValue(position) {
+        const ctx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
+
+        const color = texture2DBilinear(ctx, position);
+        const value = color[0] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0];
+
+        return value;
+    }
+
     return {
         config,
         update,
         render,
         destroy,
+        getPositionValue,
     };
 }

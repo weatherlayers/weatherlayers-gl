@@ -1,5 +1,4 @@
 import { overlayGl } from './overlay-gl.js';
-import { texture2DBilinear } from './texture-2d-bilinear.js';
 import { getEquirectangularPosition } from './get-equirectangular-position.js';
 import { getWorldOffsets } from './get-world-offsets.js';
 
@@ -88,21 +87,15 @@ export class OverlayLayer {
 
     /**
      * @param {mapboxgl.LngLat} lngLat
-     * @return {number}
+     * @return {number | undefined}
      */
     getPositionValue(lngLat) {
+        if (!this.map || !this.renderer) {
+            return;
+        }
+
         const position = getEquirectangularPosition(lngLat);
-
-        const canvas = /** @type HTMLCanvasElement */ (document.createElement("canvas"));
-        canvas.width = this.config.image.width;
-        canvas.height = this.config.image.height;
-
-        const ctx = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
-        ctx.drawImage(this.config.image, 0, 0);
-
-        const color = texture2DBilinear(ctx, position);
-
-        const value = color[0] / 255 * (this.config.bounds[1] - this.config.bounds[0]) + this.config.bounds[0];
+        const value = this.renderer.getPositionValue(position);
 
         return value;
     }
