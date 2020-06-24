@@ -7,9 +7,9 @@
   <PAMRasterBand band="1">
     <Description>2[m] HTGL="Specified height level above ground"</Description>
     <Metadata>
-      <MDI key="GRIB_COMMENT">(prodType 0, cat 0, subcat 21) [-]</MDI>
+      <MDI key="GRIB_COMMENT">Apparent Temperature [K]</MDI>
       <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
-      <MDI key="GRIB_ELEMENT">unknown</MDI>
+      <MDI key="GRIB_ELEMENT">APTMP</MDI>
       <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
       <MDI key="GRIB_IDS">CENTER=7(US-NCEP) SUBCENTER=0 MASTER_TABLE=2 LOCAL_TABLE=1 SIGNF_REF_TIME=1(Start_of_Forecast) REF_TIME=2020-06-15T00:00:00Z PROD_STATUS=0(Operational) TYPE=1(Forecast)</MDI>
       <MDI key="GRIB_PDS_PDTN">0</MDI>
@@ -17,7 +17,7 @@
       <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">0 21 2 0 81 0 0 0 1 0 0 0 0 103 0 0 0 0 2 255 0 0 0 0 0</MDI>
       <MDI key="GRIB_REF_TIME">1592179200 sec UTC</MDI>
       <MDI key="GRIB_SHORT_NAME">2-HTGL</MDI>
-      <MDI key="GRIB_UNIT">[-]</MDI>
+      <MDI key="GRIB_UNIT">[K]</MDI>
       <MDI key="GRIB_VALID_TIME">1592179200 sec UTC</MDI>
     </Metadata>
   </PAMRasterBand>

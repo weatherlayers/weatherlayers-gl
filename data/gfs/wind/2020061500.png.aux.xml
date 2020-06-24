@@ -5,6 +5,6 @@
     <MDI key="INTERLEAVE">PIXEL</MDI>
   </Metadata>
   <PAMRasterBand band="1">
-    <NoDataValue>INF</NoDataValue>
+    <NoDataValue>2.55000000000000E+02</NoDataValue>
   </PAMRasterBand>
 </PAMDataset>
