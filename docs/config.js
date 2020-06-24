@@ -18,8 +18,7 @@ export const config = {
         color: [255, 255, 255],
         opacity: 0.25,
         speedFactor: 0.33, // how fast the particles move
-        dropRate: 0.003, // how often the particles move to a random place
-        dropRateBump: 0.01, // drop rate increase relative to individual particle speed
+        dropAge: 50, // drop particles after max age in frames
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
         retina: true,
         minZoom: 0,
@@ -255,8 +254,7 @@ export function initGui(config, update) {
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
     particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
-    particles.add(config.particles, 'dropRate', 0, 0.1, 0.001);
-    particles.add(config.particles, 'dropRateBump', 0, 0.2, 0.01);
+    particles.add(config.particles, 'dropAge', 1, 100, 1);
     particles.add(config.particles, 'retina').onChange(update);
     particles.open();
 

@@ -20,8 +20,7 @@ import { texture2DBilinear } from './texture-2d-bilinear.js';
  *      color: [number, number, number];
  *      opacity: number;
  *      speedFactor: number;
- *      dropRate: number;
- *      dropRateBump: number;
+ *      dropAge: number;
  *      fadeOpacity: number;
  *      retina: boolean;
  *      minZoom: number;
@@ -50,6 +49,9 @@ export function particlesGl(gl, config) {
     const quadBuffer = createQuadBuffer(gl);
 
     let initialized = false;
+
+    /** @type number */
+    let frameNumber;
 
     /** @type number */
     let pixelRatio;
@@ -93,6 +95,8 @@ export function particlesGl(gl, config) {
 
             initialized = false;
         }
+
+        frameNumber = 0;
 
         pixelRatio = getPixelRatio(config.retina);
 
@@ -141,7 +145,8 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, speedFactor, config.dropRate, config.dropRateBump, worldBounds);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, speedFactor, frameNumber, config.dropAge, worldBounds);
+        frameNumber = (frameNumber + 1) % config.dropAge;
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);

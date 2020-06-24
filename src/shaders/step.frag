@@ -13,13 +13,14 @@ precision mediump float;
 #pragma glslify: getPositionValues = require('./_get-position-values')
 
 uniform sampler2D sState;
+uniform vec2 uStateResolution;
 uniform sampler2D sSource;
 uniform vec2 uSourceResolution;
 uniform float uSourceBoundsMin;
 uniform float uSourceBoundsMax;
 uniform float uSpeedFactor;
-uniform float uDropRate;
-uniform float uDropRateBump;
+uniform float uFrameNumber;
+uniform float uDropAge;
 uniform vec2 uWorldBoundsMin;
 uniform vec2 uWorldBoundsMax;
 uniform float uRandomSeed;
@@ -48,6 +49,7 @@ bool outOfRangeWrapped(vec2 boundsMin, vec2 boundsMax, vec2 position) {
 }
 
 vec2 update(vec2 position) {
+    float index = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
     vec2 seed = (position + vTexCoord) * uRandomSeed;
 
     // move the position, take into account WGS84 distortion
@@ -59,20 +61,9 @@ vec2 update(vec2 position) {
 
     // randomize the position to prevent particles from converging to the areas of low pressure
     // 1st frame: drop
-    float dropRate = uDropRate + values.x / length(uSourceBoundsMax) * uDropRateBump;
-    float drop = step(1.0 - dropRate, random(seed));
-    drop = _if(
-        length(newPosition - position) < STATIC_DIST_THRESHOLD * uSpeedFactor,
-        1.0, // drop static particle
-        drop
-    );
-    drop = _if(
-        outOfRangeWrapped(uWorldBoundsMin, uWorldBoundsMax, position),
-        1.0, // drop particle outside of the world bounds
-        drop
-    );
+    bool drop = abs(mod(index, uDropAge) - uFrameNumber) < 1.0;
     vec2 dropPosition = vec2(0, 0);
-    newPosition = mix(newPosition, dropPosition, drop);
+    newPosition = _if(drop, dropPosition, newPosition);
 
     // 2nd frame: randomize
     vec2 randomVector = vec2(random(seed + 1.3), random(seed + 2.1));
