@@ -8,7 +8,7 @@ TMP_FILE="$(mktemp).tif"
 
 # map longitude from 0..360 to -180..180
 gdalwarp \
-    --config CENTER_LONG 0 \
+    -te -180 -90 180 90 \
     --config GRIB_NORMALIZE_UNITS NO \
     "$INPUT_FILE" \
     "$TMP_FILE"
