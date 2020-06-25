@@ -7,8 +7,6 @@ export const config = {
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
         legendWidth: 220,
-        minZoom: 0,
-        maxZoom: 14,
     },
     particles: {
         imagePath: '../data/gfs/wind/2020061500.png',
@@ -21,8 +19,6 @@ export const config = {
         dropAge: 50, // drop particles after max age in frames
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
         retina: true,
-        minZoom: 0,
-        maxZoom: 14,
     },
 };
 
@@ -254,7 +250,7 @@ export function initGui(config, update) {
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
     particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
-    particles.add(config.particles, 'dropAge', 1, 100, 1);
+    particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
     particles.add(config.particles, 'retina').onChange(update);
     particles.open();
 

@@ -4,7 +4,7 @@
  * @param {mapboxgl.LngLat} lngLat
  * @return {[number, number]}
  */
-export function getEquirectangularPosition(lngLat) {
+export function getGeographicPosition(lngLat) {
     return [
         (lngLat.lng + 180) / 360,
         1 - (lngLat.lat + 90) / 180,

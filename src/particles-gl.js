@@ -6,7 +6,7 @@ import { createFadeProgram, drawFade } from './shaders/fade.js';
 import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
 import { createImageCanvas } from './create-image-canvas.js';
-import { texture2DBilinear } from './texture-2d-bilinear.js';
+import { getPositionValues } from './get-position-values.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -22,9 +22,9 @@ import { texture2DBilinear } from './texture-2d-bilinear.js';
  *      speedFactor: number;
  *      dropAge: number;
  *      fadeOpacity: number;
- *      retina: boolean;
- *      minZoom: number;
- *      maxZoom: number;
+ *      retina?: boolean;
+ *      minZoom?: number;
+ *      maxZoom?: number;
  * }} ParticlesConfig
  */
 
@@ -33,20 +33,14 @@ import { texture2DBilinear } from './texture-2d-bilinear.js';
  * @param {ParticlesConfig} config
  */
 export function particlesGl(gl, config) {
-    const ext = gl.getExtension('OES_texture_float');
-    if (!ext) {
-        console.log('OES_texture_float WebGL extension is required');
-        return;
-    }
-
-    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
-
     const stepProgram = createStepProgram(gl);
     const fadeProgram = createFadeProgram(gl);
     const particlesProgram = createParticlesProgram(gl);
     const copyProgram = createCopyProgram(gl);
 
     const quadBuffer = createQuadBuffer(gl);
+
+    const framebuffer = /** @type WebGLFramebuffer */ (gl.createFramebuffer());
 
     let initialized = false;
 
@@ -58,6 +52,8 @@ export function particlesGl(gl, config) {
 
     /** @type HTMLCanvasElement */
     let sourceCanvas;
+    /** @type CanvasRenderingContext2D */
+    let sourceCtx;
     /** @type WebGLTextureWrapper */
     let sourceTexture;
 
@@ -98,16 +94,17 @@ export function particlesGl(gl, config) {
 
         frameNumber = 0;
 
-        pixelRatio = getPixelRatio(config.retina);
+        pixelRatio = getPixelRatio(!!config.retina);
 
         sourceCanvas = createImageCanvas(config.image);
+        sourceCtx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
         sourceTexture = createImageTexture(gl, config.image);
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
         particlesIndexBuffer = createParticlesIndexBuffer(gl, config.count);
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
-        const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
+        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
 
@@ -121,16 +118,15 @@ export function particlesGl(gl, config) {
 
     /**
      * @param {number[]} matrix
-     * @param {number} zoom
      * @param {[[number, number], [number, number]]} worldBounds
-     * @param {number[]} worldOffsets
+     * @param {number} zoom
      */
-    function prerender(matrix, zoom, worldBounds, worldOffsets) {
+    function prerender(matrix, worldBounds, zoom) {
         if (!initialized) {
             return;
         }
 
-        const speedFactor = config.speedFactor * pixelRatio / 1.8 ** zoom;
+        const speedFactor = config.speedFactor * pixelRatio / 2 ** zoom;
         const particleSize = config.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, config.opacity]);
 
@@ -145,7 +141,7 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, speedFactor, frameNumber, config.dropAge, worldBounds);
+        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.dropAge, frameNumber);
         frameNumber = (frameNumber + 1) % config.dropAge;
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
@@ -164,9 +160,7 @@ export function particlesGl(gl, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        for (let worldOffset of worldOffsets) {
-            drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldOffset);
-        }
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldBounds);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -179,11 +173,7 @@ export function particlesGl(gl, config) {
         }
     }
 
-    /**
-     * @param {number[]} matrix
-     * @param {number[]} worldOffsets
-     */
-    function render(matrix, worldOffsets) {
+    function render() {
         if (!initialized) {
             return;
         }
@@ -192,9 +182,9 @@ export function particlesGl(gl, config) {
         if (!blendEnabled) {
             gl.enable(gl.BLEND);
         }
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
         // draw to canvas
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
 
         if (!blendEnabled) {
@@ -205,14 +195,14 @@ export function particlesGl(gl, config) {
     function destroy() {
         stop();
 
-        gl.deleteFramebuffer(framebuffer);
-
         gl.deleteProgram(stepProgram.program);
         gl.deleteProgram(fadeProgram.program);
         gl.deleteProgram(particlesProgram.program);
         gl.deleteProgram(copyProgram.program);
 
         gl.deleteBuffer(quadBuffer.buffer);
+
+        gl.deleteFramebuffer(framebuffer);
 
         gl.deleteTexture(sourceTexture.texture);
 
@@ -228,17 +218,26 @@ export function particlesGl(gl, config) {
      * @param {[number, number]} position
      * @return {[number, number]}
      */
-    function getPositionValues(position) {
-        const ctx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
-
-        const color = texture2DBilinear(ctx, position);
+    function getPositionVector(position) {
+        const values = getPositionValues(sourceCtx, position);
         /** @type [number, number] */
-        const values =  [
-            color[1] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
-            color[2] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
+        const vector = [
+            values[1] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
+            values[2] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
         ];
 
-        return values;
+        return vector;
+    }
+
+    /**
+     * @param {[number, number]} position
+     * @return {number}
+     */
+    function getPositionBearing(position) {
+        const vector = getPositionVector(position);
+        const bearing = (Math.atan2(vector[0], vector[1]) * 180 / Math.PI + 360) % 360;
+
+        return bearing;
     }
 
     return {
@@ -247,6 +246,7 @@ export function particlesGl(gl, config) {
         prerender,
         render,
         destroy,
-        getPositionValues,
+        getPositionVector,
+        getPositionBearing,
     };
 }

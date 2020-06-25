@@ -8,8 +8,7 @@ export { overlayGl } from './overlay-gl.js';
 export { particlesGl } from './particles-gl.js';
 
 // Mapbox
-export { getWorldBounds } from './get-world-bounds.js';
-export { getWorldOffsets } from './get-world-offsets.js';
+export { getGeographicPosition } from './get-geographic-position.js';
 export { OverlayLayer } from './mapbox-overlay-layer.js';
 export { ParticlesLayer } from './mapbox-particles-layer.js';
 export { LegendControl } from './mapbox-legend-control.js';

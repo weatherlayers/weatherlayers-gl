@@ -1,9 +1,8 @@
-import { createImageTexture } from './webgl-common.js';
+import { createImageTexture, createBuffer } from './webgl-common.js';
 import { colorRampCanvas } from './color-ramp.js';
-import { createQuadBuffer } from './shaders/quad.js';
 import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
 import { createImageCanvas } from './create-image-canvas.js';
-import { texture2DBilinear } from './texture-2d-bilinear.js';
+import { getPositionValues } from './get-position-values.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -14,12 +13,11 @@ import { texture2DBilinear } from './texture-2d-bilinear.js';
  *      bounds: [number, number];
  *      colorFunction: (i: number) => (string | [number, number, number]);
  *      opacity: number;
- *      backgroundColor: [number, number, number];
  *      legendTitle: string;
  *      legendTicksCount: number;
  *      legendWidth: number;
- *      minZoom: number;
- *      maxZoom: number;
+ *      minZoom?: number;
+ *      maxZoom?: number;
  * }} OverlayConfig
  */
 
@@ -30,12 +28,12 @@ import { texture2DBilinear } from './texture-2d-bilinear.js';
 export function overlayGl(gl, config) {
     const overlayProgram = createOverlayProgram(gl);
 
-    const quadBuffer = createQuadBuffer(gl);
-
     let initialized = false;
 
     /** @type HTMLCanvasElement */
     let sourceCanvas;
+    /** @type CanvasRenderingContext2D */
+    let sourceCtx;
     /** @type WebGLTextureWrapper */
     let sourceTexture;
 
@@ -56,6 +54,7 @@ export function overlayGl(gl, config) {
         }
 
         sourceCanvas = createImageCanvas(config.image);
+        sourceCtx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
         sourceTexture = createImageTexture(gl, config.image);
 
         const overlayColorRampCanvas = colorRampCanvas(config.colorFunction);
@@ -67,9 +66,9 @@ export function overlayGl(gl, config) {
 
     /**
      * @param {number[]} matrix
-     * @param {number[]} worldOffsets
+     * @param {[[number, number], [number, number]]} worldBounds
      */
-    function render(matrix, worldOffsets) {
+    function render(matrix, worldBounds) {
         if (!initialized) {
             return;
         }
@@ -78,17 +77,17 @@ export function overlayGl(gl, config) {
         if (!blendEnabled) {
             gl.enable(gl.BLEND);
         }
-
-        if (config.backgroundColor) {
-            gl.clearColor(config.backgroundColor[0] / 255, config.backgroundColor[1] / 255, config.backgroundColor[2] / 255, 1);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-        }
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
         // draw to canvas
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        for (let worldOffset of worldOffsets) {
-            drawOverlay(gl, overlayProgram, quadBuffer, sourceTexture, overlayColorRampTexture, config.opacity, matrix, worldOffset);
-        }
+        const overlayBuffer = createBuffer(gl, [
+            [Math.floor(worldBounds[0][0]), Math.floor(worldBounds[0][1])], // [0, 0]
+            [Math.floor(worldBounds[0][0]), Math.ceil(worldBounds[1][1])], // [0, 1]
+            [Math.ceil(worldBounds[1][0]), Math.floor(worldBounds[0][1])], // [1, 0]
+            [Math.ceil(worldBounds[1][0]), Math.ceil(worldBounds[1][1])], // [1, 1]
+        ]);
+        drawOverlay(gl, overlayProgram, overlayBuffer, sourceTexture, overlayColorRampTexture, config.opacity, matrix);
+        gl.deleteBuffer(overlayBuffer.buffer);
 
         if (!blendEnabled) {
             gl.disable(gl.BLEND);
@@ -97,8 +96,6 @@ export function overlayGl(gl, config) {
 
     function destroy() {
         gl.deleteProgram(overlayProgram.program);
-
-        gl.deleteBuffer(quadBuffer.buffer);
 
         gl.deleteTexture(sourceTexture.texture);
         gl.deleteTexture(overlayColorRampTexture.texture);
@@ -109,10 +106,8 @@ export function overlayGl(gl, config) {
      * @return {number}
      */
     function getPositionValue(position) {
-        const ctx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
-
-        const color = texture2DBilinear(ctx, position);
-        const value = color[0] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0];
+        const values = getPositionValues(sourceCtx, position);
+        const value = values[0] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0];
 
         return value;
     }

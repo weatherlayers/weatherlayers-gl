@@ -6,4 +6,8 @@ vec2 _if(bool condition, vec2 trueResult, vec2 falseResult) {
     return mix(falseResult, trueResult, float(condition));
 }
 
+vec4 _if(bool condition, vec4 trueResult, vec4 falseResult) {
+    return mix(falseResult, trueResult, float(condition));
+}
+
 #pragma glslify: export(_if)

@@ -124,28 +124,19 @@ export function createImageTexture(gl, image) {
 
 /**
  * @param {WebGLRenderingContext} gl
- * @param {Uint8Array | Float32Array} data
+ * @param {Uint8Array} data
  * @param {number} x
  * @param {number} y
  * @return {WebGLTextureWrapper}
  */
 export function createArrayTexture(gl, data, x, y) {
-    let type;
-    if (data instanceof Uint8Array) {
-        type = gl.UNSIGNED_BYTE;
-    } else if (data instanceof Float32Array) {
-        type = gl.FLOAT;
-    } else {
-        throw new Error();
-    }
-
     const texture = /** @type WebGLTexture */ (gl.createTexture());
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, x, y, 0, gl.RGBA, type, data);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, x, y, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     const wrapper = /** @type WebGLTextureWrapper */ ({ texture, x, y });

@@ -22,9 +22,18 @@
             position: absolute;
             top: 0;
             left: 15px;
+        }
+        #info1, #info2 {
             padding: 4px 8px;
-            background: #111;
+            background: rgba(0, 0, 0, 0.5);
             color: #eee;
+            backdrop-filter: blur(1px);
+        }
+        #info1:empty, #info2:empty {
+            display: none;
+        }
+        #info2 {
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -32,7 +41,6 @@
     <div id="map"></div>
     <div id="info">
         <div id="info1"></div>
-        <br>
         <div id="info2"></div>
     </div>
 
@@ -51,8 +59,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         container: 'map',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
         style: 'mapbox://styles/mapbox/dark-v10',
-        zoom: 0,
         center: [30, 0],
+        zoom: 0,
+        // FIXME: overzoomed particles don't move
+        // center: [6.696399, 55.020684],
+        // zoom: 15.5,
         antialias: true,
     });
 
@@ -61,6 +72,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
     let initialized = false;
 
+    function step() {
+        if (!particlesLayer.running) {
+            particlesLayer.running = true;
+            particlesLayer.running = false;
+        }
+    }
+    const meta = {
+        step: step,
+    };
     async function update() {
         config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
         config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
@@ -76,44 +96,40 @@ window.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const gui = initGui(config, update);
-        gui.add(particlesLayer, 'running').onChange(update);
+        gui.add(particlesLayer, 'running');
+        gui.add(meta, 'step');
     }
     addGui();
 
     const info1 = document.getElementById('info1');
     const info2 = document.getElementById('info2');
     const updateInfo = () => {
+        const center = map.getCenter();
+        const geographicCenter = MaritraceMapboxWeather.getGeographicPosition(center);
         const matrix = map.transform.customLayerMatrix();
-        const worldOffsets = MaritraceMapboxWeather.getWorldOffsets(map);
-        const worldBounds = MaritraceMapboxWeather.getWorldBounds(map);
+        const worldBounds = [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]
+        /** @type [[number, number], [number, number]] */
+        const geographicWorldBounds = [MaritraceMapboxWeather.getGeographicPosition(worldBounds[0]), MaritraceMapboxWeather.getGeographicPosition(worldBounds[1])];
 
         info1.innerHTML = `
-            Position: ${round(map.getCenter().lat)}, ${round(map.getCenter().lng)}<br>
+            Center: ${round(center.lng)}, ${round(center.lat)}<br>
+            Center (geographic): ${round(geographicCenter[0])}, ${round(geographicCenter[1])}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
-            Bearing: ${round(map.getBearing())}<br><br>
-            Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${i === 0 ? '[' : ''}${Math.round(x)}${i === matrix.length - 1 ? ']' : ','}</span>`).join('')}</div><br>
-            Bounds Min: ${round(worldBounds[0][0])}, ${round(worldBounds[0][1])}<br>
-            Bounds Max: ${round(worldBounds[1][0])}, ${round(worldBounds[1][1])}<br>
-            Offsets: ${worldOffsets.join(', ')}
+            Bearing: ${round(map.getBearing())}<br>
+            <br>
+            Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${Math.round(x)}${i < matrix.length - 1 ? ',' : ''}</span>`).join('')}</div>
+            <br>
+            World Bounds Min: ${round(worldBounds[0].lng)}, ${round(worldBounds[0].lat)}<br>
+            World Bounds Max: ${round(worldBounds[1].lng)}, ${round(worldBounds[1].lat)}<br>
+            World Bounds Min (geographic): ${round(geographicWorldBounds[0][0])}, ${round(geographicWorldBounds[0][1])}<br>
+            World Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}
         `;
     };
     map.on('move', updateInfo);
     map.on('zoom', updateInfo);
     map.on('resize', updateInfo);
     updateInfo();
-    map.on('mousemove', e => {
-        const mercator = mapboxgl.MercatorCoordinate.fromLngLat(e.lngLat);
-        const overlayValue = overlayLayer.getPositionValue(e.lngLat);
-        const particlesBearing = particlesLayer.getPositionBearing(e.lngLat);
-
-        info2.innerHTML = `
-            Mouse:<br>
-            Position: ${round(e.lngLat.lat)}, ${round(e.lngLat.lng)}<br>
-            Mercator: ${round(mercator.x)}, ${round(mercator.y)}<br>
-            Values: ${round(overlayValue)}, ${round(particlesBearing)}
-        `;
-    });
 
     map.on('style.load', () => {
         map.addLayer(overlayLayer, 'waterway-label');
@@ -121,6 +137,23 @@ window.addEventListener('DOMContentLoaded', async () => {
         map.addControl(legendControl, 'bottom-left');
         updateInfo();
         initialized = true;
+
+        map.on('mousemove', e => {
+            const position = e.lngLat;
+            const geographicPosition = MaritraceMapboxWeather.getGeographicPosition(position);
+            const overlayValue = overlayLayer.getPositionValue(position);
+            const particlesVector = particlesLayer.getPositionVector(position);
+            const particlesBearing = particlesLayer.getPositionBearing(position);
+
+            info2.innerHTML = `
+                Mouse:<br>
+                Position: ${round(position.lng)}, ${round(position.lat)}<br>
+                Position (geographic): ${round(geographicPosition[0])}, ${round(geographicPosition[1])}<br>
+                Overlay Value: ${round(overlayValue)}<br>
+                Particles Vector: ${round(particlesVector[0])}, ${round(particlesVector[1])}<br>
+                Particles Bearing: ${Math.round(particlesBearing)}
+            `;
+        });
     });
 });
 </script>

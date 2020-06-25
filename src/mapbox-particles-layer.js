@@ -1,25 +1,23 @@
 import { particlesGl } from './particles-gl.js';
-import { getEquirectangularPosition } from './get-equirectangular-position.js';
-import { getWorldBounds } from './get-world-bounds.js';
-import { getWorldOffsets } from './get-world-offsets.js';
+import { getGeographicPosition } from './get-geographic-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./particles-gl.js').ParticlesConfig} ParticlesConfig */
 
 export class ParticlesLayer {
+    id = 'weather-particles';
+    type = 'custom';
+    renderingMode = '2d';
+
+    _running = true;
+
     /**
      * @param {ParticlesConfig} config
      */
     constructor(config) {
-        this.id = 'weather-particles';
-        this.type = 'custom';
-        this.renderingMode = '2d';
-
         config.minZoom = config.minZoom || 0;
         config.maxZoom = config.maxZoom || 14;
         this.config = config;
-
-        this.running = true;
     }
  
     /**
@@ -68,18 +66,12 @@ export class ParticlesLayer {
             return;
         }
 
-        // this.i = (this.i || 0) + 1;
-        // if (this.i > 1) {
-        //     this.i = 0;
-        //     this.running = false;
-        //     return;
-        // }
-
-        if (this.enabled && this.running) {
+        if (this.enabled) {
+            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+            /** @type [[number, number], [number, number]] */
+            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
             const zoom = this.map.getZoom();
-            const worldBounds = getWorldBounds(this.map);
-            const worldOffsets = getWorldOffsets(this.map);
-            this.renderer.prerender(matrix, zoom, worldBounds, worldOffsets);
+            this.renderer.prerender(matrix, geographicWorldBounds, zoom);
         }
     }
 
@@ -92,11 +84,12 @@ export class ParticlesLayer {
             return;
         }
 
-        if (this.enabled && this.running) {
-            const worldOffsets = getWorldOffsets(this.map);
-            this.renderer.render(matrix, worldOffsets);
+        if (this.enabled) {
+            this.renderer.render();
 
-            this.map.triggerRepaint();
+            if (this._running) {
+                this.map.triggerRepaint();
+            }
         }
     }
 
@@ -109,24 +102,47 @@ export class ParticlesLayer {
         }
 
         const zoom = this.map.getZoom();
-        const enabled = this.config.image && this.config.count > 0 && this.config.minZoom <= zoom && zoom <= this.config.maxZoom;
+        const enabled = (
+            this.config.image &&
+            this.config.count > 0 &&
+            (typeof this.config.minZoom !== 'undefined' ? this.config.minZoom <= zoom : true) &&
+            (typeof this.config.maxZoom !== 'undefined' ? zoom <= this.config.maxZoom : true)
+        );
 
         return enabled;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get running() {
+        return this._running;
+    }
+
+    /**
+     * @param {boolean} value
+     */
+    set running(value) {
+        this._running = value;
+
+        if (this.map && this._running) {
+            this.map.triggerRepaint();
+        }
     }
 
     /**
      * @param {mapboxgl.LngLat} lngLat
      * @return {[number, number] | undefined}
      */
-    getPositionValues(lngLat) {
+    getPositionVector(lngLat) {
         if (!this.map || !this.renderer) {
             return;
         }
 
-        const position = getEquirectangularPosition(lngLat);
-        const values = this.renderer.getPositionValues(position);
+        const position = getGeographicPosition(lngLat);
+        const vector = this.renderer.getPositionVector(position);
 
-        return values;
+        return vector;
     }
 
     /**
@@ -138,12 +154,8 @@ export class ParticlesLayer {
             return;
         }
 
-        const values = this.getPositionValues(lngLat);
-        if (!values) {
-            return;
-        }
-
-        const bearing = (Math.atan2(values[0], values[1]) * 180 / Math.PI + 360) % 360;
+        const position = getGeographicPosition(lngLat);
+        const bearing = this.renderer.getPositionBearing(position);
 
         return bearing;
     }

@@ -23,7 +23,6 @@
 import { config, initGui } from './config.js';
 
 config.overlay.opacity = 0.4;
-config.overlay.backgroundColor = [0, 0, 0];
 config.particles.speedFactor = 0.15;
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -54,6 +53,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     let running = false;
     let raf = null;
     function frame() {
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
         const matrix = [
             2, 0, 0, 0,
             0, -2, 0, 0,
@@ -61,11 +63,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             -1, 1, 0, 1,
         ];
         const worldBounds = [[0, 0], [1, 1]];
-        const worldOffsets = [0];
 
-        overlayGl.render(matrix, worldOffsets);
-        particlesGl.prerender(matrix, 0, worldBounds, worldOffsets);
-        particlesGl.render(matrix, worldOffsets);
+        overlayGl.render(matrix, worldBounds);
+        particlesGl.prerender(matrix, worldBounds, 0);
+        particlesGl.render();
 
         if (running) {
             raf = requestAnimationFrame(frame);
@@ -92,7 +93,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     start();
     
-    const meta = { running: true };
+    function step() {
+        if (!running) {
+            frame();
+        }
+    }
+    const meta = {
+        running: true,
+        step: step,
+    };
     async function update() {
         const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);
         canvas.width = canvas.parentElement.clientWidth * pixelRatio;
@@ -101,17 +110,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
         config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
 
+        overlayGl.update();
+        particlesGl.update();
+    }
+    const gui = initGui(config, update);
+    gui.add(meta, 'running').onChange(() => {
         if (meta.running) {
             start();
         } else {
             stop();
         }
-
-        overlayGl.update();
-        particlesGl.update();
-    }
-    const gui = initGui(config, update);
-    gui.add(meta, 'running').onChange(update);
+    });
+    gui.add(meta, 'step');
 });
 </script>
 </body>

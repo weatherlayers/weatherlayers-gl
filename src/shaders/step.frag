@@ -2,11 +2,10 @@ precision mediump float;
 
 #define SHADER_NAME step.frag
 #define EPSILON 0.00001
-#define STATIC_DIST_THRESHOLD 0.00001
 
 #pragma glslify: random = require('glsl-random')
-#pragma glslify: outOfRange = require('glsl-out-of-range')
 #pragma glslify: _if = require('./_if')
+#pragma glslify: linearstep = require('./_linearstep')
 #pragma glslify: unpackPosition = require('./_unpack-position')
 #pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: transform = require('./_transform')
@@ -18,68 +17,57 @@ uniform sampler2D sSource;
 uniform vec2 uSourceResolution;
 uniform float uSourceBoundsMin;
 uniform float uSourceBoundsMax;
-uniform float uSpeedFactor;
-uniform float uFrameNumber;
-uniform float uDropAge;
 uniform vec2 uWorldBoundsMin;
 uniform vec2 uWorldBoundsMax;
+uniform float uSpeedFactor;
+uniform float uDropAge;
+uniform float uFrameNumber;
 uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
-vec2 offsetWrapped(vec2 position, vec2 offset) {
-    return vec2(
-        mod(position.x + offset.x, 1.0), // offset and wrap longitude
-        clamp(position.y + offset.y, 0.0, 1.0) // offset and clamp latitude
-    );
-}
+const vec4 dropPosition = vec4(0);
 
-vec2 mixWrapped(vec2 boundsMin, vec2 boundsMax, vec2 ratio) {
-    return vec2(
-        mod(mix(boundsMin.x, boundsMax.x, ratio.x), 1.0), // mix and wrap longitude
-        mix(boundsMin.y, boundsMax.y, ratio.y) // mix latitude
-    );
-}
+vec2 updateWorldPosition(vec2 worldPosition) {
+    vec4 values = getPositionValues(sSource, uSourceResolution, worldPosition);
+    vec2 speed = mix(vec2(uSourceBoundsMin), vec2(uSourceBoundsMax), values.yz);
 
-bool outOfRangeWrapped(vec2 boundsMin, vec2 boundsMax, vec2 position) {
-    return (
-        outOfRange(boundsMin, boundsMax, position) &&
-        outOfRange(boundsMin, boundsMax, position + vec2(-1, 0)) &&
-        outOfRange(boundsMin, boundsMax, position + vec2(1, 0))
-    );
-}
+    // take into account WGS84 distortion
+    float distortion = cos(radians(worldPosition.y * 180.0 - 90.0)); 
+    vec2 distortedSpeed = vec2(speed.x / distortion, -speed.y);
 
-vec2 update(vec2 position) {
-    float index = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
-    vec2 seed = (position + vTexCoord) * uRandomSeed;
+    vec2 offset = distortedSpeed * uSpeedFactor * 0.0001;
+    vec2 newWorldPosition = worldPosition + offset;
 
-    // move the position, take into account WGS84 distortion
-    vec4 values = getPositionValues(sSource, uSourceResolution, position);
-    vec2 speed = mix(vec2(uSourceBoundsMin, uSourceBoundsMin), vec2(uSourceBoundsMax, uSourceBoundsMax), values.yz);
-    float distortion = cos(radians(position.y * 180.0 - 90.0));
-    vec2 offset = vec2(speed.x / distortion, -speed.y) * 0.0001 * uSpeedFactor;
-    vec2 newPosition = offsetWrapped(position, offset);
-
-    // randomize the position to prevent particles from converging to the areas of low pressure
-    // 1st frame: drop
-    bool drop = abs(mod(index, uDropAge) - uFrameNumber) < 1.0;
-    vec2 dropPosition = vec2(0, 0);
-    newPosition = _if(drop, dropPosition, newPosition);
-
-    // 2nd frame: randomize
-    vec2 randomVector = vec2(random(seed + 1.3), random(seed + 2.1));
-    vec2 randomPosition = mixWrapped(uWorldBoundsMin, uWorldBoundsMax, randomVector);
-    // newPosition = _if(position == dropPosition, randomPosition, newPosition); // why this breaks?
-    if (position == dropPosition) {
-        newPosition = randomPosition;
-    }
-
-    return newPosition;
+    return newWorldPosition;
 }
 
 void main() {
-    vec4 packedPosition = texture2D(sState, vTexCoord);
-    vec2 position = packedPosition.rg;
-    vec2 newPosition = update(position);
-    vec4 newPackedPosition = vec4(newPosition, 0, 0);
-    gl_FragColor = newPackedPosition;
+    float particleIndex = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
+    
+    vec4 packedBoundedWorldPosition = texture2D(sState, vTexCoord);
+    vec2 boundedWorldPosition = unpackPosition(packedBoundedWorldPosition);
+    vec2 worldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition);
+
+    vec2 newWorldPosition = updateWorldPosition(worldPosition);
+    vec2 newBoundedWorldPosition = linearstep(uWorldBoundsMin, uWorldBoundsMax, newWorldPosition);
+
+    // randomize the position to prevent converging particles
+    // 2nd frame: randomize
+    vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
+    vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
+    bool randomize = packedBoundedWorldPosition == dropPosition;
+    newBoundedWorldPosition = _if(randomize, randomBoundedWorldPosition, newBoundedWorldPosition);
+
+    vec4 newPackedBoundedWorldPosition = packPosition(newBoundedWorldPosition);
+
+    // randomize the position to prevent converging particles
+    // 1st frame: drop
+    bool drop = (
+        abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0 || // particle aged
+        0.0 >= newBoundedWorldPosition.x || newBoundedWorldPosition.x >= 1.0 ||
+        0.0 >= newBoundedWorldPosition.y || newBoundedWorldPosition.y >= 1.0 // particle traveled outside of the bounded world
+    );
+    newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
+    
+    gl_FragColor = newPackedBoundedWorldPosition;
 }

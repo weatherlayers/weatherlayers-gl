@@ -1,19 +1,18 @@
 import { overlayGl } from './overlay-gl.js';
-import { getEquirectangularPosition } from './get-equirectangular-position.js';
-import { getWorldOffsets } from './get-world-offsets.js';
+import { getGeographicPosition } from './get-geographic-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./overlay-gl.js').OverlayConfig} OverlayConfig */
 
 export class OverlayLayer {
+    id = 'weather-overlay';
+    type = 'custom';
+    renderingMode = '2d';
+
     /**
      * @param {OverlayConfig} config
      */
     constructor(config) {
-        this.id = 'weather-overlay';
-        this.type = 'custom';
-        this.renderingMode = '2d';
-
         config.minZoom = config.minZoom || 0;
         config.maxZoom = config.maxZoom || 14;
         this.config = config;
@@ -66,8 +65,10 @@ export class OverlayLayer {
         }
 
         if (this.enabled) {
-            const worldOffsets = getWorldOffsets(this.map);
-            this.renderer.render(matrix, worldOffsets);
+            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+            /** @type [[number, number], [number, number]] */
+            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
+            this.renderer.render(matrix, geographicWorldBounds);
         }
     }
 
@@ -80,7 +81,11 @@ export class OverlayLayer {
         }
 
         const zoom = this.map.getZoom();
-        const enabled = this.config.image && this.config.minZoom <= zoom && zoom <= this.config.maxZoom;
+        const enabled = (
+            this.config.image &&
+            (typeof this.config.minZoom !== 'undefined' ? this.config.minZoom <= zoom : true) &&
+            (typeof this.config.maxZoom !== 'undefined' ? zoom <= this.config.maxZoom : true)
+        );
 
         return enabled;
     }
@@ -94,7 +99,7 @@ export class OverlayLayer {
             return;
         }
 
-        const position = getEquirectangularPosition(lngLat);
+        const position = getGeographicPosition(lngLat);
         const value = this.renderer.getPositionValue(position);
 
         return value;

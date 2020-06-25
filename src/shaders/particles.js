@@ -48,9 +48,9 @@ export function createParticlesProgram(gl) {
  * @param {number} particleSize
  * @param {[number, number, number, number]} particleColor
  * @param {number[]} matrix
- * @param {number} worldOffset
+ * @param {[[number, number], [number, number]]} worldBounds
  */
-export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldOffset) {
+export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldBounds) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState0'], program.uniforms['uStateResolution'], 0);
@@ -58,7 +58,8 @@ export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTe
     gl.uniform1f(program.uniforms['uParticleSize'], particleSize);
     gl.uniform4fv(program.uniforms['uParticleColor'], particleColor);
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
-    gl.uniform1f(program.uniforms['uWorldOffset'], worldOffset);
+    gl.uniform2fv(program.uniforms['uWorldBoundsMin'], worldBounds[0]);
+    gl.uniform2fv(program.uniforms['uWorldBoundsMax'], worldBounds[1]);
     gl.uniform2f(program.uniforms['uPixelSize'], 1 / gl.canvas.width, 1 / gl.canvas.height);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer.buffer);
     gl.drawElements(gl.TRIANGLES, indexBuffer.x, gl.UNSIGNED_SHORT, 0);

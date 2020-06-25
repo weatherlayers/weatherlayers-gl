@@ -15,8 +15,11 @@ uniform sampler2D sState1;
 uniform vec2 uStateResolution;
 uniform float uParticleSize;
 uniform mat4 uMatrix;
-uniform float uWorldOffset;
+uniform vec2 uWorldBoundsMin;
+uniform vec2 uWorldBoundsMax;
 uniform vec2 uPixelSize;
+
+const vec4 dropPosition = vec4(0);
 
 void main() {
     float vertexCount = 4.0;
@@ -28,41 +31,27 @@ void main() {
         floor(particleIndex / uStateResolution.x) / uStateResolution.y
     );
 
-    vec4 packedPosition0 = texture2D(sState0, texCoord);
-    vec4 packedPosition1 = texture2D(sState1, texCoord);
+    vec4 packedBoundedWorldPosition0 = texture2D(sState0, texCoord);
+    vec4 packedBoundedWorldPosition1 = texture2D(sState1, texCoord);
 
-    vec2 position0 = packedPosition0.rg;
-    vec2 position1 = packedPosition1.rg;
+    // don't render path for randomized particle
+    packedBoundedWorldPosition0 = _if(packedBoundedWorldPosition0 == dropPosition, packedBoundedWorldPosition1, packedBoundedWorldPosition0);
+    packedBoundedWorldPosition1 = _if(packedBoundedWorldPosition1 == dropPosition, packedBoundedWorldPosition0, packedBoundedWorldPosition1);
 
-    vec2 dropPosition = vec2(0, 0);
-    position0 = _if(
-        position0 == dropPosition,
-        position1, // don't render path for randomized particle
-        position0
-    );
-    position1 = _if(
-        position1 == dropPosition,
-        position0, // don't render path for randomized particle
-        position1
-    );
+    vec2 boundedWorldPosition0 = unpackPosition(packedBoundedWorldPosition0);
+    vec2 boundedWorldPosition1 = unpackPosition(packedBoundedWorldPosition1);
 
-    position0 = wgs84ToMercator(position0);
-    position1 = wgs84ToMercator(position1);
-    position0 = transform(position0 + vec2(uWorldOffset, 0), uMatrix);
-    position1 = transform(position1 + vec2(uWorldOffset, 0), uMatrix);
+    vec2 worldPosition0 = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition0);
+    vec2 worldPosition1 = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition1);
+
+    vec2 position0 = transform(wgs84ToMercator(worldPosition0), uMatrix);
+    vec2 position1 = transform(wgs84ToMercator(worldPosition1), uMatrix);
     
-    position1 = _if(
-        length(position1 - position0) > 0.5,
-        position0, // don't render path across for particle that wrapped across the world
-        position1
-    );
+    // don't render path across for particle that wrapped across the world
+    position1 = _if(length(position1 - position0) > 0.5, position0, position1);
 
     vec2 dirF = position1 - position0;
-    vec2 dirFN = _if(
-        length(dirF) > 0.0,
-        normalize(dirF), // forward direction
-        vec2(1, 0)
-    );
+    vec2 dirFN = _if(length(dirF) > 0.0, normalize(dirF), vec2(1, 0)); // forward direction
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
 
     vec2 position = _if(
