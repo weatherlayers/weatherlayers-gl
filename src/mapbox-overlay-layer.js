@@ -13,7 +13,6 @@ export class OverlayLayer {
      * @param {OverlayConfig} config
      */
     constructor(config) {
-        config.minZoom = config.minZoom || 0;
         config.maxZoom = config.maxZoom || 14;
         this.config = config;
     }
