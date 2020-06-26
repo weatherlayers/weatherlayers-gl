@@ -1,6 +1,10 @@
+const basepath = '../data';
+const date = '20200626';
+const time = '12';
+
 export const config = {
     overlay: {
-        imagePath: '../data/gfs/wind/2020061500.png',
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
         bounds: [0, 100],
         colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
         opacity: 0.1,
@@ -9,7 +13,7 @@ export const config = {
         legendWidth: 220,
     },
     particles: {
-        imagePath: '../data/gfs/wind/2020061500.png',
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
         bounds: [-128, 127],
         count: 1024,
         size: 2,
@@ -34,55 +38,55 @@ const meta = {
 
 const overlayLayerConfigs = new Map([
     ['gfs/wind', {
-        imagePath: '../data/gfs/wind/2020061500.png',
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
     }],
     ['gfs/tmp', {
-        imagePath: '../data/gfs/tmp/2020061500.png',
+        imagePath: `${basepath}/gfs/tmp/${date}${time}.f000.png`,
         bounds: [193 - 273.15, 328 - 273.15],
         colorFunction: 'gfs/tmp',
         legendTitle: 'Temperature [°C]',
     }],
     ['gfs/rh', {
-        imagePath: '../data/gfs/rh/2020061500.png',
+        imagePath: `${basepath}/gfs/rh/${date}${time}.f000.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/rh',
         legendTitle: 'Relative Humidity [%]',
     }],
-    ['gfs/apcp03', {
-        imagePath: '../data/gfs/apcp03/2020061500.png',
+    ['gfs/apcp', {
+        imagePath: `${basepath}/gfs/apcp/${date}${time}.f003.png`,
         bounds: [0, 150],
-        colorFunction: 'gfs/apcp03',
+        colorFunction: 'gfs/apcp',
         legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
     }],
     ['gfs/cape', {
-        imagePath: '../data/gfs/cape/2020061500.png',
+        imagePath: `${basepath}/gfs/cape/${date}${time}.f000.png`,
         bounds: [0, 5000],
         colorFunction: 'gfs/cape',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
-    ['gfs/tpw', {
-        imagePath: '../data/gfs/tpw/2020061500.png',
+    ['gfs/pwat', {
+        imagePath: `${basepath}/gfs/pwat/${date}${time}.f000.png`,
         bounds: [0, 70],
-        colorFunction: 'gfs/tpw',
+        colorFunction: 'gfs/pwat',
         legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
-    ['gfs/tcw', {
-        imagePath: '../data/gfs/tcw/2020061500.png',
+    ['gfs/cwat', {
+        imagePath: `${basepath}/gfs/cwat/${date}${time}.f000.png`,
         bounds: [0, 1],
-        colorFunction: 'gfs/tcw',
+        colorFunction: 'gfs/cwat',
         legendTitle: 'Total Cloud Water [kg/m²]',
     }],
     ['gfs/prmsl', {
-        imagePath: '../data/gfs/prmsl/2020061500.png',
+        imagePath: `${basepath}/gfs/prmsl/${date}${time}.f000.png`,
         bounds: [92000 / 100, 105000 / 100],
         colorFunction: 'gfs/prmsl',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
     }],
     ['gfs/aptmp', {
-        imagePath: '../data/gfs/aptmp/2020061500.png',
+        imagePath: `${basepath}/gfs/aptmp/${date}${time}.f000.png`,
         bounds: [236 - 273.15, 332 - 273.15],
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
@@ -95,7 +99,7 @@ const particlesLayerConfigs = new Map([
         count: 0,
     }],
     ['gfs/wind', {
-        imagePath: '../data/gfs/wind/2020061500.png',
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
         count: 1024,
     }],
 ]);
@@ -123,7 +127,7 @@ const overlayColorFunctions = new Map([
         [90 / 100, [75, 63, 235]],
         [100 / 100, [25, 255, 255]],
     ])],
-    ['gfs/apcp03', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/apcp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 150, [37, 79, 92]],
         [2 / 150, [240, 248, 255]],
         [15 / 150, [51, 26, 155]],
@@ -144,7 +148,7 @@ const overlayColorFunctions = new Map([
         [4500 / 5000, [178, 24, 43]],   // extreme
         [5000 / 5000, [103, 0, 31]],    // extreme
     ])],
-    ['gfs/tpw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/pwat', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 70, [230, 165, 30]],
         [10 / 70, [120, 100, 95]],
         [20 / 70, [40, 44, 92]],
@@ -153,7 +157,7 @@ const overlayColorFunctions = new Map([
         [60 / 70, [25, 255, 255]],
         [70 / 70, [150, 255, 255]],
     ])],
-    ['gfs/tcw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/cwat', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0.0, [5, 5, 89]],
         [0.2, [170, 170, 230]],
         [1.0, [255, 255, 255]],

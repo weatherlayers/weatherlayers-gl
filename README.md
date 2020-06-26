@@ -11,7 +11,7 @@ npm run build
 
 open http://localhost:8080/docs/
 
-reference visualization: https://earth.nullschool.net/#2020/06/15/0000Z/wind/surface/level/equirectangular
+reference visualization: https://earth.nullschool.net/#2020/06/26/1200Z/wind/surface/level/equirectangular
 
 ## Download data
 
