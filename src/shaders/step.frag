@@ -49,7 +49,7 @@ void main() {
     vec2 worldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition);
 
     vec2 newWorldPosition = updateWorldPosition(worldPosition);
-    vec2 newBoundedWorldPosition = linearstep(uWorldBoundsMin, uWorldBoundsMax, newWorldPosition);
+    vec2 newBoundedWorldPosition = clamp(linearstep(uWorldBoundsMin, uWorldBoundsMax, newWorldPosition), 0.0, 1.0);
 
     // randomize the position to prevent converging particles
     // 2nd frame: randomize
@@ -62,11 +62,7 @@ void main() {
 
     // randomize the position to prevent converging particles
     // 1st frame: drop
-    bool drop = (
-        abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0 || // particle aged
-        0.0 >= newBoundedWorldPosition.x || newBoundedWorldPosition.x >= 1.0 ||
-        0.0 >= newBoundedWorldPosition.y || newBoundedWorldPosition.y >= 1.0 // particle traveled outside of the bounded world
-    );
+    bool drop = abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0;
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
     
     gl_FragColor = newPackedBoundedWorldPosition;
