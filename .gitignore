@@ -2,3 +2,5 @@
 /dist
 
 /data/**/*.tif
+
+.env.local

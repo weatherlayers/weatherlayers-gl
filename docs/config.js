@@ -91,6 +91,12 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
     }],
+    ['oscar/currents', {
+        imagePath: `${basepath}/oscar/currents/${date}.png`,
+        bounds: [0, 1.5],
+        colorFunction: 'oscar/currents',
+        legendTitle: 'Currents [m/s]',
+    }],
 ]);
 
 const particlesLayerConfigs = new Map([
@@ -100,7 +106,15 @@ const particlesLayerConfigs = new Map([
     }],
     ['gfs/wind', {
         imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
+        bounds: [-128, 127],
         count: 1024,
+        speedFactor: 0.33,
+    }],
+    ['oscar/currents', {
+        imagePath: `${basepath}/oscar/currents/${date}.png`,
+        bounds: [-1, 1],
+        count: 1024,
+        speedFactor: 5,
     }],
 ]);
 
@@ -186,6 +200,14 @@ const overlayColorFunctions = new Map([
         [(320.5 - 236) / (332 - 236), [245, 210, 5]],
         [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
     ])],
+    ['oscar/currents', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [0 / 1.5, [10, 25, 68]],
+        [0.15 / 1.5, [10, 25, 250]],
+        [0.4 / 1.5, [24, 255, 93]],
+        [0.65 / 1.5, [255, 233, 102]],
+        [1.0 / 1.5, [255, 233, 15]],
+        [1.5 / 1.5, [255, 15, 15]],
+    ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
     ['d3.interpolateTurbo', d3.interpolateTurbo],
@@ -253,7 +275,7 @@ export function initGui(config, update) {
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
-    particles.add(config.particles, 'speedFactor', 0.05, 1, 0.01);
+    particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
     particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
     particles.add(config.particles, 'retina').onChange(update);
     particles.open();

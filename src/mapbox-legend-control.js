@@ -68,6 +68,7 @@ export class LegendControl {
         scale.appendChild(ticks);
 
         const delta = (this.config.bounds[1] - this.config.bounds[0]) / (this.config.legendTicksCount - 1);
+        const roundTicks = Math.round(this.config.bounds[1]) === this.config.bounds[1];
         for (let i = 0; i < this.config.legendTicksCount; i++) {
             const x = this.config.bounds[0] + i * delta;
 
@@ -82,7 +83,7 @@ export class LegendControl {
             tick.appendChild(line);
 
             const value = /** @type SVGTextElement */ (document.createElementNS(xmlns, 'text'));
-            value.innerHTML = `${Math.round(x)}`;
+            value.innerHTML = `${roundTicks ? Math.round(x) : Math.round(x * 10) / 10}`;
             value.style.transform = 'translate(0, 22px)';
             tick.appendChild(value);
         }
