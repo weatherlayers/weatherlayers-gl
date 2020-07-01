@@ -3,6 +3,7 @@ import { colorRampCanvas } from './color-ramp.js';
 import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
 import { createImageCanvas } from './create-image-canvas.js';
 import { getPositionValues } from './get-position-values.js';
+import { hasValues } from './has-values.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -103,10 +104,14 @@ export function overlayGl(gl, config) {
 
     /**
      * @param {[number, number]} position
-     * @return {number}
+     * @return {number | undefined}
      */
     function getPositionValue(position) {
         const values = getPositionValues(sourceCtx, position);
+        if (!hasValues(values)) {
+            return;
+        }
+
         const value = values[0] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0];
 
         return value;

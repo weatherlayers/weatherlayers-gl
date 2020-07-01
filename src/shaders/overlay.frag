@@ -7,6 +7,7 @@ precision mediump float;
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getPositionValues = require('./_get-position-values')
+#pragma glslify: hasValues = require('./_has-values')
 
 uniform sampler2D sSource;
 uniform vec2 uSourceResolution;
@@ -21,6 +22,7 @@ void main() {
 
     vec2 colorPosition = vec2(values.x, 0.0);
     vec4 color = texture2D(sOverlayColorRamp, colorPosition);
+    color = _if(hasValues(values), color, vec4(0));
 
     gl_FragColor = vec4(color.rgb, uOverlayOpacity);
 }

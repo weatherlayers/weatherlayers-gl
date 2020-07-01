@@ -149,9 +149,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                 Mouse:<br>
                 Position: ${round(position.lng)}, ${round(position.lat)}<br>
                 Position (geographic): ${round(geographicPosition[0])}, ${round(geographicPosition[1])}<br>
-                Overlay Value: ${round(overlayValue)}<br>
-                Particles Vector: ${round(particlesVector[0])}, ${round(particlesVector[1])}<br>
-                Particles Bearing: ${Math.round(particlesBearing)}
+                Overlay Value: ${typeof overlayValue !== 'undefined' ? round(overlayValue) : 'n/a'}<br>
+                Particles Vector: ${typeof particlesVector !== 'undefined' ? `${round(particlesVector[0])}, ${round(particlesVector[1])}` : 'n/a'}<br>
+                Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
             `;
         });
     });

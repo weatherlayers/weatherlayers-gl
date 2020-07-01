@@ -7,6 +7,7 @@ import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgr
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
 import { createImageCanvas } from './create-image-canvas.js';
 import { getPositionValues } from './get-position-values.js';
+import { hasValues } from './has-values.js';
 
 /** @typedef {import('./webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('./webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -216,10 +217,14 @@ export function particlesGl(gl, config) {
 
     /**
      * @param {[number, number]} position
-     * @return {[number, number]}
+     * @return {[number, number] | undefined}
      */
     function getPositionVector(position) {
         const values = getPositionValues(sourceCtx, position);
+        if (!hasValues(values)) {
+            return;
+        }
+
         /** @type [number, number] */
         const vector = [
             values[1] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
@@ -231,10 +236,14 @@ export function particlesGl(gl, config) {
 
     /**
      * @param {[number, number]} position
-     * @return {number}
+     * @return {number | undefined}
      */
     function getPositionBearing(position) {
         const vector = getPositionVector(position);
+        if (!vector) {
+            return;
+        }
+
         const bearing = (Math.atan2(vector[0], vector[1]) * 180 / Math.PI + 360) % 360;
 
         return bearing;

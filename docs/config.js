@@ -109,12 +109,16 @@ const particlesLayerConfigs = new Map([
         bounds: [-128, 127],
         count: 1024,
         speedFactor: 0.33,
+        fadeOpacity: 0.95,
+        dropAge: 50,
     }],
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [-1, 1],
         count: 1024,
-        speedFactor: 5,
+        speedFactor: 10,
+        fadeOpacity: 0.99,
+        dropAge: 100,
     }],
 ]);
 
@@ -268,6 +272,7 @@ export function initGui(config, update) {
             config.particles[key] = particlesLayerConfig[key];
         });
 
+        gui.updateDisplay();
         update();
     });
     particles.add(config.particles, 'count', 0, 2 ** 16 - 1, 1).onFinishChange(update);
@@ -275,7 +280,7 @@ export function initGui(config, update) {
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
-    particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
+    particles.add(config.particles, 'speedFactor', 0.05, 10, 0.01);
     particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
     particles.add(config.particles, 'retina').onChange(update);
     particles.open();

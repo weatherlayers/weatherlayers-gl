@@ -10,6 +10,7 @@ precision mediump float;
 #pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: getPositionValues = require('./_get-position-values')
+#pragma glslify: hasValues = require('./_has-values')
 
 uniform sampler2D sState;
 uniform vec2 uStateResolution;
@@ -26,6 +27,21 @@ uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
 const vec4 dropPosition = vec4(0);
+const float maxRandomAttempts = 5.0;
+
+vec2 getRandomBoundedWorldPosition(vec2 seed) {
+    vec2 randomBoundedWorldPosition;
+    for (float i = 0.0; i < maxRandomAttempts; i++) {
+        randomBoundedWorldPosition = vec2(random(seed + 1.3 + float(i)), random(seed + 2.1 + float(i)));
+        vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
+
+        vec4 values = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
+        if (hasValues(values)) {
+            break;
+        }
+    }
+    return randomBoundedWorldPosition;
+}
 
 void main() {
     float particleIndex = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
@@ -47,7 +63,7 @@ void main() {
     // randomize the position to prevent converging particles
     // 2nd frame: randomize
     vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
-    vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
+    vec2 randomBoundedWorldPosition = getRandomBoundedWorldPosition(seed);
     bool randomize = packedBoundedWorldPosition == dropPosition;
     newBoundedWorldPosition = _if(randomize, randomBoundedWorldPosition, newBoundedWorldPosition);
 
@@ -55,7 +71,7 @@ void main() {
 
     // randomize the position to prevent converging particles
     // 1st frame: drop
-    bool drop = !randomize && abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0);
+    bool drop = abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0;
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
     
     gl_FragColor = newPackedBoundedWorldPosition;
