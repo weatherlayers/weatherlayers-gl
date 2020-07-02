@@ -1,9 +1,9 @@
-import { texture2DBilinear } from "./texture-2d-bilinear";
+import { texture2DBilinear } from "./texture-2d-bilinear.js";
 
 /**
  * @param {CanvasRenderingContext2D} ctx
  * @param {[number, number]} position
- * @return {Uint8ClampedArray}
+ * @return {[number, number, number, number]}
  */
 export function getPositionValues(ctx, position) {
     /** @type [number, number] */
