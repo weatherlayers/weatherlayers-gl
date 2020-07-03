@@ -9,6 +9,8 @@ export class OverlayLayer {
     type = 'custom';
     renderingMode = '2d';
 
+    updateBound = this.update.bind(this);
+
     /**
      * @param {OverlayConfig} config
      */
@@ -30,9 +32,9 @@ export class OverlayLayer {
         this.map = map;
         this.renderer = renderer;
 
-        this.map.on('move', this.renderer.update);
-        this.map.on('zoom', this.renderer.update);
-        this.map.on('resize', this.renderer.update);
+        this.map.on('move', this.updateBound);
+        this.map.on('zoom', this.updateBound);
+        this.map.on('resize', this.updateBound);
     }
 
     onRemove() {
@@ -40,10 +42,13 @@ export class OverlayLayer {
             return;
         }
 
-        this.map.off('move', this.renderer.update);
-        this.map.off('zoom', this.renderer.update);
-        this.map.off('resize', this.renderer.update);
+        this.map.off('move', this.updateBound);
+        this.map.off('zoom', this.updateBound);
+        this.map.off('resize', this.updateBound);
         this.renderer.destroy();
+
+        this.map = undefined;
+        this.renderer = undefined;
     }
 
     update() {

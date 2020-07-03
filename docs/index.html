@@ -9,6 +9,7 @@
     <style>
         body {
             margin: 0;
+            background: #000;
         }
         #canvas {
             width: 100vw;
@@ -53,7 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     let running = false;
     let raf = null;
     function frame() {
-        gl.clearColor(0, 0, 0, 1);
+        gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         const matrix = [
@@ -91,16 +92,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             raf = null;
         }
     }
-    start();
-    
     function step() {
         if (!running) {
             frame();
         }
     }
+
+    start();
+
     const meta = {
         running: true,
-        step: step,
+        step: () => step(),
     };
     async function update() {
         const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);

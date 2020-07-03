@@ -72,14 +72,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
     let initialized = false;
 
-    function step() {
-        if (!particlesLayer.running) {
-            particlesLayer.running = true;
-            particlesLayer.running = false;
-        }
-    }
     const meta = {
-        step: step,
+        running: true,
+        step: () => particlesLayer.step(),
     };
     async function update() {
         config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
@@ -96,7 +91,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const gui = initGui(config, update);
-        gui.add(particlesLayer, 'running');
+        gui.add(meta, 'running').onChange(() => {
+            if (meta.running) {
+                particlesLayer.start();
+            } else {
+                particlesLayer.stop();
+            }
+        });
         gui.add(meta, 'step');
     }
     addGui();

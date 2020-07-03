@@ -9,7 +9,9 @@ export class ParticlesLayer {
     type = 'custom';
     renderingMode = '2d';
 
-    _running = true;
+    running = false;
+
+    updateBound = this.update.bind(this);
 
     /**
      * @param {ParticlesConfig} config
@@ -21,75 +23,118 @@ export class ParticlesLayer {
  
     /**
      * @param {mapboxgl.Map} map
-     * @param {WebGLRenderingContext} gl
      */
-    onAdd(map, gl) {
+    onAdd(map) {
+        const mapCanvas = map.getCanvas();
+        const canvas = document.createElement('canvas');
+        canvas.width = mapCanvas.width;
+        canvas.height = mapCanvas.height;
+        canvas.style.width = mapCanvas.style.width;
+        canvas.style.height = mapCanvas.style.height;
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0px';
+        canvas.style.left = '0px';
+        canvas.style.pointerEvents = 'none';
+        /** @type HTMLElement */ (map.getCanvasContainer().parentElement).appendChild(canvas);
+        const gl = /** @type WebGLRenderingContext */ (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true }));
+
         const renderer = particlesGl(gl, this.config);
         if (!renderer) {
             return;
         }
 
         this.map = map;
+        this.canvas = canvas;
+        this.gl = gl;
         this.renderer = renderer;
 
-        this.map.on('move', this.renderer.update);
-        this.map.on('zoom', this.renderer.update);
-        this.map.on('resize', this.renderer.update);
+        this.map.on('move', this.updateBound);
+        this.map.on('zoom', this.updateBound);
+        this.map.on('resize', this.updateBound);
+        this.start();
     }
 
     onRemove() {
-        if (!this.map || !this.renderer) {
+        if (!this.map || !this.canvas || !this.gl || !this.renderer) {
             return;
         }
 
-        this.map.off('move', this.renderer.update);
-        this.map.off('zoom', this.renderer.update);
-        this.map.off('resize', this.renderer.update);
+        this.map.off('move', this.updateBound);
+        this.map.off('zoom', this.updateBound);
+        this.map.off('resize', this.updateBound);
+        this.canvas.remove();
         this.renderer.destroy();
+
+        this.map = undefined;
+        this.canvas = undefined;
+        this.gl = undefined;
+        this.renderer = undefined;
     }
 
     update() {
-        if (!this.map || !this.renderer) {
+        if (!this.map || !this.canvas || !this.gl || !this.renderer) {
             return;
         }
         
+        const mapCanvas = this.map.getCanvas();
+        this.canvas.width = mapCanvas.width;
+        this.canvas.height = mapCanvas.height;
+        this.canvas.style.width = mapCanvas.style.width;
+        this.canvas.style.height = mapCanvas.style.height;
         this.renderer.update();
     }
 
-    /**
-     * @param {WebGLRenderingContext} gl
-     * @param {number[]} matrix
-     */
-    prerender(gl, matrix) {
-        if (!this.map || !this.renderer) {
+    frame() {
+        if (!this.map || !this.canvas || !this.gl || !this.renderer) {
             return;
         }
 
-        if (this.enabled) {
-            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
-            /** @type [[number, number], [number, number]] */
-            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
-            const zoom = this.map.getZoom();
-            this.renderer.prerender(matrix, geographicWorldBounds, zoom);
+        this.gl.clearColor(0, 0, 0, 0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+        const matrix = this.map.transform.customLayerMatrix();
+        const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+        /** @type [[number, number], [number, number]] */
+        const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
+        const zoom = this.map.getZoom();
+
+        this.renderer.prerender(matrix, geographicWorldBounds, zoom);
+        this.renderer.render();
+
+        if (this.running) {
+            this.raf = requestAnimationFrame(() => this.frame());
         }
     }
 
-    /**
-     * @param {WebGLRenderingContext} gl
-     * @param {number[]} matrix
-     */
-    render(gl, matrix) {
-        if (!this.map || !this.renderer) {
+    start() {
+        if (this.running) {
             return;
         }
 
-        if (this.enabled) {
-            this.renderer.render();
+        this.running = true;
+        this.frame();
+    }
 
-            if (this._running) {
-                this.map.triggerRepaint();
-            }
+    stop() {
+        if (!this.running) {
+            return;
         }
+
+        this.running = false;
+        if (this.raf) {
+            cancelAnimationFrame(this.raf);
+            this.raf = null;
+        }
+    }
+
+    step() {
+        if (!this.running) {
+            this.frame();
+        }
+    }
+
+    render() {
+        // noop
     }
 
     /**
@@ -109,24 +154,6 @@ export class ParticlesLayer {
         );
 
         return enabled;
-    }
-
-    /**
-     * @return {boolean}
-     */
-    get running() {
-        return this._running;
-    }
-
-    /**
-     * @param {boolean} value
-     */
-    set running(value) {
-        this._running = value;
-
-        if (this.map && this._running) {
-            this.map.triggerRepaint();
-        }
     }
 
     /**
