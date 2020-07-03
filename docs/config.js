@@ -282,7 +282,6 @@ export function initGui(config, update) {
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
     particles.add(config.particles, 'speedFactor', 0.05, 10, 0.01);
     particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
-    particles.add(config.particles, 'retina').onChange(update);
     particles.open();
 
     gui.close();

@@ -32,7 +32,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     const canvas = document.getElementById('canvas');
 
-    const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);
+    const pixelRatio = window.devicePixelRatio || 1;
     canvas.width = canvas.parentElement.clientWidth * pixelRatio;
     canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 
@@ -105,7 +105,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         step: () => step(),
     };
     async function update() {
-        const pixelRatio = MaritraceMapboxWeather.getPixelRatio(config.particles.retina);
+        const pixelRatio = window.devicePixelRatio || 1;
         canvas.width = canvas.parentElement.clientWidth * pixelRatio;
         canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 

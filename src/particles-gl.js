@@ -1,4 +1,3 @@
-import { getPixelRatio } from './get-pixel-ratio.js';
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createStepProgram, computeStep } from './shaders/step.js';
@@ -23,7 +22,6 @@ import { hasValues } from './has-values.js';
  *      speedFactor: number;
  *      dropAge: number;
  *      fadeOpacity: number;
- *      retina?: boolean;
  *      minZoom?: number;
  *      maxZoom?: number;
  * }} ParticlesConfig
@@ -95,7 +93,7 @@ export function particlesGl(gl, config) {
 
         frameNumber = 0;
 
-        pixelRatio = getPixelRatio(!!config.retina);
+        pixelRatio = window.devicePixelRatio || 1;
 
         sourceCanvas = createImageCanvas(config.image);
         sourceCtx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
