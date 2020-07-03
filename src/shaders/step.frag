@@ -28,18 +28,17 @@ varying vec2 vTexCoord;
 const vec4 dropPosition = vec4(0);
 const float maxRandomAttempts = 5.0;
 
-vec2 getRandomBoundedWorldPosition(vec2 seed) {
-    vec2 randomBoundedWorldPosition;
+vec4 getRandomPackedBoundedWorldPosition(vec2 seed) {
     for (float i = 0.0; i < maxRandomAttempts; i++) {
-        randomBoundedWorldPosition = vec2(random(seed + 1.3 + float(i)), random(seed + 2.1 + float(i)));
+        vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3 + float(i)), random(seed + 2.1 + float(i)));
         vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
-
         vec4 values = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
         if (hasValues(values)) {
-            break;
+            vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
+            return randomPackedBoundedWorldPosition;
         }
     }
-    return randomBoundedWorldPosition;
+    return dropPosition;
 }
 
 void main() {
@@ -58,15 +57,14 @@ void main() {
     vec2 newWorldPosition = worldPosition + offset;
 
     vec2 newBoundedWorldPosition = clamp(linearstep(uWorldBoundsMin, uWorldBoundsMax, newWorldPosition), 0.0, 1.0);
+    vec4 newPackedBoundedWorldPosition = packPosition(newBoundedWorldPosition);
 
     // randomize the position to prevent converging particles
     // 2nd frame: randomize
     vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
-    vec2 randomBoundedWorldPosition = getRandomBoundedWorldPosition(seed);
+    vec4 randomPackedBoundedWorldPosition = getRandomPackedBoundedWorldPosition(seed);
     bool randomize = packedBoundedWorldPosition == dropPosition;
-    newBoundedWorldPosition = _if(randomize, randomBoundedWorldPosition, newBoundedWorldPosition);
-
-    vec4 newPackedBoundedWorldPosition = packPosition(newBoundedWorldPosition);
+    newPackedBoundedWorldPosition = _if(randomize, randomPackedBoundedWorldPosition, newPackedBoundedWorldPosition);
 
     // randomize the position to prevent converging particles
     // 1st frame: drop
