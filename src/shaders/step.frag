@@ -55,7 +55,8 @@ void main() {
     vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
     vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
     vec4 randomWorldPositionValues = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
-    vec4 randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), packPosition(randomBoundedWorldPosition), dropPosition);
+    vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
+    randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), randomPackedBoundedWorldPosition, dropPosition);
     // - 1st frame: drop
     bool drop = abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0;
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);

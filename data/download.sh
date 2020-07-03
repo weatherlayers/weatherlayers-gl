@@ -67,3 +67,9 @@ mkdir -p "$DIR/oscar/currents"
 "$DIR/download_oscar.sh" "$DATE" "$DIR/oscar/currents/$DATE.nc"
 "$DIR/convert_oscar.sh" 0 1.5 -1 1 "$DIR/oscar/currents/$DATE.nc" "$DIR/oscar/currents/$DATE.png"
 echo
+
+echo "OSTIA - currents"
+mkdir -p "$DIR/ostia/sst"
+"$DIR/download_ostia.sh" "$DATE" "$DIR/ostia/sst/$DATE.nc"
+"$DIR/convert_ostia.sh" 270 304.65 "$DIR/ostia/sst/$DATE.nc" "$DIR/ostia/sst/$DATE.png"
+echo

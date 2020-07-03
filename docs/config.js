@@ -97,6 +97,12 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
     }],
+    ['ostia/sst', {
+        imagePath: `${basepath}/ostia/sst/${date}.png`,
+        bounds: [270 - 273.15, 304.65 - 273.15],
+        colorFunction: 'ostia/sst',
+        legendTitle: 'Sea Surface Temperature [°C]',
+    }],
 ]);
 
 const particlesLayerConfigs = new Map([
@@ -191,6 +197,7 @@ const overlayColorFunctions = new Map([
         [(105000 - 92000) / (105000 - 92000), [255, 255, 255]],
     ])],
     ['gfs/aptmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(236 - 236) / (332 - 236), [255, 255, 255]],
         [(241 - 236) / (332 - 236), [255, 255, 255]], // -32 C, -25 F extreme frostbite
         [(245.5 - 236) / (332 - 236), [6, 82, 255]],
         [(250 - 236) / (332 - 236), [6, 82, 255]],    // -23 C, -10 F frostbite
@@ -203,6 +210,7 @@ const overlayColorFunctions = new Map([
         [(314 - 236) / (332 - 236), [245, 210, 5]],   // 41 C, 105 F danger
         [(320.5 - 236) / (332 - 236), [245, 210, 5]],
         [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
+        [(332 - 236) / (332 - 236), [255, 255, 255]],
     ])],
     ['oscar/currents', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [0 / 1.5, [10, 25, 68]],
@@ -211,6 +219,20 @@ const overlayColorFunctions = new Map([
         [0.65 / 1.5, [255, 233, 102]],
         [1.0 / 1.5, [255, 233, 15]],
         [1.5 / 1.5, [255, 15, 15]],
+    ])],
+    ['ostia/sst', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(270 - 270) / (304.65 - 270), [255, 255, 255]],
+        [(271.25 - 270) / (304.65 - 270), [255, 255, 255]], // -1.9 C sea water freeze
+        [(271.30 - 270) / (304.65 - 270), [15, 4, 168]],
+        [(273.15 - 270) / (304.65 - 270), [15, 54, 208]], // 0 C fresh water freeze
+        [(273.25 - 270) / (304.65 - 270), [15, 54, 188]],
+        [(275.65 - 270) / (304.65 - 270), [15, 4, 168]], // lower boundary for cool currents
+        [(281.65 - 270) / (304.65 - 270), [24, 132, 14]], // upper boundary for cool currents
+        [(291.15 - 270) / (304.65 - 270), [247, 251, 59]], // lower boundary for warm currents
+        [(295 - 270) / (304.65 - 270), [235, 167, 0]],
+        [(299.65 - 270) / (304.65 - 270), [245, 0, 39]], // minimum needed for tropical cyclone formation
+        [(303 - 270) / (304.65 - 270), [87, 17, 0]],
+        [(304.65 - 270) / (304.65 - 270), [238, 0, 242]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential

@@ -3,5 +3,5 @@
  * @return {boolean}
  */
 export function hasValues(values) {
-    return values[3] !== 0;
+    return values[3] === 255;
 }

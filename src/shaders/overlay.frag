@@ -20,7 +20,8 @@ void main() {
     vec4 values = getPositionValues(sSource, uSourceResolution, position);
 
     vec4 color = texture2D(sOverlayColorRamp, vec2(values.x, 0.0));
+    color = vec4(color.rgb, uOverlayOpacity);
     color = _if(hasValues(values), color, vec4(0));
 
-    gl_FragColor = vec4(color.rgb, uOverlayOpacity);
+    gl_FragColor = color;
 }
