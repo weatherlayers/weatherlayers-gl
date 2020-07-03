@@ -30,7 +30,10 @@ const vec4 dropPosition = vec4(0);
 void main() {
     float particleIndex = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
 
+    // read position
     vec4 packedBoundedWorldPosition = texture2D(sState, vTexCoord);
+
+    // unpack position
     vec2 boundedWorldPosition = unpackPosition(packedBoundedWorldPosition);
     vec2 worldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition);
 
@@ -42,21 +45,24 @@ void main() {
     vec2 offset = distortedSpeed * uSpeedFactor * 0.0001;
     vec2 newWorldPosition = worldPosition + offset;
 
+    // pack position
     vec2 newBoundedWorldPosition = clamp(linearstep(uWorldBoundsMin, uWorldBoundsMax, newWorldPosition), 0.0, 1.0);
     vec4 newPackedBoundedWorldPosition = packPosition(newBoundedWorldPosition);
 
-    // randomize the position to prevent converging particles
+    // randomize position to prevent converging particles
+    // - generate random position with data
     vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
     vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
     vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
     vec4 randomWorldPositionValues = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
     vec4 randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), packPosition(randomBoundedWorldPosition), dropPosition);
-    // 1st frame: drop
+    // - 1st frame: drop
     bool drop = abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0;
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
-    // 2nd frame: randomize
+    // - 2nd frame: randomize
     bool randomize = packedBoundedWorldPosition == dropPosition;
     newPackedBoundedWorldPosition = _if(randomize, randomPackedBoundedWorldPosition, newPackedBoundedWorldPosition);
     
+    // write position
     gl_FragColor = newPackedBoundedWorldPosition;
 }

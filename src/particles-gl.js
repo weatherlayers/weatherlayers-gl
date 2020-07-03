@@ -131,11 +131,6 @@ export function particlesGl(gl, config) {
         const particleSize = config.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, config.opacity]);
 
-        const blendEnabled = gl.isEnabled(gl.BLEND);
-        if (blendEnabled) {
-            gl.disable(gl.BLEND);
-        }
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
         // draw to particles state texture
@@ -168,10 +163,6 @@ export function particlesGl(gl, config) {
         // swap particle state and screen textures
         [particlesStateTexture1, particlesStateTexture0] = [particlesStateTexture0, particlesStateTexture1];
         [particlesScreenTexture1, particlesScreenTexture0] = [particlesScreenTexture0, particlesScreenTexture1];
-
-        if (blendEnabled) {
-            gl.enable(gl.BLEND);
-        }
     }
 
     function render() {
@@ -179,18 +170,13 @@ export function particlesGl(gl, config) {
             return;
         }
         
-        const blendEnabled = gl.isEnabled(gl.BLEND);
-        if (!blendEnabled) {
-            gl.enable(gl.BLEND);
-        }
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         // draw to canvas
         drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
 
-        if (!blendEnabled) {
-            gl.disable(gl.BLEND);
-        }
+        gl.disable(gl.BLEND);
     }
 
     function destroy() {
