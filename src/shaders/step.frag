@@ -26,20 +26,6 @@ uniform float uRandomSeed;
 varying vec2 vTexCoord;
 
 const vec4 dropPosition = vec4(0);
-const float maxRandomAttempts = 5.0;
-
-vec4 getRandomPackedBoundedWorldPosition(vec2 seed) {
-    for (float i = 0.0; i < maxRandomAttempts; i++) {
-        vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3 + float(i)), random(seed + 2.1 + float(i)));
-        vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
-        vec4 values = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
-        if (hasValues(values)) {
-            vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
-            return randomPackedBoundedWorldPosition;
-        }
-    }
-    return dropPosition;
-}
 
 void main() {
     float particleIndex = vTexCoord.y * (uStateResolution.y - 1.0) * uStateResolution.x + vTexCoord.x * (uStateResolution.x - 1.0);
@@ -60,16 +46,17 @@ void main() {
     vec4 newPackedBoundedWorldPosition = packPosition(newBoundedWorldPosition);
 
     // randomize the position to prevent converging particles
-    // 2nd frame: randomize
     vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
-    vec4 randomPackedBoundedWorldPosition = getRandomPackedBoundedWorldPosition(seed);
-    bool randomize = packedBoundedWorldPosition == dropPosition;
-    newPackedBoundedWorldPosition = _if(randomize, randomPackedBoundedWorldPosition, newPackedBoundedWorldPosition);
-
-    // randomize the position to prevent converging particles
+    vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
+    vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
+    vec4 randomWorldPositionValues = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
+    vec4 randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), packPosition(randomBoundedWorldPosition), dropPosition);
     // 1st frame: drop
     bool drop = abs(mod(particleIndex, uDropAge) - uFrameNumber) < 1.0;
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
+    // 2nd frame: randomize
+    bool randomize = packedBoundedWorldPosition == dropPosition;
+    newPackedBoundedWorldPosition = _if(randomize, randomPackedBoundedWorldPosition, newPackedBoundedWorldPosition);
     
     gl_FragColor = newPackedBoundedWorldPosition;
 }
