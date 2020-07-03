@@ -1,7 +1,6 @@
 precision mediump float;
 
 #define SHADER_NAME particles.vert
-#define EPSILON 0.00001
 
 #pragma glslify: random = require('glsl-random')
 #pragma glslify: _if = require('./_if')

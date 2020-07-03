@@ -1,7 +1,6 @@
 precision mediump float;
 
 #define SHADER_NAME step.frag
-#define EPSILON 0.00001
 
 #pragma glslify: random = require('glsl-random')
 #pragma glslify: _if = require('./_if')

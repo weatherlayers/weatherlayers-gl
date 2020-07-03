@@ -1,7 +1,6 @@
 precision mediump float;
 
 #define SHADER_NAME overlay.frag
-#define EPSILON 0.00001
 
 #pragma glslify: _if = require('./_if')
 #pragma glslify: transform = require('./_transform')
