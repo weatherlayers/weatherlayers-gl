@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 #define SHADER_NAME step.frag
 
