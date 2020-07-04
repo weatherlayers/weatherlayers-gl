@@ -68,8 +68,14 @@ mkdir -p "$DIR/oscar/currents"
 "$DIR/convert_oscar.sh" 0 1.5 -1 1 "$DIR/oscar/currents/$DATE.nc" "$DIR/oscar/currents/$DATE.png"
 echo
 
-echo "OSTIA - currents"
-mkdir -p "$DIR/ostia/sst"
-"$DIR/download_ostia.sh" "$DATE" "$DIR/ostia/sst/$DATE.nc"
-"$DIR/convert_ostia.sh" 270 304.65 "$DIR/ostia/sst/$DATE.nc" "$DIR/ostia/sst/$DATE.png"
+echo "OSTIA - analysed_sst"
+mkdir -p "$DIR/ostia/analysed_sst"
+"$DIR/download_ostia.sh" "$DATE" SST "" "$DIR/ostia/analysed_sst/$DATE.nc"
+"$DIR/convert_ostia.sh" analysed_sst 270 304.65 "$DIR/ostia/analysed_sst/$DATE.nc" "$DIR/ostia/analysed_sst/$DATE.png"
+echo
+
+echo "OSTIA - sst_anomaly"
+mkdir -p "$DIR/ostia/sst_anomaly"
+"$DIR/download_ostia.sh" "$DATE" ANOM anom "$DIR/ostia/sst_anomaly/$DATE.nc"
+"$DIR/convert_ostia.sh" sst_anomaly 270 304.65 "$DIR/ostia/sst_anomaly/$DATE.nc" "$DIR/ostia/sst_anomaly/$DATE.png"
 echo

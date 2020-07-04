@@ -97,11 +97,17 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
     }],
-    ['ostia/sst', {
-        imagePath: `${basepath}/ostia/sst/${date}.png`,
+    ['ostia/analysed_sst', {
+        imagePath: `${basepath}/ostia/analysed_sst/${date}.png`,
         bounds: [270 - 273.15, 304.65 - 273.15],
-        colorFunction: 'ostia/sst',
+        colorFunction: 'ostia/analysed_sst',
         legendTitle: 'Sea Surface Temperature [°C]',
+    }],
+    ['ostia/sst_anomaly', {
+        imagePath: `${basepath}/ostia/sst_anomaly/${date}.png`,
+        bounds: [-11, 11],
+        colorFunction: 'ostia/sst_anomaly',
+        legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
 ]);
 
@@ -220,7 +226,7 @@ const overlayColorFunctions = new Map([
         [1.0 / 1.5, [255, 233, 15]],
         [1.5 / 1.5, [255, 15, 15]],
     ])],
-    ['ostia/sst', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['ostia/analysed_sst', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
         [(270 - 270) / (304.65 - 270), [255, 255, 255]],
         [(271.25 - 270) / (304.65 - 270), [255, 255, 255]], // -1.9 C sea water freeze
         [(271.30 - 270) / (304.65 - 270), [15, 4, 168]],
@@ -233,6 +239,17 @@ const overlayColorFunctions = new Map([
         [(299.65 - 270) / (304.65 - 270), [245, 0, 39]], // minimum needed for tropical cyclone formation
         [(303 - 270) / (304.65 - 270), [87, 17, 0]],
         [(304.65 - 270) / (304.65 - 270), [238, 0, 242]],
+    ])],
+    ['ostia/sst_anomaly', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [(-11.0 + 11) / 22, [255, 255, 255]],
+        [(-3 + 11) / 22, [7, 252, 254]],
+        [(-1.5 + 11) / 22, [66, 42, 253]],
+        [(-0.75 + 11) / 22, [34, 55, 134]],
+        [(0 + 11) / 22, [0, 0, 6]],
+        [(0.75 + 11) / 22, [134, 55, 34]],
+        [(1.5 + 11) / 22, [253, 14, 16]],
+        [(3.0 + 11) / 22, [254, 252, 0]],
+        [(11.0 + 11) / 22, [255, 255, 255]],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
