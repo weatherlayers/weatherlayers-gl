@@ -23,5 +23,4 @@ gdal_translate \
     "$TMP_FILE" \
     "$OUTPUT_FILE"
 
-# rm "$TMP_FILE"
-mv "$TMP_FILE" "${OUTPUT_FILE/.png/.tif}"
+rm "$TMP_FILE"
