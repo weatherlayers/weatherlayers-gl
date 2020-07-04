@@ -22,7 +22,6 @@ export const config = {
         speedFactor: 0.33, // how fast the particles move
         dropAge: 50, // drop particles after max age in frames
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
-        retina: true,
     },
 };
 
