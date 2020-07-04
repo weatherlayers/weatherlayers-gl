@@ -2,11 +2,10 @@
 
 set -eu
 
-VARIABLE="$1"
-VALUE_MIN="$2"
-VALUE_MAX="$3"
-INPUT_FILE="$4"
-OUTPUT_FILE="$5"
+VALUE_MIN="$1"
+VALUE_MAX="$2"
+INPUT_FILE="$3"
+OUTPUT_FILE="$4"
 TMP_FILE="$(mktemp).tif"
 TMP_FILE2="$(mktemp).tif"
 
@@ -14,7 +13,7 @@ TMP_FILE2="$(mktemp).tif"
 gdal_translate \
     -ot Float32 \
     -unscale \
-    NETCDF:"$INPUT_FILE":"$VARIABLE" \
+    NETCDF:"$INPUT_FILE":sst_anomaly \
     "$TMP_FILE"
 gdalwarp \
     -s_srs "+proj=longlat +datum=WGS84 +lon_wrap=180" \

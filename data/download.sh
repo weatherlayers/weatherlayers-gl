@@ -71,11 +71,17 @@ echo
 echo "OSTIA - analysed_sst"
 mkdir -p "$DIR/ostia/analysed_sst"
 "$DIR/download_ostia.sh" "$DATE" SST "" "$DIR/ostia/analysed_sst/$DATE.nc"
-"$DIR/convert_ostia.sh" analysed_sst 270 304.65 "$DIR/ostia/analysed_sst/$DATE.nc" "$DIR/ostia/analysed_sst/$DATE.png"
+"$DIR/convert_ostia_analysed_sst.sh" 270 304.65 "$DIR/ostia/analysed_sst/$DATE.nc" "$DIR/ostia/analysed_sst/$DATE.png"
 echo
 
 echo "OSTIA - sst_anomaly"
 mkdir -p "$DIR/ostia/sst_anomaly"
 "$DIR/download_ostia.sh" "$DATE" ANOM anom "$DIR/ostia/sst_anomaly/$DATE.nc"
-"$DIR/convert_ostia.sh" sst_anomaly 270 304.65 "$DIR/ostia/sst_anomaly/$DATE.nc" "$DIR/ostia/sst_anomaly/$DATE.png"
+"$DIR/convert_ostia_sst_anomaly.sh" -11 11 "$DIR/ostia/sst_anomaly/$DATE.nc" "$DIR/ostia/sst_anomaly/$DATE.png"
+echo
+
+echo "OSTIA - sea_ice_fraction"
+mkdir -p "$DIR/ostia/sea_ice_fraction"
+"$DIR/download_ostia.sh" "$DATE" SST "" "$DIR/ostia/sea_ice_fraction/$DATE.nc"
+"$DIR/convert_ostia_sea_ice_fraction.sh" 0 1 "$DIR/ostia/sea_ice_fraction/$DATE.nc" "$DIR/ostia/sea_ice_fraction/$DATE.png"
 echo
