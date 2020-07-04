@@ -30,12 +30,12 @@ function bundle(format, filename, options = {}) {
     },
     external: [
       ...Object.keys(pkg.peerDependencies),
-      ...(!options.resolve ? Object.keys(pkg.dependencies) : []),
+      ...(!options.resolve ? [...Object.keys(pkg.dependencies), '@babel/runtime/helpers/defineProperty'] : []),
     ],
     plugins: [
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
-      babel(),
+      babel({ babelHelpers: 'runtime' }),
       glslify({ compress: !!options.minimize }),
       ...(options.minimize ? [terser()] : []),
       ...(options.stats ? [visualizer({
