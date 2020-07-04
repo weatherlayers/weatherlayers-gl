@@ -1,5 +1,3 @@
-#pragma glslify: texture2DBilinear = require('./_texture-2d-bilinear')
-
 bool hasValues(vec4 values) {
     return values.a == 1.0;
 }
