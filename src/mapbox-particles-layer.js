@@ -89,11 +89,11 @@ export class ParticlesLayer {
         if (!this.map || !this.canvas || !this.gl || !this.renderer) {
             return;
         }
+        
+        this.gl.clearColor(0, 0, 0, 0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         if (this.enabled) {
-            this.gl.clearColor(0, 0, 0, 0);
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
             const matrix = this.map.transform.customLayerMatrix();
             const bounds = getMercatorBounds(this.map.getBounds());
             const zoom = this.map.getZoom();
