@@ -1,0 +1,137 @@
+<PAMDataset>
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
+  <GeoTransform> -1.8000000000000000e+02,  2.5000000000000000e-01,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -2.5000000000000000e-01</GeoTransform>
+  <Metadata domain="IMAGE_STRUCTURE">
+    <MDI key="INTERLEAVE">PIXEL</MDI>
+  </Metadata>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Area</MDI>
+    <MDI key="lat#axis">Y</MDI>
+    <MDI key="lat#reference_datum">geographical coordinates, WGS84 projection</MDI>
+    <MDI key="lat#standard_name">latitude</MDI>
+    <MDI key="lat#units">degrees_north</MDI>
+    <MDI key="lat#valid_max">90</MDI>
+    <MDI key="lat#valid_min">-90</MDI>
+    <MDI key="lon#axis">X</MDI>
+    <MDI key="lon#reference_datum">geographical coordinates, WGS84 projection</MDI>
+    <MDI key="lon#standard_name">longitude</MDI>
+    <MDI key="lon#units">degrees_east</MDI>
+    <MDI key="lon#valid_max">360</MDI>
+    <MDI key="lon#valid_min">0</MDI>
+    <MDI key="NC_GLOBAL#acknowledgment">Please acknowledge the use of these data with the following statement: These data were provided by GHRSST, Met Office and CMEMS</MDI>
+    <MDI key="NC_GLOBAL#cdm_data_type">grid</MDI>
+    <MDI key="NC_GLOBAL#comment">WARNING Some applications are unable to properly handle signed byte values. If values are encountered &gt; 127, please subtract 256 from this reported value</MDI>
+    <MDI key="NC_GLOBAL#Conventions">CF-1.4</MDI>
+    <MDI key="NC_GLOBAL#creator_email">servicedesk.cmems@mercator-ocean.eu</MDI>
+    <MDI key="NC_GLOBAL#creator_name">Met Office as part of CMEMS</MDI>
+    <MDI key="NC_GLOBAL#creator_url">http://marine.copernicus.eu/</MDI>
+    <MDI key="NC_GLOBAL#date_created">20200703T063757Z</MDI>
+    <MDI key="NC_GLOBAL#easternmost_longitude">360</MDI>
+    <MDI key="NC_GLOBAL#file_quality_level">3</MDI>
+    <MDI key="NC_GLOBAL#gds_version_id">2.0</MDI>
+    <MDI key="NC_GLOBAL#geospatial_lat_resolution">0.25 degree</MDI>
+    <MDI key="NC_GLOBAL#geospatial_lat_units">degrees_north</MDI>
+    <MDI key="NC_GLOBAL#geospatial_lon_resolution">0.25 degree</MDI>
+    <MDI key="NC_GLOBAL#geospatial_lon_units">degrees_east</MDI>
+    <MDI key="NC_GLOBAL#history">Created from sst:temperature regridded with area avg. to grid of temperature on new grid. sst_anomaly from NODC/RSMAS AVHRR Pathfinder Verison 5.0 Climatology regridded with area avg.</MDI>
+    <MDI key="NC_GLOBAL#id">UKMO-L4LRfnd_GLOB-OSTIAanom</MDI>
+    <MDI key="NC_GLOBAL#institution">UKMO</MDI>
+    <MDI key="NC_GLOBAL#keywords">Oceans &gt; Ocean Temperature &gt; Sea Surface Temperature</MDI>
+    <MDI key="NC_GLOBAL#keywords_vocabulary">NASA Global Change Master Directory (GCMD) Science Keywords</MDI>
+    <MDI key="NC_GLOBAL#license">These data are available free of charge under the GMES data policy</MDI>
+    <MDI key="NC_GLOBAL#metadata_conventions">Unidata Observation Dataset v1.0</MDI>
+    <MDI key="NC_GLOBAL#metadata_link">http://data.nodc.noaa.gov/NESDIS_DataCenters/metadata/NODC/FGDC-GHRSST_all-UKMO-L4LRfnd-GLOB-v01-OSTIAanom.xml</MDI>
+    <MDI key="NC_GLOBAL#naming_authority">org.ghrsst</MDI>
+    <MDI key="NC_GLOBAL#netcdf_version_id">3.6</MDI>
+    <MDI key="NC_GLOBAL#northernmost_latitude">90</MDI>
+    <MDI key="NC_GLOBAL#platform">Aqua, Envisat, NOAA-18, NOAA-19, MetOpA, MSG1, SSMI, TRMM</MDI>
+    <MDI key="NC_GLOBAL#processing_level">L4</MDI>
+    <MDI key="NC_GLOBAL#product_version">3.3</MDI>
+    <MDI key="NC_GLOBAL#project">Group for High Resolution Sea Surface Temperature</MDI>
+    <MDI key="NC_GLOBAL#publisher_email">ghrsst-po@nceo.ac.uk</MDI>
+    <MDI key="NC_GLOBAL#publisher_name">GHRSST Project Office</MDI>
+    <MDI key="NC_GLOBAL#publisher_url">http://www.ghrsst.org</MDI>
+    <MDI key="NC_GLOBAL#references">Donlon, C.J., Martin, M., Stark, J.D., Roberts-Jones, J., Fiedler, E., Wimmer, W., 2011. The Operational Sea Surface Temperature and Sea Ice Analysis (OSTIA). Remote Sensing of the Environment</MDI>
+    <MDI key="NC_GLOBAL#sensor">AATSR, AMSR, AVHRR, AVHRR_GAC, SEVIRI, TMI</MDI>
+    <MDI key="NC_GLOBAL#source">UKMO-L4HRfnd-GLOB-OSTIA</MDI>
+    <MDI key="NC_GLOBAL#southernmost_latitude">-90</MDI>
+    <MDI key="NC_GLOBAL#spatial_resolution">0.25 degree</MDI>
+    <MDI key="NC_GLOBAL#standard_name_vocabulary">NetCDF Climate and Forecast (CF) Metadata Convention</MDI>
+    <MDI key="NC_GLOBAL#start_time">20200702T000000Z</MDI>
+    <MDI key="NC_GLOBAL#stop_time">20200703T000000Z</MDI>
+    <MDI key="NC_GLOBAL#summary">A merged, multi-sensor L4 Foundation SST anomaly product</MDI>
+    <MDI key="NC_GLOBAL#time_coverage_end">20200703T000000Z</MDI>
+    <MDI key="NC_GLOBAL#time_coverage_start">20200702T000000Z</MDI>
+    <MDI key="NC_GLOBAL#title">Global SST &amp; Sea Ice Anomaly, L4 OSTIA, 0.25 deg daily (METOFFICE-GLO-SST-L4-NRT-OBS-ANOM-V2)</MDI>
+    <MDI key="NC_GLOBAL#uuid">5c1665b7-06e8-499d-a281-857dcbfd07e2</MDI>
+    <MDI key="NC_GLOBAL#westernmost_longitude">0</MDI>
+    <MDI key="NETCDF_DIM_EXTRA">{time}</MDI>
+    <MDI key="NETCDF_DIM_time_DEF">{1,4}</MDI>
+    <MDI key="NETCDF_DIM_time_VALUES">1246536000</MDI>
+    <MDI key="sst_anomaly#add_offset">0</MDI>
+    <MDI key="sst_anomaly#long_name">sea surface temperature anomaly from pathfinder climatology</MDI>
+    <MDI key="sst_anomaly#scale_factor">0.0099999998</MDI>
+    <MDI key="sst_anomaly#source">UKMO-L4HRfnd-GLOB-OSTIA</MDI>
+    <MDI key="sst_anomaly#type">foundation</MDI>
+    <MDI key="sst_anomaly#units">kelvin</MDI>
+    <MDI key="sst_anomaly#valid_max">5000</MDI>
+    <MDI key="sst_anomaly#valid_min">-5000</MDI>
+    <MDI key="sst_anomaly#_FillValue">-32768</MDI>
+    <MDI key="time#axis">T</MDI>
+    <MDI key="time#calendar">Gregorian</MDI>
+    <MDI key="time#long_name">reference time of sst field</MDI>
+    <MDI key="time#standard_name">time</MDI>
+    <MDI key="time#units">seconds since 1981-01-01 00:00:00</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <NoDataValue>0.00000000000000E+00</NoDataValue>
+    <ColorInterp>Gray</ColorInterp>
+    <Metadata>
+      <MDI key="add_offset">0</MDI>
+      <MDI key="long_name">sea surface temperature anomaly from pathfinder climatology</MDI>
+      <MDI key="NETCDF_DIM_time">1246536000</MDI>
+      <MDI key="NETCDF_VARNAME">sst_anomaly</MDI>
+      <MDI key="scale_factor">0.0099999998</MDI>
+      <MDI key="source">UKMO-L4HRfnd-GLOB-OSTIA</MDI>
+      <MDI key="type">foundation</MDI>
+      <MDI key="units">kelvin</MDI>
+      <MDI key="valid_max">5000</MDI>
+      <MDI key="valid_min">-5000</MDI>
+      <MDI key="_FillValue">-32768</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="2">
+    <NoDataValue>0.00000000000000E+00</NoDataValue>
+    <ColorInterp>Gray</ColorInterp>
+    <Metadata>
+      <MDI key="add_offset">0</MDI>
+      <MDI key="long_name">sea surface temperature anomaly from pathfinder climatology</MDI>
+      <MDI key="NETCDF_DIM_time">1246536000</MDI>
+      <MDI key="NETCDF_VARNAME">sst_anomaly</MDI>
+      <MDI key="scale_factor">0.0099999998</MDI>
+      <MDI key="source">UKMO-L4HRfnd-GLOB-OSTIA</MDI>
+      <MDI key="type">foundation</MDI>
+      <MDI key="units">kelvin</MDI>
+      <MDI key="valid_max">5000</MDI>
+      <MDI key="valid_min">-5000</MDI>
+      <MDI key="_FillValue">-32768</MDI>
+    </Metadata>
+  </PAMRasterBand>
+  <PAMRasterBand band="3">
+    <NoDataValue>0.00000000000000E+00</NoDataValue>
+    <ColorInterp>Gray</ColorInterp>
+    <Metadata>
+      <MDI key="add_offset">0</MDI>
+      <MDI key="long_name">sea surface temperature anomaly from pathfinder climatology</MDI>
+      <MDI key="NETCDF_DIM_time">1246536000</MDI>
+      <MDI key="NETCDF_VARNAME">sst_anomaly</MDI>
+      <MDI key="scale_factor">0.0099999998</MDI>
+      <MDI key="source">UKMO-L4HRfnd-GLOB-OSTIA</MDI>
+      <MDI key="type">foundation</MDI>
+      <MDI key="units">kelvin</MDI>
+      <MDI key="valid_max">5000</MDI>
+      <MDI key="valid_min">-5000</MDI>
+      <MDI key="_FillValue">-32768</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

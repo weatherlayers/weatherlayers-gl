@@ -12,6 +12,7 @@ uniform sampler2D sState0;
 uniform sampler2D sState1;
 uniform vec2 uStateResolution;
 uniform float uParticleSize;
+uniform bool uParticleWaves;
 uniform mat4 uMatrix;
 uniform vec2 uWorldBoundsMin;
 uniform vec2 uWorldBoundsMax;
@@ -65,11 +66,13 @@ void main() {
         vertexIndex == 0 || vertexIndex == 2,
         -dirRN, // top
         dirRN   // bottom
+    ) * _if(
+        uParticleWaves,
+        _if(position0 != position1, 10.0, 0.0),
+        1.0
     );
     vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0);
     position += offsetDir * offset * uPixelSize;
 
-    // gl_Position = uMatrix * vec4(position, 0, 1);
     gl_Position = vec4(position, 0, 1);
-    // gl_Position = vec4(2.0 * position.x - 1.0, 1.0 - 2.0 * position.y, 0, 1);
 }

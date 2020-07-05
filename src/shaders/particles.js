@@ -47,16 +47,18 @@ export function createParticlesProgram(gl) {
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {number} particleSize
  * @param {[number, number, number, number]} particleColor
+ * @param {boolean} particleWaves
  * @param {number[]} matrix
  * @param {[[number, number], [number, number]]} worldBounds
  */
-export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldBounds) {
+export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, particleWaves, matrix, worldBounds) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState0'], program.uniforms['uStateResolution'], 0);
     bindTexture(gl, particlesStateTexture1, program.uniforms['sState1'], null, 1);
     gl.uniform1f(program.uniforms['uParticleSize'], particleSize);
     gl.uniform4fv(program.uniforms['uParticleColor'], particleColor);
+    gl.uniform1f(program.uniforms['uParticleWaves'], particleWaves ? 1 : 0);
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);
     gl.uniform2fv(program.uniforms['uWorldBoundsMin'], worldBounds[0]);
     gl.uniform2fv(program.uniforms['uWorldBoundsMax'], worldBounds[1]);

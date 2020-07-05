@@ -1,10 +1,10 @@
 const basepath = '../data';
-const date = '20200626';
-const time = '12';
+const date = '20200702';
+const time = '00';
 
 export const config = {
     overlay: {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [0, 100],
         colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
         opacity: 0.1,
@@ -13,14 +13,14 @@ export const config = {
         legendWidth: 220,
     },
     particles: {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [-128, 127],
         count: 1024,
         size: 2,
         color: [255, 255, 255],
         opacity: 0.25,
-        speedFactor: 0.33, // how fast the particles move
-        dropAge: 50, // drop particles after max age in frames
+        speedFactor: 33 / 100, // how fast the particles move
+        dropAge: 100, // drop particles after max age in frames
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
     },
 };
@@ -37,55 +37,55 @@ const meta = {
 
 const overlayLayerConfigs = new Map([
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
     }],
     ['gfs/tmp', {
-        imagePath: `${basepath}/gfs/tmp/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/tmp/${date}${time}.png`,
         bounds: [193 - 273.15, 328 - 273.15],
         colorFunction: 'gfs/tmp',
         legendTitle: 'Temperature [°C]',
     }],
     ['gfs/rh', {
-        imagePath: `${basepath}/gfs/rh/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/rh/${date}${time}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/rh',
         legendTitle: 'Relative Humidity [%]',
     }],
     ['gfs/apcp', {
-        imagePath: `${basepath}/gfs/apcp/${date}${time}.f003.png`,
+        imagePath: `${basepath}/gfs/apcp/${date}${time}.png`,
         bounds: [0, 150],
         colorFunction: 'gfs/apcp',
         legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
     }],
     ['gfs/cape', {
-        imagePath: `${basepath}/gfs/cape/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/cape/${date}${time}.png`,
         bounds: [0, 5000],
         colorFunction: 'gfs/cape',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
     ['gfs/pwat', {
-        imagePath: `${basepath}/gfs/pwat/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/pwat/${date}${time}.png`,
         bounds: [0, 70],
         colorFunction: 'gfs/pwat',
         legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
     ['gfs/cwat', {
-        imagePath: `${basepath}/gfs/cwat/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/cwat/${date}${time}.png`,
         bounds: [0, 1],
         colorFunction: 'gfs/cwat',
         legendTitle: 'Total Cloud Water [kg/m²]',
     }],
     ['gfs/prmsl', {
-        imagePath: `${basepath}/gfs/prmsl/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/prmsl/${date}${time}.png`,
         bounds: [92000 / 100, 105000 / 100],
         colorFunction: 'gfs/prmsl',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
     }],
     ['gfs/aptmp', {
-        imagePath: `${basepath}/gfs/aptmp/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/aptmp/${date}${time}.png`,
         bounds: [236 - 273.15, 332 - 273.15],
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
@@ -114,6 +114,18 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
     }],
+    ['wavewatch/waves', {
+        imagePath: `${basepath}/wavewatch/waves/${date}${time}.png`,
+        bounds: [0, 25],
+        colorFunction: 'wavewatch/waves',
+        legendTitle: 'Peak Wave Period [s]',
+    }],
+    ['wavewatch/htsgw', {
+        imagePath: `${basepath}/wavewatch/htsgw/${date}${time}.png`,
+        bounds: [0, 15],
+        colorFunction: 'wavewatch/htsgw',
+        legendTitle: 'Significant Wave Height [m]',
+    }],
 ]);
 
 const particlesLayerConfigs = new Map([
@@ -122,20 +134,29 @@ const particlesLayerConfigs = new Map([
         count: 0,
     }],
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f000.png`,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [-128, 127],
         count: 1024,
-        speedFactor: 0.33,
+        speedFactor: 33 / 100,
         fadeOpacity: 0.95,
-        dropAge: 50,
+        dropAge: 100,
     }],
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [-1, 1],
         count: 1024,
-        speedFactor: 10,
+        speedFactor: 33 / 7,
         fadeOpacity: 0.99,
         dropAge: 100,
+    }],
+    ['wavewatch/waves', {
+        imagePath: `${basepath}/wavewatch/waves/${date}${time}.png`,
+        bounds: [-20, 20],
+        count: 1024,
+        speedFactor: 33 / 612,
+        fadeOpacity: 0.9,
+        dropAge: 40,
+        waves: true,
     }],
 ]);
 
@@ -277,6 +298,25 @@ const overlayColorFunctions = new Map([
         [80 / 100, [233, 251, 252]],
         [100 / 100, [255, 255, 255]],
     ])],
+    ['wavewatch/waves', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [0 / 25, [0, 0, 0]],
+        [25 / 25, [21, 255, 255]],
+    ])],
+    ['wavewatch/htsgw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+        [0 / 15, [8, 29, 88]],
+        [1 / 15, [37, 52, 148]],
+        [2 / 15, [34, 94, 168]],
+        [3 / 15, [29, 145, 192]],
+        [4 / 15, [65, 182, 196]],
+        [5 / 15, [127, 205, 187]],
+        [6 / 15, [199, 233, 180]],
+        [7 / 15, [237, 248, 177]],
+        [8 / 15, [254, 204, 92]],
+        [10 / 15, [253, 141, 60]],
+        [12 / 15, [240, 59, 32]],
+        [14 / 15, [189, 0, 38]],
+        [15 / 15, [189, 0, 38]],
+    ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
     ['d3.interpolateTurbo', d3.interpolateTurbo],
@@ -345,7 +385,7 @@ export function initGui(config, update) {
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
-    particles.add(config.particles, 'speedFactor', 0.05, 10, 0.01);
+    particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
     particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
     particles.open();
 

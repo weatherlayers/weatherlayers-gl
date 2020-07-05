@@ -123,12 +123,12 @@ window.addEventListener('DOMContentLoaded', async () => {
             <br>
             Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${Math.round(x)}${i < matrix.length - 1 ? ',' : ''}</span>`).join('')}</div>
             <br>
-            World Bounds Min: ${round(worldBounds[0].lng)}, ${round(worldBounds[0].lat)}<br>
-            World Bounds Max: ${round(worldBounds[1].lng)}, ${round(worldBounds[1].lat)}<br>
-            World Bounds Min (geographic): ${round(geographicWorldBounds[0][0])}, ${round(geographicWorldBounds[0][1])}<br>
-            World Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}<br>
-            World Bounds Min (mercator): ${round(mercatorWorldBounds[0][0])}, ${round(mercatorWorldBounds[0][1])}<br>
-            World Bounds Max (mercator): ${round(mercatorWorldBounds[1][0])}, ${round(mercatorWorldBounds[1][1])}
+            Bounds Min: ${round(worldBounds[0].lng)}, ${round(worldBounds[0].lat)}<br>
+            Bounds Max: ${round(worldBounds[1].lng)}, ${round(worldBounds[1].lat)}<br>
+            Bounds Min (geographic): ${round(geographicWorldBounds[0][0])}, ${round(geographicWorldBounds[0][1])}<br>
+            Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}<br>
+            Bounds Min (mercator): ${round(mercatorWorldBounds[0][0])}, ${round(mercatorWorldBounds[0][1])}<br>
+            Bounds Max (mercator): ${round(mercatorWorldBounds[1][0])}, ${round(mercatorWorldBounds[1][1])}
         `;
     };
     map.on('move', updateInfo);

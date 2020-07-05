@@ -20,8 +20,9 @@ import { hasValues } from './has-values.js';
  *      color: [number, number, number];
  *      opacity: number;
  *      speedFactor: number;
- *      dropAge: number;
  *      fadeOpacity: number;
+ *      dropAge: number;
+ *      waves?: boolean;
  *      minZoom?: number;
  *      maxZoom?: number;
  * }} ParticlesConfig
@@ -154,7 +155,7 @@ export function particlesGl(gl, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.fadeOpacity);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, matrix, worldBounds);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, !!config.waves, matrix, worldBounds);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -228,7 +229,7 @@ export function particlesGl(gl, config) {
             return;
         }
 
-        const bearing = (Math.atan2(vector[0], vector[1]) * 180 / Math.PI + 360) % 360;
+        const bearing = ((360 - (Math.atan2(vector[1], vector[0]) / Math.PI * 180) - 90) + 360) % 360;
 
         return bearing;
     }

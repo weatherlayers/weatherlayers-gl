@@ -10,8 +10,8 @@ INPUT_FILE="$5"
 OUTPUT_FILE="$6"
 TMP_FILE="$(mktemp).tif"
 LENGTH_TMP_FILE="$(mktemp).tif"
-U_TMP_FILE="$(mktemp).tif"
-V_TMP_FILE="$(mktemp).tif"
+U_TMP_FILE="$(mktemp).vrt"
+V_TMP_FILE="$(mktemp).vrt"
 MERGED_TMP_FILE="$(mktemp).vrt"
 
 # map longitude from 0..360 to -180..180
