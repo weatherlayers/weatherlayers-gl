@@ -22,6 +22,7 @@ export const config = {
         speedFactor: 33 / 100, // how fast the particles move
         dropAge: 100, // drop particles after max age in frames
         fadeOpacity: 0.95, // how fast the particle trails fade on each frame
+        waves: false,
     },
 };
 
@@ -140,6 +141,7 @@ const particlesLayerConfigs = new Map([
         speedFactor: 33 / 100,
         fadeOpacity: 0.95,
         dropAge: 100,
+        waves: false,
     }],
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
@@ -148,6 +150,7 @@ const particlesLayerConfigs = new Map([
         speedFactor: 33 / 7,
         fadeOpacity: 0.99,
         dropAge: 100,
+        waves: false,
     }],
     ['wavewatch/waves', {
         imagePath: `${basepath}/wavewatch/waves/${date}${time}.png`,
