@@ -6,7 +6,6 @@ precision mediump float;
 #pragma glslify: _if = require('./_if')
 #pragma glslify: transform = require('./_transform')
 #pragma glslify: unpackPosition = require('./_unpack-position')
-#pragma glslify: wgs84ToMercator = require('./_wgs84-to-mercator')
 
 attribute float aIndex;
 uniform sampler2D sState0;
@@ -43,8 +42,8 @@ void main() {
     vec2 worldPosition0 = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition0);
     vec2 worldPosition1 = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition1);
 
-    vec2 position0 = transform(wgs84ToMercator(worldPosition0), uMatrix);
-    vec2 position1 = transform(wgs84ToMercator(worldPosition1), uMatrix);
+    vec2 position0 = transform(worldPosition0, uMatrix);
+    vec2 position1 = transform(worldPosition1, uMatrix);
     
     // don't render path across for particle that wrapped across the world
     position1 = _if(length(position1 - position0) > 0.5, position0, position1);

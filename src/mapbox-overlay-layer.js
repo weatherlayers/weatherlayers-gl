@@ -104,8 +104,8 @@ export class OverlayLayer {
             return;
         }
 
-        const position = getGeographicPosition(lngLat);
-        const value = this.renderer.getPositionValue(position);
+        const geographicPosition = getGeographicPosition(lngLat);
+        const value = this.renderer.getPositionValue(geographicPosition);
 
         return value;
     }

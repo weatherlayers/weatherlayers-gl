@@ -8,6 +8,7 @@ export { particlesGl } from './particles-gl.js';
 
 // Mapbox
 export { getGeographicPosition } from './get-geographic-position.js';
+export { getMercatorPosition } from './get-mercator-position.js';
 export { OverlayLayer } from './mapbox-overlay-layer.js';
 export { ParticlesLayer } from './mapbox-particles-layer.js';
 export { LegendControl } from './mapbox-legend-control.js';

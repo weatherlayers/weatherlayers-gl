@@ -107,14 +107,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     const updateInfo = () => {
         const center = map.getCenter();
         const geographicCenter = MaritraceMapboxWeather.getGeographicPosition(center);
+        const mercatorCenter = MaritraceMapboxWeather.getMercatorPosition(center);
         const matrix = map.transform.customLayerMatrix();
-        const worldBounds = [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()]
-        /** @type [[number, number], [number, number]] */
+        const worldBounds = [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()];
         const geographicWorldBounds = [MaritraceMapboxWeather.getGeographicPosition(worldBounds[0]), MaritraceMapboxWeather.getGeographicPosition(worldBounds[1])];
+        const mercatorWorldBounds = [MaritraceMapboxWeather.getMercatorPosition(worldBounds[0]), MaritraceMapboxWeather.getMercatorPosition(worldBounds[1])];
 
         info1.innerHTML = `
             Center: ${round(center.lng)}, ${round(center.lat)}<br>
             Center (geographic): ${round(geographicCenter[0])}, ${round(geographicCenter[1])}<br>
+            Center (mercator): ${round(mercatorCenter[0])}, ${round(mercatorCenter[1])}<br>
             Zoom: ${round(map.getZoom())}<br>
             Pitch: ${round(map.getPitch())}<br>
             Bearing: ${round(map.getBearing())}<br>
@@ -124,7 +126,9 @@ window.addEventListener('DOMContentLoaded', async () => {
             World Bounds Min: ${round(worldBounds[0].lng)}, ${round(worldBounds[0].lat)}<br>
             World Bounds Max: ${round(worldBounds[1].lng)}, ${round(worldBounds[1].lat)}<br>
             World Bounds Min (geographic): ${round(geographicWorldBounds[0][0])}, ${round(geographicWorldBounds[0][1])}<br>
-            World Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}
+            World Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}<br>
+            World Bounds Min (mercator): ${round(mercatorWorldBounds[0][0])}, ${round(mercatorWorldBounds[0][1])}<br>
+            World Bounds Max (mercator): ${round(mercatorWorldBounds[1][0])}, ${round(mercatorWorldBounds[1][1])}
         `;
     };
     map.on('move', updateInfo);
@@ -142,6 +146,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         map.on('mousemove', e => {
             const position = e.lngLat;
             const geographicPosition = MaritraceMapboxWeather.getGeographicPosition(position);
+            const mercatorPosition = MaritraceMapboxWeather.getMercatorPosition(position);
             const overlayValue = overlayLayer.getPositionValue(position);
             const particlesVector = particlesLayer.getPositionVector(position);
             const particlesBearing = particlesLayer.getPositionBearing(position);
@@ -150,6 +155,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 Mouse:<br>
                 Position: ${round(position.lng)}, ${round(position.lat)}<br>
                 Position (geographic): ${round(geographicPosition[0])}, ${round(geographicPosition[1])}<br>
+                Position (mercator): ${round(mercatorPosition[0])}, ${round(mercatorPosition[1])}<br>
                 Overlay Value: ${typeof overlayValue !== 'undefined' ? round(overlayValue) : 'n/a'}<br>
                 Particles Vector: ${typeof particlesVector !== 'undefined' ? `${round(particlesVector[0])}, ${round(particlesVector[1])}` : 'n/a'}<br>
                 Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}

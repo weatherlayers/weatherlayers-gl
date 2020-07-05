@@ -1,5 +1,6 @@
 import { particlesGl } from './particles-gl.js';
 import { getGeographicPosition } from './get-geographic-position.js';
+import { getMercatorPosition } from './get-mercator-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./particles-gl.js').ParticlesConfig} ParticlesConfig */
@@ -94,12 +95,12 @@ export class ParticlesLayer {
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
             const matrix = this.map.transform.customLayerMatrix();
-            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()];
             /** @type [[number, number], [number, number]] */
-            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
+            const mercatorWorldBounds = [getMercatorPosition(worldBounds[0]), getMercatorPosition(worldBounds[1])];
             const zoom = this.map.getZoom();
 
-            this.renderer.prerender(matrix, geographicWorldBounds, zoom);
+            this.renderer.prerender(matrix, mercatorWorldBounds, zoom);
             this.renderer.render();
         }
 
@@ -167,8 +168,8 @@ export class ParticlesLayer {
             return;
         }
 
-        const position = getGeographicPosition(lngLat);
-        const vector = this.renderer.getPositionVector(position);
+        const geographicPosition = getGeographicPosition(lngLat);
+        const vector = this.renderer.getPositionVector(geographicPosition);
 
         return vector;
     }
@@ -182,8 +183,8 @@ export class ParticlesLayer {
             return;
         }
 
-        const position = getGeographicPosition(lngLat);
-        const bearing = this.renderer.getPositionBearing(position);
+        const geographicPosition = getGeographicPosition(lngLat);
+        const bearing = this.renderer.getPositionBearing(geographicPosition);
 
         return bearing;
     }

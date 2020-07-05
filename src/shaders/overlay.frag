@@ -16,8 +16,8 @@ uniform float uOverlayOpacity;
 varying vec2 vTexCoord;
 
 void main() {
-    vec2 position = mercatorToWGS84(vTexCoord);
-    vec4 values = getPositionValues(sSource, uSourceResolution, position);
+    vec2 geographicPosition = mercatorToWGS84(vTexCoord);
+    vec4 values = getPositionValues(sSource, uSourceResolution, geographicPosition);
 
     vec4 color = texture2D(sOverlayColorRamp, vec2(values.x, 0.0));
     color = vec4(color.rgb, uOverlayOpacity);

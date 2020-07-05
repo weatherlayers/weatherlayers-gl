@@ -8,6 +8,7 @@ precision highp float;
 #pragma glslify: unpackPosition = require('./_unpack-position')
 #pragma glslify: packPosition = require('./_pack-position')
 #pragma glslify: transform = require('./_transform')
+#pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getPositionValues = require('./_get-position-values')
 #pragma glslify: hasValues = require('./_has-values')
 
@@ -37,8 +38,9 @@ void main() {
     vec2 boundedWorldPosition = unpackPosition(packedBoundedWorldPosition);
     vec2 worldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, boundedWorldPosition);
 
-    // update world position, take into account WGS84 distortion
-    vec4 values = getPositionValues(sSource, uSourceResolution, worldPosition);
+    // update position, take into account WGS84 distortion
+    vec2 geographicPosition = mercatorToWGS84(worldPosition);
+    vec4 values = getPositionValues(sSource, uSourceResolution, geographicPosition);
     vec2 speed = mix(vec2(uSourceBoundsMin), vec2(uSourceBoundsMax), values.yz);
     float distortion = cos(radians(worldPosition.y * 180.0 - 90.0)); 
     vec2 distortedSpeed = vec2(speed.x / distortion, -speed.y);
@@ -54,7 +56,8 @@ void main() {
     vec2 seed = (worldPosition + vTexCoord) * uRandomSeed;
     vec2 randomBoundedWorldPosition = vec2(random(seed + 1.3), random(seed + 2.1));
     vec2 randomWorldPosition = mix(uWorldBoundsMin, uWorldBoundsMax, randomBoundedWorldPosition);
-    vec4 randomWorldPositionValues = getPositionValues(sSource, uSourceResolution, randomWorldPosition);
+    vec2 randomGeographicPosition = mercatorToWGS84(randomWorldPosition);
+    vec4 randomWorldPositionValues = getPositionValues(sSource, uSourceResolution, randomGeographicPosition);
     vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
     randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), randomPackedBoundedWorldPosition, dropPosition);
     // - 1st frame: drop
