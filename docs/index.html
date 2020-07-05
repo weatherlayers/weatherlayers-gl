@@ -63,10 +63,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             0, 0, 1, 0,
             -1, 1, 0, 1,
         ];
-        const worldBounds = [[0, 0], [1, 1]];
+        const bounds = [[0, 0], [1, 1]];
 
-        overlayGl.render(matrix, worldBounds);
-        particlesGl.prerender(matrix, worldBounds, 0);
+        overlayGl.render(matrix, bounds);
+        particlesGl.prerender(matrix, bounds, 0);
         particlesGl.render();
 
         if (running) {

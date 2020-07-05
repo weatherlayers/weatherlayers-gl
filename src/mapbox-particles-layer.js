@@ -1,6 +1,6 @@
 import { particlesGl } from './particles-gl.js';
+import { getMercatorBounds } from './get-mercator-bounds.js';
 import { getGeographicPosition } from './get-geographic-position.js';
-import { getMercatorPosition } from './get-mercator-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./particles-gl.js').ParticlesConfig} ParticlesConfig */
@@ -95,12 +95,10 @@ export class ParticlesLayer {
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
             const matrix = this.map.transform.customLayerMatrix();
-            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()];
-            /** @type [[number, number], [number, number]] */
-            const mercatorWorldBounds = [getMercatorPosition(worldBounds[0]), getMercatorPosition(worldBounds[1])];
+            const bounds = getMercatorBounds(this.map.getBounds());
             const zoom = this.map.getZoom();
 
-            this.renderer.prerender(matrix, mercatorWorldBounds, zoom);
+            this.renderer.prerender(matrix, bounds, zoom);
             this.renderer.render();
         }
 
