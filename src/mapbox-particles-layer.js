@@ -89,17 +89,19 @@ export class ParticlesLayer {
             return;
         }
 
-        this.gl.clearColor(0, 0, 0, 0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        if (this.enabled) {
+            this.gl.clearColor(0, 0, 0, 0);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        const matrix = this.map.transform.customLayerMatrix();
-        const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
-        /** @type [[number, number], [number, number]] */
-        const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
-        const zoom = this.map.getZoom();
+            const matrix = this.map.transform.customLayerMatrix();
+            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+            /** @type [[number, number], [number, number]] */
+            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
+            const zoom = this.map.getZoom();
 
-        this.renderer.prerender(matrix, geographicWorldBounds, zoom);
-        this.renderer.render();
+            this.renderer.prerender(matrix, geographicWorldBounds, zoom);
+            this.renderer.render();
+        }
 
         if (this.running) {
             this.raf = requestAnimationFrame(() => this.frame());
