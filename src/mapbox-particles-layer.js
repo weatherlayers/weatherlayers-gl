@@ -83,13 +83,14 @@ export class ParticlesLayer {
         this.canvas.style.width = mapCanvas.style.width;
         this.canvas.style.height = mapCanvas.style.height;
         this.renderer.update();
+        this.frame();
     }
 
     frame() {
         if (!this.map || !this.canvas || !this.gl || !this.renderer) {
             return;
         }
-        
+
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
