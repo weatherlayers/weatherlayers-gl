@@ -51,23 +51,33 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     initResizeObserver();
 
+    let lastFrameTime = 0;
     let running = false;
     let raf = null;
     function frame() {
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        const fps = 30;
+        const fpsInterval = 1000 / fps;
+        const now = Date.now();
+        const elapsed = now - lastFrameTime;
 
-        const matrix = [
-            2, 0, 0, 0,
-            0, -2, 0, 0,
-            0, 0, 1, 0,
-            -1, 1, 0, 1,
-        ];
-        const bounds = [[0, 0], [1, 1]];
+        if (elapsed > fpsInterval) {
+            lastFrameTime = now - (elapsed % fpsInterval);
 
-        overlayGl.render(matrix, bounds);
-        particlesGl.prerender(matrix, bounds, 0);
-        particlesGl.render();
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            const matrix = [
+                2, 0, 0, 0,
+                0, -2, 0, 0,
+                0, 0, 1, 0,
+                -1, 1, 0, 1,
+            ];
+            const bounds = [[0, 0], [1, 1]];
+
+            overlayGl.render(matrix, bounds);
+            particlesGl.prerender(matrix, bounds, 0);
+            particlesGl.render();
+        }
 
         if (running) {
             raf = requestAnimationFrame(frame);

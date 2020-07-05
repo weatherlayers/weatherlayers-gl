@@ -10,6 +10,7 @@ export class ParticlesLayer {
     type = 'custom';
     renderingMode = '2d';
 
+    lastFrameTime = 0;
     running = false;
 
     updateBound = this.update.bind(this);
@@ -91,16 +92,25 @@ export class ParticlesLayer {
             return;
         }
 
-        this.gl.clearColor(0, 0, 0, 0);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        const fps = 30;
+        const fpsInterval = 1000 / fps;
+        const now = Date.now();
+        const elapsed = now - this.lastFrameTime;
 
-        if (this.enabled) {
-            const matrix = this.map.transform.customLayerMatrix();
-            const bounds = getMercatorBounds(this.map.getBounds());
-            const zoom = this.map.getZoom();
+        if (elapsed > fpsInterval) {
+            this.lastFrameTime = now - (elapsed % fpsInterval);
+            
+            this.gl.clearColor(0, 0, 0, 0);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-            this.renderer.prerender(matrix, bounds, zoom);
-            this.renderer.render();
+            if (this.enabled) {
+                const matrix = this.map.transform.customLayerMatrix();
+                const bounds = getMercatorBounds(this.map.getBounds());
+                const zoom = this.map.getZoom();
+
+                this.renderer.prerender(matrix, bounds, zoom);
+                this.renderer.render();
+            }
         }
 
         if (this.running) {
