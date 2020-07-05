@@ -68,7 +68,7 @@ void main() {
         dirRN   // bottom
     ) * _if(
         uParticleWaves,
-        _if(position0 != position1, 10.0, 0.0),
+        _if(position0 != position1, 5.0, 0.0),
         1.0
     );
     vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0);

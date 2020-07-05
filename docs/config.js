@@ -15,13 +15,13 @@ export const config = {
     particles: {
         imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [-128, 127],
-        count: 1024,
+        count: 4096,
         size: 2,
         color: [255, 255, 255],
         opacity: 0.25,
         speedFactor: 33 / 100, // how fast the particles move
+        fadeAge: 100, // fade particles during age in frames
         dropAge: 100, // drop particles after max age in frames
-        fadeOpacity: 0.95, // how fast the particle trails fade on each frame
         waves: false,
     },
 };
@@ -137,27 +137,27 @@ const particlesLayerConfigs = new Map([
     ['gfs/wind', {
         imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [-128, 127],
-        count: 1024,
+        count: 4096,
         speedFactor: 33 / 100,
-        fadeOpacity: 0.95,
+        fadeAge: 100,
         dropAge: 100,
         waves: false,
     }],
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [-1, 1],
-        count: 1024,
+        count: 4096,
         speedFactor: 33 / 7,
-        fadeOpacity: 0.99,
+        fadeAge: 100,
         dropAge: 100,
         waves: false,
     }],
     ['wavewatch/waves', {
         imagePath: `${basepath}/wavewatch/waves/${date}${time}.png`,
         bounds: [-20, 20],
-        count: 1024,
+        count: 4096,
         speedFactor: 33 / 612,
-        fadeOpacity: 0.9,
+        fadeAge: 40,
         dropAge: 40,
         waves: true,
     }],
@@ -387,8 +387,8 @@ export function initGui(config, update) {
     particles.add(config.particles, 'size', 0.5, 5, 0.5);
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
-    particles.add(config.particles, 'fadeOpacity', 0.9, 1, 0.001);
     particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
+    particles.add(config.particles, 'fadeAge', 1, 60 * 10, 1);
     particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
     particles.open();
 
