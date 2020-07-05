@@ -82,10 +82,10 @@ export function overlayGl(gl, config) {
 
         // draw to canvas
         const overlayBuffer = createBuffer(gl, [
-            [Math.floor(worldBounds[0][0]), Math.floor(worldBounds[0][1])], // [0, 0]
-            [Math.floor(worldBounds[0][0]), Math.ceil(worldBounds[1][1])], // [0, 1]
-            [Math.ceil(worldBounds[1][0]), Math.floor(worldBounds[0][1])], // [1, 0]
-            [Math.ceil(worldBounds[1][0]), Math.ceil(worldBounds[1][1])], // [1, 1]
+            [worldBounds[0][0], worldBounds[0][1]], // [0, 0]
+            [worldBounds[0][0], worldBounds[1][1]], // [0, 1]
+            [worldBounds[1][0], worldBounds[0][1]], // [1, 0]
+            [worldBounds[1][0], worldBounds[1][1]], // [1, 1]
         ]);
         drawOverlay(gl, overlayProgram, overlayBuffer, sourceTexture, overlayColorRampTexture, config.opacity, matrix);
         gl.deleteBuffer(overlayBuffer.buffer);

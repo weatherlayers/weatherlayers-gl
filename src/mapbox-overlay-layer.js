@@ -1,5 +1,6 @@
 import { overlayGl } from './overlay-gl.js';
 import { getGeographicPosition } from './get-geographic-position.js';
+import { getMercatorPosition } from './get-mercator-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./overlay-gl.js').OverlayConfig} OverlayConfig */
@@ -69,10 +70,10 @@ export class OverlayLayer {
         }
 
         if (this.enabled) {
-            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()]
+            const worldBounds = [this.map.getBounds().getNorthWest(), this.map.getBounds().getSouthEast()];
             /** @type [[number, number], [number, number]] */
-            const geographicWorldBounds = [getGeographicPosition(worldBounds[0]), getGeographicPosition(worldBounds[1])];
-            this.renderer.render(matrix, geographicWorldBounds);
+            const mercatorWorldBounds = [getMercatorPosition(worldBounds[0]), getMercatorPosition(worldBounds[1])];
+            this.renderer.render(matrix, mercatorWorldBounds);
         }
     }
 
