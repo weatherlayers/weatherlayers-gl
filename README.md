@@ -16,5 +16,5 @@ reference visualization: https://earth.nullschool.net/#2020/07/02/0000Z/wind/sur
 ## Download data
 
 ```
-data/download.sh
+data/download.sh 20200702 0 0 0
 ```

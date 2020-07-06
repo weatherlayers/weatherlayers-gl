@@ -2,25 +2,18 @@
 
 set -eu
 
-VALUE_MIN="$1"
-VALUE_MAX="$2"
-INPUT_FILE="$3"
-OUTPUT_FILE="$4"
+VARIABLE="$1"
+VALUE_MIN="$2"
+VALUE_MAX="$3"
+INPUT_FILE="$4"
+OUTPUT_FILE="$5"
 TMP_FILE="$(mktemp).tif"
 
-# transform into PNG image texture
-# map values to 0..255 uint8
-gdal_translate \
-    -ot Float32 \
-    -unscale \
-    -a_nodata 1.28 \
-    NETCDF:"$INPUT_FILE":sea_ice_fraction \
-    "$TMP_FILE"
-gdal_translate \
-    -ot Byte \
-    -b 1 -b 1 -b 1 -b mask,1 \
-    -scale "$VALUE_MIN" "$VALUE_MAX" \
-    "$TMP_FILE" \
-    "$OUTPUT_FILE"
+# extract data
+gdal_translate -ot Float32 -unscale -a_nodata 1.28 NETCDF:"$INPUT_FILE":"$VARIABLE" "$TMP_FILE"
+
+# convert to PNG image
+# scale values to 0..255 uint8
+gdal_translate -ot Byte -b 1 -b 1 -b 1 -b mask,1 -scale "$VALUE_MIN" "$VALUE_MAX" "$TMP_FILE" "$OUTPUT_FILE"
 
 rm "$TMP_FILE"

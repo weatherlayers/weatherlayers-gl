@@ -1,6 +1,8 @@
 /node_modules
 /dist
 
+/data/**/*.grib
+/data/**/*.nc
 /data/**/*.tif
 
 .env.local
