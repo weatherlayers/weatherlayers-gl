@@ -67,7 +67,7 @@ void main() {
         -dirRN, // top
         dirRN   // bottom
     ) * _if(uParticleWaves, 5.0, 1.0);
-    vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0) * _if(uParticleWaves && position0 == position1, 0.0, 1.0);
+    vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0) * _if(position0 == position1, 0.0, 1.0);
     position += offsetDir * offset * uPixelSize;
 
     gl_Position = vec4(position, 0, 1);
