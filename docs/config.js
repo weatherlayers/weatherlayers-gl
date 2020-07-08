@@ -5,17 +5,17 @@ const forecast = '000';
 
 export const config = {
     overlay: {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`,
-        bounds: [0, 100],
-        colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`, // data packed into an image, R channel = value, A channel = mask
+        bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
+        colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
         legendWidth: 220,
     },
     particles: {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`,
-        bounds: [-128, 127],
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
+        bounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         count: 4096,
         size: 2,
         color: [255, 255, 255],
@@ -23,7 +23,7 @@ export const config = {
         speedFactor: 33 / 100, // how fast the particles move
         fadeAge: 100, // fade particles during age in frames
         dropAge: 100, // drop particles after max age in frames
-        waves: false,
+        waves: false, // wave particle shape
     },
 };
 
