@@ -1,6 +1,6 @@
 import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
-import { createStepProgram, computeStep } from './shaders/step.js';
+import { createUpdateProgram, runUpdate } from './shaders/update.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
 import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
@@ -33,7 +33,7 @@ import { hasValues } from './has-values.js';
  * @param {ParticlesConfig} config
  */
 export function particlesGl(gl, config) {
-    const stepProgram = createStepProgram(gl);
+    const updateProgram = createUpdateProgram(gl);
     const fadeProgram = createFadeProgram(gl);
     const particlesProgram = createParticlesProgram(gl);
     const copyProgram = createCopyProgram(gl);
@@ -137,7 +137,7 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        computeStep(gl, stepProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.dropAge, frameNumber);
+        runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.dropAge, frameNumber);
         frameNumber = (frameNumber + 1) % config.dropAge;
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
@@ -182,7 +182,7 @@ export function particlesGl(gl, config) {
     function destroy() {
         stop();
 
-        gl.deleteProgram(stepProgram.program);
+        gl.deleteProgram(updateProgram.program);
         gl.deleteProgram(fadeProgram.program);
         gl.deleteProgram(particlesProgram.program);
         gl.deleteProgram(copyProgram.program);

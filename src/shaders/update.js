@@ -1,7 +1,7 @@
 
 import { createProgram, bindAttribute, bindTexture } from '../webgl-common.js';
 import quadVertexShaderSource from './quad.vert';
-import stepFragmentShaderSource from './step.frag';
+import updateFragmentShaderSource from './update.frag';
 
 /** @typedef {import('../webgl-common.js').WebGLProgramWrapper} WebGLProgramWrapper */
 /** @typedef {import('../webgl-common.js').WebGLBufferWrapper} WebGLBufferWrapper */
@@ -11,8 +11,8 @@ import stepFragmentShaderSource from './step.frag';
  * @param {WebGLRenderingContext} gl
  * @return {WebGLProgramWrapper}
  */
-export function createStepProgram(gl) {
-    return createProgram(gl, quadVertexShaderSource, stepFragmentShaderSource);
+export function createUpdateProgram(gl) {
+    return createProgram(gl, quadVertexShaderSource, updateFragmentShaderSource);
 }
 
 /**
@@ -27,7 +27,7 @@ export function createStepProgram(gl) {
  * @param {number} dropAge
  * @param {number} frameNumber
  */
-export function computeStep(gl, program, buffer, particlesStateTexture, sourceTexture, sourceBounds, worldBounds, speedFactor, dropAge, frameNumber) {
+export function runUpdate(gl, program, buffer, particlesStateTexture, sourceTexture, sourceBounds, worldBounds, speedFactor, dropAge, frameNumber) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, particlesStateTexture, program.uniforms['sState'], program.uniforms['uStateResolution'], 0);

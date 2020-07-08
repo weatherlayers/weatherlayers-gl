@@ -1,6 +1,6 @@
 precision highp float;
 
-#define SHADER_NAME step.frag
+#define SHADER_NAME update.frag
 
 #pragma glslify: random = require('glsl-random')
 #pragma glslify: _if = require('./_if')
