@@ -23,8 +23,7 @@
 <script type="module">
 import { config, initGui } from './config.js';
 
-config.overlay.opacity = 0.4;
-config.particles.speedFactor = 0.15;
+config.overlay.opacity = 0.2;
 
 window.addEventListener('DOMContentLoaded', async () => {
     config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);

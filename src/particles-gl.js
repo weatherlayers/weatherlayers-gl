@@ -126,7 +126,7 @@ export function particlesGl(gl, config) {
         }
 
         const particleSize = config.size * pixelRatio;
-        const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, config.opacity]);
+        const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, 1]);
         const speedFactor = config.speedFactor * pixelRatio / 2 ** zoom;
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -172,7 +172,7 @@ export function particlesGl(gl, config) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         // draw to canvas
-        drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1);
+        drawCopy(gl, copyProgram, quadBuffer, particlesScreenTexture1, config.opacity);
 
         gl.disable(gl.BLEND);
     }

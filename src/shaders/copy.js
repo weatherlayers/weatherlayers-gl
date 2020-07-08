@@ -19,10 +19,12 @@ export function createCopyProgram(gl) {
  * @param {WebGLProgramWrapper} program
  * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} screenTexture
+ * @param {number} opacity
  */
-export function drawCopy(gl, program, buffer, screenTexture) {
+export function drawCopy(gl, program, buffer, screenTexture, opacity) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, screenTexture, program.uniforms['sScreen'], null, 0);
+    gl.uniform1f(program.uniforms['uOpacity'], opacity);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);
 }
