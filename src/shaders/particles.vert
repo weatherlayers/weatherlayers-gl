@@ -66,7 +66,11 @@ void main() {
         vertexIndex == 0 || vertexIndex == 2,
         -dirRN, // top
         dirRN   // bottom
-    ) * _if(uParticleWaves, 5.0, 1.0);
+    ) * _if(
+        uParticleWaves,
+        5.0, // line perpendicular to the direction
+        1.0  // square
+    );
     vec2 offset = vec2(uParticleSize / 2.0, uParticleSize / 2.0) * _if(position0 == position1, 0.0, 1.0);
     position += offsetDir * offset * uPixelSize;
 

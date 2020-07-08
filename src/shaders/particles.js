@@ -1,4 +1,4 @@
-import { createProgram, createBuffer, createElementBuffer, bindAttribute, bindTexture } from '../webgl-common.js';
+import { createProgram, createBuffer, bindAttribute, bindTexture } from '../webgl-common.js';
 import particlesVertexShaderSource from './particles.vert';
 import particlesFragmentShaderSource from './particles.frag';
 
@@ -12,22 +12,10 @@ import particlesFragmentShaderSource from './particles.frag';
  * @return {WebGLBufferWrapper}
  */
 export function createParticlesBuffer(gl, particlesCount) {
-    // indexes in particles state texture
-    const particles = new Array(particlesCount * 4).fill(undefined).map((_, i) => i);
+    // a quad for each particle
+    const particles = new Array(particlesCount).fill(undefined).map((_, i) => [4*i, 4*i+1, 4*i+2, 4*i+1, 4*i+2, 4*i+3]).flat();
     const particlesBuffer = createBuffer(gl, particles);
     return particlesBuffer;
-}
-
-/**
- * @param {WebGLRenderingContext} gl
- * @param {number} particlesCount
- * @return {WebGLBufferWrapper}
- */
-export function createParticlesIndexBuffer(gl, particlesCount) {
-    // indexes in indexes in particles state texture
-    const particles = new Array(particlesCount).fill(undefined).map((_, i) => [4*i, 4*i+1, 4*i+2, 4*i+1, 4*i+2, 4*i+3]).flat();
-    const particlesIndexBuffer = createElementBuffer(gl, particles);
-    return particlesIndexBuffer;
 }
 
 /**
@@ -42,7 +30,6 @@ export function createParticlesProgram(gl) {
  * @param {WebGLRenderingContext} gl
  * @param {WebGLProgramWrapper} program
  * @param {WebGLBufferWrapper} buffer
- * @param {WebGLBufferWrapper} indexBuffer
  * @param {WebGLTextureWrapper} particlesStateTexture0
  * @param {WebGLTextureWrapper} particlesStateTexture1
  * @param {number} particleSize
@@ -51,7 +38,7 @@ export function createParticlesProgram(gl) {
  * @param {number[]} matrix
  * @param {[[number, number], [number, number]]} worldBounds
  */
-export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, particleWaves, matrix, worldBounds) {
+export function drawParticles(gl, program, buffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, particleWaves, matrix, worldBounds) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aIndex']);
     bindTexture(gl, particlesStateTexture0, program.uniforms['sState0'], program.uniforms['uStateResolution'], 0);
@@ -63,6 +50,5 @@ export function drawParticles(gl, program, buffer, indexBuffer, particlesStateTe
     gl.uniform2fv(program.uniforms['uWorldBoundsMin'], worldBounds[0]);
     gl.uniform2fv(program.uniforms['uWorldBoundsMax'], worldBounds[1]);
     gl.uniform2f(program.uniforms['uPixelSize'], 1 / gl.canvas.width, 1 / gl.canvas.height);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer.buffer);
-    gl.drawElements(gl.TRIANGLES, indexBuffer.x, gl.UNSIGNED_SHORT, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, buffer.x);
 }

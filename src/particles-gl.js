@@ -2,7 +2,7 @@ import { createImageTexture, createArrayTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createUpdateProgram, runUpdate } from './shaders/update.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
-import { createParticlesBuffer, createParticlesIndexBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
+import { createParticlesBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
 import { createImageCanvas } from './create-image-canvas.js';
 import { getPositionValues } from './get-position-values.js';
@@ -58,8 +58,6 @@ export function particlesGl(gl, config) {
 
     /** @type WebGLBufferWrapper */
     let particlesBuffer;
-    /** @type WebGLBufferWrapper */
-    let particlesIndexBuffer;
 
     // particles state textures, for the current and the previous state
     /** @type WebGLTextureWrapper */
@@ -82,7 +80,6 @@ export function particlesGl(gl, config) {
         if (initialized) {
             gl.deleteTexture(sourceTexture.texture);
             gl.deleteBuffer(particlesBuffer.buffer);
-            gl.deleteBuffer(particlesIndexBuffer.buffer);
             gl.deleteTexture(particlesStateTexture0.texture);
             gl.deleteTexture(particlesStateTexture1.texture);
             gl.deleteTexture(particlesScreenTexture0.texture);
@@ -100,7 +97,6 @@ export function particlesGl(gl, config) {
         sourceTexture = createImageTexture(gl, config.image);
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
-        particlesIndexBuffer = createParticlesIndexBuffer(gl, config.count);
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
@@ -154,7 +150,7 @@ export function particlesGl(gl, config) {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.maxAge);
-        drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, !!config.waves, matrix, worldBounds);
+        drawParticles(gl, particlesProgram, particlesBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, !!config.waves, matrix, worldBounds);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -192,7 +188,6 @@ export function particlesGl(gl, config) {
         gl.deleteTexture(sourceTexture.texture);
 
         gl.deleteBuffer(particlesBuffer.buffer);
-        gl.deleteBuffer(particlesIndexBuffer.buffer);
         gl.deleteTexture(particlesStateTexture0.texture);
         gl.deleteTexture(particlesStateTexture1.texture);
         gl.deleteTexture(particlesScreenTexture0.texture);

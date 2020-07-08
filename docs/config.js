@@ -16,7 +16,7 @@ export const config = {
     particles: {
         imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
         bounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
-        count: 4096,
+        count: 5000,
         size: 2,
         color: [255, 255, 255],
         opacity: 0.25,
@@ -137,7 +137,7 @@ const particlesLayerConfigs = new Map([
     ['gfs/wind', {
         imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
         bounds: [-128, 127],
-        count: 4096,
+        count: 5000,
         speedFactor: 33 / 100,
         maxAge: 100,
         waves: false,
@@ -145,7 +145,7 @@ const particlesLayerConfigs = new Map([
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [-1, 1],
-        count: 4096,
+        count: 5000,
         speedFactor: 33 / 7,
         maxAge: 100,
         waves: false,
@@ -153,7 +153,7 @@ const particlesLayerConfigs = new Map([
     ['wavewatch/waves', {
         imagePath: `${basepath}/wavewatch/waves/${date}${time}.png`,
         bounds: [-20, 20],
-        count: 4096,
+        count: 5000,
         speedFactor: 33 / 612,
         maxAge: 40,
         waves: true,
@@ -380,7 +380,7 @@ export function initGui(config, update) {
         gui.updateDisplay();
         update();
     });
-    particles.add(config.particles, 'count', 0, 2 ** 16 - 1, 1).onFinishChange(update);
+    particles.add(config.particles, 'count', 0, 100000, 1).onFinishChange(update);
     particles.add(config.particles, 'size', 0.5, 5, 0.5);
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
