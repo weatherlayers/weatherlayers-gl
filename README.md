@@ -28,6 +28,10 @@ const config = {
     },
 };
 
+// preload the data image
+config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
+config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+
 const overlayLayer = new MaritraceMapboxWeather.OverlayLayer(config.overlay);
 const particlesLayer = new MaritraceMapboxWeather.ParticlesLayer(config.particles);
 const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
