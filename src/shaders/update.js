@@ -24,10 +24,10 @@ export function createUpdateProgram(gl) {
  * @param {[number, number]} sourceBounds
  * @param {[[number, number], [number, number]]} worldBounds
  * @param {number} speedFactor
- * @param {number} dropAge
+ * @param {number} maxAge
  * @param {number} frameNumber
  */
-export function runUpdate(gl, program, buffer, particlesStateTexture, sourceTexture, sourceBounds, worldBounds, speedFactor, dropAge, frameNumber) {
+export function runUpdate(gl, program, buffer, particlesStateTexture, sourceTexture, sourceBounds, worldBounds, speedFactor, maxAge, frameNumber) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, particlesStateTexture, program.uniforms['sState'], program.uniforms['uStateResolution'], 0);
@@ -37,7 +37,7 @@ export function runUpdate(gl, program, buffer, particlesStateTexture, sourceText
     gl.uniform2fv(program.uniforms['uWorldBoundsMin'], worldBounds[0]);
     gl.uniform2fv(program.uniforms['uWorldBoundsMax'], worldBounds[1]);
     gl.uniform1f(program.uniforms['uSpeedFactor'], speedFactor);
-    gl.uniform1f(program.uniforms['uDropAge'], dropAge);
+    gl.uniform1f(program.uniforms['uMaxAge'], maxAge);
     gl.uniform1f(program.uniforms['uFrameNumber'], frameNumber);
     gl.uniform1f(program.uniforms['uRandomSeed'], Math.random());
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, buffer.x);

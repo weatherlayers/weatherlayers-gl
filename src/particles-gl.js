@@ -20,8 +20,7 @@ import { hasValues } from './has-values.js';
  *      color: [number, number, number];
  *      opacity: number;
  *      speedFactor: number;
- *      fadeAge: number;
- *      dropAge: number;
+ *      maxAge: number;
  *      waves?: boolean;
  *      minZoom?: number;
  *      maxZoom?: number;
@@ -129,7 +128,6 @@ export function particlesGl(gl, config) {
         const particleSize = config.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, config.opacity]);
         const speedFactor = config.speedFactor * pixelRatio / 2 ** zoom;
-        const fadeOpacity = 1 - Math.pow(1 / Math.min(config.fadeAge, config.dropAge), 0.9);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
@@ -137,8 +135,8 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.dropAge, frameNumber);
-        frameNumber = (frameNumber + 1) % config.dropAge;
+        runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.maxAge, frameNumber);
+        frameNumber = (frameNumber + 1) % config.maxAge;
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
@@ -155,7 +153,7 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, fadeOpacity);
+        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.maxAge);
         drawParticles(gl, particlesProgram, particlesBuffer, particlesIndexBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, !!config.waves, matrix, worldBounds);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);

@@ -21,8 +21,7 @@ export const config = {
         color: [255, 255, 255],
         opacity: 0.25,
         speedFactor: 33 / 100, // how fast the particles move
-        fadeAge: 100, // fade particles during age in frames
-        dropAge: 100, // drop particles after max age in frames
+        maxAge: 100, // fade particles during age in frames
         waves: false, // wave particle shape
     },
 };
@@ -140,8 +139,7 @@ const particlesLayerConfigs = new Map([
         bounds: [-128, 127],
         count: 4096,
         speedFactor: 33 / 100,
-        fadeAge: 100,
-        dropAge: 100,
+        maxAge: 100,
         waves: false,
     }],
     ['oscar/currents', {
@@ -149,8 +147,7 @@ const particlesLayerConfigs = new Map([
         bounds: [-1, 1],
         count: 4096,
         speedFactor: 33 / 7,
-        fadeAge: 100,
-        dropAge: 100,
+        maxAge: 100,
         waves: false,
     }],
     ['wavewatch/waves', {
@@ -158,8 +155,7 @@ const particlesLayerConfigs = new Map([
         bounds: [-20, 20],
         count: 4096,
         speedFactor: 33 / 612,
-        fadeAge: 40,
-        dropAge: 40,
+        maxAge: 40,
         waves: true,
     }],
 ]);
@@ -389,8 +385,7 @@ export function initGui(config, update) {
     particles.addColor(config.particles, 'color');
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
-    particles.add(config.particles, 'fadeAge', 1, 60 * 10, 1);
-    particles.add(config.particles, 'dropAge', 1, 60 * 10, 1);
+    particles.add(config.particles, 'maxAge', 1, 255, 1);
     particles.open();
 
     gui.close();

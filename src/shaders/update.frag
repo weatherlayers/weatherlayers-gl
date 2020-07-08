@@ -21,7 +21,7 @@ uniform float uSourceBoundsMax;
 uniform vec2 uWorldBoundsMin;
 uniform vec2 uWorldBoundsMax;
 uniform float uSpeedFactor;
-uniform float uDropAge;
+uniform float uMaxAge;
 uniform float uFrameNumber;
 uniform float uRandomSeed;
 varying vec2 vTexCoord;
@@ -61,7 +61,7 @@ void main() {
     vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
     randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), randomPackedBoundedWorldPosition, dropPosition);
     // - 1st frame: drop
-    bool drop = !hasValues(values) || abs(mod(particleIndex, uDropAge + 1.0) - uFrameNumber) < 1.0; // uDropAge + 1 because particles.vert renders only non-randomized pairs
+    bool drop = !hasValues(values) || abs(mod(particleIndex, uMaxAge + 1.0) - uFrameNumber) < 1.0; // uMaxAge + 1 because particles.vert renders only non-randomized pairs
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
     // - 2nd frame: randomize
     bool randomize = packedBoundedWorldPosition == dropPosition;

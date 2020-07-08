@@ -23,8 +23,7 @@ const config = {
         color: [255, 255, 255],
         opacity: 0.25,
         speedFactor: 33 / 100, // how fast the particles move
-        fadeAge: 100, // fade particles during age in frames
-        dropAge: 100, // drop particles after max age in frames
+        maxAge: 100, // drop particles after max age in frames
         waves: false, // wave particle shape
     },
 };
