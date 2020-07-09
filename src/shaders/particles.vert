@@ -54,7 +54,7 @@ void main() {
     vec2 dirRN = vec2(dirFN.y, -dirFN.x); // perpendicular direction
 
     vec2 position = _if(
-        vertexIndex == 0 || vertexIndex == 1,
+        vertexIndex == 0 || vertexIndex == 1 || uParticleWaves,
         position0, // left (source)
         position1  // right (target)
     );
