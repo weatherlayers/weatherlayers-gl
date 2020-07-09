@@ -134,6 +134,7 @@ export function particlesGl(gl, config) {
         const particleSize = config.size * pixelRatio;
         const particleColor = /** @type [number, number, number, number] */ ([config.color[0] / 255, config.color[1] / 255, config.color[2] / 255, 1]);
         const speedFactor = config.speedFactor * pixelRatio / 2 ** zoom;
+        const fadeMaxAge = config.waves ? 1 : config.maxAge;
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
@@ -159,7 +160,7 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesScreenTexture1.texture, 0);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, config.maxAge);
+        drawFade(gl, fadeProgram, quadBuffer, particlesScreenTexture0, fadeMaxAge);
         drawParticles(gl, particlesProgram, particlesBuffer, particlesStateTexture0, particlesStateTexture1, particleSize, particleColor, !!config.waves, matrix, worldBounds);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
