@@ -71,6 +71,23 @@ export function particlesGl(gl, config) {
     /** @type WebGLTextureWrapper */
     let particlesScreenTexture1;
 
+    function clear() {
+        if (initialized) {
+            gl.deleteTexture(particlesStateTexture0.texture);
+            gl.deleteTexture(particlesStateTexture1.texture);
+            gl.deleteTexture(particlesScreenTexture0.texture);
+            gl.deleteTexture(particlesScreenTexture1.texture);
+        }
+
+        const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
+        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
+        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+
+        const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
+        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+    }
     function update() {
         if (!(config.image && config.count > 0)) {
             initialized = false;
@@ -98,14 +115,7 @@ export function particlesGl(gl, config) {
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
 
-        const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
-        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
-        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-
-        const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+        clear();
 
         initialized = true;
     }
@@ -230,6 +240,7 @@ export function particlesGl(gl, config) {
 
     return {
         config,
+        clear,
         update,
         prerender,
         render,

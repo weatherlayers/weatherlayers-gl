@@ -13,7 +13,11 @@ export class ParticlesLayer {
     lastFrameTime = 0;
     running = false;
 
-    updateBound = this.update.bind(this);
+    mapMoving = false;
+
+    onMoveStartBound = this.onMoveStart.bind(this);
+    onResizeBound = this.onResize.bind(this);
+    onMoveEndBound = this.onMoveEnd.bind(this);
 
     /**
      * @param {ParticlesConfig} config
@@ -50,9 +54,9 @@ export class ParticlesLayer {
         this.gl = gl;
         this.renderer = renderer;
 
-        this.map.on('move', this.updateBound);
-        this.map.on('zoom', this.updateBound);
-        this.map.on('resize', this.updateBound);
+        this.map.on('movestart', this.onMoveStartBound);
+        this.map.on('moveend', this.onMoveEndBound);
+        this.map.on('resize', this.onResizeBound);
         this.start();
     }
 
@@ -61,9 +65,9 @@ export class ParticlesLayer {
             return;
         }
 
-        this.map.off('move', this.updateBound);
-        this.map.off('zoom', this.updateBound);
-        this.map.off('resize', this.updateBound);
+        this.map.off('movestart', this.onMoveStartBound);
+        this.map.off('moveend', this.onMoveEndBound);
+        this.map.off('resize', this.onResizeBound);
         this.canvas.remove();
         this.renderer.destroy();
 
@@ -71,6 +75,22 @@ export class ParticlesLayer {
         this.canvas = undefined;
         this.gl = undefined;
         this.renderer = undefined;
+    }
+
+    onMoveStart() {
+        this.mapMoving = true;
+
+        if (this.renderer) {
+            this.renderer.clear();
+        }
+    }
+
+    onMoveEnd() {
+        this.mapMoving = false;
+    }
+
+    onResize() {
+        this.update();
     }
 
     update() {
@@ -103,7 +123,7 @@ export class ParticlesLayer {
             this.gl.clearColor(0, 0, 0, 0);
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-            if (this.enabled) {
+            if (this.enabled && !this.mapMoving) {
                 const matrix = this.map.transform.customLayerMatrix();
                 const bounds = getMercatorBounds(this.map.getBounds());
                 const zoom = this.map.getZoom();
