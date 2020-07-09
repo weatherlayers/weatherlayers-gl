@@ -135,7 +135,7 @@ const particlesLayerConfigs = new Map([
         count: 0,
     }],
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${date}${time}.png`,
+        imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`,
         bounds: [-128, 127],
         count: 5000,
         speedFactor: 33 / 100,
