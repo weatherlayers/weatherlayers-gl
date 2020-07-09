@@ -143,7 +143,7 @@ export function particlesGl(gl, config) {
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
         runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.maxAge, frameNumber);
-        frameNumber = (frameNumber + 1) % config.maxAge;
+        frameNumber = (frameNumber + 1) % (config.maxAge + 2); // +2 because only non-randomized pairs are rendered
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);

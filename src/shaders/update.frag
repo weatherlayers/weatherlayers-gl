@@ -61,7 +61,7 @@ void main() {
     vec4 randomPackedBoundedWorldPosition = packPosition(randomBoundedWorldPosition);
     randomPackedBoundedWorldPosition = _if(hasValues(randomWorldPositionValues), randomPackedBoundedWorldPosition, dropPosition);
     // - 1st frame: drop
-    bool drop = !hasValues(values) || abs(mod(particleIndex, uMaxAge + 1.0) - uFrameNumber) < 1.0; // uMaxAge + 1 because particles.vert renders only non-randomized pairs
+    bool drop = !hasValues(values) || abs(mod(particleIndex, uMaxAge + 2.0) - uFrameNumber) < 1.0; // +2 because only non-randomized pairs are rendered
     newPackedBoundedWorldPosition = _if(drop, dropPosition, newPackedBoundedWorldPosition);
     // - 2nd frame: randomize
     bool randomize = packedBoundedWorldPosition == dropPosition;
