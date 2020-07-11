@@ -1,5 +1,6 @@
 import pkg from './package.json';
 import commonjs from '@rollup/plugin-commonjs';
+import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import glslify from 'rollup-plugin-glslify';
@@ -30,9 +31,15 @@ function bundle(format, filename, options = {}) {
     },
     external: [
       ...Object.keys(pkg.peerDependencies),
-      ...(!options.resolve ? [...Object.keys(pkg.dependencies), '@babel/runtime/helpers/defineProperty'] : []),
+      ...(!options.resolve ? [
+        ...Object.keys(pkg.dependencies),
+        '@babel/runtime/helpers/defineProperty',
+      ] : []),
     ],
     plugins: [
+      shim({
+        'color-name': 'export default {}'
+      }),
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
       babel({ babelHelpers: 'runtime' }),

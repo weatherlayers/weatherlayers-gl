@@ -14,7 +14,8 @@
   "author": "Jan Zak <zj@zakjan.cz>",
   "private": true,
   "dependencies": {
-    "color-rgba": "^2.1.1"
+    "color-rgba": "^2.1.1",
+    "rollup-plugin-shim": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
