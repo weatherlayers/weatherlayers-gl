@@ -1,14 +1,13 @@
 const basepath = '../data';
-const date = '20200707';
+const date = '20200712';
 const year = date.substr(0, 4);
 const month = date.substr(4, 2);
 const day = date.substr(6, 2);
 const time = '00';
-const forecast = '000';
 
 export const config = {
     overlay: {
-        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.f${forecast}.png`, // data packed into an image, R channel = value, A channel = mask
+        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.png`, // data packed into an image, R channel = value, A channel = mask
         bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
@@ -17,7 +16,7 @@ export const config = {
         legendWidth: 220,
     },
     particles: {
-        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.f${forecast}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
+        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
         bounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         count: 5000,
         size: 2,
@@ -41,55 +40,55 @@ const meta = {
 
 const overlayLayerConfigs = new Map([
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
     }],
     ['gfs/tmp', {
-        imagePath: `${basepath}/gfs/tmp/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/tmp/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [193 - 273.15, 328 - 273.15],
         colorFunction: 'gfs/tmp',
         legendTitle: 'Temperature [°C]',
     }],
     ['gfs/rh', {
-        imagePath: `${basepath}/gfs/rh/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/rh/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/rh',
         legendTitle: 'Relative Humidity [%]',
     }],
     ['gfs/apcp', {
-        imagePath: `${basepath}/gfs/apcp/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/apcp/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 150],
         colorFunction: 'gfs/apcp',
         legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
     }],
     ['gfs/cape', {
-        imagePath: `${basepath}/gfs/cape/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/cape/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 5000],
         colorFunction: 'gfs/cape',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
     ['gfs/pwat', {
-        imagePath: `${basepath}/gfs/pwat/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/pwat/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 70],
         colorFunction: 'gfs/pwat',
         legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
     ['gfs/cwat', {
-        imagePath: `${basepath}/gfs/cwat/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/cwat/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [0, 1],
         colorFunction: 'gfs/cwat',
         legendTitle: 'Total Cloud Water [kg/m²]',
     }],
     ['gfs/prmsl', {
-        imagePath: `${basepath}/gfs/prmsl/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/prmsl/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [92000 / 100, 105000 / 100],
         colorFunction: 'gfs/prmsl',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
     }],
     ['gfs/aptmp', {
-        imagePath: `${basepath}/gfs/aptmp/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/aptmp/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [236 - 273.15, 332 - 273.15],
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
@@ -138,7 +137,7 @@ const particlesLayerConfigs = new Map([
         count: 0,
     }],
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.f${forecast}.png`,
+        imagePath: `${basepath}/gfs/wind/${year}/${month}/${day}/${date}${time}.png`,
         bounds: [-128, 127],
         count: 5000,
         speedFactor: 33 / 100,

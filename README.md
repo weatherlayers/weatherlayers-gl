@@ -59,10 +59,10 @@ npm run build
 
 open http://localhost:8080/docs/
 
-reference visualization: https://earth.nullschool.net/#2020/07/07/0000Z/wind/surface/level/equirectangular
+reference visualization: https://earth.nullschool.net/#2020/07/12/0000Z/wind/surface/level/equirectangular
 
 ## Download data
 
 ```
-data/download.sh 20200707 0 0
+data/download.sh 20200712 0 0
 ```

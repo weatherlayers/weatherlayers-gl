@@ -5,4 +5,4 @@
 /data/**/*.nc
 /data/**/*.tif
 
-.env.local
+.env

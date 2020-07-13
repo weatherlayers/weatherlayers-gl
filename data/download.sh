@@ -21,15 +21,18 @@ set -eu
 DIR="$(dirname "$0")"
 
 DATE="${1:-$(date "+%Y%m%d")}" # YYYYMMDD
-YEAR="${DATE:0:4}"
-MONTH="${DATE:4:2}"
-DAY="${DATE:6:2}"
-TIME="$(printf "%02d" "$((10#${2:-$(date "+%H")}))")" # HH
-FORECAST="$(printf "%03d" "$((10#${3:-0}))")"
+TIME="$((10#${2:-$(date "+%H")}))" # HH
+FORECAST="$((10#${3:-0}))"
+
+DATETIME="$("$DIR/datetime_forecast.sh" "$DATE$TIME" "$FORECAST")" 
+YEAR="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%Y")"
+MONTH="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%m")"
+DAY="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%d")"
+# HOUR="${DATETIME:8:2}"
 
 echo "GFS"
 if [ "$(($TIME % 6))" -eq 0 ]; then
-    GFS_FILE="$DIR/gfs/$DATE$TIME.f$FORECAST.grib"
+    GFS_FILE="$DIR/gfs/$DATETIME.grib"
     if [ ! -f "$GFS_FILE" ]; then
         "$DIR/download_gfs.sh" "$DATE" "$TIME" "$FORECAST" "$GFS_FILE" || true
     fi
@@ -37,17 +40,17 @@ if [ "$(($TIME % 6))" -eq 0 ]; then
     if [ -f "$GFS_FILE" ]; then
         echo "GFS - wind"
             mkdir -p "$DIR/gfs/wind/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs_wind.sh" UGRD VGRD 10-HTGL 0 100 -128 127 "$GFS_FILE" "$DIR/gfs/wind/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs_wind.sh" UGRD VGRD 10-HTGL 0 100 -128 127 "$GFS_FILE" "$DIR/gfs/wind/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - TMP"
             mkdir -p "$DIR/gfs/tmp/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" TMP 2-HTGL 193 328 "$GFS_FILE" "$DIR/gfs/tmp/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" TMP 2-HTGL 193 328 "$GFS_FILE" "$DIR/gfs/tmp/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - RH"
             mkdir -p "$DIR/gfs/rh/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" RH 2-HTGL 0 100 "$GFS_FILE" "$DIR/gfs/rh/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" RH 2-HTGL 0 100 "$GFS_FILE" "$DIR/gfs/rh/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - APCP"
@@ -70,21 +73,21 @@ if [ "$(($TIME % 6))" -eq 0 ]; then
             # 4-7 hour - calculate (f006 APCP06 - f004 APCP04) + f007 APCP01
 
             apcp_var() {
-                echo -n "APCP$(printf "%02d" "$(((10#$1 - 1) % 6 + 1))")"
+                echo -n "APCP$(printf "%02d" "$((($1 - 1) % 6 + 1))")"
             }
 
             FORECAST_GFS_APCP_END_OFFSET="3" # 1-6
-            FORECAST_GFS_APCP_END="$(printf "%03d" "$((10#$FORECAST + 10#$FORECAST_GFS_APCP_END_OFFSET))")"
-            GFS_APCP_END_FILE="$DIR/gfs/$DATE$TIME.f$FORECAST.apcp.end.grib"
+            FORECAST_GFS_APCP_END="$(($FORECAST + $FORECAST_GFS_APCP_END_OFFSET))"
+            GFS_APCP_END_FILE="$DIR/gfs/$DATETIME.apcp.end.grib"
             if [ ! -f "$GFS_APCP_END_FILE" ]; then
                 "$DIR/download_gfs_filter.sh" "$DATE" "$TIME" "$FORECAST_GFS_APCP_END" APCP surface "$GFS_APCP_END_FILE" || true
             fi
             
             if [ -f "$GFS_APCP_END_FILE" ]; then
-                if [ "$((10#$FORECAST % 6))" -gt "0" ]; then
-                    if [ "$((10#$FORECAST_GFS_APCP_END % 6))" -gt "0" -a "$((10#$FORECAST_GFS_APCP_END % 6))" -lt "$((10#$FORECAST % 6))" ]; then
-                        FORECAST_GFS_APCP_MIDDLE="$(printf "%03d" "$((10#$FORECAST_GFS_APCP_END / 6 * 6))")"
-                        GFS_APCP_MIDDLE_FILE="$DIR/gfs/$DATE$TIME.f$FORECAST.apcp.middle.grib"
+                if [ "$(($FORECAST % 6))" -gt "0" ]; then
+                    if [ "$(($FORECAST_GFS_APCP_END % 6))" -gt "0" -a "$(($FORECAST_GFS_APCP_END % 6))" -lt "$(($FORECAST % 6))" ]; then
+                        FORECAST_GFS_APCP_MIDDLE="$(($FORECAST_GFS_APCP_END / 6 * 6))"
+                        GFS_APCP_MIDDLE_FILE="$DIR/gfs/$DATETIME.apcp.middle.grib"
                         if [ ! -f "$GFS_APCP_MIDDLE_FILE" ]; then
                             "$DIR/download_gfs_filter.sh" "$DATE" "$TIME" "$FORECAST_GFS_APCP_MIDDLE" APCP surface "$GFS_APCP_MIDDLE_FILE" || true
                         fi
@@ -92,19 +95,19 @@ if [ "$(($TIME % 6))" -eq 0 ]; then
                         if [ -f "$GFS_APCP_MIDDLE_FILE" ]; then
                             # 3 input files (start, middle, end)
                             mkdir -p "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY"
-                            "$DIR/convert_gfs_apcp_diff2.sh" "$(apcp_var "$FORECAST")" "$(apcp_var "$FORECAST_GFS_APCP_MIDDLE")" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_FILE" "$GFS_APCP_MIDDLE_FILE" "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+                            "$DIR/convert_gfs_apcp_diff2.sh" "$(apcp_var "$FORECAST")" "$(apcp_var "$FORECAST_GFS_APCP_MIDDLE")" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_FILE" "$GFS_APCP_MIDDLE_FILE" "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
                         else
                             echo "ERROR: $GFS_APCP_MIDDLE_FILE file not found"
                         fi
                     else
                         # 2 input files (start, end)
                         mkdir -p "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY"
-                        "$DIR/convert_gfs_apcp_diff.sh" "$(apcp_var "$FORECAST")" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_FILE" "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+                        "$DIR/convert_gfs_apcp_diff.sh" "$(apcp_var "$FORECAST")" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_FILE" "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
                     fi
                 else
                     # 1 input file (end)
                     mkdir -p "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY"
-                    "$DIR/convert_gfs.sh" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+                    "$DIR/convert_gfs.sh" "$(apcp_var "$FORECAST_GFS_APCP_END")" 0-SFC 0 150 "$GFS_APCP_END_FILE" "$DIR/gfs/apcp/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
                 fi
             else
                 echo "ERROR: $GFS_APCP_END_FILE file not found"
@@ -113,37 +116,39 @@ if [ "$(($TIME % 6))" -eq 0 ]; then
 
         echo "GFS - CAPE"
             mkdir -p "$DIR/gfs/cape/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" CAPE 0-SFC 0 5000 "$GFS_FILE" "$DIR/gfs/cape/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" CAPE 0-SFC 0 5000 "$GFS_FILE" "$DIR/gfs/cape/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - PWAT"
             mkdir -p "$DIR/gfs/pwat/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" PWAT 0-EATM 0 70 "$GFS_FILE" "$DIR/gfs/pwat/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" PWAT 0-EATM 0 70 "$GFS_FILE" "$DIR/gfs/pwat/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - CWAT"
             mkdir -p "$DIR/gfs/cwat/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" CWAT 0-EATM 0 1 "$GFS_FILE" "$DIR/gfs/cwat/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" CWAT 0-EATM 0 1 "$GFS_FILE" "$DIR/gfs/cwat/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - PRMSL"
             mkdir -p "$DIR/gfs/prmsl/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" PRMSL 0-MSL 92000 105000 "$GFS_FILE" "$DIR/gfs/prmsl/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" PRMSL 0-MSL 92000 105000 "$GFS_FILE" "$DIR/gfs/prmsl/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "GFS - APTMP"
             mkdir -p "$DIR/gfs/aptmp/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_gfs.sh" APTMP 2-HTGL 236 332 "$GFS_FILE" "$DIR/gfs/aptmp/$YEAR/$MONTH/$DAY/$DATE$TIME.f$FORECAST.png"
+            "$DIR/convert_gfs.sh" APTMP 2-HTGL 236 332 "$GFS_FILE" "$DIR/gfs/aptmp/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
     else
         echo "ERROR: $GFS_FILE file not found"
     fi
+else
+    echo "skipped"
 fi
 echo
 
 # TODO: date filter?
 echo "OSCAR"
-if [ "$TIME" -eq 0 ]; then
+if [ "$TIME" -eq 0 -a "$FORECAST" -eq 0 ]; then
     OSCAR_FILE="$DIR/oscar/$DATE.nc"
     if [ ! -f "$OSCAR_FILE" ]; then
         "$DIR/download_oscar.sh" "$DATE" "$OSCAR_FILE" || true
@@ -152,16 +157,18 @@ if [ "$TIME" -eq 0 ]; then
     if [ -f "$OSCAR_FILE" ]; then
         echo "OSCAR - currents"
             mkdir -p "$DIR/oscar/currents/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_oscar.sh" 0 1.5 -1 1 "$OSCAR_FILE" "$DIR/oscar/currents/$YEAR/$MONTH/$DAY/$DATE.png"
+            "$DIR/convert_oscar.sh" 0 1.5 -1 1 "$OSCAR_FILE" "$DIR/oscar/currents/$YEAR/$MONTH/$DAY/$DATE.png" || true
         echo
     else
         echo "ERROR: $OSCAR_FILE file not found"
     fi
+else
+    echo "skipped"
 fi
 echo
 
 echo "OSTIA"
-if [ "$TIME" -eq 0 ]; then
+if [ "$TIME" -eq 0 -a "$FORECAST" -eq 0 ]; then
     OSTIA_SST_FILE="$DIR/ostia/$DATE.sst.nc"
     if [ ! -f "$OSTIA_SST_FILE" ]; then
         "$DIR/download_ostia_sst.sh" "$DATE" "$OSTIA_SST_FILE" || true
@@ -170,12 +177,12 @@ if [ "$TIME" -eq 0 ]; then
     if [ -f "$OSTIA_SST_FILE" ]; then
         echo "OSTIA - analysed_sst"
             mkdir -p "$DIR/ostia/analysed_sst/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_analysed_sst.sh" analysed_sst 270 304.65 "$OSTIA_SST_FILE" "$DIR/ostia/analysed_sst/$YEAR/$MONTH/$DAY/$DATE.png"
+            "$DIR/convert_ostia_analysed_sst.sh" analysed_sst 270 304.65 "$OSTIA_SST_FILE" "$DIR/ostia/analysed_sst/$YEAR/$MONTH/$DAY/$DATE.png" || true
         echo
 
         echo "OSTIA - sea_ice_fraction"
             mkdir -p "$DIR/ostia/sea_ice_fraction/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_sea_ice_fraction.sh" sea_ice_fraction 0 1 "$OSTIA_SST_FILE" "$DIR/ostia/sea_ice_fraction/$YEAR/$MONTH/$DAY/$DATE.png"
+            "$DIR/convert_ostia_sea_ice_fraction.sh" sea_ice_fraction 0 1 "$OSTIA_SST_FILE" "$DIR/ostia/sea_ice_fraction/$YEAR/$MONTH/$DAY/$DATE.png" || true
         echo
     else
         echo "ERROR: $OSTIA_SST_FILE file not found"
@@ -189,17 +196,20 @@ if [ "$TIME" -eq 0 ]; then
     if [ -f "$OSTIA_ANOM_FILE" ]; then
         echo "OSTIA - sst_anomaly"
             mkdir -p "$DIR/ostia/sst_anomaly/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_sst_anomaly.sh" sst_anomaly -11 11 "$OSTIA_ANOM_FILE" "$DIR/ostia/sst_anomaly/$YEAR/$MONTH/$DAY/$DATE.png"
+            "$DIR/convert_ostia_sst_anomaly.sh" sst_anomaly -11 11 "$OSTIA_ANOM_FILE" "$DIR/ostia/sst_anomaly/$YEAR/$MONTH/$DAY/$DATE.png" || true
         echo
     else
         echo "ERROR: $OSTIA_ANOM_FILE file not found"
     fi
+else
+    echo "skipped"
 fi
 echo
 
+# TODO: extract forecast band?
 echo "WAVEWATCH"
-if [ "$(($TIME % 6))" -eq 0 ]; then
-    WAVEWATCH_FILE="$DIR/wavewatch/$DATE$TIME.grib"
+if [ "$(($TIME % 6))" -eq 0 -a "$FORECAST" -eq 0 ]; then
+    WAVEWATCH_FILE="$DIR/wavewatch/$DATETIME.grib"
     if [ ! -f "$WAVEWATCH_FILE" ]; then
         "$DIR/download_wavewatch.sh" "$DATE" "$TIME" "$WAVEWATCH_FILE" || true
     fi
@@ -207,15 +217,17 @@ if [ "$(($TIME % 6))" -eq 0 ]; then
     if [ -f "$WAVEWATCH_FILE" ]; then
         echo "WAVEWATCH - waves"
             mkdir -p "$DIR/wavewatch/waves/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_wavewatch_waves.sh" PERPW DIRPW 0 25 -20 20 "$WAVEWATCH_FILE" "$DIR/wavewatch/waves/$YEAR/$MONTH/$DAY/$DATE$TIME.png"
+            "$DIR/convert_wavewatch_waves.sh" PERPW DIRPW 0 25 -20 20 "$WAVEWATCH_FILE" "$DIR/wavewatch/waves/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
 
         echo "WAVEWATCH - HTSGW"
             mkdir -p "$DIR/wavewatch/htsgw/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_wavewatch.sh" HTSGW 0 15 "$WAVEWATCH_FILE" "$DIR/wavewatch/htsgw/$YEAR/$MONTH/$DAY/$DATE$TIME.png"
+            "$DIR/convert_wavewatch.sh" HTSGW 0 15 "$WAVEWATCH_FILE" "$DIR/wavewatch/htsgw/$YEAR/$MONTH/$DAY/$DATETIME.png" || true
         echo
     else
         echo "ERROR: $WAVEWATCH_FILE file not found"
     fi
+else
+    echo "skipped"
 fi
 echo

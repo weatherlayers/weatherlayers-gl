@@ -1,0 +1,24 @@
+<PAMDataset>
+  <SRS dataAxisToSRSAxisMapping="2,1">GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]</SRS>
+  <GeoTransform> -1.8000000000000000e+02,  2.5000000000000000e-01,  0.0000000000000000e+00,  9.0000000000000000e+01,  0.0000000000000000e+00, -2.5000000000000000e-01</GeoTransform>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Area</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Description>0[-] MSL="Mean sea level"</Description>
+    <Metadata>
+      <MDI key="GRIB_COMMENT">Pressure reduced to MSL [Pa]</MDI>
+      <MDI key="GRIB_DISCIPLINE">0(Meteorological)</MDI>
+      <MDI key="GRIB_ELEMENT">PRMSL</MDI>
+      <MDI key="GRIB_FORECAST_SECONDS">0 sec</MDI>
+      <MDI key="GRIB_IDS">CENTER=7(US-NCEP) SUBCENTER=0 MASTER_TABLE=2 LOCAL_TABLE=1 SIGNF_REF_TIME=1(Start_of_Forecast) REF_TIME=2020-07-12T00:00:00Z PROD_STATUS=0(Operational) TYPE=1(Forecast)</MDI>
+      <MDI key="GRIB_PDS_PDTN">0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_ASSEMBLED_VALUES">3 1 2 0 81 0 0 1 0 101 0 0 255 0 0</MDI>
+      <MDI key="GRIB_PDS_TEMPLATE_NUMBERS">3 1 2 0 81 0 0 0 1 0 0 0 0 101 0 0 0 0 0 255 0 0 0 0 0</MDI>
+      <MDI key="GRIB_REF_TIME">1594512000 sec UTC</MDI>
+      <MDI key="GRIB_SHORT_NAME">0-MSL</MDI>
+      <MDI key="GRIB_UNIT">[Pa]</MDI>
+      <MDI key="GRIB_VALID_TIME">1594512000 sec UTC</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
