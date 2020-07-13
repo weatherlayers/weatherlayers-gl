@@ -13,7 +13,7 @@ TMP_FILE1="$(mktemp).tif"
 TMP_FILE2="$(mktemp).tif"
 
 # extract data
-BAND="$("$DIR/get_grib_band.sh" "$INPUT_FILE" "$VARIABLE")"
+BAND="$("$DIR/get_wavewatch_band.sh" "$INPUT_FILE" "$VARIABLE")"
 gdal_translate -b "$BAND" --config GRIB_NORMALIZE_UNITS NO "$INPUT_FILE" "$TMP_FILE1"
 
 # wrap longitude to -180..180

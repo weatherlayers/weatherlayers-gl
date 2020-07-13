@@ -21,8 +21,8 @@ V_TMP_FILE="$(mktemp).tif"
 MERGED_TMP_FILE="$(mktemp).vrt"
 
 # extract data
-LENGTH_BAND="$("$DIR/get_grib_band.sh" "$INPUT_FILE" "$LENGTH_VARIABLE")"
-DIRECTION_BAND="$("$DIR/get_grib_band.sh" "$INPUT_FILE" "$DIRECTION_VARIABLE")"
+LENGTH_BAND="$("$DIR/get_wavewatch_band.sh" "$INPUT_FILE" "$LENGTH_VARIABLE")"
+DIRECTION_BAND="$("$DIR/get_wavewatch_band.sh" "$INPUT_FILE" "$DIRECTION_VARIABLE")"
 gdal_translate -b "$LENGTH_BAND" --config GRIB_NORMALIZE_UNITS NO "$INPUT_FILE" "$LENGTH_TMP_FILE1"
 gdal_translate -b "$DIRECTION_BAND" --config GRIB_NORMALIZE_UNITS NO "$INPUT_FILE" "$DIRECTION_TMP_FILE1"
 

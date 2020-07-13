@@ -21,8 +21,8 @@ LENGTH_TMP_FILE="$(mktemp).tif"
 MERGED_TMP_FILE="$(mktemp).vrt"
 
 # extract data
-BAND1="$("$DIR/get_grib_band.sh" "$INPUT_FILE" "$U_VARIABLE" "$LEVEL")"
-BAND2="$("$DIR/get_grib_band.sh" "$INPUT_FILE" "$V_VARIABLE" "$LEVEL")"
+BAND1="$("$DIR/get_gfs_band.sh" "$INPUT_FILE" "$U_VARIABLE" "$LEVEL")"
+BAND2="$("$DIR/get_gfs_band.sh" "$INPUT_FILE" "$V_VARIABLE" "$LEVEL")"
 gdal_translate -b "$BAND1" --config GRIB_NORMALIZE_UNITS NO "$INPUT_FILE" "$U_TMP_FILE1"
 gdal_translate -b "$BAND2" --config GRIB_NORMALIZE_UNITS NO "$INPUT_FILE" "$V_TMP_FILE1"
 

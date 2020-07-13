@@ -19,8 +19,8 @@ END_TMP_FILE2="$(mktemp).tif"
 DIFF_TMP_FILE="$(mktemp).tif"
 
 # extract data
-START_BAND="$("$DIR/get_grib_band.sh" "$START_INPUT_FILE" "$START_VARIABLE" "$LEVEL")"
-END_BAND="$("$DIR/get_grib_band.sh" "$END_INPUT_FILE" "$END_VARIABLE" "$LEVEL")"
+START_BAND="$("$DIR/get_gfs_band.sh" "$START_INPUT_FILE" "$START_VARIABLE" "$LEVEL")"
+END_BAND="$("$DIR/get_gfs_band.sh" "$END_INPUT_FILE" "$END_VARIABLE" "$LEVEL")"
 gdal_translate -b "$START_BAND" --config GRIB_NORMALIZE_UNITS NO "$START_INPUT_FILE" "$START_TMP_FILE1"
 gdal_translate -b "$END_BAND" --config GRIB_NORMALIZE_UNITS NO "$END_INPUT_FILE" "$END_TMP_FILE1"
 
