@@ -149,7 +149,7 @@ echo
 
 # TODO: date filter?
 echo "OSCAR"
-if [ "$TIME" -eq 0 -a "$FORECAST" -eq 0 ]; then
+if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
     OSCAR_FILE="$DIR/oscar/$DATE.nc"
     if [ ! -f "$OSCAR_FILE" ]; then
         "$DIR/download_oscar.sh" "$DATE" "$OSCAR_FILE" || true
@@ -169,7 +169,7 @@ fi
 echo
 
 echo "OSTIA"
-if [ "$TIME" -eq 0 -a "$FORECAST" -eq 0 ]; then
+if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
     OSTIA_SST_FILE="$DIR/ostia/$DATE.sst.nc"
     if [ ! -f "$OSTIA_SST_FILE" ]; then
         "$DIR/download_ostia_sst.sh" "$DATE" "$OSTIA_SST_FILE" || true
