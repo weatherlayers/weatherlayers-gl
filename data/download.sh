@@ -25,7 +25,7 @@ TIME="$((10#${2:-$(date "+%H")}))" # HH
 FORECAST="$((10#${3:-0}))"
 HEIGHT="0"
 
-DATETIME="$("$DIR/datetime_forecast.sh" "$DATE$TIME" "$FORECAST")" 
+DATETIME="$("$DIR/datetime_offset.sh" "$DATE$TIME" "$FORECAST")"
 YEAR="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%Y")"
 MONTH="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%m")"
 DAY="$("$DIR/date_format.sh" "${DATETIME:0:8}" "%d")"
@@ -170,20 +170,25 @@ echo
 
 echo "OSTIA"
 if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
-    OSTIA_SST_FILE="$DIR/ostia/$DATE.sst.nc"
+    DATETIME_OSTIA="$("$DIR/datetime_offset.sh" "$DATETIME" -24)"
+    DATE_OSTIA="$(${DATETIME_OSTIA:0:8})"
+    YEAR_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%Y")"
+    MONTH_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%m")"
+    DAY_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%d")"
+    OSTIA_SST_FILE="$DIR/ostia/$DATE_OSTIA.sst.nc"
     if [ ! -f "$OSTIA_SST_FILE" ]; then
-        "$DIR/download_ostia_sst.sh" "$DATE" "$OSTIA_SST_FILE" || true
+        "$DIR/download_ostia_sst.sh" "$DATE_OSTIA" "$OSTIA_SST_FILE" || true
     fi
 
     if [ -f "$OSTIA_SST_FILE" ]; then
         echo "OSTIA - analysed_sst"
-            mkdir -p "$DIR/ostia/analysed_sst/$HEIGHT/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_analysed_sst.sh" analysed_sst 270 304.65 "$OSTIA_SST_FILE" "$DIR/ostia/analysed_sst/$HEIGHT/$YEAR/$MONTH/$DAY/$DATE.png" || true
+            mkdir -p "$DIR/ostia/analysed_sst/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA"
+            "$DIR/convert_ostia_analysed_sst.sh" analysed_sst 270 304.65 "$OSTIA_SST_FILE" "$DIR/ostia/analysed_sst/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA/$DATE_OSTIA.png" || true
         echo
 
         echo "OSTIA - sea_ice_fraction"
-            mkdir -p "$DIR/ostia/sea_ice_fraction/$HEIGHT/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_sea_ice_fraction.sh" sea_ice_fraction 0 1 "$OSTIA_SST_FILE" "$DIR/ostia/sea_ice_fraction/$HEIGHT/$YEAR/$MONTH/$DAY/$DATE.png" || true
+            mkdir -p "$DIR/ostia/sea_ice_fraction/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA"
+            "$DIR/convert_ostia_sea_ice_fraction.sh" sea_ice_fraction 0 1 "$OSTIA_SST_FILE" "$DIR/ostia/sea_ice_fraction/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA/$DATE_OSTIA.png" || true
         echo
     else
         echo "ERROR: $OSTIA_SST_FILE file not found"
