@@ -171,7 +171,7 @@ echo
 echo "OSTIA"
 if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
     DATETIME_OSTIA="$("$DIR/datetime_offset.sh" "$DATETIME" -24)"
-    DATE_OSTIA="$(${DATETIME_OSTIA:0:8})"
+    DATE_OSTIA="${DATETIME_OSTIA:0:8}"
     YEAR_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%Y")"
     MONTH_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%m")"
     DAY_OSTIA="$("$DIR/date_format.sh" "$DATE_OSTIA" "%d")"
