@@ -201,8 +201,8 @@ if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
 
     if [ -f "$OSTIA_ANOM_FILE" ]; then
         echo "OSTIA - sst_anomaly"
-            mkdir -p "$DIR/ostia/sst_anomaly/$HEIGHT/$YEAR/$MONTH/$DAY"
-            "$DIR/convert_ostia_sst_anomaly.sh" sst_anomaly -11 11 "$OSTIA_ANOM_FILE" "$DIR/ostia/sst_anomaly/$HEIGHT/$YEAR/$MONTH/$DAY/$DATE.png" || true
+            mkdir -p "$DIR/ostia/sst_anomaly/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA"
+            "$DIR/convert_ostia_sst_anomaly.sh" sst_anomaly -11 11 "$OSTIA_ANOM_FILE" "$DIR/ostia/sst_anomaly/$HEIGHT/$YEAR_OSTIA/$MONTH_OSTIA/$DAY_OSTIA/$DATE_OSTIA.png" || true
         echo
     else
         echo "ERROR: $OSTIA_ANOM_FILE file not found"

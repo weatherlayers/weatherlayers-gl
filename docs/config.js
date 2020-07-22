@@ -1,11 +1,16 @@
 const basepath = '../data';
-const date = '20200712';
+const date = '20200717';
 const height = '0';
 const year = date.substr(0, 4);
 const month = date.substr(4, 2);
 const day = date.substr(6, 2);
-const time = '00';
+const time = '12';
 const datetime = `${date}${time}`;
+
+const dateOstia = moment(date).subtract(1, 'days').format('YYYYMMDD');
+const yearOstia = dateOstia.substr(0, 4);
+const monthOstia = dateOstia.substr(4, 2);
+const dayOstia = dateOstia.substr(6, 2);
 
 export const config = {
     overlay: {
@@ -102,19 +107,19 @@ const overlayLayerConfigs = new Map([
         legendTitle: 'Currents [m/s]',
     }],
     ['ostia/analysed_sst', {
-        imagePath: `${basepath}/ostia/analysed_sst/${height}/${year}/${month}/${day}/${date}.png`,
+        imagePath: `${basepath}/ostia/analysed_sst/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
         bounds: [270 - 273.15, 304.65 - 273.15],
         colorFunction: 'ostia/analysed_sst',
         legendTitle: 'Sea Surface Temperature [°C]',
     }],
     ['ostia/sst_anomaly', {
-        imagePath: `${basepath}/ostia/sst_anomaly/${height}/${year}/${month}/${day}/${date}.png`,
+        imagePath: `${basepath}/ostia/sst_anomaly/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
         bounds: [-11, 11],
         colorFunction: 'ostia/sst_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
     ['ostia/sea_ice_fraction', {
-        imagePath: `${basepath}/ostia/sea_ice_fraction/${height}/${year}/${month}/${day}/${date}.png`,
+        imagePath: `${basepath}/ostia/sea_ice_fraction/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
         bounds: [0, 100],
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
