@@ -194,9 +194,9 @@ if [ "$TIME" -eq 12 -a "$FORECAST" -eq 0 ]; then
         echo "ERROR: $OSTIA_SST_FILE file not found"
     fi
 
-    OSTIA_ANOM_FILE="$DIR/ostia/$DATE.anom.nc"
+    OSTIA_ANOM_FILE="$DIR/ostia/$DATE_OSTIA.anom.nc"
     if [ ! -f "$OSTIA_ANOM_FILE" ]; then
-        "$DIR/download_ostia_anom.sh" "$DATE" "$OSTIA_ANOM_FILE" || true
+        "$DIR/download_ostia_anom.sh" "$DATE_OSTIA" "$OSTIA_ANOM_FILE" || true
     fi
 
     if [ -f "$OSTIA_ANOM_FILE" ]; then
