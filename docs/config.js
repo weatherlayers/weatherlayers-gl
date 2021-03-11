@@ -16,7 +16,7 @@ export const config = {
     overlay: {
         imagePath: `${basepath}/gfs/wind/${height}/${year}/${month}/${day}/${datetime}.png`, // data packed into an image, R channel = value, A channel = mask
         bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
-        colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
+        colorFunction: WeatherGl.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
@@ -170,8 +170,8 @@ const particlesLayerConfigs = new Map([
 ]);
 
 const overlayColorFunctions = new Map([
-    ['gfs/wind', MaritraceMapboxWeather.Colors.µ.extendedSinebowColor],
-    ['gfs/tmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/wind', WeatherGl.Colors.µ.extendedSinebowColor],
+    ['gfs/tmp', WeatherGl.Colors.µ.segmentedColorScale([
         [(193 - 193) / (328 - 193),     [37, 4, 42]],
         [(206 - 193) / (328 - 193),     [41, 10, 130]],
         [(219 - 193) / (328 - 193),     [81, 40, 40]],
@@ -184,7 +184,7 @@ const overlayColorFunctions = new Map([
         [(311 - 193) / (328 - 193),     [230, 71, 39]],
         [(328 - 193) / (328 - 193),     [88, 27, 67]],
     ])],
-    ['gfs/rh', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/rh', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 100, [230, 165, 30]],
         [25 / 100, [120, 100, 95]],
         [60 / 100, [40, 44, 92]],
@@ -192,7 +192,7 @@ const overlayColorFunctions = new Map([
         [90 / 100, [75, 63, 235]],
         [100 / 100, [25, 255, 255]],
     ])],
-    ['gfs/apcp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/apcp', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 150, [37, 79, 92]],
         [2 / 150, [240, 248, 255]],
         [15 / 150, [51, 26, 155]],
@@ -200,7 +200,7 @@ const overlayColorFunctions = new Map([
         [100 / 150, [255, 215, 0]],
         [150 / 150, [255, 215, 0]],
     ])],
-    ['gfs/cape', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/cape', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 5000, [5, 48, 97]],        // weak
         [500 / 5000, [33, 102, 172]],   // weak
         [1000 / 5000, [67, 147, 195]],  // weak
@@ -213,7 +213,7 @@ const overlayColorFunctions = new Map([
         [4500 / 5000, [178, 24, 43]],   // extreme
         [5000 / 5000, [103, 0, 31]],    // extreme
     ])],
-    ['gfs/pwat', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/pwat', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 70, [230, 165, 30]],
         [10 / 70, [120, 100, 95]],
         [20 / 70, [40, 44, 92]],
@@ -222,12 +222,12 @@ const overlayColorFunctions = new Map([
         [60 / 70, [25, 255, 255]],
         [70 / 70, [150, 255, 255]],
     ])],
-    ['gfs/cwat', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/cwat', WeatherGl.Colors.µ.segmentedColorScale([
         [0.0, [5, 5, 89]],
         [0.2, [170, 170, 230]],
         [1.0, [255, 255, 255]],
     ])],
-    ['gfs/prmsl', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/prmsl', WeatherGl.Colors.µ.segmentedColorScale([
         [(92000 - 92000) / (105000 - 92000), [40, 0, 0]],
         [(95000 - 92000) / (105000 - 92000), [187, 60, 31]],
         [(96500 - 92000) / (105000 - 92000), [137, 32, 30]],
@@ -237,7 +237,7 @@ const overlayColorFunctions = new Map([
         [(103000 - 92000) / (105000 - 92000), [228, 246, 223]],
         [(105000 - 92000) / (105000 - 92000), [255, 255, 255]],
     ])],
-    ['gfs/aptmp', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['gfs/aptmp', WeatherGl.Colors.µ.segmentedColorScale([
         [(236 - 236) / (332 - 236), [255, 255, 255]],
         [(241 - 236) / (332 - 236), [255, 255, 255]], // -32 C, -25 F extreme frostbite
         [(245.5 - 236) / (332 - 236), [6, 82, 255]],
@@ -253,7 +253,7 @@ const overlayColorFunctions = new Map([
         [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
         [(332 - 236) / (332 - 236), [255, 255, 255]],
     ])],
-    ['oscar/currents', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['oscar/currents', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 1.5, [10, 25, 68]],
         [0.15 / 1.5, [10, 25, 250]],
         [0.4 / 1.5, [24, 255, 93]],
@@ -261,7 +261,7 @@ const overlayColorFunctions = new Map([
         [1.0 / 1.5, [255, 233, 15]],
         [1.5 / 1.5, [255, 15, 15]],
     ])],
-    ['ostia/analysed_sst', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['ostia/analysed_sst', WeatherGl.Colors.µ.segmentedColorScale([
         [(270 - 270) / (304.65 - 270), [255, 255, 255]],
         [(271.25 - 270) / (304.65 - 270), [255, 255, 255]], // -1.9 C sea water freeze
         [(271.30 - 270) / (304.65 - 270), [15, 4, 168]],
@@ -275,7 +275,7 @@ const overlayColorFunctions = new Map([
         [(303 - 270) / (304.65 - 270), [87, 17, 0]],
         [(304.65 - 270) / (304.65 - 270), [238, 0, 242]],
     ])],
-    ['ostia/sst_anomaly', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['ostia/sst_anomaly', WeatherGl.Colors.µ.segmentedColorScale([
         [(-11.0 - -11) / (11 - -11), [255, 255, 255]],
         [(-3 - -11) / (11 - -11), [7, 252, 254]],
         [(-1.5 - -11) / (11 - -11), [66, 42, 253]],
@@ -286,7 +286,7 @@ const overlayColorFunctions = new Map([
         [(3.0 - -11) / (11 - -11), [254, 252, 0]],
         [(11.0 - -11) / (11 - -11), [255, 255, 255]],
     ])],
-    ['ostia/sea_ice_fraction', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['ostia/sea_ice_fraction', WeatherGl.Colors.µ.segmentedColorScale([
         // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
         [0 / 100, [0, 0, 0]],
         [5 / 100, [3, 5, 18]],
@@ -307,11 +307,11 @@ const overlayColorFunctions = new Map([
         [80 / 100, [233, 251, 252]],
         [100 / 100, [255, 255, 255]],
     ])],
-    ['wavewatch/waves', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['wavewatch/waves', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 25, [0, 0, 0]],
         [25 / 25, [21, 255, 255]],
     ])],
-    ['wavewatch/htsgw', MaritraceMapboxWeather.Colors.µ.segmentedColorScale([
+    ['wavewatch/htsgw', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 15, [8, 29, 88]],
         [1 / 15, [37, 52, 148]],
         [2 / 15, [34, 94, 168]],

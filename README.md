@@ -1,4 +1,4 @@
-# maritrace-mapbox-weather
+# weather-gl
 
 <img src="docs/screenshot@2x.jpg" alt="Screenshot" width="720" height="360">
 
@@ -9,7 +9,7 @@ const config = {
     overlay: {
         imagePath: `${basepath}/gfs/wind/${date}${time}.f${forecast}.png`, // data packed into an image, R channel = value, A channel = mask
         bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
-        colorFunction: MaritraceMapboxWeather.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
+        colorFunction: WeatherGl.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
         legendTicksCount: 6,
@@ -29,12 +29,12 @@ const config = {
 };
 
 // preload the data image
-config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
-config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
+config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
 
-const overlayLayer = new MaritraceMapboxWeather.OverlayLayer(config.overlay);
-const particlesLayer = new MaritraceMapboxWeather.ParticlesLayer(config.particles);
-const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
+const overlayLayer = new WeatherGl.OverlayLayer(config.overlay);
+const particlesLayer = new WeatherGl.ParticlesLayer(config.particles);
+const legendControl = new WeatherGl.LegendControl(config.overlay);
 
 map.on('style.load', () => {
     map.addLayer(overlayLayer, 'waterway-label'); // beforeId='waterway-layer' allows to insert the overlay layer anywhere between existing layers

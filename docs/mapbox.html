@@ -2,13 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>maritrace-mapbox-weather</title>
+    <title>weather-gl</title>
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
-    <script src="../dist/maritrace-mapbox-weather.umd.min.js"></script>
+    <script src="../dist/weather-gl.umd.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -53,8 +53,8 @@ function round(value) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
-    config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
+    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -68,9 +68,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         antialias: true,
     });
 
-    const overlayLayer = new MaritraceMapboxWeather.OverlayLayer(config.overlay);
-    const particlesLayer = new MaritraceMapboxWeather.ParticlesLayer(config.particles);
-    const legendControl = new MaritraceMapboxWeather.LegendControl(config.overlay);
+    const overlayLayer = new WeatherGl.OverlayLayer(config.overlay);
+    const particlesLayer = new WeatherGl.ParticlesLayer(config.particles);
+    const legendControl = new WeatherGl.LegendControl(config.overlay);
     let initialized = false;
 
     const meta = {
@@ -78,8 +78,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         step: () => particlesLayer.step(),
     };
     async function update() {
-        config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
-        config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
+        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
 
         overlayLayer.update();
         particlesLayer.update();
@@ -107,12 +107,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const info2 = document.getElementById('info2');
     const updateInfo = () => {
         const center = map.getCenter();
-        const geographicCenter = MaritraceMapboxWeather.getGeographicPosition(center);
-        const mercatorCenter = MaritraceMapboxWeather.getMercatorPosition(center);
+        const geographicCenter = WeatherGl.getGeographicPosition(center);
+        const mercatorCenter = WeatherGl.getMercatorPosition(center);
         const matrix = map.transform.customLayerMatrix();
         const worldBounds = [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()];
-        const geographicWorldBounds = [MaritraceMapboxWeather.getGeographicPosition(worldBounds[0]), MaritraceMapboxWeather.getGeographicPosition(worldBounds[1])];
-        const mercatorWorldBounds = [MaritraceMapboxWeather.getMercatorPosition(worldBounds[0]), MaritraceMapboxWeather.getMercatorPosition(worldBounds[1])];
+        const geographicWorldBounds = [WeatherGl.getGeographicPosition(worldBounds[0]), WeatherGl.getGeographicPosition(worldBounds[1])];
+        const mercatorWorldBounds = [WeatherGl.getMercatorPosition(worldBounds[0]), WeatherGl.getMercatorPosition(worldBounds[1])];
 
         info1.innerHTML = `
             Center: ${round(center.lng)}, ${round(center.lat)}<br>
@@ -146,8 +146,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         map.on('mousemove', e => {
             const position = e.lngLat;
-            const geographicPosition = MaritraceMapboxWeather.getGeographicPosition(position);
-            const mercatorPosition = MaritraceMapboxWeather.getMercatorPosition(position);
+            const geographicPosition = WeatherGl.getGeographicPosition(position);
+            const mercatorPosition = WeatherGl.getMercatorPosition(position);
             const overlayValue = overlayLayer.getPositionValue(position);
             const particlesVector = particlesLayer.getPositionVector(position);
             const particlesBearing = particlesLayer.getPositionBearing(position);

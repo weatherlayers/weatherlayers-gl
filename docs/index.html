@@ -2,11 +2,11 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>maritrace-mapbox-weather</title>
+    <title>weather-gl</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
-    <script src="../dist/maritrace-mapbox-weather.umd.min.js"></script>
+    <script src="../dist/weather-gl.umd.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -27,8 +27,8 @@ import { config, initGui } from './config.js';
 config.overlay.opacity = 0.2;
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
-    config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
+    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
     
     const canvas = document.getElementById('canvas');
 
@@ -37,8 +37,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 
     const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
-    const overlayGl = MaritraceMapboxWeather.overlayGl(gl, config.overlay);
-    const particlesGl = MaritraceMapboxWeather.particlesGl(gl, config.particles);
+    const overlayGl = WeatherGl.overlayGl(gl, config.overlay);
+    const particlesGl = WeatherGl.particlesGl(gl, config.particles);
 
     let resizeObserver;
     function initResizeObserver() {
@@ -119,8 +119,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         canvas.width = canvas.parentElement.clientWidth * pixelRatio;
         canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 
-        config.overlay.image = await MaritraceMapboxWeather.loadImage(config.overlay.imagePath);
-        config.particles.image = await MaritraceMapboxWeather.loadImage(config.particles.imagePath);
+        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
+        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
 
         overlayGl.update();
         particlesGl.update();

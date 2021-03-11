@@ -1,10 +1,10 @@
 {
-  "name": "maritrace-mapbox-weather",
+  "name": "weather-gl",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/maritrace-mapbox-weather.cjs.js",
-  "module": "dist/maritrace-mapbox-weather.esm.js",
-  "browser": "dist/maritrace-mapbox-weather.umd.min.js",
+  "main": "dist/weather-gl.cjs.js",
+  "module": "dist/weather-gl.esm.js",
+  "browser": "dist/weather-gl.umd.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "http-server -s -c-1",

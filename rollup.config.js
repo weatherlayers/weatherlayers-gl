@@ -22,7 +22,7 @@ function bundle(format, filename, options = {}) {
     output: {
       file: filename,
       format: format,
-      name: 'MaritraceMapboxWeather',
+      name: 'WeatherGl',
       sourcemap: true,
       globals: {
         'mapboxgl': 'mapboxgl',
