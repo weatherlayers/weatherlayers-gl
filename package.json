@@ -7,8 +7,8 @@
   "browser": "dist/weather-gl.umd.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "http-server -s -c-1",
     "build": "rimraf dist && rollup -c",
+    "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jan Zak <zj@zakjan.cz>",
