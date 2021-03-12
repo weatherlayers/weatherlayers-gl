@@ -59,16 +59,4 @@ npm run build
 
 open http://localhost:8080/docs/
 
-reference visualization: https://earth.nullschool.net/#2020/07/17/1200Z/wind/surface/level/equirectangular
-
-## Backend dependencies
-
-- gdal >=3.1.1
-- curl
-- jq
-
-## Download data
-
-```
-data/download.sh 20200717 12 0
-```
+reference visualization: https://earth.nullschool.net/#2021/03/07/1200Z/wind/surface/level/equirectangular

@@ -1,20 +1,13 @@
-const basepath = '../data';
-const date = '20200717';
-const height = '0';
-const year = date.substr(0, 4);
-const month = date.substr(4, 2);
-const day = date.substr(6, 2);
+const basepath = 'data';
+const date = '20210307';
 const time = '12';
 const datetime = `${date}${time}`;
 
 const dateOstia = moment(date).subtract(1, 'days').format('YYYYMMDD');
-const yearOstia = dateOstia.substr(0, 4);
-const monthOstia = dateOstia.substr(4, 2);
-const dayOstia = dateOstia.substr(6, 2);
 
 export const config = {
     overlay: {
-        imagePath: `${basepath}/gfs/wind/${height}/${year}/${month}/${day}/${datetime}.png`, // data packed into an image, R channel = value, A channel = mask
+        imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, R channel = value, A channel = mask
         bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         colorFunction: WeatherGl.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
@@ -23,7 +16,7 @@ export const config = {
         legendWidth: 220,
     },
     particles: {
-        imagePath: `${basepath}/gfs/wind/${height}/${year}/${month}/${day}/${datetime}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
+        imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
         bounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         count: 5000,
         size: 2,
@@ -47,91 +40,91 @@ const meta = {
 
 const overlayLayerConfigs = new Map([
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/wind/${datetime}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
     }],
     ['gfs/tmp', {
-        imagePath: `${basepath}/gfs/tmp/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/tmp/${datetime}.png`,
         bounds: [193 - 273.15, 328 - 273.15],
         colorFunction: 'gfs/tmp',
         legendTitle: 'Temperature [°C]',
     }],
     ['gfs/rh', {
-        imagePath: `${basepath}/gfs/rh/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/rh/${datetime}.png`,
         bounds: [0, 100],
         colorFunction: 'gfs/rh',
         legendTitle: 'Relative Humidity [%]',
     }],
     ['gfs/apcp', {
-        imagePath: `${basepath}/gfs/apcp/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/apcp/${datetime}.png`,
         bounds: [0, 150],
         colorFunction: 'gfs/apcp',
         legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
     }],
     ['gfs/cape', {
-        imagePath: `${basepath}/gfs/cape/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/cape/${datetime}.png`,
         bounds: [0, 5000],
         colorFunction: 'gfs/cape',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
     ['gfs/pwat', {
-        imagePath: `${basepath}/gfs/pwat/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/pwat/${datetime}.png`,
         bounds: [0, 70],
         colorFunction: 'gfs/pwat',
         legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
     ['gfs/cwat', {
-        imagePath: `${basepath}/gfs/cwat/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/cwat/${datetime}.png`,
         bounds: [0, 1],
         colorFunction: 'gfs/cwat',
         legendTitle: 'Total Cloud Water [kg/m²]',
     }],
     ['gfs/prmsl', {
-        imagePath: `${basepath}/gfs/prmsl/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/prmsl/${datetime}.png`,
         bounds: [92000 / 100, 105000 / 100],
         colorFunction: 'gfs/prmsl',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
     }],
     ['gfs/aptmp', {
-        imagePath: `${basepath}/gfs/aptmp/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/aptmp/${datetime}.png`,
         bounds: [236 - 273.15, 332 - 273.15],
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
     }],
     ['oscar/currents', {
-        imagePath: `${basepath}/oscar/currents/${height}/${year}/${month}/${day}/${date}.png`,
+        imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [0, 1.5],
         colorFunction: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
     }],
     ['ostia/analysed_sst', {
-        imagePath: `${basepath}/ostia/analysed_sst/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/analysed_sst/${dateOstia}.png`,
         bounds: [270 - 273.15, 304.65 - 273.15],
         colorFunction: 'ostia/analysed_sst',
         legendTitle: 'Sea Surface Temperature [°C]',
     }],
     ['ostia/sst_anomaly', {
-        imagePath: `${basepath}/ostia/sst_anomaly/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/sst_anomaly/${dateOstia}.png`,
         bounds: [-11, 11],
         colorFunction: 'ostia/sst_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
     ['ostia/sea_ice_fraction', {
-        imagePath: `${basepath}/ostia/sea_ice_fraction/${height}/${yearOstia}/${monthOstia}/${dayOstia}/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/sea_ice_fraction/${dateOstia}.png`,
         bounds: [0, 100],
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
     }],
     ['wavewatch/waves', {
-        imagePath: `${basepath}/wavewatch/waves/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
         bounds: [0, 25],
         colorFunction: 'wavewatch/waves',
         legendTitle: 'Peak Wave Period [s]',
     }],
     ['wavewatch/htsgw', {
-        imagePath: `${basepath}/wavewatch/htsgw/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/wavewatch/htsgw/${datetime}.png`,
         bounds: [0, 15],
         colorFunction: 'wavewatch/htsgw',
         legendTitle: 'Significant Wave Height [m]',
@@ -144,7 +137,7 @@ const particlesLayerConfigs = new Map([
         count: 0,
     }],
     ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/gfs/wind/${datetime}.png`,
         bounds: [-128, 127],
         count: 5000,
         speedFactor: 33 / 100,
@@ -152,7 +145,7 @@ const particlesLayerConfigs = new Map([
         waves: false,
     }],
     ['oscar/currents', {
-        imagePath: `${basepath}/oscar/currents/${height}/${year}/${month}/${day}/${date}.png`,
+        imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [-1, 1],
         count: 5000,
         speedFactor: 33 / 7,
@@ -160,7 +153,7 @@ const particlesLayerConfigs = new Map([
         waves: false,
     }],
     ['wavewatch/waves', {
-        imagePath: `${basepath}/wavewatch/waves/${height}/${year}/${month}/${day}/${datetime}.png`,
+        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
         bounds: [-20, 20],
         count: 5000,
         speedFactor: 33 / 612,
