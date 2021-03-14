@@ -14,17 +14,28 @@ function hexToRgb(hex) {
     ];
 }
 
+export const staticConfig = {
+    overlay: {
+        legendWidth: 220,
+        legendTicksCount: 6,
+        legendValueFormat: null,
+    },
+    particles: {
+        waves: false, // wave particle shape
+    }
+};
+
 export const config = {
     overlay: {
+        ...staticConfig.overlay,
         imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, R channel = value, A channel = mask
         bounds: [0, 100], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         colorFunction: WeatherGl.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
         opacity: 0.1,
         legendTitle: 'Wind [m/s]',
-        legendTicksCount: 6,
-        legendWidth: 220,
     },
     particles: {
+        ...staticConfig.particles,
         imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
         bounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
         count: 5000,
@@ -33,7 +44,6 @@ export const config = {
         opacity: 0.25,
         speedFactor: 33 / 100, // how fast the particles move
         maxAge: 100, // fade particles during age in frames
-        waves: false, // wave particle shape
     },
 };
 
@@ -89,12 +99,14 @@ const overlayLayerConfigs = new Map([
         bounds: [0, 1],
         colorFunction: 'gfs/cwat',
         legendTitle: 'Total Cloud Water [kg/m²]',
+        legendValueDecimals: 1,
     }],
     ['gfs/prmsl', {
         imagePath: `${basepath}/gfs/prmsl/${datetime}.png`,
-        bounds: [92000 / 100, 105000 / 100],
+        bounds: [92000, 105000],
         colorFunction: 'gfs/prmsl',
-        legendTitle: 'Mean Sea Level Pressure [hPa]'
+        legendTitle: 'Mean Sea Level Pressure [hPa]',
+        legendValueFormat: value => value / 100,
     }],
     ['gfs/aptmp', {
         imagePath: `${basepath}/gfs/aptmp/${datetime}.png`,
@@ -119,6 +131,7 @@ const overlayLayerConfigs = new Map([
         bounds: [0, 1.5],
         colorFunction: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
+        legendValueDecimals: 1,
     }],
     ['ostia/analysed_sst', {
         imagePath: `${basepath}/ostia/analysed_sst/${dateOstia}.png`,
@@ -143,30 +156,35 @@ const overlayLayerConfigs = new Map([
         bounds: [0.0044e-6, 9.4e-6],
         colorFunction: 'ecmwf/co',
         legendTitle: 'CO [μg/m³]',
+        legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/so2', {
         imagePath: `${basepath}/ecmwf/so2/${dateEcmwf}.png`,
         bounds: [0.035e-9, 75e-9],
         colorFunction: 'ecmwf/so2',
         legendTitle: 'SO₂ [ppb]',
+        legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/no2', {
         imagePath: `${basepath}/ecmwf/no2/${dateEcmwf}.png`,
         bounds: [0.053e-9, 100e-9],
         colorFunction: 'ecmwf/no2',
         legendTitle: 'NO₂ [ppb]',
+        legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm2p5', {
         imagePath: `${basepath}/ecmwf/pm2p5/${dateEcmwf}.png`,
         bounds: [0.012e-9, 35.4e-9],
         colorFunction: 'ecmwf/pm2p5',
         legendTitle: 'PM2.5 [μg/m³]',
+        legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm10', {
         imagePath: `${basepath}/ecmwf/pm10/${dateEcmwf}.png`,
         bounds: [0.054e-9, 154e-9],
         colorFunction: 'ecmwf/pm10',
         legendTitle: 'PM10 [μg/m³]',
+        legendValueFormat: value => value * 1000000000,
     }],
 ]);
 
@@ -181,15 +199,6 @@ const particlesLayerConfigs = new Map([
         count: 5000,
         speedFactor: 33 / 100,
         maxAge: 100,
-        waves: false,
-    }],
-    ['oscar/currents', {
-        imagePath: `${basepath}/oscar/currents/${date}.png`,
-        bounds: [-1, 1],
-        count: 5000,
-        speedFactor: 33 / 7,
-        maxAge: 100,
-        waves: false,
     }],
     ['wavewatch/waves', {
         imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
@@ -198,6 +207,13 @@ const particlesLayerConfigs = new Map([
         speedFactor: 33 / 612,
         maxAge: 40,
         waves: true,
+    }],
+    ['oscar/currents', {
+        imagePath: `${basepath}/oscar/currents/${date}.png`,
+        bounds: [-1, 1],
+        count: 5000,
+        speedFactor: 33 / 7,
+        maxAge: 100,
     }],
 ]);
 
@@ -423,6 +439,9 @@ export function initGui(config, update) {
     const overlay = gui.addFolder('overlay');
     overlay.add(meta.overlay, 'layer', Array.from(overlayLayerConfigs.keys())).onChange(async () => {
         const overlayLayerConfig = overlayLayerConfigs.get(meta.overlay.layer);
+        Object.keys(staticConfig.overlay).forEach(key => {
+            config.overlay[key] = staticConfig.overlay[key];
+        });
         Object.keys(overlayLayerConfig).forEach(key => {
             config.overlay[key] = overlayLayerConfig[key];
         });
@@ -444,6 +463,9 @@ export function initGui(config, update) {
     const particles = gui.addFolder('particles');
     particles.add(meta.particles, 'layer', Array.from(particlesLayerConfigs.keys())).onChange(async () => {
         const particlesLayerConfig = particlesLayerConfigs.get(meta.particles.layer);
+        Object.keys(staticConfig.particles).forEach(key => {
+            config.particles[key] = staticConfig.particles[key];
+        });
         Object.keys(particlesLayerConfig).forEach(key => {
             config.particles[key] = particlesLayerConfig[key];
         });

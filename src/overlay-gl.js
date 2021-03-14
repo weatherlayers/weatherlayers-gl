@@ -14,9 +14,11 @@ import { hasValues } from './has-values.js';
  *      bounds: [number, number];
  *      colorFunction: (i: number) => (string | [number, number, number]);
  *      opacity: number;
+ *      legendWidth: number;
  *      legendTitle: string;
  *      legendTicksCount: number;
- *      legendWidth: number;
+ *      legendValueFormat?: (value: number) => number;
+ *      legendValueDecimals?: number;
  *      minZoom?: number;
  *      maxZoom?: number;
  * }} OverlayConfig

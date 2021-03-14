@@ -68,24 +68,25 @@ export class LegendControl {
         scale.appendChild(ticks);
 
         const delta = (this.config.bounds[1] - this.config.bounds[0]) / (this.config.legendTicksCount - 1);
-        const roundTicks = Math.round(this.config.bounds[1]) === this.config.bounds[1];
         for (let i = 0; i < this.config.legendTicksCount; i++) {
-            const x = this.config.bounds[0] + i * delta;
+            const value = this.config.bounds[0] + i * delta;
+            const formattedValue = this.config.legendValueFormat?.(value) ?? value;
+            const roundedFormattedValue = this.config.legendValueDecimals ? Math.round(formattedValue * 10 ** this.config.legendValueDecimals) / 10 ** this.config.legendValueDecimals : Math.round(formattedValue);
 
             const tick = /** @type SVGGElement */ (document.createElementNS(xmlns, 'g'));
-            tick.style.transform = `translate(${(x - this.config.bounds[0]) / (this.config.bounds[1] - this.config.bounds[0]) * this.config.legendWidth}px, 0)`;
+            tick.style.transform = `translate(${(value - this.config.bounds[0]) / (this.config.bounds[1] - this.config.bounds[0]) * this.config.legendWidth}px, 0)`;
             ticks.appendChild(tick);
 
-            const line = /** @type SVGLineElement */ (document.createElementNS(xmlns, 'line'));
-            line.setAttribute('y1', '0');
-            line.setAttribute('y2', '10');
-            line.style.stroke = 'currentColor';
-            tick.appendChild(line);
+            const tickLine = /** @type SVGLineElement */ (document.createElementNS(xmlns, 'line'));
+            tickLine.setAttribute('y1', '0');
+            tickLine.setAttribute('y2', '10');
+            tickLine.style.stroke = 'currentColor';
+            tick.appendChild(tickLine);
 
-            const value = /** @type SVGTextElement */ (document.createElementNS(xmlns, 'text'));
-            value.innerHTML = `${roundTicks ? Math.round(x) : Math.round(x * 10) / 10}`;
-            value.style.transform = 'translate(0, 22px)';
-            tick.appendChild(value);
+            const tickValue = /** @type SVGTextElement */ (document.createElementNS(xmlns, 'text'));
+            tickValue.innerHTML = `${roundedFormattedValue}`;
+            tickValue.style.transform = 'translate(0, 22px)';
+            tick.appendChild(tickValue);
         }
     }
 }
