@@ -94,7 +94,7 @@ const overlayLayerConfigs = new Map([
         imagePath: `${basepath}/gfs/prmsl/${datetime}.png`,
         bounds: [92000 / 100, 105000 / 100],
         colorFunction: 'gfs/prmsl',
-        legendTitle: 'Mean Sea Level Pressure [hPa]',
+        legendTitle: 'Mean Sea Level Pressure [hPa]'
     }],
     ['gfs/aptmp', {
         imagePath: `${basepath}/gfs/aptmp/${datetime}.png`,

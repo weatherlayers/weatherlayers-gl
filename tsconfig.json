@@ -5,7 +5,6 @@
     "lib": ["dom", "esnext"],
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
     "allowJs": true,
@@ -16,12 +15,6 @@
     "noUnusedParameters": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.js"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.test.js",
-    "node_modules"
+    "./src/**/*"
   ]
 }

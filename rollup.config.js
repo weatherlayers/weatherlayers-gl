@@ -7,15 +7,6 @@ import glslify from 'rollup-plugin-glslify';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 
-/** @typedef { import('rollup').RollupOptions } RollupOptions */
-/** @typedef { import('rollup').ModuleFormat } ModuleFormat */
-
-/**
- * @param {ModuleFormat} format
- * @param {string} filename
- * @param {{ resolve?: boolean, minimize?: boolean, stats?: boolean }} options
- * @return {RollupOptions}
- */
 function bundle(format, filename, options = {}) {
   return {
     input: 'src/index.js',
