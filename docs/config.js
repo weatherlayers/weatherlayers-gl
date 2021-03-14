@@ -4,6 +4,15 @@ const time = '12';
 const datetime = `${date}${time}`;
 
 const dateOstia = moment(date).subtract(1, 'days').format('YYYYMMDD');
+const dateEcmwf = moment(date).subtract(1, 'days').format('YYYYMMDD');
+
+function hexToRgb(hex) {
+    return [
+        parseInt(hex.substr(1, 2), 16),
+        parseInt(hex.substr(3, 2), 16),
+        parseInt(hex.substr(5, 2), 16)
+    ];
+}
 
 export const config = {
     overlay: {
@@ -93,6 +102,18 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
     }],
+    ['wavewatch/waves', {
+        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
+        bounds: [0, 25],
+        colorFunction: 'wavewatch/waves',
+        legendTitle: 'Peak Wave Period [s]',
+    }],
+    ['wavewatch/htsgw', {
+        imagePath: `${basepath}/wavewatch/htsgw/${datetime}.png`,
+        bounds: [0, 15],
+        colorFunction: 'wavewatch/htsgw',
+        legendTitle: 'Significant Wave Height [m]',
+    }],
     ['oscar/currents', {
         imagePath: `${basepath}/oscar/currents/${date}.png`,
         bounds: [0, 1.5],
@@ -117,17 +138,35 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
     }],
-    ['wavewatch/waves', {
-        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
-        bounds: [0, 25],
-        colorFunction: 'wavewatch/waves',
-        legendTitle: 'Peak Wave Period [s]',
+    ['ecmwf/co', {
+        imagePath: `${basepath}/ecmwf/co/${dateEcmwf}.png`,
+        bounds: [0.0044e-6, 9.4e-6],
+        colorFunction: 'ecmwf/co',
+        legendTitle: 'CO [μg/m³]',
     }],
-    ['wavewatch/htsgw', {
-        imagePath: `${basepath}/wavewatch/htsgw/${datetime}.png`,
-        bounds: [0, 15],
-        colorFunction: 'wavewatch/htsgw',
-        legendTitle: 'Significant Wave Height [m]',
+    ['ecmwf/so2', {
+        imagePath: `${basepath}/ecmwf/so2/${dateEcmwf}.png`,
+        bounds: [0.035e-9, 75e-9],
+        colorFunction: 'ecmwf/so2',
+        legendTitle: 'SO₂ [ppb]',
+    }],
+    ['ecmwf/no2', {
+        imagePath: `${basepath}/ecmwf/no2/${dateEcmwf}.png`,
+        bounds: [0.053e-9, 100e-9],
+        colorFunction: 'ecmwf/no2',
+        legendTitle: 'NO₂ [ppb]',
+    }],
+    ['ecmwf/pm2p5', {
+        imagePath: `${basepath}/ecmwf/pm2p5/${dateEcmwf}.png`,
+        bounds: [0.012e-9, 35.4e-9],
+        colorFunction: 'ecmwf/pm2p5',
+        legendTitle: 'PM2.5 [μg/m³]',
+    }],
+    ['ecmwf/pm10', {
+        imagePath: `${basepath}/ecmwf/pm10/${dateEcmwf}.png`,
+        bounds: [0.054e-9, 154e-9],
+        colorFunction: 'ecmwf/pm10',
+        legendTitle: 'PM10 [μg/m³]',
     }],
 ]);
 
@@ -246,6 +285,25 @@ const overlayColorFunctions = new Map([
         [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
         [(332 - 236) / (332 - 236), [255, 255, 255]],
     ])],
+    ['wavewatch/waves', WeatherGl.Colors.µ.segmentedColorScale([
+        [0 / 25, [0, 0, 0]],
+        [25 / 25, [21, 255, 255]],
+    ])],
+    ['wavewatch/htsgw', WeatherGl.Colors.µ.segmentedColorScale([
+        [0 / 15, [8, 29, 88]],
+        [1 / 15, [37, 52, 148]],
+        [2 / 15, [34, 94, 168]],
+        [3 / 15, [29, 145, 192]],
+        [4 / 15, [65, 182, 196]],
+        [5 / 15, [127, 205, 187]],
+        [6 / 15, [199, 233, 180]],
+        [7 / 15, [237, 248, 177]],
+        [8 / 15, [254, 204, 92]],
+        [10 / 15, [253, 141, 60]],
+        [12 / 15, [240, 59, 32]],
+        [14 / 15, [189, 0, 38]],
+        [15 / 15, [189, 0, 38]],
+    ])],
     ['oscar/currents', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 1.5, [10, 25, 68]],
         [0.15 / 1.5, [10, 25, 250]],
@@ -300,24 +358,35 @@ const overlayColorFunctions = new Map([
         [80 / 100, [233, 251, 252]],
         [100 / 100, [255, 255, 255]],
     ])],
-    ['wavewatch/waves', WeatherGl.Colors.µ.segmentedColorScale([
-        [0 / 25, [0, 0, 0]],
-        [25 / 25, [21, 255, 255]],
+    ['ecmwf/co', WeatherGl.Colors.µ.segmentedColorScale([
+        [0.0044e-6 / 9.4e-6, hexToRgb('#000000')], // opacity 0
+        [0.44e-6 / 9.4e-6, hexToRgb('#c6bc73')],
+        [4.4e-6 / 9.4e-6, hexToRgb('#e4672a')],
+        [9.4e-6 / 9.4e-6, hexToRgb('#4b0c00')],
     ])],
-    ['wavewatch/htsgw', WeatherGl.Colors.µ.segmentedColorScale([
-        [0 / 15, [8, 29, 88]],
-        [1 / 15, [37, 52, 148]],
-        [2 / 15, [34, 94, 168]],
-        [3 / 15, [29, 145, 192]],
-        [4 / 15, [65, 182, 196]],
-        [5 / 15, [127, 205, 187]],
-        [6 / 15, [199, 233, 180]],
-        [7 / 15, [237, 248, 177]],
-        [8 / 15, [254, 204, 92]],
-        [10 / 15, [253, 141, 60]],
-        [12 / 15, [240, 59, 32]],
-        [14 / 15, [189, 0, 38]],
-        [15 / 15, [189, 0, 38]],
+    ['ecmwf/so2', WeatherGl.Colors.µ.segmentedColorScale([
+        [0.035e-9 / 75e-9, hexToRgb('#000000')], // opacity 0
+        [3.5e-9 / 75e-9, hexToRgb('#c6bc73')],
+        [35e-9 / 75e-9, hexToRgb('#e4672a')],
+        [75e-9 / 75e-9, hexToRgb('#4b0c00')],
+    ])],
+    ['ecmwf/no2', WeatherGl.Colors.µ.segmentedColorScale([
+        [0.053e-9 / 100e-9, hexToRgb('#000000')], // opacity 0
+        [5.3e-9 / 100e-9, hexToRgb('#c6bc73')],
+        [53e-9 / 100e-9, hexToRgb('#e4672a')],
+        [100e-9 / 100e-9, hexToRgb('#4b0c00')],
+    ])],
+    ['ecmwf/pm2p5', WeatherGl.Colors.µ.segmentedColorScale([
+        [0.012e-9 / 35.4e-9, hexToRgb('#000000')], // opacity 0
+        [1.2e-9 / 35.4e-9, hexToRgb('#c6bc73')],
+        [12e-9 / 35.4e-9, hexToRgb('#e4672a')],
+        [35.4e-9 / 35.4e-9, hexToRgb('#4b0c00')],
+    ])],
+    ['ecmwf/pm10', WeatherGl.Colors.µ.segmentedColorScale([
+        [0.054e-9 / 154e-9, hexToRgb('#000000')], // opacity 0
+        [5.4e-9 / 154e-9, hexToRgb('#c6bc73')],
+        [54e-9 / 154e-9, hexToRgb('#e4672a')],
+        [154e-9 / 154e-9, hexToRgb('#4b0c00')],
     ])],
     // https://github.com/d3/d3-scale-chromatic
     // Sequential
