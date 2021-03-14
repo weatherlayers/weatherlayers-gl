@@ -32,6 +32,8 @@ import { hasValues } from './has-values.js';
  * @param {ParticlesConfig} config
  */
 export function particlesGl(gl, config) {
+    gl.getExtension('OES_texture_float');
+
     const updateProgram = createUpdateProgram(gl);
     const fadeProgram = createFadeProgram(gl);
     const particlesProgram = createParticlesProgram(gl);
@@ -80,7 +82,7 @@ export function particlesGl(gl, config) {
         }
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
-        const particlesState = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
+        const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
         particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
         particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
 
@@ -146,12 +148,12 @@ export function particlesGl(gl, config) {
         frameNumber = (frameNumber + 1) % (config.maxAge + 2); // +2 because only non-randomized pairs are rendered
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
-        // const state = new Uint8Array(particlesStateResolution * particlesStateResolution * 4);
-        // gl.readPixels(0, 0, particlesStateResolution, particlesStateResolution, gl.RGBA, gl.UNSIGNED_BYTE, state);
+        // const state = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
+        // gl.readPixels(0, 0, particlesStateResolution, particlesStateResolution, gl.RGBA, gl.FLOAT, state);
         // const positions = new Array(particlesStateResolution * particlesStateResolution).fill(undefined).map((_, i) => {
         //     return [
-        //         state[i * 4] / 255 / 255 + state[i * 4 + 2] / 255,
-        //         state[i * 4 + 1] / 255 / 255 + state[i * 4 + 3] / 255
+        //         state[i * 4],
+        //         state[i * 4 + 1]
         //     ];
         // }).flat();
         // console.log(positions);
