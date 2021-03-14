@@ -1,3 +1,4 @@
+import { getMercatorPosition } from './get-mercator-position.js';
 import { texture2DBilinear } from "./texture-2d-bilinear.js";
 
 /**
@@ -6,10 +7,13 @@ import { texture2DBilinear } from "./texture-2d-bilinear.js";
  * @return {[number, number, number, number]}
  */
 export function getPositionValues(ctx, position) {
-    /** @type [number, number] */
-    const wrappedPosition = [(position[0] + 1) % 1, position[1]];
+    // project from world position to texture position
+    const texturePosition = getMercatorPosition(position);
 
-    const values = texture2DBilinear(ctx, wrappedPosition);
+    /** @type [number, number] */
+    const wrappedTexturePosition = [(texturePosition[0] + 1) % 1, texturePosition[1]];
+
+    const values = texture2DBilinear(ctx, wrappedTexturePosition);
 
     return values;
 }
