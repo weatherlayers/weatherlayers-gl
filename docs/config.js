@@ -1,5 +1,5 @@
 const basepath = 'data';
-const date = '20210307';
+const date = '20210323';
 const time = '12';
 const datetime = `${date}${time}`;
 
@@ -114,16 +114,16 @@ const overlayLayerConfigs = new Map([
         colorFunction: 'gfs/aptmp',
         legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
     }],
-    ['wavewatch/waves', {
-        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
+    ['gfswave/waves', {
+        imagePath: `${basepath}/gfswave/waves/${datetime}.png`,
         bounds: [0, 25],
-        colorFunction: 'wavewatch/waves',
+        colorFunction: 'gfswave/waves',
         legendTitle: 'Peak Wave Period [s]',
     }],
-    ['wavewatch/htsgw', {
-        imagePath: `${basepath}/wavewatch/htsgw/${datetime}.png`,
+    ['gfswave/htsgw', {
+        imagePath: `${basepath}/gfswave/htsgw/${datetime}.png`,
         bounds: [0, 15],
-        colorFunction: 'wavewatch/htsgw',
+        colorFunction: 'gfswave/htsgw',
         legendTitle: 'Significant Wave Height [m]',
     }],
     ['oscar/currents', {
@@ -200,8 +200,8 @@ const particlesLayerConfigs = new Map([
         speedFactor: 33 / 100,
         maxAge: 100,
     }],
-    ['wavewatch/waves', {
-        imagePath: `${basepath}/wavewatch/waves/${datetime}.png`,
+    ['gfswave/waves', {
+        imagePath: `${basepath}/gfswave/waves/${datetime}.png`,
         bounds: [-20, 20],
         count: 5000,
         speedFactor: 33 / 612,
@@ -301,11 +301,11 @@ const overlayColorFunctions = new Map([
         [(327 - 236) / (332 - 236), [255, 255, 255]], // 54 C, 130 F extreme danger
         [(332 - 236) / (332 - 236), [255, 255, 255]],
     ])],
-    ['wavewatch/waves', WeatherGl.Colors.µ.segmentedColorScale([
+    ['gfswave/waves', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 25, [0, 0, 0]],
         [25 / 25, [21, 255, 255]],
     ])],
-    ['wavewatch/htsgw', WeatherGl.Colors.µ.segmentedColorScale([
+    ['gfswave/htsgw', WeatherGl.Colors.µ.segmentedColorScale([
         [0 / 15, [8, 29, 88]],
         [1 / 15, [37, 52, 148]],
         [2 / 15, [34, 94, 168]],
