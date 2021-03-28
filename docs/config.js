@@ -3,9 +3,6 @@ const date = '20210323';
 const time = '12';
 const datetime = `${date}${time}`;
 
-const dateOstia = moment(date).subtract(1, 'days').format('YYYYMMDD');
-const dateEcmwf = moment(date).subtract(1, 'days').format('YYYYMMDD');
-
 function hexToRgb(hex) {
     return [
         parseInt(hex.substr(1, 2), 16),
@@ -134,53 +131,53 @@ const overlayLayerConfigs = new Map([
         legendValueDecimals: 1,
     }],
     ['ostia/analysed_sst', {
-        imagePath: `${basepath}/ostia/analysed_sst/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/analysed_sst/${date}.png`,
         bounds: [270 - 273.15, 304.65 - 273.15],
         colorFunction: 'ostia/analysed_sst',
         legendTitle: 'Sea Surface Temperature [°C]',
     }],
     ['ostia/sst_anomaly', {
-        imagePath: `${basepath}/ostia/sst_anomaly/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/sst_anomaly/${date}.png`,
         bounds: [-11, 11],
         colorFunction: 'ostia/sst_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
     ['ostia/sea_ice_fraction', {
-        imagePath: `${basepath}/ostia/sea_ice_fraction/${dateOstia}.png`,
+        imagePath: `${basepath}/ostia/sea_ice_fraction/${date}.png`,
         bounds: [0, 100],
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
     }],
     ['ecmwf/co', {
-        imagePath: `${basepath}/ecmwf/co/${dateEcmwf}.png`,
+        imagePath: `${basepath}/ecmwf/co/${datetime}.png`,
         bounds: [0.0044e-6, 9.4e-6],
         colorFunction: 'ecmwf/co',
         legendTitle: 'CO [μg/m³]',
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/so2', {
-        imagePath: `${basepath}/ecmwf/so2/${dateEcmwf}.png`,
+        imagePath: `${basepath}/ecmwf/so2/${datetime}.png`,
         bounds: [0.035e-9, 75e-9],
         colorFunction: 'ecmwf/so2',
         legendTitle: 'SO₂ [ppb]',
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/no2', {
-        imagePath: `${basepath}/ecmwf/no2/${dateEcmwf}.png`,
+        imagePath: `${basepath}/ecmwf/no2/${datetime}.png`,
         bounds: [0.053e-9, 100e-9],
         colorFunction: 'ecmwf/no2',
         legendTitle: 'NO₂ [ppb]',
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm2p5', {
-        imagePath: `${basepath}/ecmwf/pm2p5/${dateEcmwf}.png`,
+        imagePath: `${basepath}/ecmwf/pm2p5/${datetime}.png`,
         bounds: [0.012e-9, 35.4e-9],
         colorFunction: 'ecmwf/pm2p5',
         legendTitle: 'PM2.5 [μg/m³]',
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm10', {
-        imagePath: `${basepath}/ecmwf/pm10/${dateEcmwf}.png`,
+        imagePath: `${basepath}/ecmwf/pm10/${datetime}.png`,
         bounds: [0.054e-9, 154e-9],
         colorFunction: 'ecmwf/pm10',
         legendTitle: 'PM10 [μg/m³]',
