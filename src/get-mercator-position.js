@@ -1,3 +1,5 @@
+/** @typedef {import('mapbox-gl')} mapboxgl */
+
 // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/geo/mercator_coordinate.js
 
 /**
@@ -17,12 +19,12 @@ export function mercatorYfromLat(lat) {
 }
 
 /**
- * @param {[number, number]} position
+ * @param {mapboxgl.LngLat} lngLat
  * @return {[number, number]}
  */
-export function getMercatorPosition(position) {
+export function getMercatorPosition(lngLat) {
     return [
-        mercatorXfromLng(position[0]),
-        mercatorYfromLat(position[1]),
+        mercatorXfromLng(lngLat.lng),
+        mercatorYfromLat(lngLat.lat),
     ];
 }

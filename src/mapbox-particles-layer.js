@@ -1,5 +1,6 @@
 import { particlesGl } from './particles-gl.js';
 import { getMercatorBounds } from './get-mercator-bounds.js';
+import { getGeographicPosition } from './get-geographic-position.js';
 
 /** @typedef {import('mapbox-gl')} mapboxgl */
 /** @typedef {import('./particles-gl.js').ParticlesConfig} ParticlesConfig */
@@ -124,7 +125,7 @@ export class ParticlesLayer {
 
             if (this.enabled && !this.mapMoving) {
                 const matrix = this.map.transform.customLayerMatrix();
-                const bounds = getMercatorBounds(this.map.getBounds().toArray());
+                const bounds = getMercatorBounds(this.map.getBounds());
                 const zoom = this.map.getZoom();
 
                 this.renderer.prerender(matrix, bounds, zoom);
@@ -196,7 +197,8 @@ export class ParticlesLayer {
             return;
         }
 
-        const vector = this.renderer.getPositionVector(lngLat.toArray());
+        const geographicPosition = getGeographicPosition(lngLat);
+        const vector = this.renderer.getPositionVector(geographicPosition);
 
         return vector;
     }
@@ -210,7 +212,8 @@ export class ParticlesLayer {
             return;
         }
 
-        const bearing = this.renderer.getPositionBearing(lngLat.toArray());
+        const geographicPosition = getGeographicPosition(lngLat);
+        const bearing = this.renderer.getPositionBearing(geographicPosition);
 
         return bearing;
     }

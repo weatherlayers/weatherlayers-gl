@@ -1,10 +1,16 @@
 import { getMercatorPosition } from './get-mercator-position.js';
 
+/** @typedef {import('mapbox-gl')} mapboxgl */
+
 /**
- * @param {[[number, number], [number, number]]} bounds
+ * @param {mapboxgl.LngLatBounds} mapboxBounds
  * @return {[[number, number], [number, number]]}
  */
-export function getMercatorBounds(bounds) {
+export function getMercatorBounds(mapboxBounds) {
+    const bounds = [
+        mapboxBounds.getNorthWest(),
+        mapboxBounds.getSouthEast(),
+    ];
     const mercatorBounds = [
         getMercatorPosition(bounds[0]),
         getMercatorPosition(bounds[1]),

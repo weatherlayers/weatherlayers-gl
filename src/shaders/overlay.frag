@@ -4,6 +4,7 @@ precision highp float;
 
 #pragma glslify: _if = require('./_if')
 #pragma glslify: transform = require('./_transform')
+#pragma glslify: mercatorToWGS84 = require('./_mercator-to-wgs84')
 #pragma glslify: getPositionValues = require('./_get-position-values')
 #pragma glslify: hasValues = require('./_has-values')
 
@@ -15,9 +16,8 @@ uniform float uOverlayOpacity;
 varying vec2 vTexCoord;
 
 void main() {
-    vec2 worldPosition = vTexCoord;
-
-    vec4 values = getPositionValues(sSource, uSourceResolution, worldPosition);
+    vec2 geographicPosition = mercatorToWGS84(vTexCoord);
+    vec4 values = getPositionValues(sSource, uSourceResolution, geographicPosition);
 
     vec4 color = texture2D(sOverlayColorRamp, vec2(values.x, 0.0));
     color = vec4(color.rgb, uOverlayOpacity);
