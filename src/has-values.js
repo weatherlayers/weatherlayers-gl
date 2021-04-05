@@ -3,5 +3,5 @@
  * @return {boolean}
  */
 export function hasValues(values) {
-    return values[3] === 255;
+    return !isNaN(values[0]);
 }

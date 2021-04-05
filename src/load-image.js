@@ -10,11 +10,11 @@
 
 /**
  * @param {string} imagePath
- * @param {[number, number]} bounds
- * @param {boolean} vector
+ * @param {[number, number]} imageBounds
+ * @param {{ vector?: boolean; vectorToScalar?: boolean }} [options]
  * @return {Promise<{ data: Float32Array, width: number, height: number, numDimensions: number } | undefined>}
  */
-export async function loadImage(imagePath, bounds, vector) {
+export async function loadImage(imagePath, imageBounds, options = {}) {
     if (!imagePath) {
         return;
     }
@@ -23,19 +23,37 @@ export async function loadImage(imagePath, bounds, vector) {
     image.src = imagePath;
     await image.decode();
 
+    const width = image.width;
+    const height = image.height;
+    const numPixels = width * height;
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    ctx.canvas.width = image.width;
-    ctx.canvas.height = image.height;
-    ctx.drawImage(image, 0, 0, image.width, image.height);
-    const imageData = ctx.getImageData(0, 0, image.width, image.height);
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+    ctx.drawImage(image, 0, 0, width, height);
+    const imageData = ctx.getImageData(0, 0, width, height);
 
-    const data = {
-        data: new Float32Array(Array.from(imageData.data).map((x, i) => i % 4 < 3 ? mix(bounds[0], bounds[1], x / 255) : x)),
-        width: imageData.width,
-        height: imageData.height,
-        numDimensions: 4
-    };
+    const numDimensions = options.vector && !options.vectorToScalar ? 2 : 1;
+    const data = new Float32Array(width * height * numDimensions);
+    for (let i = 0; i < numPixels; i++) {
+        const a = imageData.data[i * 4 + 3];
+        const u = a === 255 ? mix(imageBounds[0], imageBounds[1], imageData.data[i * 4] / 255) : NaN;
+        const v = a === 255 ? mix(imageBounds[0], imageBounds[1], imageData.data[i * 4 + 1] / 255) : NaN;
 
-    return data;
+        if (options.vector) {
+            if (options.vectorToScalar) {
+                const scalar = Math.sqrt(u * u + v * v);
+                data[i * numDimensions] = scalar;
+            } else {
+                data[i * numDimensions] = u;
+                data[i * numDimensions + 1] = v;
+            }
+        } else {
+            data[i * numDimensions] = u;
+        }
+    }
+
+    const wrapper = { data, width, height, numDimensions };
+    return wrapper;
 }

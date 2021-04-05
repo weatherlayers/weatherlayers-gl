@@ -39,7 +39,7 @@ void main() {
     // update position, take into account WGS84 distortion
     vec2 geographicPosition = mercatorToWGS84(worldPosition);
     vec4 values = getPositionValues(sSource, uSourceResolution, geographicPosition);
-    vec2 speed = values.yz;
+    vec2 speed = values.ra;
     float distortion = cos(radians(worldPosition.y * 180.0 - 90.0)); 
     vec2 distortedSpeed = vec2(speed.x / distortion, -speed.y);
     vec2 offset = distortedSpeed * uSpeedFactor * 0.0001;

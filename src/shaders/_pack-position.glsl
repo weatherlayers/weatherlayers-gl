@@ -1,6 +1,6 @@
 vec4 packPosition(vec2 position) {
     // float texture
-    return vec4(position, 0, 0);
+    return vec4(position.x, 0, 0, position.y);
 
     // return vec4(
     //     fract(position * 255.0),

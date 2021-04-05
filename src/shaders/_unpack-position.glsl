@@ -1,6 +1,6 @@
 vec2 unpackPosition(vec4 packedPosition) {
     // float texture
-    return packedPosition.xy;
+    return packedPosition.ra;
 
     // return vec2(
     //     packedPosition.r / 255.0 + packedPosition.b,

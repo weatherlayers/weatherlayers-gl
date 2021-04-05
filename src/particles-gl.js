@@ -79,12 +79,12 @@ export function particlesGl(gl, config) {
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
-        particlesStateTexture0 = createTexture(gl, particlesState, gl.NEAREST, particlesStateResolution, particlesStateResolution);
-        particlesStateTexture1 = createTexture(gl, particlesState, gl.NEAREST, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture0 = createTexture(gl, gl.RGBA, gl.FLOAT, gl.NEAREST, particlesState, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture1 = createTexture(gl, gl.RGBA, gl.FLOAT, gl.NEAREST, particlesState, particlesStateResolution, particlesStateResolution);
 
         const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-        particlesScreenTexture0 = createTexture(gl, emptyTexture, gl.NEAREST, gl.canvas.width, gl.canvas.height);
-        particlesScreenTexture1 = createTexture(gl, emptyTexture, gl.NEAREST, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture0 = createTexture(gl, gl.RGBA, gl.UNSIGNED_BYTE, gl.NEAREST, emptyTexture, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture1 = createTexture(gl, gl.RGBA, gl.UNSIGNED_BYTE, gl.NEAREST, emptyTexture, gl.canvas.width, gl.canvas.height);
     }
     function update() {
         if (!(config.image && config.count > 0)) {
@@ -107,7 +107,7 @@ export function particlesGl(gl, config) {
 
         pixelRatio = window.devicePixelRatio || 1;
 
-        sourceTexture = createTexture(gl, config.image.data, gl.LINEAR, config.image.width, config.image.height);
+        sourceTexture = createTexture(gl, gl.LUMINANCE_ALPHA, gl.FLOAT, gl.LINEAR, config.image.data, config.image.width, config.image.height);
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
 
@@ -213,8 +213,8 @@ export function particlesGl(gl, config) {
 
         /** @type [number, number] */
         const vector = [
+            values[0],
             values[1],
-            values[2],
         ];
 
         return vector;

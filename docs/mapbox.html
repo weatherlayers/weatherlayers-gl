@@ -53,8 +53,8 @@ function round(value) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
-    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
+    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -79,8 +79,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         step: () => particlesLayer.step(),
     };
     async function update() {
-        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
-        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
+        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
 
         overlayLayer.update();
         particlesLayer.update();

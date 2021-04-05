@@ -67,14 +67,15 @@ export class LegendControl {
         ticks.style.textAnchor = 'middle';
         scale.appendChild(ticks);
 
-        const delta = (this.config.bounds[1] - this.config.bounds[0]) / (this.config.legendTicksCount - 1);
+        const bounds = this.config.colorBounds;
+        const delta = (bounds[1] - bounds[0]) / (this.config.legendTicksCount - 1);
         for (let i = 0; i < this.config.legendTicksCount; i++) {
-            const value = this.config.bounds[0] + i * delta;
+            const value = bounds[0] + i * delta;
             const formattedValue = this.config.legendValueFormat?.(value) ?? value;
             const roundedFormattedValue = this.config.legendValueDecimals ? Math.round(formattedValue * 10 ** this.config.legendValueDecimals) / 10 ** this.config.legendValueDecimals : Math.round(formattedValue);
 
             const tick = /** @type SVGGElement */ (document.createElementNS(xmlns, 'g'));
-            tick.style.transform = `translate(${(value - this.config.bounds[0]) / (this.config.bounds[1] - this.config.bounds[0]) * this.config.legendWidth}px, 0)`;
+            tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * this.config.legendWidth}px, 0)`;
             ticks.appendChild(tick);
 
             const tickLine = /** @type SVGLineElement */ (document.createElementNS(xmlns, 'line'));

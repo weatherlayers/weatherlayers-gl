@@ -1,5 +1,5 @@
 import { createBuffer, createTexture } from './webgl-common.js';
-import { colorRampCanvas } from './color-ramp.js';
+import { colorRampArray } from './color-ramp.js';
 import { createOverlayProgram, drawOverlay } from './shaders/overlay.js';
 import { getPositionValues } from './get-position-values.js';
 import { hasValues } from './has-values.js';
@@ -10,7 +10,7 @@ import { hasValues } from './has-values.js';
 /**
  * @typedef {{
  *      image: { data: Float32Array, width: number, height: number, numDimensions: number };
- *      bounds: [number, number];
+ *      colorBounds: [number, number];
  *      colorFunction: (i: number) => (string | [number, number, number]);
  *      opacity: number;
  *      legendWidth: number;
@@ -39,7 +39,7 @@ export function overlayGl(gl, config) {
     let sourceTexture;
 
     /** @type WebGLTextureWrapper */
-    let overlayColorRampTexture;
+    let colorRampTexture;
 
     function update() {
         if (!config.image) {
@@ -49,15 +49,16 @@ export function overlayGl(gl, config) {
 
         if (initialized) {
             gl.deleteTexture(sourceTexture.texture);
-            gl.deleteTexture(overlayColorRampTexture.texture);
+            gl.deleteTexture(colorRampTexture.texture);
 
             initialized = false;
         }
 
-        sourceTexture = createTexture(gl, config.image.data, gl.LINEAR, config.image.width, config.image.height);
+        sourceTexture = createTexture(gl, gl.LUMINANCE, gl.FLOAT, gl.LINEAR, config.image.data, config.image.width, config.image.height);
 
-        const overlayColorRampCanvas = colorRampCanvas(config.colorFunction);
-        overlayColorRampTexture = createTexture(gl, overlayColorRampCanvas, gl.LINEAR, overlayColorRampCanvas.width, overlayColorRampCanvas.height);
+        const colorRampWidth = 256;
+        const colorRamp = colorRampArray(config.colorFunction, colorRampWidth);
+        colorRampTexture = createTexture(gl, gl.RGBA, gl.UNSIGNED_BYTE, gl.LINEAR, colorRamp, colorRampWidth, 1);
 
         initialized = true;
     }
@@ -85,7 +86,7 @@ export function overlayGl(gl, config) {
             [worldBounds[1][0], worldBounds[0][1]], // [1, 0]
             [worldBounds[1][0], worldBounds[1][1]], // [1, 1]
         ]);
-        drawOverlay(gl, overlayProgram, overlayBuffer, sourceTexture, config.bounds, overlayColorRampTexture, config.opacity, matrix);
+        drawOverlay(gl, overlayProgram, overlayBuffer, sourceTexture, config.colorBounds, colorRampTexture, config.opacity, matrix);
         gl.deleteBuffer(overlayBuffer.buffer);
 
         if (!blendEnabled) {
@@ -97,7 +98,7 @@ export function overlayGl(gl, config) {
         gl.deleteProgram(overlayProgram.program);
 
         gl.deleteTexture(sourceTexture.texture);
-        gl.deleteTexture(overlayColorRampTexture.texture);
+        gl.deleteTexture(colorRampTexture.texture);
     }
 
     /**
