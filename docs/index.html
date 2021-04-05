@@ -26,8 +26,8 @@ import { config, initGui } from './config.js';
 config.overlay.opacity = 0.2;
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
-    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
+    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
+    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
     
     const canvas = document.getElementById('canvas');
 
@@ -118,8 +118,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         canvas.width = canvas.parentElement.clientWidth * pixelRatio;
         canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 
-        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
-        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
+        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
+        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
 
         overlayGl.update();
         particlesGl.update();

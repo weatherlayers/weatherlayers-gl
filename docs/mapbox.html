@@ -53,8 +53,8 @@ function round(value) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
-    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
+    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
+    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -71,6 +71,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const overlayLayer = new WeatherGl.OverlayLayer(config.overlay);
     const particlesLayer = new WeatherGl.ParticlesLayer(config.particles);
     const legendControl = new WeatherGl.LegendControl(config.overlay);
+    map.triggerRepaint();
     let initialized = false;
 
     const meta = {
@@ -78,8 +79,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         step: () => particlesLayer.step(),
     };
     async function update() {
-        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath);
-        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath);
+        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.bounds, config.overlay.vector);
+        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.bounds);
 
         overlayLayer.update();
         particlesLayer.update();

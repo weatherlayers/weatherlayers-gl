@@ -19,14 +19,17 @@ export function createOverlayProgram(gl) {
  * @param {WebGLProgramWrapper} program
  * @param {WebGLBufferWrapper} buffer
  * @param {WebGLTextureWrapper} sourceTexture
+ * @param {[number, number]} sourceBounds
  * @param {WebGLTextureWrapper} overlayColorRampTexture
  * @param {number} overlayOpacity
  * @param {number[]} matrix
  */
-export function drawOverlay(gl, program, buffer, sourceTexture, overlayColorRampTexture, overlayOpacity, matrix) {
+export function drawOverlay(gl, program, buffer, sourceTexture, sourceBounds, overlayColorRampTexture, overlayOpacity, matrix) {
     gl.useProgram(program.program);
     bindAttribute(gl, buffer, program.attributes['aPosition']);
     bindTexture(gl, sourceTexture, program.uniforms['sSource'], program.uniforms['uSourceResolution'], 0);
+    gl.uniform1f(program.uniforms['uSourceBoundsMin'], sourceBounds[0]);
+    gl.uniform1f(program.uniforms['uSourceBoundsMax'], sourceBounds[1]);
     bindTexture(gl, overlayColorRampTexture, program.uniforms['sOverlayColorRamp'], null, 1);
     gl.uniform1f(program.uniforms['uOverlayOpacity'], overlayOpacity);
     gl.uniformMatrix4fv(program.uniforms['uMatrix'], false, matrix);

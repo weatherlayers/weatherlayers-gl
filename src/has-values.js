@@ -1,5 +1,5 @@
 /**
- * @param {[number, number, number, number]} values
+ * @param {Float32Array} values
  * @return {boolean}
  */
 export function hasValues(values) {

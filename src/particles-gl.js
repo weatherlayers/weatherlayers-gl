@@ -1,10 +1,9 @@
-import { createImageTexture, createArrayTexture } from './webgl-common.js';
+import { createTexture } from './webgl-common.js';
 import { createQuadBuffer } from './shaders/quad.js';
 import { createUpdateProgram, runUpdate } from './shaders/update.js';
 import { createFadeProgram, drawFade } from './shaders/fade.js';
 import { createParticlesBuffer, createParticlesProgram, drawParticles } from './shaders/particles.js';
 import { createCopyProgram, drawCopy } from './shaders/copy.js';
-import { createImageCanvas } from './create-image-canvas.js';
 import { getPositionValues } from './get-position-values.js';
 import { hasValues } from './has-values.js';
 
@@ -13,7 +12,7 @@ import { hasValues } from './has-values.js';
 /** @typedef {import('./webgl-common.js').WebGLTextureWrapper} WebGLTextureWrapper */
 /**
  * @typedef {{
- *      image: HTMLImageElement;
+ *      image: { data: Float32Array, width: number, height: number, numDimensions: number };
  *      bounds: [number, number];
  *      count: number;
  *      size: number;
@@ -33,6 +32,7 @@ import { hasValues } from './has-values.js';
  */
 export function particlesGl(gl, config) {
     gl.getExtension('OES_texture_float');
+    gl.getExtension('OES_texture_float_linear');
 
     const updateProgram = createUpdateProgram(gl);
     const fadeProgram = createFadeProgram(gl);
@@ -51,10 +51,6 @@ export function particlesGl(gl, config) {
     /** @type number */
     let pixelRatio;
 
-    /** @type HTMLCanvasElement */
-    let sourceCanvas;
-    /** @type CanvasRenderingContext2D */
-    let sourceCtx;
     /** @type WebGLTextureWrapper */
     let sourceTexture;
 
@@ -83,12 +79,12 @@ export function particlesGl(gl, config) {
 
         const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
         const particlesState = new Float32Array(particlesStateResolution * particlesStateResolution * 4);
-        particlesStateTexture0 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
-        particlesStateTexture1 = createArrayTexture(gl, particlesState, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture0 = createTexture(gl, particlesState, gl.NEAREST, particlesStateResolution, particlesStateResolution);
+        particlesStateTexture1 = createTexture(gl, particlesState, gl.NEAREST, particlesStateResolution, particlesStateResolution);
 
         const emptyTexture = new Uint8Array(gl.canvas.width * gl.canvas.height * 4);
-        particlesScreenTexture0 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
-        particlesScreenTexture1 = createArrayTexture(gl, emptyTexture, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture0 = createTexture(gl, emptyTexture, gl.NEAREST, gl.canvas.width, gl.canvas.height);
+        particlesScreenTexture1 = createTexture(gl, emptyTexture, gl.NEAREST, gl.canvas.width, gl.canvas.height);
     }
     function update() {
         if (!(config.image && config.count > 0)) {
@@ -111,9 +107,7 @@ export function particlesGl(gl, config) {
 
         pixelRatio = window.devicePixelRatio || 1;
 
-        sourceCanvas = createImageCanvas(config.image);
-        sourceCtx = /** @type CanvasRenderingContext2D */ (sourceCanvas.getContext('2d'));
-        sourceTexture = createImageTexture(gl, config.image);
+        sourceTexture = createTexture(gl, config.image.data, gl.LINEAR, config.image.width, config.image.height);
 
         particlesBuffer = createParticlesBuffer(gl, config.count);
 
@@ -144,7 +138,7 @@ export function particlesGl(gl, config) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, particlesStateTexture1.texture, 0);
         gl.viewport(0, 0, particlesStateTexture0.x, particlesStateTexture0.y);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, config.bounds, worldBounds, speedFactor, config.maxAge, frameNumber);
+        runUpdate(gl, updateProgram, quadBuffer, particlesStateTexture0, sourceTexture, worldBounds, speedFactor, config.maxAge, frameNumber);
         frameNumber = (frameNumber + 1) % (config.maxAge + 2); // +2 because only non-randomized pairs are rendered
 
         // const particlesStateResolution = Math.ceil(Math.sqrt(config.count));
@@ -212,15 +206,15 @@ export function particlesGl(gl, config) {
      * @return {[number, number] | undefined}
      */
     function getPositionVector(position) {
-        const values = getPositionValues(sourceCtx, position);
+        const values = getPositionValues(config.image, position);
         if (!hasValues(values)) {
             return;
         }
 
         /** @type [number, number] */
         const vector = [
-            values[1] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
-            values[2] / 255 * (config.bounds[1] - config.bounds[0]) + config.bounds[0],
+            values[1],
+            values[2],
         ];
 
         return vector;
