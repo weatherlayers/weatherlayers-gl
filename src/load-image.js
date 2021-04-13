@@ -21,6 +21,7 @@ export async function loadImage(imagePath, imageBounds, options = {}) {
 
     const image = new Image();
     image.src = imagePath;
+    image.crossOrigin = 'anonymous';
     await image.decode();
 
     const width = image.width;

@@ -1,7 +1,9 @@
-const basepath = 'data';
-const date = '20210402';
+const basepath = 'https://kamzek-weather-data.storage.googleapis.com';
+const date = '20210412';
 const time = '12';
 const datetime = `${date}${time}`;
+const dateDayBefore = '20210411';
+const datetimeDayBefore = `${dateDayBefore}${time}`;
 
 function hexToRgb(hex) {
     return [
@@ -150,28 +152,28 @@ const overlayLayerConfigs = new Map([
         vector: true,
     }],
     ['ostia/analysed_sst', {
-        imagePath: `${basepath}/ostia/analysed_sst/${date}.png`,
+        imagePath: `${basepath}/ostia/analysed_sst/${dateDayBefore}.png`,
         imageBounds: [270 - 273.15, 304.65 - 273.15],
         colorBounds: [270 - 273.15, 304.65 - 273.15],
         colorFunction: 'ostia/analysed_sst',
         legendTitle: 'Sea Surface Temperature [°C]',
     }],
     ['ostia/sst_anomaly', {
-        imagePath: `${basepath}/ostia/sst_anomaly/${date}.png`,
+        imagePath: `${basepath}/ostia/sst_anomaly/${dateDayBefore}.png`,
         imageBounds: [-11, 11],
         colorBounds: [-11, 11],
         colorFunction: 'ostia/sst_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
     ['ostia/sea_ice_fraction', {
-        imagePath: `${basepath}/ostia/sea_ice_fraction/${date}.png`,
+        imagePath: `${basepath}/ostia/sea_ice_fraction/${dateDayBefore}.png`,
         imageBounds: [0, 100],
         colorBounds: [0, 100],
         colorFunction: 'ostia/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
     }],
     ['ecmwf/co', {
-        imagePath: `${basepath}/ecmwf/co/${datetime}.png`,
+        imagePath: `${basepath}/ecmwf/co/${datetimeDayBefore}.png`,
         imageBounds: [0.0044e-6, 9.4e-6],
         colorBounds: [0.0044e-6, 9.4e-6],
         colorFunction: 'ecmwf/co',
@@ -179,7 +181,7 @@ const overlayLayerConfigs = new Map([
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/so2', {
-        imagePath: `${basepath}/ecmwf/so2/${datetime}.png`,
+        imagePath: `${basepath}/ecmwf/so2/${datetimeDayBefore}.png`,
         imageBounds: [0.035e-9, 75e-9],
         colorBounds: [0.035e-9, 75e-9],
         colorFunction: 'ecmwf/so2',
@@ -187,7 +189,7 @@ const overlayLayerConfigs = new Map([
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/no2', {
-        imagePath: `${basepath}/ecmwf/no2/${datetime}.png`,
+        imagePath: `${basepath}/ecmwf/no2/${datetimeDayBefore}.png`,
         imageBounds: [0.053e-9, 100e-9],
         colorBounds: [0.053e-9, 100e-9],
         colorFunction: 'ecmwf/no2',
@@ -195,7 +197,7 @@ const overlayLayerConfigs = new Map([
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm2p5', {
-        imagePath: `${basepath}/ecmwf/pm2p5/${datetime}.png`,
+        imagePath: `${basepath}/ecmwf/pm2p5/${datetimeDayBefore}.png`,
         imageBounds: [0.012e-9, 35.4e-9],
         colorBounds: [0.012e-9, 35.4e-9],
         colorFunction: 'ecmwf/pm2p5',
@@ -203,7 +205,7 @@ const overlayLayerConfigs = new Map([
         legendValueFormat: value => value * 1000000000,
     }],
     ['ecmwf/pm10', {
-        imagePath: `${basepath}/ecmwf/pm10/${datetime}.png`,
+        imagePath: `${basepath}/ecmwf/pm10/${datetimeDayBefore}.png`,
         imageBounds: [0.054e-9, 154e-9],
         colorBounds: [0.054e-9, 154e-9],
         colorFunction: 'ecmwf/pm10',
