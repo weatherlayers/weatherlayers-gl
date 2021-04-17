@@ -21,13 +21,18 @@
     <canvas id="canvas"></canvas>
 
 <script type="module">
-import { config, initGui } from './config.js';
-
-config.overlay.opacity = 0.2;
+import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
+    const config = await loadConfig();
+    config.overlay.opacity = 0.2;
+
+    const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+    const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+
+    config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+    config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+    config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
     
     const canvas = document.getElementById('canvas');
 
@@ -118,21 +123,26 @@ window.addEventListener('DOMContentLoaded', async () => {
         canvas.width = canvas.parentElement.clientWidth * pixelRatio;
         canvas.height = canvas.parentElement.clientHeight * pixelRatio;
 
-        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
+        const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+        const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+
+        config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+        config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+        config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
 
         overlayGl.update();
         particlesGl.update();
     }
     const gui = initGui(config, update);
-    gui.add(meta, 'running').onChange(() => {
+    const debug = gui.addFolder('debug');
+    debug.add(meta, 'running').onChange(() => {
         if (meta.running) {
             start();
         } else {
             stop();
         }
     });
-    gui.add(meta, 'step');
+    debug.add(meta, 'step');
 });
 </script>
 </body>

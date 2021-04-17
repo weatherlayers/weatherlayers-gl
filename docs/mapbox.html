@@ -46,15 +46,21 @@
     </div>
 
 <script type="module">
-import { config, initGui } from './config.js';
+import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
 
 function round(value) {
     return Math.floor(value * 10 ** 6) / 10 ** 6;
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-    config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
+    const config = await loadConfig();
+
+    const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+    const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+
+    config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+    config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+    config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -79,8 +85,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         step: () => particlesLayer.step(),
     };
     async function update() {
-        config.overlay.image = await WeatherGl.loadImage(config.overlay.imagePath, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-        config.particles.image = await WeatherGl.loadImage(config.particles.imagePath, config.particles.imageBounds, { vector: true });
+        const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+        const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+
+        config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+        config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+        config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
 
         overlayLayer.update();
         particlesLayer.update();
@@ -93,14 +103,15 @@ window.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const gui = initGui(config, update);
-        gui.add(meta, 'running').onChange(() => {
+        const debug = gui.addFolder('debug');
+        debug.add(meta, 'running').onChange(() => {
             if (meta.running) {
                 particlesLayer.start();
             } else {
                 particlesLayer.stop();
             }
         });
-        gui.add(meta, 'step');
+        debug.add(meta, 'step');
     }
     addGui();
 

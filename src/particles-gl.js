@@ -206,6 +206,10 @@ export function particlesGl(gl, config) {
      * @return {[number, number] | undefined}
      */
     function getPositionVector(position) {
+        if (!config.image) {
+            return;
+        }
+
         const values = getPositionValues(config.image, position);
         if (!hasValues(values)) {
             return;
@@ -225,6 +229,10 @@ export function particlesGl(gl, config) {
      * @return {number | undefined}
      */
     function getPositionBearing(position) {
+        if (!config.image) {
+            return;
+        }
+
         const vector = getPositionVector(position);
         if (!vector) {
             return;

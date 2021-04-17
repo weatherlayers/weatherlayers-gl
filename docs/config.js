@@ -1,9 +1,29 @@
-const basepath = 'https://kamzek-weather-data.storage.googleapis.com';
-const date = '20210412';
-const time = '12';
-const datetime = `${date}${time}`;
-const dateDayBefore = '20210411';
-const datetimeDayBefore = `${dateDayBefore}${time}`;
+const DATASETS_URL = 'https://weather-api-6dlyw7kbkq-uc.a.run.app/datasets';
+const DATASET_FILE_URL = 'https://kamzek-weather-data.storage.googleapis.com';
+const DEFAULT_DATASET = 'gfs/wind';
+
+export function getUrl(datasets, datasetName, datetime) {
+    const dataset = datasets.find(x => x.name === datasetName);
+    if (!dataset) {
+        return;
+    }
+    if (!dataset.datetimes.includes(datetime)) {
+        return;
+    }
+
+    const url = `${DATASET_FILE_URL}/${datasetName}/${datetime}.png`;
+    return url;
+}
+
+function getDatetimes(datasets, datasetName) {
+    const dataset = datasets.find(x => x.name === datasetName);
+    if (!dataset) {
+        return [];
+    }
+
+    const datetimes = dataset.datetimes;
+    return datetimes;
+}
 
 function hexToRgb(hex) {
     return [
@@ -13,237 +33,7 @@ function hexToRgb(hex) {
     ];
 }
 
-export const staticConfig = {
-    overlay: {
-        colorBounds: null,
-        legendWidth: 220,
-        legendTicksCount: 6,
-        legendValueFormat: null,
-        vector: false,
-    },
-    particles: {
-        waves: false, // wave particle shape
-    }
-};
-
-export const config = {
-    overlay: {
-        ...staticConfig.overlay,
-        imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, R channel = value, A channel = mask
-        imageBounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
-        colorBounds: [0, 100],
-        colorFunction: WeatherGl.Colors.µ.extendedSinebowColor, // function (i) => color, i in 0..1
-        opacity: 0.1,
-        legendTitle: 'Wind [m/s]',
-        vector: true,
-    },
-    particles: {
-        ...staticConfig.particles,
-        imagePath: `${basepath}/gfs/wind/${datetime}.png`, // data packed into an image, G,B channels = u,v values, A channel = mask
-        imageBounds: [-128, 127], // data image scale bounds (0 in image = min bound, 255 in image = max bound)
-        count: 5000,
-        size: 2,
-        color: [255, 255, 255],
-        opacity: 0.25,
-        speedFactor: 33 / 100, // how fast the particles move
-        maxAge: 100, // fade particles during age in frames
-    },
-};
-
-const meta = {
-    overlay: {
-        layer: 'gfs/wind',
-        colorFunction: 'gfs/wind',
-    },
-    particles: {
-        layer: 'gfs/wind',
-    },
-};
-
-const overlayLayerConfigs = new Map([
-    ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${datetime}.png`,
-        imageBounds: [-128, 127],
-        colorBounds: [0, 100],
-        colorFunction: 'gfs/wind',
-        legendTitle: 'Wind [m/s]',
-        vector: true,
-    }],
-    ['gfs/tmp', {
-        imagePath: `${basepath}/gfs/tmp/${datetime}.png`,
-        imageBounds: [193 - 273.15, 328 - 273.15],
-        colorBounds: [193 - 273.15, 328 - 273.15],
-        colorFunction: 'gfs/tmp',
-        legendTitle: 'Temperature [°C]',
-    }],
-    ['gfs/rh', {
-        imagePath: `${basepath}/gfs/rh/${datetime}.png`,
-        imageBounds: [0, 100],
-        colorBounds: [0, 100],
-        colorFunction: 'gfs/rh',
-        legendTitle: 'Relative Humidity [%]',
-    }],
-    ['gfs/apcp', {
-        imagePath: `${basepath}/gfs/apcp/${datetime}.png`,
-        imageBounds: [0, 150],
-        colorBounds: [0, 150],
-        colorFunction: 'gfs/apcp',
-        legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
-    }],
-    ['gfs/cape', {
-        imagePath: `${basepath}/gfs/cape/${datetime}.png`,
-        imageBounds: [0, 5000],
-        colorBounds: [0, 5000],
-        colorFunction: 'gfs/cape',
-        legendTitle: 'Convective Available Potential Energy [J/kg]',
-    }],
-    ['gfs/pwat', {
-        imagePath: `${basepath}/gfs/pwat/${datetime}.png`,
-        imageBounds: [0, 70],
-        colorBounds: [0, 70],
-        colorFunction: 'gfs/pwat',
-        legendTitle: 'Total Precipitable Water [kg/m²]',
-    }],
-    ['gfs/cwat', {
-        imagePath: `${basepath}/gfs/cwat/${datetime}.png`,
-        imageBounds: [0, 1],
-        colorBounds: [0, 1],
-        colorFunction: 'gfs/cwat',
-        legendTitle: 'Total Cloud Water [kg/m²]',
-        legendValueDecimals: 1,
-    }],
-    ['gfs/prmsl', {
-        imagePath: `${basepath}/gfs/prmsl/${datetime}.png`,
-        imageBounds: [92000, 105000],
-        colorBounds: [92000, 105000],
-        colorFunction: 'gfs/prmsl',
-        legendTitle: 'Mean Sea Level Pressure [hPa]',
-        legendValueFormat: value => value / 100,
-    }],
-    ['gfs/aptmp', {
-        imagePath: `${basepath}/gfs/aptmp/${datetime}.png`,
-        imageBounds: [236 - 273.15, 332 - 273.15],
-        colorBounds: [236 - 273.15, 332 - 273.15],
-        colorFunction: 'gfs/aptmp',
-        legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
-    }],
-    ['gfswave/waves', {
-        imagePath: `${basepath}/gfswave/waves/${datetime}.png`,
-        imageBounds: [-20, 20],
-        colorBounds: [0, 25],
-        colorFunction: 'gfswave/waves',
-        legendTitle: 'Peak Wave Period [s]',
-        vector: true,
-    }],
-    ['gfswave/htsgw', {
-        imagePath: `${basepath}/gfswave/htsgw/${datetime}.png`,
-        imageBounds: [0, 15],
-        colorBounds: [0, 15],
-        colorFunction: 'gfswave/htsgw',
-        legendTitle: 'Significant Wave Height [m]',
-    }],
-    ['oscar/currents', {
-        imagePath: `${basepath}/oscar/currents/${date}.png`,
-        imageBounds: [-1, 1],
-        colorBounds: [0, 1.5],
-        colorFunction: 'oscar/currents',
-        legendTitle: 'Currents [m/s]',
-        legendValueDecimals: 1,
-        vector: true,
-    }],
-    ['ostia/analysed_sst', {
-        imagePath: `${basepath}/ostia/analysed_sst/${dateDayBefore}.png`,
-        imageBounds: [270 - 273.15, 304.65 - 273.15],
-        colorBounds: [270 - 273.15, 304.65 - 273.15],
-        colorFunction: 'ostia/analysed_sst',
-        legendTitle: 'Sea Surface Temperature [°C]',
-    }],
-    ['ostia/sst_anomaly', {
-        imagePath: `${basepath}/ostia/sst_anomaly/${dateDayBefore}.png`,
-        imageBounds: [-11, 11],
-        colorBounds: [-11, 11],
-        colorFunction: 'ostia/sst_anomaly',
-        legendTitle: 'Sea Surface Temperature Anomaly [°C]',
-    }],
-    ['ostia/sea_ice_fraction', {
-        imagePath: `${basepath}/ostia/sea_ice_fraction/${dateDayBefore}.png`,
-        imageBounds: [0, 100],
-        colorBounds: [0, 100],
-        colorFunction: 'ostia/sea_ice_fraction',
-        legendTitle: 'Sea Ice Fraction [%]',
-    }],
-    ['ecmwf/co', {
-        imagePath: `${basepath}/ecmwf/co/${datetimeDayBefore}.png`,
-        imageBounds: [0.0044e-6, 9.4e-6],
-        colorBounds: [0.0044e-6, 9.4e-6],
-        colorFunction: 'ecmwf/co',
-        legendTitle: 'CO [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
-    }],
-    ['ecmwf/so2', {
-        imagePath: `${basepath}/ecmwf/so2/${datetimeDayBefore}.png`,
-        imageBounds: [0.035e-9, 75e-9],
-        colorBounds: [0.035e-9, 75e-9],
-        colorFunction: 'ecmwf/so2',
-        legendTitle: 'SO₂ [ppb]',
-        legendValueFormat: value => value * 1000000000,
-    }],
-    ['ecmwf/no2', {
-        imagePath: `${basepath}/ecmwf/no2/${datetimeDayBefore}.png`,
-        imageBounds: [0.053e-9, 100e-9],
-        colorBounds: [0.053e-9, 100e-9],
-        colorFunction: 'ecmwf/no2',
-        legendTitle: 'NO₂ [ppb]',
-        legendValueFormat: value => value * 1000000000,
-    }],
-    ['ecmwf/pm2p5', {
-        imagePath: `${basepath}/ecmwf/pm2p5/${datetimeDayBefore}.png`,
-        imageBounds: [0.012e-9, 35.4e-9],
-        colorBounds: [0.012e-9, 35.4e-9],
-        colorFunction: 'ecmwf/pm2p5',
-        legendTitle: 'PM2.5 [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
-    }],
-    ['ecmwf/pm10', {
-        imagePath: `${basepath}/ecmwf/pm10/${datetimeDayBefore}.png`,
-        imageBounds: [0.054e-9, 154e-9],
-        colorBounds: [0.054e-9, 154e-9],
-        colorFunction: 'ecmwf/pm10',
-        legendTitle: 'PM10 [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
-    }],
-]);
-
-const particlesLayerConfigs = new Map([
-    ['none', {
-        imagePath: null,
-        count: 0,
-    }],
-    ['gfs/wind', {
-        imagePath: `${basepath}/gfs/wind/${datetime}.png`,
-        imageBounds: [-128, 127],
-        count: 5000,
-        speedFactor: 33 / 100,
-        maxAge: 100,
-    }],
-    ['gfswave/waves', {
-        imagePath: `${basepath}/gfswave/waves/${datetime}.png`,
-        imageBounds: [-20, 20],
-        count: 5000,
-        speedFactor: 33 / 612,
-        maxAge: 40,
-        waves: true,
-    }],
-    ['oscar/currents', {
-        imagePath: `${basepath}/oscar/currents/${date}.png`,
-        imageBounds: [-1, 1],
-        count: 5000,
-        speedFactor: 33 / 7,
-        maxAge: 100,
-    }],
-]);
-
-const overlayColorFunctions = new Map([
+export const colorFunctions = new Map([
     ['gfs/wind', WeatherGl.Colors.µ.extendedSinebowColor],
     ['gfs/tmp', WeatherGl.Colors.µ.segmentedColorScale([
         [(193 - 193) / (328 - 193),     [37, 4, 42]],
@@ -458,42 +248,294 @@ const overlayColorFunctions = new Map([
     ['d3.interpolateSinebow', d3.interpolateSinebow],
 ]);
 
+export async function loadConfig() {
+    const datasets = await (await fetch(DATASETS_URL)).json();
+
+    const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
+    const meta = {
+        dataset: DEFAULT_DATASET,
+        datetimes: datetimes,
+        datetime: datetimes[datetimes.length - 1],
+        overlay: {
+            colorFunction: DEFAULT_DATASET,
+        },
+        particles: {
+            dataset: DEFAULT_DATASET,
+            datetimes: datetimes,
+            datetime: datetimes[datetimes.length - 1],
+        },
+    };
+
+    const staticConfig = {
+        overlay: {
+            colorFunction: null,
+            opacity: 0.1,
+            colorBounds: null,
+            legendWidth: 220,
+            legendTicksCount: 6,
+            legendValueFormat: null,
+            vector: false,
+        },
+        particles: {
+            count: 0,
+            size: 2,
+            color: [255, 255, 255],
+            opacity: 0.25,
+            speedFactor: 33 / 100,
+            maxAge: 100,
+            waves: false, // wave particle shape
+        }
+    };
+
+    const overlayConfigs = new Map([
+        ['gfs/wind', {
+            imageBounds: [-128, 127],
+            colorBounds: [0, 100],
+            colorFunction: 'gfs/wind',
+            legendTitle: 'Wind [m/s]',
+            vector: true,
+        }],
+        ['gfs/tmp', {
+            imageBounds: [193 - 273.15, 328 - 273.15],
+            colorBounds: [193 - 273.15, 328 - 273.15],
+            colorFunction: 'gfs/tmp',
+            legendTitle: 'Temperature [°C]',
+        }],
+        ['gfs/rh', {
+            imageBounds: [0, 100],
+            colorBounds: [0, 100],
+            colorFunction: 'gfs/rh',
+            legendTitle: 'Relative Humidity [%]',
+        }],
+        ['gfs/apcp', {
+            imageBounds: [0, 150],
+            colorBounds: [0, 150],
+            colorFunction: 'gfs/apcp',
+            legendTitle: 'Next 3-hr Precipitation Accumulation [kg/m²]',
+        }],
+        ['gfs/cape', {
+            imageBounds: [0, 5000],
+            colorBounds: [0, 5000],
+            colorFunction: 'gfs/cape',
+            legendTitle: 'Convective Available Potential Energy [J/kg]',
+        }],
+        ['gfs/pwat', {
+            imageBounds: [0, 70],
+            colorBounds: [0, 70],
+            colorFunction: 'gfs/pwat',
+            legendTitle: 'Total Precipitable Water [kg/m²]',
+        }],
+        ['gfs/cwat', {
+            imageBounds: [0, 1],
+            colorBounds: [0, 1],
+            colorFunction: 'gfs/cwat',
+            legendTitle: 'Total Cloud Water [kg/m²]',
+            legendValueDecimals: 1,
+        }],
+        ['gfs/prmsl', {
+            imageBounds: [92000, 105000],
+            colorBounds: [92000, 105000],
+            colorFunction: 'gfs/prmsl',
+            legendTitle: 'Mean Sea Level Pressure [hPa]',
+            legendValueFormat: value => value / 100,
+        }],
+        ['gfs/aptmp', {
+            imageBounds: [236 - 273.15, 332 - 273.15],
+            colorBounds: [236 - 273.15, 332 - 273.15],
+            colorFunction: 'gfs/aptmp',
+            legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
+        }],
+        ['gfswave/waves', {
+            imageBounds: [-20, 20],
+            colorBounds: [0, 25],
+            colorFunction: 'gfswave/waves',
+            legendTitle: 'Peak Wave Period [s]',
+            vector: true,
+        }],
+        ['gfswave/htsgw', {
+            imageBounds: [0, 15],
+            colorBounds: [0, 15],
+            colorFunction: 'gfswave/htsgw',
+            legendTitle: 'Significant Wave Height [m]',
+        }],
+        ['oscar/currents', {
+            imageBounds: [-1, 1],
+            colorBounds: [0, 1.5],
+            colorFunction: 'oscar/currents',
+            legendTitle: 'Currents [m/s]',
+            legendValueDecimals: 1,
+            vector: true,
+        }],
+        ['ostia/analysed_sst', {
+            imageBounds: [270 - 273.15, 304.65 - 273.15],
+            colorBounds: [270 - 273.15, 304.65 - 273.15],
+            colorFunction: 'ostia/analysed_sst',
+            legendTitle: 'Sea Surface Temperature [°C]',
+        }],
+        ['ostia/sst_anomaly', {
+            imageBounds: [-11, 11],
+            colorBounds: [-11, 11],
+            colorFunction: 'ostia/sst_anomaly',
+            legendTitle: 'Sea Surface Temperature Anomaly [°C]',
+        }],
+        ['ostia/sea_ice_fraction', {
+            imageBounds: [0, 100],
+            colorBounds: [0, 100],
+            colorFunction: 'ostia/sea_ice_fraction',
+            legendTitle: 'Sea Ice Fraction [%]',
+        }],
+        ['ecmwf/co', {
+            imageBounds: [0.0044e-6, 9.4e-6],
+            colorBounds: [0.0044e-6, 9.4e-6],
+            colorFunction: 'ecmwf/co',
+            legendTitle: 'CO [μg/m³]',
+            legendValueFormat: value => value * 1000000000,
+        }],
+        ['ecmwf/so2', {
+            imageBounds: [0.035e-9, 75e-9],
+            colorBounds: [0.035e-9, 75e-9],
+            colorFunction: 'ecmwf/so2',
+            legendTitle: 'SO₂ [ppb]',
+            legendValueFormat: value => value * 1000000000,
+        }],
+        ['ecmwf/no2', {
+            imageBounds: [0.053e-9, 100e-9],
+            colorBounds: [0.053e-9, 100e-9],
+            colorFunction: 'ecmwf/no2',
+            legendTitle: 'NO₂ [ppb]',
+            legendValueFormat: value => value * 1000000000,
+        }],
+        ['ecmwf/pm2p5', {
+            imageBounds: [0.012e-9, 35.4e-9],
+            colorBounds: [0.012e-9, 35.4e-9],
+            colorFunction: 'ecmwf/pm2p5',
+            legendTitle: 'PM2.5 [μg/m³]',
+            legendValueFormat: value => value * 1000000000,
+        }],
+        ['ecmwf/pm10', {
+            imageBounds: [0.054e-9, 154e-9],
+            colorBounds: [0.054e-9, 154e-9],
+            colorFunction: 'ecmwf/pm10',
+            legendTitle: 'PM10 [μg/m³]',
+            legendValueFormat: value => value * 1000000000,
+        }],
+    ]);
+
+    const particleConfigs = new Map([
+        ['gfs/wind', {
+            imageBounds: [-128, 127],
+            count: 5000,
+            speedFactor: 33 / 100,
+            maxAge: 100,
+        }],
+        ['gfswave/waves', {
+            imageBounds: [-20, 20],
+            count: 5000,
+            speedFactor: 33 / 612,
+            maxAge: 40,
+            waves: true,
+        }],
+        ['oscar/currents', {
+            imageBounds: [-1, 1],
+            count: 5000,
+            speedFactor: 33 / 7,
+            maxAge: 100,
+        }],
+    ]);
+
+    const config = {
+        datasets,
+        meta,
+        staticConfig,
+        overlayConfigs,
+        particleConfigs,
+        overlay: Object.assign({}, staticConfig.overlay, overlayConfigs.get(meta.dataset)),
+        particles: Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset)),
+    };
+
+    return config;
+}
+
+function formatDatetime(datetime) {
+    let formattedDatetime = `${datetime.substr(0, 4)}/${datetime.substr(4, 2)}/${datetime.substr(6, 2)}`;
+    if (datetime.length > 8) {
+        formattedDatetime += ` ${datetime.substr(8, 2)}:00 UTC`;
+    }
+    return formattedDatetime;
+}
+
+function getDatetimeOptions(datetimes) {
+    return datetimes.map(datetime => {
+        const formattedDatetime = formatDatetime(datetime);
+        return { value: datetime, text: formattedDatetime };
+    });
+}
+
+function updateOptions(gui, object, property, options) {
+    const controller = gui.__controllers.find(x => x.object === object && x.property === property);
+    const html = options.map(option => `<option value="${option.value}">${option.text}</option>`);
+
+    controller.domElement.children[0].innerHTML = html;
+
+    gui.updateDisplay();
+}
+
+function updateDatetimeOptions(gui, object, property, datetimes) {
+    const options = getDatetimeOptions(datetimes);
+    updateOptions(gui, object, property, options);
+}
+
 export function initGui(config, update) {
+    const { datasets, meta, staticConfig, overlayConfigs, particleConfigs } = config;
     const gui = new dat.GUI();
     gui.width = 300;
 
-    const overlay = gui.addFolder('overlay');
-    overlay.add(meta.overlay, 'layer', Array.from(overlayLayerConfigs.keys())).onChange(async () => {
-        const overlayLayerConfig = overlayLayerConfigs.get(meta.overlay.layer);
-        Object.keys(staticConfig.overlay).forEach(key => {
-            config.overlay[key] = staticConfig.overlay[key];
-        });
-        Object.keys(overlayLayerConfig).forEach(key => {
-            config.overlay[key] = overlayLayerConfig[key];
-        });
+    gui.add(meta, 'dataset', [...overlayConfigs.keys()]).onChange(async () => {
+        // update datetime options
+        meta.datetimes = getDatetimes(datasets, meta.dataset);
+        updateDatetimeOptions(gui, meta, 'datetime', meta.datetimes);
+        if (!meta.datetimes.includes(meta.datetime)) {
+            meta.datetime = meta.datetimes[meta.datetimes.length - 1];
+        }
 
-        meta.overlay.colorFunction = overlayLayerConfig.colorFunction;
-        config.overlay.colorFunction = overlayColorFunctions.get(meta.overlay.colorFunction);
+        // update overlay config
+        const overlayConfig = Object.assign({}, staticConfig.overlay, overlayConfigs.get(meta.dataset));
+        Object.keys(overlayConfig).forEach(key => {
+            config.overlay[key] = overlayConfig[key];
+        });
+        meta.overlay.colorFunction = overlayConfig.colorFunction;
+
+        // update particle config
+        meta.particles.dataset = particleConfigs.has(meta.dataset) ? meta.dataset : 'none';
+        meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
+        if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
+            meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
+        }
+        const particleConfig = Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset));
+        Object.keys(particleConfig).forEach(key => {
+            config.particles[key] = particleConfig[key];
+        });
 
         gui.updateDisplay();
         update();
     });
-    overlay.add(meta.overlay, 'colorFunction', Array.from(overlayColorFunctions.keys())).onChange(() => {
-        config.overlay.colorFunction = overlayColorFunctions.get(meta.overlay.colorFunction);
-        
-        update();
-    });
+    gui.add(meta, 'datetime', []).onChange(update);
+    updateDatetimeOptions(gui, meta, 'datetime', meta.datetimes);
+
+    const overlay = gui.addFolder('overlay');
+    overlay.add(meta.overlay, 'colorFunction', [...colorFunctions.keys()]).onFinishChange(update);
     overlay.add(config.overlay, 'opacity', 0, 1, 0.01).onFinishChange(update);
-    overlay.open();
 
     const particles = gui.addFolder('particles');
-    particles.add(meta.particles, 'layer', Array.from(particlesLayerConfigs.keys())).onChange(async () => {
-        const particlesLayerConfig = particlesLayerConfigs.get(meta.particles.layer);
-        Object.keys(staticConfig.particles).forEach(key => {
-            config.particles[key] = staticConfig.particles[key];
-        });
-        Object.keys(particlesLayerConfig).forEach(key => {
-            config.particles[key] = particlesLayerConfig[key];
+    particles.add(meta.particles, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
+        // update particle config
+        meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
+        if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
+            meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
+        }
+        const particleConfig = Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset));
+        Object.keys(particleConfig).forEach(key => {
+            config.particles[key] = particleConfig[key];
         });
 
         gui.updateDisplay();
@@ -505,9 +547,6 @@ export function initGui(config, update) {
     particles.add(config.particles, 'opacity', 0, 1, 0.01);
     particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
     particles.add(config.particles, 'maxAge', 1, 255, 1);
-    particles.open();
-
-    gui.close();
 
     return gui;
 }

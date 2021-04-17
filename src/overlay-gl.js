@@ -106,6 +106,10 @@ export function overlayGl(gl, config) {
      * @return {number | undefined}
      */
     function getPositionValue(position) {
+        if (!config.image) {
+            return;
+        }
+
         const values = getPositionValues(config.image, position);
         if (!hasValues(values)) {
             return;
