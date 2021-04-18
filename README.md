@@ -1,4 +1,4 @@
-# weather-gl
+# weather-app
 
 <img src="docs/screenshot@2x.jpg" alt="Screenshot" width="720" height="360">
 
