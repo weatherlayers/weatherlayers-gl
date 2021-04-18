@@ -449,8 +449,8 @@ export async function loadConfig() {
         staticConfig,
         overlayConfigs,
         particleConfigs,
-        overlay: Object.assign({}, staticConfig.overlay, overlayConfigs.get(meta.dataset)),
-        particles: Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset)),
+        overlay: { ...staticConfig.overlay, ...overlayConfigs.get(meta.dataset) },
+        particles: { ...staticConfig.particles, ...particleConfigs.get(meta.particles.dataset) },
     };
 
     return config;
@@ -487,6 +487,7 @@ function updateDatetimeOptions(gui, object, property, datetimes) {
 
 export function initGui(config, update) {
     const { datasets, meta, staticConfig, overlayConfigs, particleConfigs } = config;
+
     const gui = new dat.GUI();
     gui.width = 300;
 
@@ -499,7 +500,7 @@ export function initGui(config, update) {
         }
 
         // update overlay config
-        const overlayConfig = Object.assign({}, staticConfig.overlay, overlayConfigs.get(meta.dataset));
+        const overlayConfig = { ...staticConfig.overlay, ...overlayConfigs.get(meta.dataset) };
         Object.keys(overlayConfig).forEach(key => {
             config.overlay[key] = overlayConfig[key];
         });
@@ -511,7 +512,7 @@ export function initGui(config, update) {
         if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
             meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
         }
-        const particleConfig = Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset));
+        const particleConfig = { ...staticConfig.particles, ...particleConfigs.get(meta.particles.dataset) };
         Object.keys(particleConfig).forEach(key => {
             config.particles[key] = particleConfig[key];
         });
@@ -533,7 +534,7 @@ export function initGui(config, update) {
         if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
             meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
         }
-        const particleConfig = Object.assign({}, staticConfig.particles, particleConfigs.get(meta.particles.dataset));
+        const particleConfig = { ...staticConfig.particles, ...particleConfigs.get(meta.particles.dataset) };
         Object.keys(particleConfig).forEach(key => {
             config.particles[key] = particleConfig[key];
         });
