@@ -509,6 +509,7 @@ export function initGui(config, update) {
         // update particle config
         meta.particles.dataset = particleConfigs.has(meta.dataset) ? meta.dataset : 'none';
         meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
+        meta.particles.datetime = meta.datetime;
         if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
             meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
         }
@@ -520,7 +521,14 @@ export function initGui(config, update) {
         gui.updateDisplay();
         update();
     });
-    gui.add(meta, 'datetime', []).onChange(update);
+    gui.add(meta, 'datetime', []).onChange(() => {
+        meta.particles.datetime = meta.datetime;
+        if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
+            meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
+        }
+
+        update();
+    });
     updateDatetimeOptions(gui, meta, 'datetime', meta.datetimes);
 
     const overlay = gui.addFolder('overlay');
@@ -531,6 +539,7 @@ export function initGui(config, update) {
     particles.add(meta.particles, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
         // update particle config
         meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
+        meta.particles.datetime = meta.datetime;
         if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
             meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
         }
