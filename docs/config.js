@@ -1,5 +1,5 @@
-const DATASETS_URL = 'https://api.weather.kamzek.com/datasets';
-const DATASET_FILE_URL = 'https://data.weather.kamzek.com';
+const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
+const DATASET_FILE_URL = 'https://weather-data.kamzek.com';
 const DEFAULT_DATASET = 'gfs/wind';
 
 export function getUrl(datasets, datasetName, datetime) {
