@@ -457,12 +457,7 @@ export async function loadConfig() {
 }
 
 function formatDatetime(datetime) {
-    let formattedDatetime = `${datetime.substr(0, 4)}/${datetime.substr(4, 2)}/${datetime.substr(6, 2)}`;
-    if (datetime.length > 8) {
-        formattedDatetime += ` ${datetime.substr(8, 2)}:00 UTC`;
-    } else {
-        formattedDatetime += ` 12:00 UTC`;
-    }
+    const formattedDatetime = `${datetime.substr(0, 4)}/${datetime.substr(4, 2)}/${datetime.substr(6, 2)} ${datetime.substr(8, 2)}:00 UTC`;
     return formattedDatetime;
 }
 
