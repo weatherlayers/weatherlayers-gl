@@ -1,6 +1,12 @@
-const DATASETS_URL = 'https://weather-api.kamzek.com/datasets?accessToken=87zR5cusnpYPznXqUHWs'; // kamzek-weather token
-const DATASET_FILE_URL = 'https://weather-data.kamzek.com';
+const ACCESS_TOKEN = '87zR5cusnpYPznXqUHWs'; // kamzek-weather token
+const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
+const DATA_URL = 'https://weather-api.kamzek.com/data';
 const DEFAULT_DATASET = 'gfs/wind';
+
+async function getDatasets() {
+    const url = `${DATASETS_URL}?accessToken=${ACCESS_TOKEN}`;
+    return (await fetch(url)).json();
+}
 
 export function getUrl(datasets, datasetName, datetime) {
     const dataset = datasets.find(x => x.name === datasetName);
@@ -11,7 +17,7 @@ export function getUrl(datasets, datasetName, datetime) {
         return;
     }
 
-    const url = `${DATASET_FILE_URL}/${datasetName}/${datetime}.png`;
+    const url = `${DATA_URL}/${datasetName}/${datetime}.png?accessToken=${ACCESS_TOKEN}`;
     return url;
 }
 
@@ -249,7 +255,7 @@ export const colorFunctions = new Map([
 ]);
 
 export async function loadConfig() {
-    const datasets = await (await fetch(DATASETS_URL)).json();
+    const datasets = await getDatasets();
 
     const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
     const meta = {
