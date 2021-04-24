@@ -4,7 +4,7 @@ const DATA_URL = 'https://weather-api.kamzek.com/data';
 const DEFAULT_DATASET = 'gfs/wind';
 
 async function getDatasets() {
-    const url = `${DATASETS_URL}?accessToken=${ACCESS_TOKEN}`;
+    const url = `${DATASETS_URL}?access_token=${ACCESS_TOKEN}`;
     return (await fetch(url)).json();
 }
 
@@ -17,7 +17,7 @@ export function getUrl(datasets, datasetName, datetime) {
         return;
     }
 
-    const url = `${DATA_URL}/${datasetName}/${datetime}.png?accessToken=${ACCESS_TOKEN}`;
+    const url = `${DATA_URL}/${datasetName}/${datetime}.png?access_token=${ACCESS_TOKEN}`;
     return url;
 }
 
