@@ -1,4 +1,4 @@
-const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
+const DATASETS_URL = 'https://weather-api.kamzek.com/datasets?accessToken=87zR5cusnpYPznXqUHWs'; // kamzek-weather token
 const DATASET_FILE_URL = 'https://weather-data.kamzek.com';
 const DEFAULT_DATASET = 'gfs/wind';
 
