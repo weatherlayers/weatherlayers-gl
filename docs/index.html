@@ -2,148 +2,23 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>weather-gl</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
-    <script src="../dist/weather-gl.umd.min.js"></script>
+    <title>kamzek-weather</title>
     <style>
         body {
-            margin: 0;
-            background: #000;
-        }
-        #canvas {
-            width: 100vw;
-            height: 100vh;
+            font-family: 'Lucida Grande', sans-serif;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-
-<script type="module">
-import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
-
-window.addEventListener('DOMContentLoaded', async () => {
-    const config = await loadConfig();
-    config.overlay.opacity = 0.2;
-
-    const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-    const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
-
-    config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
-    config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-    config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
-    
-    const canvas = document.getElementById('canvas');
-
-    const pixelRatio = window.devicePixelRatio || 1;
-    canvas.width = canvas.parentElement.clientWidth * pixelRatio;
-    canvas.height = canvas.parentElement.clientHeight * pixelRatio;
-
-    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
-    const overlayGl = WeatherGl.overlayGl(gl, config.overlay);
-    const particlesGl = WeatherGl.particlesGl(gl, config.particles);
-
-    let resizeObserver;
-    function initResizeObserver() {
-        if (typeof window.ResizeObserver !== 'undefined') {
-            resizeObserver = new window.ResizeObserver(update);
-            resizeObserver.observe(canvas.parentElement);
-        } else {
-            window.addEventListener('resize', update);
-        }
-    }
-    initResizeObserver();
-
-    let lastFrameTime = 0;
-    let running = false;
-    let raf = null;
-    function frame() {
-        const fps = 30;
-        const fpsInterval = 1000 / fps;
-        const now = Date.now();
-        const elapsed = now - lastFrameTime;
-
-        if (elapsed > fpsInterval) {
-            lastFrameTime = now - (elapsed % fpsInterval);
-
-            gl.clearColor(0, 0, 0, 0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-
-            const matrix = [
-                2, 0, 0, 0,
-                0, -2, 0, 0,
-                0, 0, 1, 0,
-                -1, 1, 0, 1,
-            ];
-            const bounds = [[0, 0], [1, 1]];
-
-            overlayGl.render(matrix, bounds);
-            particlesGl.prerender(matrix, bounds, 0);
-            particlesGl.render();
-        }
-
-        if (running) {
-            raf = requestAnimationFrame(frame);
-        }
-    }
-    function start() {
-        if (running) {
-            return;
-        }
-
-        running = true;
-        frame();
-    }
-    function stop() {
-        if (!running) {
-            return;
-        }
-
-        running = false;
-        if (raf) {
-            cancelAnimationFrame(raf);
-            raf = null;
-        }
-    }
-    function step() {
-        if (!running) {
-            frame();
-        }
-    }
-
-    start();
-
-    const meta = {
-        running: true,
-        step: () => step(),
-    };
-    async function update() {
-        const pixelRatio = window.devicePixelRatio || 1;
-        canvas.width = canvas.parentElement.clientWidth * pixelRatio;
-        canvas.height = canvas.parentElement.clientHeight * pixelRatio;
-
-        const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-        const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
-
-        config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
-        config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-        config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
-
-        overlayGl.update();
-        particlesGl.update();
-    }
-    const gui = initGui(config, update);
-    const debug = gui.addFolder('debug');
-    debug.add(meta, 'running').onChange(() => {
-        if (meta.running) {
-            start();
-        } else {
-            stop();
-        }
-    });
-    debug.add(meta, 'step');
-});
-</script>
+    <h1>Kamzek Weather</h1>
+    <ul>
+        <li><a href="./canvas.html">Canvas</a></li>
+        <li><a href="./mapbox.html">Mapbox</a></li>
+        <li><a href="./deck.gl.html">deck.gl</a></li>
+        <li><a href="./deck.gl-globe.html">deck.gl + GlobeView</a></li>
+        <li><a href="./deck.gl-mapbox.html">deck.gl + Mapbox</a></li>
+        <li><a href="./deck.gl-leaflet.html">deck.gl + Leaflet</a></li>
+    </ul>
 </body>
 </html>

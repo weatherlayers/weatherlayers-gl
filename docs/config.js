@@ -275,7 +275,7 @@ export async function loadConfig() {
     const staticConfig = {
         overlay: {
             colorFunction: null,
-            opacity: 0.1,
+            opacity: 0.2,
             colorBounds: null,
             legendWidth: 220,
             legendTicksCount: 6,

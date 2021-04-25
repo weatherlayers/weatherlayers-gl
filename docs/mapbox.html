@@ -2,44 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>weather-gl</title>
+    <title>kamzek-weather</title>
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Lucida Grande', sans-serif;
-            font-size: 12px;
-        }
-        #map {
-            width: 100vw;
-            height: 100vh;
-        }
-        #info {
-            position: absolute;
-            top: 0;
-            left: 15px;
-        }
-        #info1, #info2 {
-            padding: 4px 8px;
-            background: rgba(0, 0, 0, 0.5);
-            color: #eee;
-            backdrop-filter: blur(1px);
-        }
-        #info1:empty, #info2:empty {
-            display: none;
-        }
-        #info2 {
-            margin-top: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div id="map"></div>
+    <div id="container">
+        <div id="mapboxgl"></div>
+    </div>
     <div id="info">
         <div id="info1"></div>
         <div id="info2"></div>
@@ -48,22 +22,15 @@
 <script type="module">
 import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
 
-function round(value) {
-    return Math.floor(value * 10 ** 6) / 10 ** 6;
+function formatNumber(value, decimals = 6) {
+    return Math.floor(value * 10 ** decimals) / 10 ** decimals;
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
     const config = await loadConfig();
 
-    const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-    const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
-
-    config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
-    config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-    config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
-
     const map = new mapboxgl.Map({
-        container: 'map',
+        container: 'mapboxgl',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
         style: 'mapbox://styles/mapbox/dark-v10',
         center: [30, 0],
@@ -71,37 +38,113 @@ window.addEventListener('DOMContentLoaded', async () => {
         // FIXME: overzoomed particles don't move
         // center: [6.696399, 55.020684],
         // zoom: 15.5,
-        antialias: true,
     });
 
-    const overlayLayer = new WeatherGl.OverlayLayer(config.overlay);
-    const particlesLayer = new WeatherGl.ParticlesLayer(config.particles);
-    const legendControl = new WeatherGl.LegendControl(config.overlay);
-    map.triggerRepaint();
-    let initialized = false;
+    let legendControl;
+    let overlayLayer;
+    let particlesLayer;
 
-    const meta = {
-        running: true,
-        step: () => particlesLayer.step(),
+    function updateInfo() {
+        const geographicCenter = WeatherGl.getGeographicPosition(map.getCenter());
+        const mercatorCenter = WeatherGl.getMercatorPosition(map.getCenter());
+        const bounds = map.getBounds();
+        const geographicWorldBounds = [WeatherGl.getGeographicPosition(bounds.getNorthWest()), WeatherGl.getGeographicPosition(bounds.getSouthEast())];
+        const mercatorWorldBounds = [WeatherGl.getMercatorPosition(bounds.getNorthWest()), WeatherGl.getMercatorPosition(bounds.getSouthEast())];
+        const matrix = map.transform.customLayerMatrix();
+
+        document.getElementById('info1').innerHTML = `
+            Center: ${map.getCenter().toArray().map(x => formatNumber(x)).join(', ')}<br>
+            Center (geographic): ${formatNumber(geographicCenter[0])}, ${formatNumber(geographicCenter[1])}<br>
+            Center (mercator): ${formatNumber(mercatorCenter[0])}, ${formatNumber(mercatorCenter[1])}<br>
+            Zoom: ${formatNumber(map.getZoom())}<br>
+            Pitch: ${formatNumber(map.getPitch())}<br>
+            Bearing: ${formatNumber(map.getBearing())}
+            <br>
+            Bounds:<br>
+            <div class="grid-2">
+                ${bounds.getSouthWest().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+                ${bounds.getNorthEast().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            </div><br>
+            <br>
+            Bounds (geographic):<br>
+            <div class="grid-2">
+                ${geographicWorldBounds[0].map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+                ${geographicWorldBounds[1].map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            </div><br>
+            <br>
+            Bounds (mercator):<br>
+            <div class="grid-2">
+                ${mercatorWorldBounds[0].map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+                ${mercatorWorldBounds[1].map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            </div><br>
+            <br>
+            Matrix:<br>
+            <div class="grid-4">
+                ${matrix.map((x, i) => `<span>${Math.round(x)}${i < matrix.length - 1 ? ',' : ''}</span>`).join('')}
+            </div><br>
+        `;
     };
-    async function update() {
-        const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-        const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+    function updateMouseInfo(event) {
+        const geographicPosition = WeatherGl.getGeographicPosition(event.lngLat);
+        const mercatorPosition = WeatherGl.getMercatorPosition(event.lngLat);
+        const overlayValue = overlayLayer ? overlayLayer.getPositionValue(event.lngLat) : undefined;
+        const particlesVector = particlesLayer ? particlesLayer.getPositionVector(event.lngLat) : undefined;
+        const particlesBearing = particlesLayer ? particlesLayer.getPositionBearing(event.lngLat) : undefined;
 
-        config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
-        config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
-        config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
-
-        overlayLayer.update();
-        particlesLayer.update();
-        legendControl.update();
-        map.triggerRepaint();
+        document.getElementById('info2').innerHTML = `
+            Mouse:<br>
+            Position: ${formatNumber(event.lngLat.lng)}, ${formatNumber(event.lngLat.lat)}<br>
+            Position (geographic): ${formatNumber(geographicPosition[0])}, ${formatNumber(geographicPosition[1])}<br>
+            Position (mercator): ${formatNumber(mercatorPosition[0])}, ${formatNumber(mercatorPosition[1])}<br>
+            Overlay Value: ${typeof overlayValue !== 'undefined' ? formatNumber(overlayValue) : 'n/a'}<br>
+            Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
+            Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
+        `;
     }
-    function addGui() {
-        if (!initialized) {
-            setTimeout(addGui, 500);
-            return;
+    map.on('move', updateInfo);
+    map.on('zoom', updateInfo);
+    map.on('resize', updateInfo);
+    map.on('mousemove', updateMouseInfo);
+    updateInfo();
+
+    map.on('load', () => {
+        updateInfo();
+
+        // weather layers
+        async function update() {
+            const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+            const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+            config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+            config.overlay.image = await WeatherGl.loadImage(overlayUrl, config.overlay.imageBounds, { vector: config.overlay.vector, vectorToScalar: true });
+            config.particles.image = await WeatherGl.loadImage(particlesUrl, config.particles.imageBounds, { vector: true });
+
+            if (!legendControl) {
+                legendControl = new WeatherGl.LegendControl(config.overlay);
+                map.addControl(legendControl, 'bottom-left');
+            } else {
+                legendControl.update();
+            }
+            if (!overlayLayer) {
+                overlayLayer = new WeatherGl.OverlayLayer(config.overlay);
+                map.addLayer(overlayLayer, 'waterway-label');
+            } else {
+                overlayLayer.update();
+            }
+            if (!particlesLayer) {
+                particlesLayer = new WeatherGl.ParticlesLayer(config.particles);
+                map.addLayer(particlesLayer, 'waterway-label');
+            } else {
+                particlesLayer.update();
+            }
+            map.triggerRepaint();
         }
+        update();
+
+        // GUI
+        const meta = {
+            running: true,
+            step: () => particlesLayer.step(),
+        };
         const gui = initGui(config, update);
         const debug = gui.addFolder('debug');
         debug.add(meta, 'running').onChange(() => {
@@ -112,68 +155,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
         });
         debug.add(meta, 'step');
-    }
-    addGui();
-
-    const info1 = document.getElementById('info1');
-    const info2 = document.getElementById('info2');
-    const updateInfo = () => {
-        const center = map.getCenter();
-        const geographicCenter = WeatherGl.getGeographicPosition(center);
-        const mercatorCenter = WeatherGl.getMercatorPosition(center);
-        const matrix = map.transform.customLayerMatrix();
-        const worldBounds = [map.getBounds().getNorthWest(), map.getBounds().getSouthEast()];
-        const geographicWorldBounds = [WeatherGl.getGeographicPosition(worldBounds[0]), WeatherGl.getGeographicPosition(worldBounds[1])];
-        const mercatorWorldBounds = [WeatherGl.getMercatorPosition(worldBounds[0]), WeatherGl.getMercatorPosition(worldBounds[1])];
-
-        info1.innerHTML = `
-            Center: ${round(center.lng)}, ${round(center.lat)}<br>
-            Center (geographic): ${round(geographicCenter[0])}, ${round(geographicCenter[1])}<br>
-            Center (mercator): ${round(mercatorCenter[0])}, ${round(mercatorCenter[1])}<br>
-            Zoom: ${round(map.getZoom())}<br>
-            Pitch: ${round(map.getPitch())}<br>
-            Bearing: ${round(map.getBearing())}<br>
-            <br>
-            Matrix: <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-column-gap: 8px">${matrix.map((x, i) => `<span>${Math.round(x)}${i < matrix.length - 1 ? ',' : ''}</span>`).join('')}</div>
-            <br>
-            Bounds Min: ${round(worldBounds[0].lng)}, ${round(worldBounds[0].lat)}<br>
-            Bounds Max: ${round(worldBounds[1].lng)}, ${round(worldBounds[1].lat)}<br>
-            Bounds Min (geographic): ${round(geographicWorldBounds[0][0])}, ${round(geographicWorldBounds[0][1])}<br>
-            Bounds Max (geographic): ${round(geographicWorldBounds[1][0])}, ${round(geographicWorldBounds[1][1])}<br>
-            Bounds Min (mercator): ${round(mercatorWorldBounds[0][0])}, ${round(mercatorWorldBounds[0][1])}<br>
-            Bounds Max (mercator): ${round(mercatorWorldBounds[1][0])}, ${round(mercatorWorldBounds[1][1])}
-        `;
-    };
-    map.on('move', updateInfo);
-    map.on('zoom', updateInfo);
-    map.on('resize', updateInfo);
-    updateInfo();
-
-    map.on('style.load', () => {
-        map.addLayer(overlayLayer, 'waterway-label');
-        map.addLayer(particlesLayer, 'waterway-label');
-        map.addControl(legendControl, 'bottom-left');
-        updateInfo();
-        initialized = true;
-
-        map.on('mousemove', e => {
-            const position = e.lngLat;
-            const geographicPosition = WeatherGl.getGeographicPosition(position);
-            const mercatorPosition = WeatherGl.getMercatorPosition(position);
-            const overlayValue = overlayLayer.getPositionValue(position);
-            const particlesVector = particlesLayer.getPositionVector(position);
-            const particlesBearing = particlesLayer.getPositionBearing(position);
-
-            info2.innerHTML = `
-                Mouse:<br>
-                Position: ${round(position.lng)}, ${round(position.lat)}<br>
-                Position (geographic): ${round(geographicPosition[0])}, ${round(geographicPosition[1])}<br>
-                Position (mercator): ${round(mercatorPosition[0])}, ${round(mercatorPosition[1])}<br>
-                Overlay Value: ${typeof overlayValue !== 'undefined' ? round(overlayValue) : 'n/a'}<br>
-                Particles Vector: ${typeof particlesVector !== 'undefined' ? `${round(particlesVector[0])}, ${round(particlesVector[1])}` : 'n/a'}<br>
-                Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
-            `;
-        });
     });
 });
 </script>
