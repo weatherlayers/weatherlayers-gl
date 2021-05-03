@@ -196,31 +196,31 @@ export const colorFunctions = new Map([
         [80 / 100, [233, 251, 252]],
         [100 / 100, [255, 255, 255]],
     ])],
-    ['ecmwf/co', WeatherGl.Colors.µ.segmentedColorScale([
+    ['cams/co', WeatherGl.Colors.µ.segmentedColorScale([
         [0.0044e-6 / 9.4e-6, hexToRgb('#000000')], // opacity 0
         [0.44e-6 / 9.4e-6, hexToRgb('#c6bc73')],
         [4.4e-6 / 9.4e-6, hexToRgb('#e4672a')],
         [9.4e-6 / 9.4e-6, hexToRgb('#4b0c00')],
     ])],
-    ['ecmwf/so2', WeatherGl.Colors.µ.segmentedColorScale([
+    ['cams/so2', WeatherGl.Colors.µ.segmentedColorScale([
         [0.035e-9 / 75e-9, hexToRgb('#000000')], // opacity 0
         [3.5e-9 / 75e-9, hexToRgb('#c6bc73')],
         [35e-9 / 75e-9, hexToRgb('#e4672a')],
         [75e-9 / 75e-9, hexToRgb('#4b0c00')],
     ])],
-    ['ecmwf/no2', WeatherGl.Colors.µ.segmentedColorScale([
+    ['cams/no2', WeatherGl.Colors.µ.segmentedColorScale([
         [0.053e-9 / 100e-9, hexToRgb('#000000')], // opacity 0
         [5.3e-9 / 100e-9, hexToRgb('#c6bc73')],
         [53e-9 / 100e-9, hexToRgb('#e4672a')],
         [100e-9 / 100e-9, hexToRgb('#4b0c00')],
     ])],
-    ['ecmwf/pm2p5', WeatherGl.Colors.µ.segmentedColorScale([
+    ['cams/pm2p5', WeatherGl.Colors.µ.segmentedColorScale([
         [0.012e-9 / 35.4e-9, hexToRgb('#000000')], // opacity 0
         [1.2e-9 / 35.4e-9, hexToRgb('#c6bc73')],
         [12e-9 / 35.4e-9, hexToRgb('#e4672a')],
         [35.4e-9 / 35.4e-9, hexToRgb('#4b0c00')],
     ])],
-    ['ecmwf/pm10', WeatherGl.Colors.µ.segmentedColorScale([
+    ['cams/pm10', WeatherGl.Colors.µ.segmentedColorScale([
         [0.054e-9 / 154e-9, hexToRgb('#000000')], // opacity 0
         [5.4e-9 / 154e-9, hexToRgb('#c6bc73')],
         [54e-9 / 154e-9, hexToRgb('#e4672a')],
@@ -390,38 +390,38 @@ export async function loadConfig() {
             colorFunction: 'ostia/sea_ice_fraction',
             legendTitle: 'Sea Ice Fraction [%]',
         }],
-        ['ecmwf/co', {
+        ['cams/co', {
             imageBounds: [0.0044e-6, 9.4e-6],
             colorBounds: [0.0044e-6, 9.4e-6],
-            colorFunction: 'ecmwf/co',
+            colorFunction: 'cams/co',
             legendTitle: 'CO [μg/m³]',
             legendValueFormat: value => value * 1000000000,
         }],
-        ['ecmwf/so2', {
+        ['cams/so2', {
             imageBounds: [0.035e-9, 75e-9],
             colorBounds: [0.035e-9, 75e-9],
-            colorFunction: 'ecmwf/so2',
+            colorFunction: 'cams/so2',
             legendTitle: 'SO₂ [ppb]',
             legendValueFormat: value => value * 1000000000,
         }],
-        ['ecmwf/no2', {
+        ['cams/no2', {
             imageBounds: [0.053e-9, 100e-9],
             colorBounds: [0.053e-9, 100e-9],
-            colorFunction: 'ecmwf/no2',
+            colorFunction: 'cams/no2',
             legendTitle: 'NO₂ [ppb]',
             legendValueFormat: value => value * 1000000000,
         }],
-        ['ecmwf/pm2p5', {
+        ['cams/pm2p5', {
             imageBounds: [0.012e-9, 35.4e-9],
             colorBounds: [0.012e-9, 35.4e-9],
-            colorFunction: 'ecmwf/pm2p5',
+            colorFunction: 'cams/pm2p5',
             legendTitle: 'PM2.5 [μg/m³]',
             legendValueFormat: value => value * 1000000000,
         }],
-        ['ecmwf/pm10', {
+        ['cams/pm10', {
             imageBounds: [0.054e-9, 154e-9],
             colorBounds: [0.054e-9, 154e-9],
-            colorFunction: 'ecmwf/pm10',
+            colorFunction: 'cams/pm10',
             legendTitle: 'PM10 [μg/m³]',
             legendValueFormat: value => value * 1000000000,
         }],
