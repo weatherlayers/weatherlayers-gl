@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>kamzek-weather</title>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+    <script src="https://unpkg.com/deck.gl@8.4.13/dist.min.js"></script>
+    <script src="https://unpkg.com/@luma.gl/constants@8.4.4/dist/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/google-maps@8.4.15/dist/dist.dev.js"></script>
+    <script src="./deck.gl-raster.min.js"></script>
+    <script src="../dist/weather-gl.umd.min.js"></script>
+    <link href="./style.css" rel="stylesheet">
+</head>
+<body>
+    <div id="container">
+        <div id="google-maps"></div>
+    </div>
+    <div id="info">
+        <div id="info1"></div>
+        <div id="info2"></div>
+    </div>
+
+<script type="module">
+import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
+
+function formatNumber(value, decimals = 6) {
+    return Math.floor(value * 10 ** decimals) / 10 ** decimals;
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    const config = await loadConfig();
+
+    const map = new google.maps.Map(document.getElementById('google-maps'), {
+        center: { lng: 30, lat: 0 },
+        zoom: 0,
+        disableDefaultUI: true,
+    });
+
+    let legendControl;
+    let deckLayer;
+
+    // function updateInfo() {
+    //     const bounds = map.getBounds();
+
+    //     document.getElementById('info1').innerHTML = `
+    //         Center: ${map.getCenter().toArray().map(x => formatNumber(x)).join(', ')}<br>
+    //         Zoom: ${formatNumber(map.getZoom())}<br>
+    //         Pitch: ${formatNumber(map.getPitch())}<br>
+    //         Bearing: ${formatNumber(map.getBearing())}<br>
+    //         <br>
+    //         Bounds:<br>
+    //         <div class="grid-2">
+    //             ${bounds.getSouthWest().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+    //             ${bounds.getNorthEast().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+    //         </div><br>
+    //     `;
+    // };
+    // function updateMouseInfo(event) {
+    //     // TODO: RasterLayer picking, see https://github.com/kylebarron/deck.gl-raster/issues/32
+    //     const overlayValue = undefined; // overlayLayer ? overlayLayer.getPositionValue(event.lngLat) : undefined;
+    //     const particlesVector = undefined; // particlesLayer ? particlesLayer.getPositionVector(event.lngLat) : undefined;
+    //     const particlesBearing = undefined; // particlesLayer ? particlesLayer.getPositionBearing(event.lngLat) : undefined;
+
+    //     document.getElementById('info2').innerHTML = `
+    //         Mouse:<br>
+    //         Position: ${formatNumber(event.lngLat.lng)}, ${formatNumber(event.lngLat.lat)}<br>
+    //         Overlay Value: ${typeof overlayValue !== 'undefined' ? formatNumber(overlayValue) : 'n/a'}<br>
+    //         Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
+    //         Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
+    //     `;
+    // }
+    // map.on('move', updateInfo);
+    // map.on('zoom', updateInfo);
+    // map.on('resize', updateInfo);
+    // map.on('mousemove', updateMouseInfo);
+    // updateInfo();
+
+    deckLayer = new deck.GoogleMapsOverlay({
+        layers: [],
+    });
+    deckLayer.setMap(map);
+
+    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
+
+        // weather layers
+        async function update() {
+            const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
+            const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+            config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
+            const overlay = await loaders.load(overlayUrl, loaders.ImageLoader);
+            const colormap = await createImageBitmap(WeatherGl.colorRampCanvas(config.overlay.colorFunction));
+
+            if (!legendControl) {
+                legendControl = new WeatherGl.LegendControl(config.overlay);
+                const container = legendControl.onAdd();
+                container.style.position = 'absolute';
+                container.style.bottom = '10px';
+                container.style.left = '10px';
+                document.body.appendChild(container);
+            } else {
+                legendControl.update();
+            }
+
+            deckLayer.setProps({
+                layers: [
+                    new deck['gl-raster'].RasterLayer({
+                        id: 'raster',
+                        images: {
+                            imageRgba: {
+                                data: overlay,
+                                format: luma.default.RGB,
+                                parameters: {
+                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                },
+                            },
+                            imageColormap: {
+                                data: colormap,
+                                format: luma.default.RGB,
+                                parameters: {
+                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                },
+                            },
+                            imageMask: {
+                                data: overlay,
+                                format: luma.default.ALPHA,
+                                parameters: {
+                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                },
+                            },
+                        },
+                        modules: [
+                            deck['gl-raster'].rgbaImage,
+                            ...(config.overlay.vector ? [
+                                deck['gl-raster'].linearRescale,
+                                deck['gl-raster'].length,
+                            ] : []),
+                            deck['gl-raster'].colormap,
+                            deck['gl-raster'].maskImage,
+                        ],
+                        moduleProps: {
+                            linearRescaleScaler: 2,
+                            linearRescaleOffset: -1,
+                            colormapScaler: 1,
+                            colormapOffset: 0,
+                        },
+                        bounds: [-180, -90, 180, 90],
+                        opacity: config.overlay.opacity,
+                        _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+                    })
+                ],
+            });
+        }
+        update();
+
+        // GUI
+        const meta = {
+            running: true,
+            step: () => undefined, // particlesLayer.step(),
+        };
+        const gui = initGui(config, update);
+        const debug = gui.addFolder('debug');
+        debug.add(meta, 'running').onChange(() => {
+            // if (meta.running) {
+            //     particlesLayer.start();
+            // } else {
+            //     particlesLayer.stop();
+            // }
+        });
+        debug.add(meta, 'step');
+    });
+});
+</script>
+</body>
+</html>

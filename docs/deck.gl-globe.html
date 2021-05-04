@@ -9,11 +9,11 @@
     <script src="https://unpkg.com/@luma.gl/constants@8.4.4/dist/dist.min.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
     <div id="container">
-        <div id="deckgl"></div>
+        <div id="deck"></div>
     </div>
     <div id="info">
         <div id="info1"></div>
@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const config = await loadConfig();
 
     const deckgl = new deck.Deck({
-        parent: document.getElementById('deckgl'),
+        parent: document.getElementById('deck'),
         initialViewState: {
             longitude: 30,
             latitude: 0,
@@ -47,9 +47,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         layers: [
             new deck.SolidPolygonLayer({
                 id: 'background',
-                data: [
-                    [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
-                ],
+                data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
                 getPolygon: d => d,
                 stroked: false,
                 filled: true,
@@ -118,7 +116,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!legendControl) {
             legendControl = new WeatherGl.LegendControl(config.overlay);
             const container = legendControl.onAdd();
-            container.style.fontFamily = '"Helvetica Neue", Arial, Helvetica, sans-serif';
             container.style.position = 'absolute';
             container.style.bottom = '10px';
             container.style.left = '10px';

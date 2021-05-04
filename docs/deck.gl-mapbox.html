@@ -9,14 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="https://unpkg.com/deck.gl@8.4.13/dist.min.js"></script>
     <script src="https://unpkg.com/@luma.gl/constants@8.4.4/dist/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/mapbox@8.4.15/dist/dist.dev.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
     <div id="container">
-        <div id="mapboxgl"></div>
-        <div id="deckgl"></div>
+        <div id="mapbox"></div>
     </div>
     <div id="info">
         <div id="info1"></div>
@@ -34,7 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const config = await loadConfig();
 
     const map = new mapboxgl.Map({
-        container: 'mapboxgl',
+        container: 'mapbox',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
         style: 'mapbox://styles/mapbox/dark-v10',
         center: [30, 0],
@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     let legendControl;
-    let deckgl;
+    let mapboxDeckLayer;
 
     function updateInfo() {
         const bounds = map.getBounds();
@@ -83,33 +83,33 @@ window.addEventListener('DOMContentLoaded', async () => {
     map.on('load', () => {
         updateInfo();
 
-        deckgl = new deck.Deck({
-            parent: document.getElementById('deckgl'),
-            initialViewState: {
-                longitude: map.getCenter().lng,
-                latitude: map.getCenter().lat,
-                zoom: map.getZoom(),
-            },
-            controller: false,
-            views: [
-                new deck.MapView({
-                    repeat: true,
-                }),
-            ],
-            layers: [],
-        });
-        function updateDeckView() {
-            const viewState = {
-                longitude: map.getCenter().lng,
-                latitude: map.getCenter().lat,
-                zoom: map.getZoom(),
-                pitch: map.getPitch(),
-                bearing: map.getBearing(),
-            };
-            deckgl.setProps({ viewState });
-        }
-        map.on('move', updateDeckView);
-        map.on('zoom', updateDeckView);
+        // deckgl = new deck.Deck({
+        //     parent: document.getElementById('deck'),
+        //     initialViewState: {
+        //         longitude: map.getCenter().lng,
+        //         latitude: map.getCenter().lat,
+        //         zoom: map.getZoom(),
+        //     },
+        //     controller: false,
+        //     views: [
+        //         new deck.MapView({
+        //             repeat: true,
+        //         }),
+        //     ],
+        //     layers: [],
+        // });
+        // function updateDeckView() {
+        //     const viewState = {
+        //         longitude: map.getCenter().lng,
+        //         latitude: map.getCenter().lat,
+        //         zoom: map.getZoom(),
+        //         pitch: map.getPitch(),
+        //         bearing: map.getBearing(),
+        //     };
+        //     deckgl.setProps({ viewState });
+        // }
+        // map.on('move', updateDeckView);
+        // map.on('zoom', updateDeckView);
 
         // weather layers
         async function update() {
@@ -126,57 +126,58 @@ window.addEventListener('DOMContentLoaded', async () => {
                 legendControl.update();
             }
 
-            deckgl.setProps({
-                layers: [
-                    new deck['gl-raster'].RasterLayer({
-                        id: 'raster',
-                        images: {
-                            imageRgba: {
-                                data: overlay,
-                                format: luma.default.RGB,
-                                parameters: {
-                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
-                                },
-                            },
-                            imageColormap: {
-                                data: colormap,
-                                format: luma.default.RGB,
-                                parameters: {
-                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
-                                },
-                            },
-                            imageMask: {
-                                data: overlay,
-                                format: luma.default.ALPHA,
-                                parameters: {
-                                    [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                    [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
-                                },
-                            },
+            if (mapboxDeckLayer) {
+                map.removeLayer(mapboxDeckLayer.id);
+            }
+            mapboxDeckLayer = new deck.MapboxLayer({
+                type: deck['gl-raster'].RasterLayer,
+                id: 'raster',
+                images: {
+                    imageRgba: {
+                        data: overlay,
+                        format: luma.default.RGB,
+                        parameters: {
+                            [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                            [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
                         },
-                        modules: [
-                            deck['gl-raster'].rgbaImage,
-                            ...(config.overlay.vector ? [
-                                deck['gl-raster'].linearRescale,
-                                deck['gl-raster'].length,
-                            ] : []),
-                            deck['gl-raster'].colormap,
-                            deck['gl-raster'].maskImage,
-                        ],
-                        moduleProps: {
-                            linearRescaleScaler: 2,
-                            linearRescaleOffset: -1,
-                            colormapScaler: 1,
-                            colormapOffset: 0,
+                    },
+                    imageColormap: {
+                        data: colormap,
+                        format: luma.default.RGB,
+                        parameters: {
+                            [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                            [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
                         },
-                        bounds: [-180, -90, 180, 90],
-                        opacity: config.overlay.opacity,
-                        _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-                    }),
+                    },
+                    imageMask: {
+                        data: overlay,
+                        format: luma.default.ALPHA,
+                        parameters: {
+                            [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
+                            [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                        },
+                    },
+                },
+                modules: [
+                    deck['gl-raster'].rgbaImage,
+                    ...(config.overlay.vector ? [
+                        deck['gl-raster'].linearRescale,
+                        deck['gl-raster'].length,
+                    ] : []),
+                    deck['gl-raster'].colormap,
+                    deck['gl-raster'].maskImage,
                 ],
+                moduleProps: {
+                    linearRescaleScaler: 2,
+                    linearRescaleOffset: -1,
+                    colormapScaler: 1,
+                    colormapOffset: 0,
+                },
+                bounds: [-180, -90, 180, 90],
+                opacity: config.overlay.opacity,
+                _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
             });
+            map.addLayer(mapboxDeckLayer);
         }
         update();
 

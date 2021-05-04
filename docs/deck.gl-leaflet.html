@@ -13,7 +13,7 @@
     <script src="https://unpkg.com/deck.gl-leaflet@1.0.4/dist/deck.gl-leaflet.min.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
-    <link rel="stylesheet" href="./style.css">
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
     <div id="container">
@@ -35,7 +35,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const config = await loadConfig();
 
     const map = L.map('leaflet', {
-        center: [30, 0],
+        center: [0, 30],
         zoom: 0,
         zoomSnap: 0.001,
         zoomControl: false,
@@ -151,7 +151,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!legendControl) {
             legendControl = new WeatherGl.LegendControl(config.overlay);
             const container = legendControl.onAdd();
-            container.style.fontFamily = '"Helvetica Neue", Arial, Helvetica, sans-serif';
             container.style.position = 'absolute';
             container.style.bottom = '10px';
             container.style.left = '10px';

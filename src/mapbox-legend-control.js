@@ -13,6 +13,8 @@ export class LegendControl {
     onAdd() {
         this.container = document.createElement('div');
         this.container.className = 'mapboxgl-ctrl';
+        this.container.style.fontFamily = '"Helvetica Neue", Arial, Helvetica, sans-serif';
+        this.container.style.fontSize = '10px';
         this.container.style.background = 'rgba(255, 255, 255, 0.5)';
         this.container.style.backdropFilter = 'blur(1px)';
         this.container.style.fontSize = '10px';
