@@ -31,6 +31,7 @@
 
 <script type="module">
 import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
+import ClipExtension from './clip-extension.js';
 
 function formatNumber(value, decimals = 6) {
     return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -69,6 +70,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                 lineWidthMinPixels: 2,
                 getLineColor: [61, 61, 61],
                 getFillColor: [51, 51, 51],
+                extensions: [new ClipExtension()],
+                clipBounds: [-180, -85.06, 180, 85.06],
             }),
         ],
     });
@@ -170,7 +173,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         deck['gl-raster'].rgbaImage,
                         ...(config.overlay.vector ? [
                             deck['gl-raster'].linearRescale,
-                            deck['gl-raster'].length,
+                            deck['gl-raster'].vectorLength,
                         ] : []),
                         deck['gl-raster'].colormap,
                         deck['gl-raster'].maskImage,
@@ -184,6 +187,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                     bounds: [-180, -90, 180, 90],
                     opacity: config.overlay.opacity,
                     _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+                    extensions: [new ClipExtension()],
+                    clipBounds: [-180, -85.06, 180, 85.06],
                 }),
             ],
         });

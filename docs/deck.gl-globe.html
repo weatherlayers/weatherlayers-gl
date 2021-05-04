@@ -160,7 +160,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         deck['gl-raster'].rgbaImage,
                         ...(config.overlay.vector ? [
                             deck['gl-raster'].linearRescale,
-                            deck['gl-raster'].length,
+                            deck['gl-raster'].vectorLength,
                         ] : []),
                         deck['gl-raster'].colormap,
                         deck['gl-raster'].maskImage,
