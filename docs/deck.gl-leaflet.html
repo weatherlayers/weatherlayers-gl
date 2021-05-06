@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         zoomSnap: 0.001,
         zoomControl: false,
     });
-    L.vectorGrid.slicer({ type: 'GeometryCollection', geometries: [{ type: 'Polygon', coordinates: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]] }]}, {
+    L.vectorGrid.slicer({ type: 'GeometryCollection', geometries: [{ type: 'Polygon', coordinates: [[[-180, 85.051129], [0, 85.051129], [180, 85.051129], [180, -85.051129], [0, -85.051129], [-180, -85.051129]]] }]}, {
         rendererFactory: L.canvas.tile,
         vectorTileLayerStyles: {
             sliced: () => ({
@@ -209,7 +209,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     opacity: config.overlay.opacity,
                     _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
                     extensions: [new ClipExtension()],
-                    clipBounds: [-180, -85.06, 180, 85.06],
+                    clipBounds: [-180, -85.051129, 180, 85.051129],
                 }),
             ],
         });

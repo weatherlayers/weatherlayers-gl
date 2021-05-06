@@ -1,7 +1,6 @@
 export * as Colors from './colors/index.js';
 
 export { loadImage } from './load-image.js';
-export { clipImageMercator } from './clip-image-mercator.js';
 export { colorRampCanvas } from './color-ramp.js';
 
 // GL

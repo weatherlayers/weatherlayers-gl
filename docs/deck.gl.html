@@ -56,7 +56,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         layers: [
             new deck.SolidPolygonLayer({
                 id: 'background',
-                data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+                data: [[[-180, 85.051129], [0, 85.051129], [180, 85.051129], [180, -85.051129], [0, -85.051129], [-180, -85.051129]]],
                 getPolygon: d => d,
                 stroked: false,
                 filled: true,
@@ -71,7 +71,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 getLineColor: [61, 61, 61],
                 getFillColor: [51, 51, 51],
                 extensions: [new ClipExtension()],
-                clipBounds: [-180, -85.06, 180, 85.06],
+                clipBounds: [-180, -85.051129, 180, 85.051129],
             }),
         ],
     });
@@ -188,7 +188,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                     opacity: config.overlay.opacity,
                     _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
                     extensions: [new ClipExtension()],
-                    clipBounds: [-180, -85.06, 180, 85.06],
+                    clipBounds: [-180, -85.051129, 180, 85.051129],
                 }),
             ],
         });
