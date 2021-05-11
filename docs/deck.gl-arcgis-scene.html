@@ -5,9 +5,9 @@
     <title>kamzek-weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
-    <script src="https://unpkg.com/deck.gl@8.4.13/dist.min.js"></script>
+    <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
     <script src="https://unpkg.com/@luma.gl/constants@8.4.4/dist/dist.min.js"></script>
-    <script src="https://unpkg.com/@deck.gl/arcgis@8.4.15/dist/dist.dev.js"></script>
+    <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
     <link href="./style.css" rel="stylesheet">
@@ -23,7 +23,6 @@
 
 <script type="module">
 import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
-import ClipExtension from './clip-extension.js';
 
 function formatNumber(value, decimals = 6) {
     return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -177,7 +176,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         bounds: [-180, -90, 180, 90],
                         opacity: config.overlay.opacity,
                         _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-                        extensions: [new ClipExtension()],
+                        extensions: [new deck.ClipExtension()],
                         clipBounds: [-180, -85.051129, 180, 85.051129],
                     }),
                 ],
