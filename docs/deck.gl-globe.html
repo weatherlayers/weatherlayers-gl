@@ -6,7 +6,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
     <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
-    <script src="https://unpkg.com/@luma.gl/constants@8.4.4/dist/dist.min.js"></script>
+    <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
     <script src="../dist/weather-gl.umd.min.js"></script>
     <link href="./style.css" rel="stylesheet">
@@ -133,26 +133,26 @@ window.addEventListener('DOMContentLoaded', async () => {
                     images: {
                         imageRgba: {
                             data: overlay,
-                            format: luma.default.RGB,
+                            format: luma.GL.RGB,
                             parameters: {
-                                [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
                             },
                         },
                         imageColormap: {
                             data: colormap,
-                            format: luma.default.RGB,
+                            format: luma.GL.RGB,
                             parameters: {
-                                [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
                             },
                         },
                         imageMask: {
                             data: overlay,
-                            format: luma.default.ALPHA,
+                            format: luma.GL.ALPHA,
                             parameters: {
-                                [luma.default.TEXTURE_MIN_FILTER]: luma.default.LINEAR,
-                                [luma.default.TEXTURE_MAG_FILTER]: luma.default.LINEAR,
+                                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
                             },
                         },
                     },
