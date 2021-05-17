@@ -7,7 +7,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
-    <script src="../dist/weather-gl-old.umd.min.js"></script>
+    <script src="../dist/weather-gl.umd.min.js"></script>
     <link href="./style.css" rel="stylesheet">
 </head>
 <body>
@@ -20,7 +20,7 @@
     </div>
 
 <script type="module">
-import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
+import { getUrl, initColorFunctions, loadConfig, initGui } from './config.js';
 
 function formatNumber(value, decimals = 6) {
     return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -28,6 +28,7 @@ function formatNumber(value, decimals = 6) {
 
 window.addEventListener('DOMContentLoaded', async () => {
     const config = await loadConfig();
+    const colorFunctions = initColorFunctions();
 
     const map = new mapboxgl.Map({
         container: 'mapbox',
@@ -145,7 +146,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             running: true,
             step: () => particlesLayer.step(),
         };
-        const gui = initGui(config, update, true);
+        const gui = initGui(config, update, { particlesEnabled: true, colorFunctions });
         const debug = gui.addFolder('debug');
         debug.add(meta, 'running').onChange(() => {
             if (meta.running) {

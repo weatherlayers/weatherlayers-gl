@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
     <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
     <script src="./deck.gl-raster.min.js"></script>
-    <script src="../dist/weather-gl.umd.min.js"></script>
     <link href="./style.css" rel="stylesheet">
 </head>
 <body>
@@ -22,7 +21,8 @@
     </div>
 
 <script type="module">
-import { getUrl, colorFunctions, loadConfig, initGui } from './config.js';
+import { getUrl, getColormapUrl, loadConfig, initGui } from './config.js';
+import { LegendControl } from './legend-control.js';
 
 function formatNumber(value, decimals = 6) {
     return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -107,13 +107,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         // weather layers
         async function update() {
             const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-            const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
-            config.overlay.colorFunction = colorFunctions.get(config.meta.overlay.colorFunction);
             const overlay = await loaders.load(overlayUrl, loaders.ImageLoader);
-            const colormap = await createImageBitmap(WeatherGl.colorRampCanvas(config.overlay.colorFunction));
+            const colormapUrl = getColormapUrl(config.meta.dataset);
+            config.overlay.colormapUrl = colormapUrl;
+            const colormap = await loaders.load(colormapUrl, loaders.ImageLoader);
+            const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
 
             if (!legendControl) {
-                legendControl = new WeatherGl.LegendControl(config.overlay);
+                legendControl = new LegendControl(config.overlay);
                 const container = legendControl.onAdd();
                 container.style.position = 'absolute';
                 container.style.bottom = '10px';

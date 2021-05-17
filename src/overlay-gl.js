@@ -12,6 +12,7 @@ import { hasValues } from './has-values.js';
  *      image: { data: Float32Array, width: number, height: number, numDimensions: number };
  *      colorBounds: [number, number];
  *      colorFunction: (i: number) => (string | [number, number, number]);
+ *      colormapUrl: string;
  *      opacity: number;
  *      legendWidth: number;
  *      legendTitle: string;
