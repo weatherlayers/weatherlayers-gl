@@ -145,7 +145,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             running: true,
             step: () => particlesLayer.step(),
         };
-        const gui = initGui(config, update);
+        const gui = initGui(config, update, true);
         const debug = gui.addFolder('debug');
         debug.add(meta, 'running').onChange(() => {
             if (meta.running) {

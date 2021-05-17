@@ -488,7 +488,7 @@ function updateDatetimeOptions(gui, object, property, datetimes) {
     updateOptions(gui, object, property, options);
 }
 
-export function initGui(config, update) {
+export function initGui(config, update, particlesEnabled = false) {
     const { datasets, meta, staticConfig, overlayConfigs, particleConfigs } = config;
 
     const gui = new dat.GUI();
@@ -538,28 +538,30 @@ export function initGui(config, update) {
     overlay.add(meta.overlay, 'colorFunction', [...colorFunctions.keys()]).onFinishChange(update);
     overlay.add(config.overlay, 'opacity', 0, 1, 0.01).onFinishChange(update);
 
-    const particles = gui.addFolder('particles');
-    particles.add(meta.particles, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
-        // update particle config
-        meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
-        meta.particles.datetime = meta.datetime;
-        if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
-            meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
-        }
-        const particleConfig = { ...staticConfig.particles, ...particleConfigs.get(meta.particles.dataset) };
-        Object.keys(particleConfig).forEach(key => {
-            config.particles[key] = particleConfig[key];
-        });
+    if (particlesEnabled) {
+        const particles = gui.addFolder('particles');
+        particles.add(meta.particles, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
+            // update particle config
+            meta.particles.datetimes = getDatetimes(datasets, meta.particles.dataset);
+            meta.particles.datetime = meta.datetime;
+            if (!meta.particles.datetimes.includes(meta.particles.datetime)) {
+                meta.particles.datetime = [...meta.particles.datetimes].reverse().find(x => x <= meta.datetime);
+            }
+            const particleConfig = { ...staticConfig.particles, ...particleConfigs.get(meta.particles.dataset) };
+            Object.keys(particleConfig).forEach(key => {
+                config.particles[key] = particleConfig[key];
+            });
 
-        gui.updateDisplay();
-        update();
-    });
-    particles.add(config.particles, 'count', 0, 100000, 1).onFinishChange(update);
-    particles.add(config.particles, 'size', 0.5, 5, 0.5);
-    particles.addColor(config.particles, 'color');
-    particles.add(config.particles, 'opacity', 0, 1, 0.01);
-    particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
-    particles.add(config.particles, 'maxAge', 1, 255, 1);
+            gui.updateDisplay();
+            update();
+        });
+        particles.add(config.particles, 'count', 0, 100000, 1).onFinishChange(update);
+        particles.add(config.particles, 'size', 0.5, 5, 0.5);
+        particles.addColor(config.particles, 'color');
+        particles.add(config.particles, 'opacity', 0, 1, 0.01);
+        particles.add(config.particles, 'speedFactor', 0.05, 5, 0.01);
+        particles.add(config.particles, 'maxAge', 1, 255, 1);
+    }
 
     return gui;
 }

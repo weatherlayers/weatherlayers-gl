@@ -163,9 +163,13 @@ window.addEventListener('DOMContentLoaded', async () => {
                             colormapScaler: 1,
                             colormapOffset: 0,
                         },
-                        bounds: [-180, -90, 180, 90],
                         opacity: config.overlay.opacity,
+                        bounds: [-180, -90, 180, 90],
                         _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+                        parameters: {
+                            cull: true,
+                            depthTest: false,
+                        },
                     }),
                 ],
             });
@@ -173,20 +177,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         update();
 
         // GUI
-        const meta = {
-            running: true,
-            step: () => undefined, // particlesLayer.step(),
-        };
+        // const meta = {
+        //     running: true,
+        //     step: () => particlesLayer.step(),
+        // };
         const gui = initGui(config, update);
-        const debug = gui.addFolder('debug');
-        debug.add(meta, 'running').onChange(() => {
-            // if (meta.running) {
-            //     particlesLayer.start();
-            // } else {
-            //     particlesLayer.stop();
-            // }
-        });
-        debug.add(meta, 'step');
+        // const debug = gui.addFolder('debug');
+        // debug.add(meta, 'running').onChange(() => {
+        //     if (meta.running) {
+        //         particlesLayer.start();
+        //     } else {
+        //         particlesLayer.stop();
+        //     }
+        // });
+        // debug.add(meta, 'step');
     });
 });
 </script>
