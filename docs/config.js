@@ -1,4 +1,4 @@
-const ACCESS_TOKEN = '87zR5cusnpYPznXqUHWs'; // kamzek-weather token
+const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
 const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
 const DATA_URL = 'https://weather-api.kamzek.com/data';
 const DEFAULT_DATASET = 'gfs/wind';
