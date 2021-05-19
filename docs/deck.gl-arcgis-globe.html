@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <title>kamzek-weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+    <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
     <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
     <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
     <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
-    <script src="./deck.gl-raster.min.js?v=1"></script>
+    <script src="./deck.gl-raster.min.js"></script>
+    <script src="./deck.gl-particle.min.js"></script>
     <link href="./style.css" rel="stylesheet">
 </head>
 <body>
@@ -21,7 +22,8 @@
     </div>
 
 <script type="module">
-import { getUrl, getColormapUrl, loadConfig, initGui } from './config.js';
+import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+import { initConfig, initGui, initFpsMeter } from './config.js';
 import { LegendControl } from './legend-control.js';
 
 function formatNumber(value, decimals = 6) {
@@ -29,7 +31,8 @@ function formatNumber(value, decimals = 6) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    const config = await loadConfig();
+    const datasets = await loadDatasets();
+    const config = initConfig({ datasets });
 
     const { DeckRenderer, modules: [Map, SceneView, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
         'esri/Map',
@@ -70,14 +73,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     // };
     // function updateMouseInfo(event) {
     //     // TODO: RasterLayer picking, see https://github.com/kylebarron/deck.gl-raster/issues/32
-    //     const overlayValue = undefined; // overlayLayer ? overlayLayer.getPositionValue(event.lngLat) : undefined;
-    //     const particlesVector = undefined; // particlesLayer ? particlesLayer.getPositionVector(event.lngLat) : undefined;
-    //     const particlesBearing = undefined; // particlesLayer ? particlesLayer.getPositionBearing(event.lngLat) : undefined;
+    //     const rasterValue = undefined; // rasterLayer ? rasterLayer.getPositionValue(event.lngLat) : undefined;
+    //     const particlesVector = undefined; // particleLayer ? particleLayer.getPositionVector(event.lngLat) : undefined;
+    //     const particlesBearing = undefined; // particleLayer ? particleLayer.getPositionBearing(event.lngLat) : undefined;
 
     //     document.getElementById('info2').innerHTML = `
     //         Mouse:<br>
     //         Position: ${formatNumber(event.lngLat.lng)}, ${formatNumber(event.lngLat.lat)}<br>
-    //         Overlay Value: ${typeof overlayValue !== 'undefined' ? formatNumber(overlayValue) : 'n/a'}<br>
+    //         Raster Value: ${typeof rasterValue !== 'undefined' ? formatNumber(rasterValue) : 'n/a'}<br>
     //         Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
     //         Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
     //     `;
@@ -99,17 +102,16 @@ window.addEventListener('DOMContentLoaded', async () => {
             ],
         });
 
-        // weather layers
-        async function update() {
-            const overlayUrl = getUrl(config.datasets, config.meta.dataset, config.meta.datetime);
-            const overlay = await loaders.load(overlayUrl, loaders.ImageLoader);
+        // config
+        function update() {
+            const landUrl = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson';
             const colormapUrl = getColormapUrl(config.meta.dataset);
-            config.overlay.colormapUrl = colormapUrl;
-            const colormap = await loaders.load(colormapUrl, loaders.ImageLoader);
-            const particlesUrl = getUrl(config.datasets, config.meta.particles.dataset, config.meta.particles.datetime);
+            const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
+            const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+            config.raster.colormapUrl = colormapUrl;
 
             if (!legendControl) {
-                legendControl = new LegendControl(config.overlay);
+                legendControl = new LegendControl(config.raster);
                 const container = legendControl.onAdd();
                 container.style.position = 'absolute';
                 container.style.bottom = '10px';
@@ -125,7 +127,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         id: 'raster',
                         images: {
                             imageRgba: {
-                                data: overlay,
+                                data: rasterUrl,
                                 format: luma.GL.RGB,
                                 parameters: {
                                     [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
@@ -133,7 +135,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                                 },
                             },
                             imageColormap: {
-                                data: colormap,
+                                data: colormapUrl,
                                 format: luma.GL.RGBA,
                                 parameters: {
                                     [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
@@ -141,7 +143,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                                 },
                             },
                             imageMask: {
-                                data: overlay,
+                                data: rasterUrl,
                                 format: luma.GL.ALPHA,
                                 parameters: {
                                     [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
@@ -151,7 +153,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                         },
                         modules: [
                             deck['gl-raster'].rgbaImage,
-                            ...(config.overlay.vector ? [
+                            ...(config.raster.vector ? [
                                 deck['gl-raster'].linearRescale,
                                 deck['gl-raster'].vectorLength,
                             ] : []),
@@ -164,7 +166,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                             colormapScaler: 1,
                             colormapOffset: 0,
                         },
-                        opacity: config.overlay.opacity,
+                        opacity: config.raster.opacity,
                         bounds: [-180, -90, 180, 90],
                         _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
                         parameters: {
@@ -176,22 +178,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
         }
         update();
-
-        // GUI
-        // const meta = {
-        //     running: true,
-        //     step: () => particlesLayer.step(),
-        // };
-        const gui = initGui(config, update);
-        // const debug = gui.addFolder('debug');
-        // debug.add(meta, 'running').onChange(() => {
-        //     if (meta.running) {
-        //         particlesLayer.start();
-        //     } else {
-        //         particlesLayer.stop();
-        //     }
-        // });
-        // debug.add(meta, 'step');
+        initGui(config, update, { datasets });
+        initFpsMeter();
     });
 });
 </script>
