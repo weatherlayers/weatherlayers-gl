@@ -54,12 +54,12 @@ export function initConfig({ datasets } = {}) {
         ['gfs/apcp', {
             imageBounds: [0, 150],
             colorBounds: [0, 150],
-            legendTitle: 'Accumulated Precipitation [kg/m²]',
+            legendTitle: 'Precipitation Accumulation [kg/m²]',
         }],
-        ['gfs/apcp_next3h', {
+        ['gfs/apcp_3h', {
             imageBounds: [0, 150],
             colorBounds: [0, 150],
-            legendTitle: 'Next 3-hour Precipitation Accumulation [kg/m²]',
+            legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
         }],
         ['gfs/cape', {
             imageBounds: [0, 5000],
