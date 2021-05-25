@@ -129,20 +129,20 @@ export function initConfig({ datasets } = {}) {
             legendTitle: 'PM10 [μg/m³]',
             legendValueFormat: value => value * 1000000000,
         }],
-        ['ostia/analysed_sst', {
+        ['ostia_sst/analysed_sst', {
             imageBounds: [270 - 273.15, 304.65 - 273.15],
             colorBounds: [270 - 273.15, 304.65 - 273.15],
             legendTitle: 'Sea Surface Temperature [°C]',
         }],
-        ['ostia/sst_anomaly', {
-            imageBounds: [-11, 11],
-            colorBounds: [-11, 11],
-            legendTitle: 'Sea Surface Temperature Anomaly [°C]',
-        }],
-        ['ostia/sea_ice_fraction', {
+        ['ostia_sst/sea_ice_fraction', {
             imageBounds: [0, 100],
             colorBounds: [0, 100],
             legendTitle: 'Sea Ice Fraction [%]',
+        }],
+        ['ostia_anom/sst_anomaly', {
+            imageBounds: [-11, 11],
+            colorBounds: [-11, 11],
+            legendTitle: 'Sea Surface Temperature Anomaly [°C]',
         }],
         ['oscar/currents', {
             imageBounds: [-1, 1],
