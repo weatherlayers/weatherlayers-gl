@@ -99,28 +99,6 @@ export function initConfig({ datasets } = {}) {
             colorBounds: [0, 15],
             legendTitle: 'Significant Wave Height [m]',
         }],
-        ['oscar/currents', {
-            imageBounds: [-1, 1],
-            colorBounds: [0, 1.5],
-            legendTitle: 'Currents [m/s]',
-            legendValueDecimals: 1,
-            vector: true,
-        }],
-        ['ostia/analysed_sst', {
-            imageBounds: [270 - 273.15, 304.65 - 273.15],
-            colorBounds: [270 - 273.15, 304.65 - 273.15],
-            legendTitle: 'Sea Surface Temperature [°C]',
-        }],
-        ['ostia/sst_anomaly', {
-            imageBounds: [-11, 11],
-            colorBounds: [-11, 11],
-            legendTitle: 'Sea Surface Temperature Anomaly [°C]',
-        }],
-        ['ostia/sea_ice_fraction', {
-            imageBounds: [0, 100],
-            colorBounds: [0, 100],
-            legendTitle: 'Sea Ice Fraction [%]',
-        }],
         ['cams/co', {
             imageBounds: [0.0044e-6, 9.4e-6],
             colorBounds: [0.0044e-6, 9.4e-6],
@@ -150,6 +128,28 @@ export function initConfig({ datasets } = {}) {
             colorBounds: [0.054e-9, 154e-9],
             legendTitle: 'PM10 [μg/m³]',
             legendValueFormat: value => value * 1000000000,
+        }],
+        ['ostia/analysed_sst', {
+            imageBounds: [270 - 273.15, 304.65 - 273.15],
+            colorBounds: [270 - 273.15, 304.65 - 273.15],
+            legendTitle: 'Sea Surface Temperature [°C]',
+        }],
+        ['ostia/sst_anomaly', {
+            imageBounds: [-11, 11],
+            colorBounds: [-11, 11],
+            legendTitle: 'Sea Surface Temperature Anomaly [°C]',
+        }],
+        ['ostia/sea_ice_fraction', {
+            imageBounds: [0, 100],
+            colorBounds: [0, 100],
+            legendTitle: 'Sea Ice Fraction [%]',
+        }],
+        ['oscar/currents', {
+            imageBounds: [-1, 1],
+            colorBounds: [0, 1.5],
+            legendTitle: 'Currents [m/s]',
+            legendValueDecimals: 1,
+            vector: true,
         }],
     ]);
 
