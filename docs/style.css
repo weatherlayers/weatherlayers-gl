@@ -18,6 +18,9 @@ body {
     bottom: 0;
     left: 0;
 }
+#mapbox + #deck, #google-maps + #deck, #arcgis + #deck {
+    pointer-events: none;
+}
 #leaflet, #google-maps > div {
     background: transparent !important;
 }

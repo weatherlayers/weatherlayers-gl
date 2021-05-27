@@ -16,6 +16,7 @@
 <body>
     <div id="container">
         <div id="google-maps"></div>
+        <div id="deck"></div>
     </div>
     <div id="info">
         <div id="info1"></div>
@@ -41,9 +42,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         disableDefaultUI: true,
     });
 
-    let legendControl;
-    let deckLayer;
-
+    // info panels
     // function updateInfo() {
     //     const bounds = map.getBounds();
 
@@ -80,10 +79,38 @@ window.addEventListener('DOMContentLoaded', async () => {
     // map.on('mousemove', updateMouseInfo);
     // updateInfo();
 
-    deckLayer = new deck.GoogleMapsOverlay({
+    // layers
+    const deckLayer = new deck.GoogleMapsOverlay({
         layers: [],
     });
     deckLayer.setMap(map);
+    const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {},
+        controller: false,
+        layers: [],
+    });
+    function updateDeckView() {
+        const viewState = {
+            longitude: map.getCenter().lng(),
+            latitude: map.getCenter().lat(),
+            zoom: map.getZoom() - 1,
+        };
+        deckgl.setProps({ viewState });
+    }
+    google.maps.event.addListener(map, 'tilesloaded', updateDeckView);
+    google.maps.event.addListener(map, 'center_changed', updateDeckView);
+    google.maps.event.addListener(map, 'zoom_changed', updateDeckView);
+    google.maps.event.addListener(map, 'tilt_changed', updateDeckView);
+    google.maps.event.addListener(map, 'heading_changed', updateDeckView);
+
+    // animation
+    const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
+    const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
+    particleAnimation.start();
+
+    // legend
+    let legendControl;
 
     google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
         // config
@@ -96,17 +123,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             // deck.gl-raster doesn't re-render after URL is loaded
             const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
-
-            if (!legendControl) {
-                legendControl = new LegendControl(config.raster);
-                const container = legendControl.onAdd();
-                container.style.position = 'absolute';
-                container.style.bottom = '10px';
-                container.style.left = '10px';
-                document.body.appendChild(container);
-            } else {
-                legendControl.update();
-            }
 
             deckLayer.setProps({
                 layers: [
@@ -161,9 +177,36 @@ window.addEventListener('DOMContentLoaded', async () => {
                     })
                 ],
             });
+            deckgl.setProps({
+                layers: [
+                    ...(particleUrl ? [
+                        new DeckGlParticle.ParticleLayer({
+                            id: 'particle',
+                            image: particleUrl,
+                            numParticles: config.particle.numParticles,
+                            maxAge: config.particle.maxAge,
+                            speedFactor: config.particle.speedFactor,
+                            getColor: config.particle.color,
+                            getWidth: config.particle.width,
+                            opacity: config.particle.opacity,
+                        })
+                    ] : []),
+                ],
+            });
+
+            if (!legendControl) {
+                legendControl = new LegendControl(config.raster);
+                const container = legendControl.onAdd();
+                container.style.position = 'absolute';
+                container.style.bottom = '10px';
+                container.style.left = '10px';
+                document.body.appendChild(container);
+            } else {
+                legendControl.update();
+            }
         }
         update();
-        initGui(config, update, { datasets });
+        initGui(config, update, { datasets, getParticleLayer, particleAnimation });
         initFpsMeter();
     });
 });

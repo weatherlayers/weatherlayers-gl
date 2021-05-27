@@ -47,8 +47,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         layers: [],
     });
 
-    let legendControl;
-
+    // info panels
     function updateInfo(viewState) {
         const viewport = new deck._GlobeViewport(viewState);
         const bounds = viewport.getBounds();
@@ -86,19 +85,19 @@ window.addEventListener('DOMContentLoaded', async () => {
         onViewStateChange: ({ viewState }) => updateInfo(viewState),
         onHover: (event) => updateMouseInfo(event),
     });
-    const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
-
+    
     // animation
+    const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
     const rotateAnimation = new DeckGlParticle.Animation(() => {
-        deckgl.setProps({
-            initialViewState: {
-            ...deckgl.props.initialViewState,
-                longitude: deckgl.props.initialViewState.longitude + 0.3,
-            },
-        });
+        const initialViewState = { ...deckgl.props.initialViewState };
+        initialViewState.longitude += 0.3;
+        deckgl.setProps({ initialViewState });
     });
     const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
     particleAnimation.start();
+
+    // legend
+    let legendControl;
 
     // config
     async function update() {
@@ -110,17 +109,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         // deck.gl-raster doesn't re-render after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
-
-        if (!legendControl) {
-            legendControl = new LegendControl(config.raster);
-            const container = legendControl.onAdd();
-            container.style.position = 'absolute';
-            container.style.bottom = '10px';
-            container.style.left = '10px';
-            document.body.appendChild(container);
-        } else {
-            legendControl.update();
-        }
 
         deckgl.setProps({
             layers: [
@@ -206,6 +194,17 @@ window.addEventListener('DOMContentLoaded', async () => {
                 ] : []),
             ],
         });
+
+        if (!legendControl) {
+            legendControl = new LegendControl(config.raster);
+            const container = legendControl.onAdd();
+            container.style.position = 'absolute';
+            container.style.bottom = '10px';
+            container.style.left = '10px';
+            document.body.appendChild(container);
+        } else {
+            legendControl.update();
+        }
     }
     update();
     initGui(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation });

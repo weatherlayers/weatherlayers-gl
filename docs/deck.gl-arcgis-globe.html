@@ -15,6 +15,7 @@
 <body>
     <div id="container">
         <div id="arcgis"></div>
+        <div id="deck"></div>
     </div>
     <div id="info">
         <div id="info1"></div>
@@ -52,9 +53,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         zoom: 0,
     });
 
-    let legendControl;
-    let deckRenderer;
-
+    // info panels
     // function updateInfo() {
     //     const bounds = map.getBounds();
 
@@ -91,10 +90,49 @@ window.addEventListener('DOMContentLoaded', async () => {
     // map.on('mousemove', updateMouseInfo);
     // updateInfo();
 
+    // layers
+    const deckRenderer = new DeckRenderer(sceneView, {
+        layers: [],
+    });
+    const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {},
+        controller: false,
+        views: [
+            new deck._GlobeView(),
+        ],
+        layers: [],
+    });
+    function updateDeckView() {
+        const viewState = {
+            longitude: sceneView.center.longitude,
+            latitude: sceneView.center.latitude,
+            zoom: sceneView.zoom,
+        };
+        deckgl.setProps({ viewState });
+    }
+    watchUtils.whenFalseOnce(sceneView, 'updating', updateDeckView);
+    sceneView.on('drag', updateDeckView);
+    sceneView.on('mouse-wheel', updateDeckView);
+
+    // animation
+    const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
+    const rotateAnimation = new DeckGlParticle.Animation(() => {
+        const camera = sceneView.camera.clone();
+        camera.position.longitude += 0.3;
+        sceneView.goTo(camera, { animate: false });
+        
+        const viewState = { ...deckgl.props.viewState };
+        viewState.longitude += 0.3;
+        deckgl.setProps({ viewState });
+    });
+    const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
+    particleAnimation.start();
+
+    // legend
+    let legendControl;
+
     watchUtils.whenFalseOnce(sceneView, 'updating', () => {
-        deckRenderer = new DeckRenderer(sceneView, {
-            layers: [],
-        });
         externalRenderers.add(sceneView, deckRenderer);
         deckRenderer.deckInstance.setProps({
             views: [
@@ -112,17 +150,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             // deck.gl-raster doesn't re-render after URL is loaded
             const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
-
-            if (!legendControl) {
-                legendControl = new LegendControl(config.raster);
-                const container = legendControl.onAdd();
-                container.style.position = 'absolute';
-                container.style.bottom = '10px';
-                container.style.left = '10px';
-                document.body.appendChild(container);
-            } else {
-                legendControl.update();
-            }
 
             deckRenderer.deck.set({
                 layers: [
@@ -179,9 +206,36 @@ window.addEventListener('DOMContentLoaded', async () => {
                     }),
                 ],
             });
+            deckgl.setProps({
+                layers: [
+                    ...(particleUrl ? [
+                        new DeckGlParticle.ParticleLayer({
+                            id: 'particle',
+                            image: particleUrl,
+                            numParticles: config.particle.numParticles,
+                            maxAge: config.particle.maxAge,
+                            speedFactor: config.particle.speedFactor,
+                            getColor: config.particle.color,
+                            getWidth: config.particle.width,
+                            opacity: config.particle.opacity,
+                        })
+                    ] : []),
+                ],
+            });
+
+            if (!legendControl) {
+                legendControl = new LegendControl(config.raster);
+                const container = legendControl.onAdd();
+                container.style.position = 'absolute';
+                container.style.bottom = '10px';
+                container.style.left = '10px';
+                document.body.appendChild(container);
+            } else {
+                legendControl.update();
+            }
         }
         update();
-        initGui(config, update, { datasets });
+        initGui(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation });
         initFpsMeter();
     });
 });

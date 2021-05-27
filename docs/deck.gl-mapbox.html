@@ -17,6 +17,7 @@
 <body>
     <div id="container">
         <div id="mapbox"></div>
+        <div id="deck"></div>
     </div>
     <div id="info">
         <div id="info1"></div>
@@ -44,9 +45,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         zoom: 0,
     });
 
-    let legendControl;
-    let mapboxDeckLayer;
-
+    // info panels
     function updateInfo() {
         const bounds = map.getBounds();
 
@@ -83,36 +82,38 @@ window.addEventListener('DOMContentLoaded', async () => {
     map.on('mousemove', updateMouseInfo);
     updateInfo();
 
+    // layers
+    let deckLayer;
+    const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {},
+        controller: false,
+        layers: [],
+    });
+    function updateDeckView() {
+        const viewState = {
+            longitude: map.getCenter().lng,
+            latitude: map.getCenter().lat,
+            zoom: map.getZoom(),
+            pitch: map.getPitch(),
+            bearing: map.getBearing(),
+        };
+        deckgl.setProps({ viewState });
+    }
+    map.on('load', updateDeckView);
+    map.on('move', updateDeckView);
+    map.on('zoom', updateDeckView);
+
+    // animation
+    const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
+    const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
+    particleAnimation.start();
+
+    // legend
+    let legendControl;
+
     map.on('load', () => {
         updateInfo();
-
-        // deckgl = new deck.Deck({
-        //     parent: document.getElementById('deck'),
-        //     initialViewState: {
-        //         longitude: map.getCenter().lng,
-        //         latitude: map.getCenter().lat,
-        //         zoom: map.getZoom(),
-        //     },
-        //     controller: false,
-        //     views: [
-        //         new deck.MapView({
-        //             repeat: true,
-        //         }),
-        //     ],
-        //     layers: [],
-        // });
-        // function updateDeckView() {
-        //     const viewState = {
-        //         longitude: map.getCenter().lng,
-        //         latitude: map.getCenter().lat,
-        //         zoom: map.getZoom(),
-        //         pitch: map.getPitch(),
-        //         bearing: map.getBearing(),
-        //     };
-        //     deckgl.setProps({ viewState });
-        // }
-        // map.on('move', updateDeckView);
-        // map.on('zoom', updateDeckView);
 
         // config
         async function update() {
@@ -125,17 +126,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             // deck.gl-raster doesn't re-render after URL is loaded
             const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
 
-            if (!legendControl) {
-                legendControl = new LegendControl(config.raster);
-                map.addControl(legendControl, 'bottom-left');
-            } else {
-                legendControl.update();
+            if (deckLayer) {
+                map.removeLayer(deckLayer.id);
             }
-
-            if (mapboxDeckLayer) {
-                map.removeLayer(mapboxDeckLayer.id);
-            }
-            mapboxDeckLayer = new deck.MapboxLayer({
+            deckLayer = new deck.MapboxLayer({
                 type: deck['gl-raster'].RasterLayer,
                 id: 'raster',
                 images: {
@@ -185,10 +179,33 @@ window.addEventListener('DOMContentLoaded', async () => {
                 extensions: [new deck.ClipExtension()],
                 clipBounds: [-360, -85.051129, 360, 85.051129],
             });
-            map.addLayer(mapboxDeckLayer);
+            map.addLayer(deckLayer, 'waterway-label');
+            deckgl.setProps({
+                layers: [
+                    ...(particleUrl ? [
+                        new DeckGlParticle.ParticleLayer({
+                            id: 'particle',
+                            image: particleUrl,
+                            numParticles: config.particle.numParticles,
+                            maxAge: config.particle.maxAge,
+                            speedFactor: config.particle.speedFactor,
+                            getColor: config.particle.color,
+                            getWidth: config.particle.width,
+                            opacity: config.particle.opacity,
+                        })
+                    ] : []),
+                ],
+            });
+
+            if (!legendControl) {
+                legendControl = new LegendControl(config.raster);
+                map.addControl(legendControl, 'bottom-left');
+            } else {
+                legendControl.update();
+            }
         }
         update();
-        initGui(config, update, { datasets });
+        initGui(config, update, { datasets, getParticleLayer, particleAnimation });
         initFpsMeter();
     });
 });
