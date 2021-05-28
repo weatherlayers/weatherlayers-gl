@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>kamzek-weather</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
+  <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
+  <script src="https://unpkg.com/deck.gl-leaflet@1.0.6/dist/deck.gl-leaflet.min.js"></script>
+  <script src="./deck.gl-raster.min.js"></script>
+  <script src="./deck.gl-particle.min.js"></script>
+  <link href="./style.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="container">
+    <div id="leaflet"></div>
+  </div>
+  <div id="info">
+    <div id="info1"></div>
+    <div id="info2"></div>
+  </div>
+
+  <script type="module">
+    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { LegendControl } from './legend-control.js';
+
+    const landUrl = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson';
+
+    function formatNumber(value, decimals = 6) {
+      return Math.floor(value * 10 ** decimals) / 10 ** decimals;
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const datasets = await loadDatasets();
+      const config = initConfig({ datasets });
+
+      const map = L.map('leaflet', {
+        center: [0, 30],
+        zoom: 1,
+        zoomSnap: 0.001,
+        zoomControl: false,
+      });
+
+      // info panels
+      function updateInfo() {
+        const bounds = map.getBounds();
+
+        document.getElementById('info1').innerHTML = `
+            Center: ${L.GeoJSON.latLngToCoords(map.getCenter()).map(x => formatNumber(x)).join(', ')}<br>
+            Zoom: ${formatNumber(map.getZoom())}<br>
+            <br>
+            Bounds:<br>
+            <div class="grid-2">
+                ${L.GeoJSON.latLngToCoords(bounds.getSouthWest()).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+                ${L.GeoJSON.latLngToCoords(bounds.getNorthEast()).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            </div><br>
+        `;
+      };
+      function updateMouseInfo(event) {
+        // TODO: RasterLayer picking, see https://github.com/kylebarron/deck.gl-raster/issues/32
+        const rasterValue = undefined; // rasterLayer ? rasterLayer.getPositionValue(event.latlng) : undefined;
+        const particlesVector = undefined; // particleLayer ? particleLayer.getPositionVector(event.latlng) : undefined;
+        const particlesBearing = undefined; // particleLayer ? particleLayer.getPositionBearing(event.latlng) : undefined;
+
+        document.getElementById('info2').innerHTML = `
+            Mouse:<br>
+            Position: ${L.GeoJSON.latLngToCoords(event.latlng).map(x => formatNumber(x)).join(', ')}<br>
+            Raster Value: ${typeof rasterValue !== 'undefined' ? formatNumber(rasterValue) : 'n/a'}<br>
+            Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
+            Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
+        `;
+      }
+      map.on('move', updateInfo);
+      map.on('zoom', updateInfo);
+      map.on('resize', updateInfo);
+      map.on('mousemove', updateMouseInfo);
+      updateInfo();
+
+      // layers
+      L.vectorGrid.slicer({ type: 'GeometryCollection', geometries: [{ type: 'Polygon', coordinates: [[[-180, 85.051129], [0, 85.051129], [180, 85.051129], [180, -85.051129], [0, -85.051129], [-180, -85.051129]]] }] }, {
+        zIndex: 0,
+        pane: 'overlayPane',
+        rendererFactory: L.canvas.tile,
+        vectorTileLayerStyles: {
+          sliced: () => ({
+            stroke: false,
+            fill: true,
+            fillColor: 'rgb(26, 26, 26)',
+            fillOpacity: 1,
+          }),
+        },
+      }).addTo(map);
+      const deckLayer = new DeckGlLeaflet.LeafletLayer({
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
+        layers: [],
+      });
+      map.addLayer(deckLayer);
+      L.vectorGrid.slicer(await (await fetch('https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson')).json(), {
+        zIndex: 0,
+        pane: 'overlayPane',
+        rendererFactory: L.canvas.tile,
+        vectorTileLayerStyles: {
+          sliced: () => ({
+            stroke: true,
+            weight: 1,
+            color: 'rgb(255, 255, 255)',
+            opacity: 0.5,
+            fill: false,
+          }),
+        },
+      }).addTo(map);
+      const deckLayer2 = new DeckGlLeaflet.LeafletLayer({
+        layers: [],
+      });
+      map.addLayer(deckLayer2);
+
+      // animation
+      const getParticleLayer = () => deckLayer2.props.layers.find(x => x.id === 'particle');
+      const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
+      particleAnimation.start();
+
+      // legend
+      const legendControl = new LegendControl(config.raster);
+      document.body.appendChild(legendControl.onAdd());
+
+      // config
+      async function update() {
+        const colormapUrl = getColormapUrl(config.meta.dataset);
+        const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
+        const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+        config.raster.colormapUrl = colormapUrl;
+
+        // deck.gl-raster doesn't re-render after URL is loaded
+        const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
+
+        deckLayer.setProps({
+          layers: [
+            new deck['gl-raster'].RasterLayer({
+              id: 'raster',
+              images: {
+                imageRgba: {
+                  data: raster,
+                  format: luma.GL.RGB,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageColormap: {
+                  data: colormap,
+                  format: luma.GL.RGBA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageMask: {
+                  data: raster,
+                  format: luma.GL.ALPHA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+              },
+              modules: [
+                deck['gl-raster'].rgbaImage,
+                ...(config.raster.vector ? [
+                  deck['gl-raster'].linearRescale,
+                  deck['gl-raster'].vectorLength,
+                ] : []),
+                deck['gl-raster'].colormap,
+                deck['gl-raster'].maskImage,
+              ],
+              moduleProps: {
+                linearRescaleScaler: 2,
+                linearRescaleOffset: -1,
+                colormapScaler: 1,
+                colormapOffset: 0,
+              },
+              opacity: config.raster.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-360, -85.051129, 360, 85.051129],
+            }),
+          ],
+        });
+        deckLayer2.setProps({
+          layers: [
+            ...(particleUrl ? [
+              new DeckGlParticle.ParticleLayer({
+                id: 'particle',
+                image: particleUrl,
+                numParticles: config.particle.numParticles,
+                maxAge: config.particle.maxAge,
+                speedFactor: config.particle.speedFactor,
+                getColor: config.particle.color,
+                getWidth: config.particle.width,
+                opacity: config.particle.opacity,
+              }),
+            ] : []),
+          ],
+        });
+
+        legendControl.update(config.raster);
+      }
+      update();
+      initGui(config, update, { datasets, getParticleLayer, particleAnimation });
+      initFpsMeter();
+    });
+  </script>
+</body>
+
+</html>

@@ -55,3 +55,8 @@ body {
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-column-gap: 0.4ex; /* space */
 }
+body > .legend {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
