@@ -313,6 +313,10 @@ export function initGui(config, update, { datasets, getParticleLayer, rotateAnim
 export function initFpsMeter() {
     const stats = new Stats();
     stats.showPanel(0);
+    stats.dom.style.top = '';
+    stats.dom.style.left = '';
+    stats.dom.style.right = '0';
+    stats.dom.style.bottom = '0';
     document.body.appendChild(stats.dom);
     window.requestAnimationFrame(function updateFps() {
         stats.update();
