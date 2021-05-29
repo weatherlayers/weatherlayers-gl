@@ -26,7 +26,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, fixMapGeoJsonUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -39,6 +39,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      const landUrl2 = await fixMapGeoJsonUrl(landUrl);
 
       const map = new google.maps.Map(document.getElementById('google-maps'), {
         center: { lng: 30, lat: 0 },
@@ -90,7 +91,7 @@
         layers: [],
       });
       deckLayer.setMap(map);
-      map.data.loadGeoJson(landUrl);
+      map.data.loadGeoJson(landUrl2);
       map.data.setStyle({
         strokeWeight: 1,
         strokeColor: 'rgb(255, 255, 255)',

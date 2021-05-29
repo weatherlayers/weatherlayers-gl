@@ -23,7 +23,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, fixMapGeoJsonUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -36,6 +36,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      const landUrl2 = await fixMapGeoJsonUrl(landUrl);
 
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
@@ -182,14 +183,12 @@
             }),
             new deck.GeoJsonLayer({
               id: 'naturalearth',
-              data: landUrl,
+              data: landUrl2,
               stroked: true,
               filled: false,
               getLineColor: [255, 255, 255, 127],
               getLineWidth: 1,
               lineWidthUnits: 'pixels',
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
             ...(particleUrl ? [
               new DeckGlParticle.ParticleLayer({
