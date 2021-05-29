@@ -27,11 +27,9 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, fixMapGeoJsonUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
-
-    const landUrl = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -40,7 +38,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl2 = await fixMapGeoJsonUrl(landUrl);
+      const landUrl = await getLandUrl();
 
       const map = new mapboxgl.Map({
         container: 'mapbox',
@@ -92,7 +90,7 @@
       let deckLayer;
       map.addSource('naturalearth', {
         type: 'geojson',
-        data: landUrl2,
+        data: landUrl,
       });
       map.addLayer({
         id: 'naturalearth',
