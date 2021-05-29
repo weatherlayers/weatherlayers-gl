@@ -25,7 +25,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -36,12 +36,11 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl = await getLandUrl();
+      const land = await loadLand();
 
-      const { DeckRenderer, modules: [Map, SceneView, GeoJSONLayer, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
+      const { DeckRenderer, modules: [Map, SceneView, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
-        'esri/layers/GeoJSONLayer',
         'esri/core/watchUtils',
         'esri/views/3d/externalRenderers',
       ], { version: '4.19' });
@@ -50,14 +49,14 @@
         basemap: 'dark-gray-vector',
         layers: []
       });
-      const sceneView = new SceneView({
+      const view = new SceneView({
         container: 'arcgis',
         map: map,
         camera: {
           position: {
-            x: 30,
-            y: 0,
-            z: 100000000,
+            longitude: 30,
+            latitude: 0,
+            z: 100000 * 1000, // 100000 km
           },
         },
         viewingMode: 'local',
@@ -101,46 +100,40 @@
       // updateInfo();
 
       // layers
-      await watchUtils.whenFalseOnce(sceneView, 'updating');
-      const deckRenderer = new DeckRenderer(sceneView, {
+      await watchUtils.whenFalseOnce(view, 'updating');
+      const deckRenderer = new DeckRenderer(view, {
         layers: [],
       });
-      externalRenderers.add(sceneView, deckRenderer);
+      externalRenderers.add(view, deckRenderer);
       deckRenderer.deckInstance.setProps({
         views: [
           new deck.MapView({ repeat: true }),
         ],
       });
-      map.add(new GeoJSONLayer({
-        url: landUrl,
-        renderer: {
-          type: 'simple',
-          symbol: {
-            type: 'simple-line',
-            width: '1px',
-            color: 'rgb(255, 255, 255)',
-          },
-        },
-        opacity: 0.5,
-      }));
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
       });
+      // see https://github.com/visgl/deck.gl/blob/master/modules/arcgis/src/deck-renderer.js#L6
+      function arcgisFOVToDeckAltitude(fov, aspectRatio) {
+        const D = Math.sqrt(1 + aspectRatio ** 2);
+        const halfFOV = (fov / 2 / 180) * Math.PI;
+        return D / 2 / Math.tan(halfFOV);
+      }
       function updateDeckView() {
         const viewState = {
-          longitude: sceneView.center.longitude,
-          latitude: sceneView.center.latitude,
-          zoom: sceneView.zoom,
-          pitch: sceneView.camera.tilt,
-          bearing: sceneView.camera.heading,
+          longitude: view.center.longitude,
+          latitude: view.center.latitude,
+          altitude: arcgisFOVToDeckAltitude(view.camera.fov, view.size[0] / view.size[1]),
+          zoom: view.zoom,
+          pitch: view.camera.tilt,
+          bearing: view.camera.heading,
         };
         deckgl.setProps({ viewState });
       }
-      sceneView.on('drag', updateDeckView);
-      sceneView.on('mouse-wheel', updateDeckView);
+      view.watch('camera', updateDeckView);
       updateDeckView();
 
       // animation
@@ -212,6 +205,13 @@
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
+            }),
+            new deck.GeoJsonLayer({
+              id: 'land',
+              data: land,
+              getLineColor: [255, 255, 255, 127],
+              getLineWidth: 1,
+              lineWidthUnits: 'pixels',
             }),
           ],
         });

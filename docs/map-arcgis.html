@@ -25,7 +25,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -36,12 +36,11 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl = await getLandUrl();
+      const land = await loadLand();
 
-      const { DeckLayer, modules: [Map, MapView, GeoJSONLayer, watchUtils] } = await deck.loadArcGISModules([
+      const { DeckLayer, modules: [Map, MapView, watchUtils] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/MapView',
-        'esri/layers/GeoJSONLayer',
         'esri/core/watchUtils',
       ], { version: '4.19' });
 
@@ -49,7 +48,7 @@
         basemap: 'dark-gray-vector',
         layers: []
       });
-      const mapView = new MapView({
+      const view = new MapView({
         container: 'arcgis',
         map: map,
         center: [30, 0],
@@ -94,30 +93,18 @@
       // updateInfo();
 
       // layers
-      await watchUtils.whenFalseOnce(mapView, 'updating');
+      await watchUtils.whenFalseOnce(view, 'updating');
       const deckLayer = new DeckLayer({
         'deck.layers': [],
       });
       map.add(deckLayer);
-      const deckLayerView = await mapView.whenLayerView(deckLayer);
+      const deckLayerView = await view.whenLayerView(deckLayer);
       await watchUtils.whenFalseOnce(deckLayerView, 'updating');
       deckLayerView.deckInstance.setProps({
         views: [
           new deck.MapView({ repeat: true }),
         ],
       });
-      map.add(new GeoJSONLayer({
-        url: landUrl,
-        renderer: {
-          type: 'simple',
-          symbol: {
-            type: 'simple-line',
-            width: '1px',
-            color: 'rgb(255, 255, 255)',
-          },
-        },
-        opacity: 0.5,
-      }));
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
@@ -126,14 +113,16 @@
       });
       function updateDeckView() {
         const viewState = {
-          longitude: mapView.center.longitude,
-          latitude: mapView.center.latitude,
-          zoom: mapView.zoom,
+          longitude: view.center.longitude,
+          latitude: view.center.latitude,
+          zoom: view.zoom,
+          bearing: -view.rotation,
         };
         deckgl.setProps({ viewState });
       }
-      mapView.on('drag', updateDeckView);
-      mapView.on('mouse-wheel', updateDeckView);
+      view.watch('center', updateDeckView);
+      view.watch('zoom', updateDeckView);
+      view.watch('rotation', updateDeckView);
       updateDeckView();
 
       // animation
@@ -205,6 +194,21 @@
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new deck.GeoJsonLayer({
+              id: 'land',
+              data: land,
+              getLineColor: [255, 255, 255, 127],
+              getLineWidth: 1,
+              lineWidthUnits: 'pixels',
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
             }),
           ],
         });

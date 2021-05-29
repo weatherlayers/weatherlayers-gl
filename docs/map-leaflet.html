@@ -27,7 +27,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -38,7 +38,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl = await getLandUrl();
+      const land = await loadLand();
 
       const map = L.map('leaflet', {
         center: [0, 30],
@@ -83,18 +83,8 @@
       updateInfo();
 
       // layers
-      L.vectorGrid.slicer({ type: 'GeometryCollection', geometries: [{ type: 'Polygon', coordinates: [[[-180, 85.051129], [0, 85.051129], [180, 85.051129], [180, -85.051129], [0, -85.051129], [-180, -85.051129]]] }] }, {
-        zIndex: 0,
-        pane: 'overlayPane',
-        rendererFactory: L.canvas.tile,
-        vectorTileLayerStyles: {
-          sliced: () => ({
-            stroke: false,
-            fill: true,
-            fillColor: 'rgb(26, 26, 26)',
-            fillOpacity: 1,
-          }),
-        },
+      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+        attribution: 'Map tiles by <a href="https://carto.com/">Carto</a>, under CC BY 3.0. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under ODbL.'
       }).addTo(map);
       const deckLayer = new DeckGlLeaflet.LeafletLayer({
         views: [
@@ -103,20 +93,6 @@
         layers: [],
       });
       map.addLayer(deckLayer);
-      L.vectorGrid.slicer(await (await fetch(landUrl)).json(), {
-        zIndex: 0,
-        pane: 'overlayPane',
-        rendererFactory: L.canvas.tile,
-        vectorTileLayerStyles: {
-          sliced: () => ({
-            stroke: true,
-            weight: 1,
-            color: 'rgb(255, 255, 255)',
-            opacity: 0.5,
-            fill: false,
-          }),
-        },
-      }).addTo(map);
       const deckLayer2 = new DeckGlLeaflet.LeafletLayer({
         layers: [],
       });
@@ -191,6 +167,13 @@
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
+            }),
+            new deck.GeoJsonLayer({
+              id: 'land',
+              data: land,
+              getLineColor: [255, 255, 255, 127],
+              getLineWidth: 1,
+              lineWidthUnits: 'pixels',
             }),
           ],
         });

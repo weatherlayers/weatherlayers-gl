@@ -26,26 +26,7 @@ export function getDataUrl(datasets, datasetName, datetime) {
   return url;
 }
 
-export async function fixMapGeoJsonUrl(url) {
-  const geojson = await (await fetch(url)).json();
-
-  geojson.features.forEach(feature => {
-    if (feature.geometry.type === 'Polygon') {
-      feature.geometry.coordinates = feature.geometry.coordinates.map(polygon => {
-        return polygon.map(point => {
-          return [point[0], Math.min(Math.max(point[1], -85.051129), 85.051129)];
-        });
-      });
-    }
-  });
-
-  const blob = new Blob([JSON.stringify(geojson)], { type: 'application/json' });
-  const blobUrl = URL.createObjectURL(blob);
-
-  return blobUrl;
-}
-
-export async function getLandUrl() {
+export async function loadLand() {
   const isPointValid = point => -85.051129 < point[1] && point[1] < 85.051129;
 
   const url = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson';
@@ -91,9 +72,6 @@ export async function getLandUrl() {
 
     return newFeature;
   });
-
-  const blob = new Blob([JSON.stringify(geojson)], { type: 'application/json' });
-  const blobUrl = URL.createObjectURL(blob);
-
-  return blobUrl;
+  
+  return geojson;
 }

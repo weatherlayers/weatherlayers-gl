@@ -27,7 +27,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -38,7 +38,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl = await getLandUrl();
+      const land = await loadLand();
 
       const map = new mapboxgl.Map({
         container: 'mapbox',
@@ -88,20 +88,7 @@
       // layers
       await new Promise(resolve => map.on('load', resolve));
       let deckLayer;
-      map.addSource('naturalearth', {
-        type: 'geojson',
-        data: landUrl,
-      });
-      map.addLayer({
-        id: 'naturalearth',
-        source: 'naturalearth',
-        type: 'line',
-        paint: {
-          'line-width': 1,
-          'line-color': 'rgb(255, 255, 255)',
-          'line-opacity': 0.5,
-        },
-      });
+      let deckLayer2;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
@@ -195,6 +182,18 @@
           clipBounds: [-360, -85.051129, 360, 85.051129],
         });
         map.addLayer(deckLayer, 'waterway-label');
+        if (deckLayer2) {
+          map.removeLayer(deckLayer2.id);
+        }
+        deckLayer2 = new deck.MapboxLayer({
+          type: deck.GeoJsonLayer,
+          id: 'land2',
+          data: land,
+          getLineColor: [255, 255, 255, 127],
+          getLineWidth: 1,
+          lineWidthUnits: 'pixels',
+        });
+        map.addLayer(deckLayer2, 'waterway-label');
         deckgl.setProps({
           layers: [
             ...(particleUrl ? [

@@ -25,7 +25,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, getLandUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
@@ -36,12 +36,11 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const landUrl = await getLandUrl();
+      const land = await loadLand();
 
-      const { DeckRenderer, modules: [Map, SceneView, GeoJSONLayer, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
+      const { DeckRenderer, modules: [Map, SceneView, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
-        'esri/layers/GeoJSONLayer',
         'esri/core/watchUtils',
         'esri/views/3d/externalRenderers',
       ], { version: '4.19' });
@@ -50,11 +49,17 @@
         basemap: 'dark-gray-vector',
         layers: []
       });
-      const sceneView = new SceneView({
+      const view = new SceneView({
         container: 'arcgis',
         map: map,
-        center: [-100, 30],
-        zoom: 1.4,
+        camera: {
+          position: {
+            longitude: 30,
+            latitude: 0,
+            z: 25000 * 1000, // 25000 km
+          },
+        },
+        viewingMode: 'global',
       });
 
       // info panels
@@ -95,28 +100,16 @@
       // updateInfo();
 
       // layers
-      await watchUtils.whenFalseOnce(sceneView, 'updating');
-      const deckRenderer = new DeckRenderer(sceneView, {
+      await watchUtils.whenFalseOnce(view, 'updating');
+      const deckRenderer = new DeckRenderer(view, {
         layers: [],
       });
-      externalRenderers.add(sceneView, deckRenderer);
+      externalRenderers.add(view, deckRenderer);
       deckRenderer.deckInstance.setProps({
         views: [
           new deck._GlobeView(),
         ],
       });
-      map.add(new GeoJSONLayer({
-        url: landUrl,
-        renderer: {
-          type: 'simple',
-          symbol: {
-            type: 'simple-line',
-            width: '1px',
-            color: 'rgb(255, 255, 255)',
-          },
-        },
-        opacity: 0.5,
-      }));
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
@@ -126,28 +119,32 @@
         ],
         layers: [],
       });
+      // see https://github.com/visgl/deck.gl/blob/master/modules/arcgis/src/deck-renderer.js#L6
+      function arcgisFOVToDeckAltitude(fov, aspectRatio) {
+        const D = Math.sqrt(1 + aspectRatio ** 2);
+        const halfFOV = (fov / 2 / 180) * Math.PI;
+        return D / 2 / Math.tan(halfFOV);
+      }
       function updateDeckView() {
         const viewState = {
-          longitude: sceneView.center.longitude,
-          latitude: sceneView.center.latitude,
-          zoom: sceneView.zoom,
+          longitude: view.center.longitude,
+          latitude: view.center.latitude,
+          altitude: arcgisFOVToDeckAltitude(view.camera.fov, view.size[0] / view.size[1]),
+          zoom: view.zoom,
+          pitch: view.camera.tilt,
+          bearing: view.camera.heading,
         };
         deckgl.setProps({ viewState });
       }
-      sceneView.on('drag', updateDeckView);
-      sceneView.on('mouse-wheel', updateDeckView);
+      view.watch('camera', updateDeckView);
       updateDeckView();
 
       // animation
       const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
       const rotateAnimation = new DeckGlParticle.Animation(() => {
-        const camera = sceneView.camera.clone();
+        const camera = view.camera.clone();
         camera.position.longitude += 0.3;
-        sceneView.goTo(camera, { animate: false });
-
-        const viewState = { ...deckgl.props.viewState };
-        viewState.longitude += 0.3;
-        deckgl.setProps({ viewState });
+        view.goTo(camera, { animate: false });
       });
       const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
       particleAnimation.start();
@@ -214,6 +211,17 @@
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new deck.GeoJsonLayer({
+              id: 'land',
+              data: land,
+              getLineColor: [255, 255, 255, 127],
+              getLineWidth: 1,
+              lineWidthUnits: 'pixels',
               parameters: {
                 cull: true,
                 depthTest: false,
