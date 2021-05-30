@@ -4,26 +4,161 @@
 <head>
   <meta charset="utf-8">
   <title>kamzek-weather</title>
-  <style>
-    body {
-      font-family: 'Lucida Grande', sans-serif;
-      font-size: 12px;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
+  <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
+  <script src="./deck.gl-raster.min.js"></script>
+  <script src="./deck.gl-particle.min.js"></script>
+  <link href="./style.css" rel="stylesheet">
 </head>
 
 <body>
-  <h1>Kamzek Weather</h1>
-  <ul>
-    <li><a href="./map.html">Map</a></li>
-    <li><a href="./map-mapbox.html">Map + Mapbox</a></li>
-    <li><a href="./map-google-maps.html">Map + Google Maps</a></li>
-    <li><a href="./map-arcgis.html">Map + ArcGIS</a></li>
-    <li><a href="./map-arcgis-renderer.html">Map + ArcGIS renderer</a></li>
-    <li><a href="./map-leaflet.html">Map + Leaflet</a></li>
-    <li><a href="./globe.html">Globe</a></li>
-    <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a></li>
-  </ul>
+  <div id="container">
+    <div id="deck"></div>
+  </div>
+
+  <script type="module">
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { initConfig, initGui } from './config.js';
+    import { LegendControl } from './legend-control.js';
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const datasets = await loadDatasets();
+      const config = initConfig({ datasets });
+      const land = await loadLand();
+
+      const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {
+          longitude: -100,
+          latitude: 30,
+          zoom: 1.4,
+        },
+        controller: true,
+        views: [
+          new deck._GlobeView(),
+        ],
+        layers: [],
+      });
+
+      // animation
+      const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
+      const rotateAnimation = new DeckGlParticle.Animation(() => {
+        const initialViewState = { ...deckgl.props.initialViewState };
+        initialViewState.longitude += 0.3;
+        deckgl.setProps({ initialViewState });
+      });
+      const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
+      particleAnimation.start();
+
+      // legend
+      const legendControl = new LegendControl(config.raster);
+      document.body.appendChild(legendControl.onAdd());
+
+      // config
+      async function update() {
+        const colormapUrl = getColormapUrl(config.meta.dataset);
+        const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
+        const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+        config.raster.colormapUrl = colormapUrl;
+
+        // deck.gl-raster doesn't re-render after URL is loaded
+        const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
+
+        deckgl.setProps({
+          layers: [
+            new deck.SolidPolygonLayer({
+              id: 'background',
+              data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+              getPolygon: d => d,
+              stroked: false,
+              filled: true,
+              getFillColor: [26, 26, 26],
+            }),
+            new deck['gl-raster'].RasterLayer({
+              id: 'raster',
+              images: {
+                imageRgba: {
+                  data: raster,
+                  format: luma.GL.RGB,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageColormap: {
+                  data: colormap,
+                  format: luma.GL.RGBA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageMask: {
+                  data: raster,
+                  format: luma.GL.ALPHA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+              },
+              modules: [
+                deck['gl-raster'].rgbaImage,
+                ...(config.raster.vector ? [
+                  deck['gl-raster'].linearRescale,
+                  deck['gl-raster'].vectorLength,
+                ] : []),
+                deck['gl-raster'].colormap,
+                deck['gl-raster'].maskImage,
+              ],
+              moduleProps: {
+                linearRescaleScaler: 2,
+                linearRescaleOffset: -1,
+                colormapScaler: 1,
+                colormapOffset: 0,
+              },
+              opacity: config.raster.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new deck.GeoJsonLayer({
+              id: 'land',
+              data: land,
+              getLineColor: [255, 255, 255, 127],
+              getLineWidth: 1,
+              lineWidthUnits: 'pixels',
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            ...(particleUrl ? [
+              new DeckGlParticle.ParticleLayer({
+                id: 'particle',
+                image: particleUrl,
+                numParticles: config.particle.numParticles,
+                maxAge: config.particle.maxAge,
+                speedFactor: config.particle.speedFactor,
+                getColor: config.particle.color,
+                getWidth: config.particle.width,
+                opacity: config.particle.opacity,
+              }),
+            ] : []),
+          ],
+        });
+
+        legendControl.update(config.raster);
+      }
+      update();
+      initGui(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation });
+    });
+  </script>
 </body>
 
 </html>

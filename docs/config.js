@@ -13,7 +13,7 @@ function getDatetimes(datasets, datasetName) {
 export function initConfig({ datasets } = {}) {
   const staticConfig = {
     raster: {
-      opacity: 0.2,
+      opacity: 0.3,
       imageBounds: null,
       colorBounds: null,
       legendWidth: 220,
@@ -29,7 +29,6 @@ export function initConfig({ datasets } = {}) {
       color: [255, 255, 255],
       opacity: 0.01,
       width: 2,
-      waves: false, // wave particle shape
       animate: true,
     },
   };
@@ -156,22 +155,19 @@ export function initConfig({ datasets } = {}) {
   const particleConfigs = new Map([
     ['gfs/wind', {
       imageBounds: [-128, 127],
-      numParticles: 5000,
-      maxAge: 30, // 100,
-      speedFactor: 10, // 33 / 100,
+      maxAge: 25,     // 100,
+      speedFactor: 2, // 33 / 100,
     }],
     ['gfswave/waves', {
       imageBounds: [-20, 20],
-      numParticles: 5000,
-      maxAge: 40,
-      speedFactor: 33 / 612,
-      waves: true,
+      maxAge: 25,       // 40,
+      speedFactor: 0.2, // 33 / 612,
+      width: 10,
     }],
     ['oscar/currents', {
       imageBounds: [-1, 1],
-      numParticles: 5000,
-      maxAge: 100,
-      speedFactor: 33 / 7,
+      maxAge: 25,       // 100,
+      speedFactor: 0.2, // 33 / 7,
     }],
   ]);
 
@@ -214,7 +210,7 @@ function getDatetimeOptions(datetimes) {
   });
 }
 
-function updateOptions(gui, object, property, options) {
+function updateGuiOptions(gui, object, property, options) {
   const controller = gui.__controllers.find(x => x.object === object && x.property === property);
   const html = options.map(option => `<option value="${option.value}">${option.text}</option>`);
 
@@ -223,12 +219,12 @@ function updateOptions(gui, object, property, options) {
   gui.updateDisplay();
 }
 
-function updateDatetimeOptions(gui, object, property, datetimes) {
+function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   const options = getDatetimeOptions(datetimes);
-  updateOptions(gui, object, property, options);
+  updateGuiOptions(gui, object, property, options);
 }
 
-export function initGui(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation } = {}) {
+export function initGui(config, update, { datasets, rotateAnimation } = {}) {
   const { staticConfig, rasterConfigs, particleConfigs } = config;
 
   const gui = new dat.GUI();
@@ -237,7 +233,7 @@ export function initGui(config, update, { datasets, getParticleLayer, rotateAnim
   gui.add(config.meta, 'dataset', [...rasterConfigs.keys()]).onChange(async () => {
     // update datetime options
     config.meta.datetimes = getDatetimes(datasets, config.meta.dataset);
-    updateDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
+    updateGuiDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
     if (!config.meta.datetimes.includes(config.meta.datetime)) {
       config.meta.datetime = config.meta.datetimes[config.meta.datetimes.length - 1];
     }
@@ -271,10 +267,20 @@ export function initGui(config, update, { datasets, getParticleLayer, rotateAnim
 
     update();
   });
-  updateDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
+  updateGuiDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
   if (rotateAnimation) {
     gui.add(config.meta, 'rotate').onChange(() => rotateAnimation.toggle(config.meta.rotate));
   }
+
+  gui.add({ 'Documentation': () => location.href = './docs.html' }, 'Documentation');
+
+  return gui;
+}
+
+export function initGuiAdvanced(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation } = {}) {
+  const { staticConfig, particleConfigs } = config;
+
+  const gui = initGui(config, update, { datasets, rotateAnimation });
 
   const raster = gui.addFolder('RasterLayer');
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
@@ -301,13 +307,15 @@ export function initGui(config, update, { datasets, getParticleLayer, rotateAnim
     particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
     particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
     particle.addColor(config.particle, 'color').onChange(update);
-    particle.add(config.particle, 'width', 0.5, 5, 0.5).onChange(update);
+    particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
     particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
     particle.add(config.particle, 'animate').onChange(() => particleAnimation.toggle(config.particle.animate));
     particle.add({ frame: () => getParticleLayer()?.frame() }, 'frame');
     particle.add({ clear: () => getParticleLayer()?.clear() }, 'clear');
     particle.open();
   }
+
+  return gui;
 }
 
 export function initFpsMeter() {
@@ -322,4 +330,6 @@ export function initFpsMeter() {
     stats.update();
     window.requestAnimationFrame(updateFps);
   });
+
+  return stats;
 }

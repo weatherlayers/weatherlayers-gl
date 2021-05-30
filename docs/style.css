@@ -60,3 +60,9 @@ body > .legend {
     bottom: 10px;
     left: 10px;
 }
+.cr.function .property-name {
+    width: auto;
+}
+.cr.function .c {
+    display: none;
+}

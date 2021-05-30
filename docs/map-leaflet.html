@@ -28,7 +28,7 @@
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
-    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { initConfig, initGuiAdvanced, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
     function formatNumber(value, decimals = 6) {
@@ -197,7 +197,7 @@
         legendControl.update(config.raster);
       }
       update();
-      initGui(config, update, { datasets, getParticleLayer, particleAnimation });
+      initGuiAdvanced(config, update, { datasets, getParticleLayer, particleAnimation });
       initFpsMeter();
     });
   </script>

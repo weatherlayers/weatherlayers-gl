@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>kamzek-weather</title>
+  <style>
+    body {
+      font-family: 'Lucida Grande', sans-serif;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Kamzek Weather</h1>
+  <h2>Data sources</h2>
+  <p>Visualization data are created by processing the source data in GRIB2 and NetCDF formats in a perodical schedule, following the schedule of the respective data source:</p>
+  <ul>
+    <li>GFS - 6 hours</li>
+    <li>GFSWAVE - 6 hours</li>
+    <li>CAMS - 12 hours</li>
+    <li>OSTIA - 1 day</li>
+    <li>OSCAR - 5 days</li>
+  </ul>
+  <h2>Data formats</h2>
+  <p>Visualization data files contain the entire world in equirectangular (plate carrée) projection. Support for tiled data is on the roadmap.</p>
+  <p>Visualization data are published in multiple formats:</p>
+  <ul>
+    <li>PNG - values quantized into 8-bit color channels, leading to a resolution of 256 possible values.
+      <ul>
+        <li>scalar variable - encoded into RGB channels (grayscale image)</li>
+        <li>vector variable (wind, waves, currents) - u component encoded into R channel, v component encoded into G channel</li>
+      </ul>
+    <li>GeoTIFF - 32-bit float values</li>
+  </ul>
+  <p>PNG is the best choice for visualization-only use cases, because of the best compression ratio. However, quantization into 8-bit means that there is an implicit precision error. For use cases where exact values are needed (e.g. presenting a value at user mouse position), data formats supporting 32-bit float values are more suitable, such as GeoTIFF.</p>
+  <h2>Layers</h2>
+  <p>All layers are available as deck.gl plugins. They can be rendered either with standalone deck.gl, or integrated with any supported basemap library. See demos below.</p>
+  <h3>Raster layer</h3>
+  <p>Variables rendered as an overlay, colored by a colormap. Scalar variables are rendered as-is. Vector variables need to be converted to their length.</p>
+  <pre>
+import { COORDINATE_SYSTEM, Deck } from '@deck.gl/core';
+import { ClipExtension } from '@deck.gl/extensions';
+import GL from '@luma.gl/constants';
+import { load } from '@loaders.gl/core';
+import { RasterLayer, linearRescale, vectorLength, colormap, maskImage } from '@kylebarron/deck.gl-raster';
+
+const raster = await load(rasterUrl);
+const colormap = await load(colormapUrl);
+
+const deckgl = new Deck({
+  layers: [
+    new RasterLayer({
+      id: 'raster',
+      images: {
+        imageRgba: {
+          data: raster,
+          format: GL.RGB,
+          parameters: {
+            [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
+            [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
+          },
+        },
+        imageColormap: {
+          data: colormap,
+          format: GL.RGBA,
+          parameters: {
+            [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
+            [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
+          },
+        },
+        imageMask: {
+          data: raster,
+          format: GL.ALPHA,
+          parameters: {
+            [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
+            [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
+          },
+        },
+      },
+      modules: [
+        rgbaImage,
+        ...(config.raster.vector ? [
+          linearRescale,
+          vectorLength,
+        ] : []),
+        colormap,
+        maskImage,
+      ],
+      moduleProps: {
+        linearRescaleScaler: 2,
+        linearRescaleOffset: -1,
+        colormapScaler: 1,
+        colormapOffset: 0,
+      },
+      opacity: config.raster.opacity,
+      bounds: [-180, -90, 180, 90],
+      _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+      extensions: [new ClipExtension()],
+      clipBounds: [-360, -85.051129, 360, 85.051129],
+    }),
+  ],
+});
+  </pre>
+  <h3>Particle layer</h3>
+  <p>Vector variable rendered as animated particle simulation layer.</p>
+  <pre>
+import { Deck } from '@deck.gl/core';
+import { load } from '@loaders.gl/core';
+import { ParticleLayer } from 'deck.gl-particle';
+
+const particle = await load(particleUrl);
+
+const deckgl = new Deck({
+  layers: [
+    new DeckGlParticle.ParticleLayer({
+      id: 'particle',
+      image: particle,
+      numParticles: config.particle.numParticles,
+      maxAge: config.particle.maxAge,
+      speedFactor: config.particle.speedFactor,
+      getColor: config.particle.color,
+      getWidth: config.particle.width,
+      opacity: config.particle.opacity,
+    });
+  ],
+});
+  </pre>
+  <h3>Contour layer</h3>
+  <p>Scalar variable rendered as contours (isolines). WIP</p>
+  <h3>Symbol layer</h3>
+  <p>Vector variable rendered as symbols (arrows, wind barbs). WIP</p>
+  <h2>Demos</h2>
+  <ul>
+    <li><a href="./map.html">Map</a></li>
+    <li><a href="./map-arcgis.html">Map + ArcGIS</a> WIP</li>
+    <li><a href="./map-arcgis-renderer.html">Map + ArcGIS renderer</a> WIP</li>
+    <li><a href="./map-leaflet.html">Map + Leaflet</a> WIP</li>
+    <li><a href="./map-google-maps.html">Map + Google Maps</a></li>
+    <li><a href="./map-mapbox.html">Map + Mapbox</a></li>
+    <li><a href="./globe.html">Globe</a></li>
+    <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a> WIP</li>
+  </ul>
+  <h2>Weather layers as a service</h2>
+  <p>Interested in integrating weather layers into your existing map application? <a href="mailto:jan@kamzek.com">Get in touch to sign up for a private beta!</a></p>
+</body>
+
+</html>
