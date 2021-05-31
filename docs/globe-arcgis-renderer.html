@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
-  <script src="./deck.gl-particle.min.js"></script>
+  <script src="https://unpkg.com/deck.gl-particle@1.0.1/dist/deck.gl-particle.min.js"></script>
   <link href="./style.css" rel="stylesheet">
 </head>
 
@@ -27,6 +27,7 @@
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { Animation } from './animation.js';
     import { LegendControl } from './legend-control.js';
 
     function formatNumber(value, decimals = 6) {
@@ -140,7 +141,7 @@
       updateDeckView();
 
       // animation
-      const rotateAnimation = new DeckGlParticle.Animation(() => {
+      const rotateAnimation = new Animation(() => {
         const camera = view.camera.clone();
         camera.position.longitude += 0.3;
         view.goTo(camera, { animate: false });
