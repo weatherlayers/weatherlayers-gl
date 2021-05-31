@@ -111,18 +111,15 @@ const deckgl = new Deck({
   </pre>
   <h3>Particle layer</h3>
   <p>Vector variable rendered as animated particle simulation layer.</p>
-  <p>Requires <code>_animate: true</code> on Deck object.</p>
   <pre>
 import { Deck } from '@deck.gl/core';
+import { ParticleLayer } from 'deck.gl-particle';
 
-// build latest https://github.com/zakjan/deck.gl-particle
-import { ParticleLayer } from './deck.gl-particle';
-
-const particleUrl = ...;
+const particleUrl = ...; // string
 
 const deckgl = new Deck({
   layers: [
-    new DeckGlParticle.ParticleLayer({
+    new ParticleLayer({
       id: 'particle',
       image: particleUrl,
       numParticles: ..., // number
