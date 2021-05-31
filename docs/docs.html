@@ -24,7 +24,8 @@
     <li>OSCAR - 5 days</li>
   </ul>
   <h2>Data formats</h2>
-  <p>Visualization data files contain the entire world in equirectangular (plate carrée) projection. Support for tiled data is on the roadmap.</p>
+  <p>Visualization data files contain the entire world in equirectangular (plate carrée) projection.</p>
+  <p></p>Support for high-resolution tiled data is on the roadmap.</p>
   <p>Visualization data are published in multiple formats:</p>
   <ul>
     <li>PNG - values quantized into 8-bit color channels, leading to a resolution of 256 possible values.
@@ -34,11 +35,13 @@
       </ul>
     <li>GeoTIFF - 32-bit float values</li>
   </ul>
-  <p>PNG is the best choice for visualization-only use cases, because of the best compression ratio. However, quantization into 8-bit means that there is an implicit precision error. For use cases where exact values are needed (e.g. presenting a value at user mouse position), data formats supporting 32-bit float values are more suitable, such as GeoTIFF.</p>
+  <p>PNG is the best choice for visualization-only use cases, because of the best compression ratio. However, quantization into 8-bit means that there is an implicit precision error. For use cases where exact values are needed (e.g. picking an exact value at user mouse position), data formats supporting 32-bit float values are more suitable, such as GeoTIFF.</p>
   <h2>Layers</h2>
   <p>All layers are available as deck.gl plugins. They can be rendered either with standalone deck.gl, or integrated with any supported basemap library. See demos below.</p>
   <h3>Raster layer</h3>
-  <p>Variables rendered as an overlay, colored by a colormap. Scalar variables are rendered as-is. Vector variables need to be converted to their length.</p>
+  <p>Variables rendered as an overlay, colored by a colormap.</p>
+  <p>Scalar variables are rendered as-is. Vector variables need to be converted to their length.</p>
+  <p>Support for picking exact values is on the roadmap.</p>
   <pre>
 import { COORDINATE_SYSTEM, Deck } from '@deck.gl/core';
 import { ClipExtension } from '@deck.gl/extensions';
