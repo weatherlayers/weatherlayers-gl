@@ -275,6 +275,7 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
   }
 
   gui.add({ 'Documentation': () => location.href = './docs.html' }, 'Documentation');
+  gui.add({ 'Examples': () => location.href = './examples.html' }, 'Examples');
 
   return gui;
 }

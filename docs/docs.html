@@ -14,6 +14,7 @@
 
 <body>
   <h1>Kamzek Weather</h1>
+  <p><a href="./examples.html">Examples</a></p>
   <h2>Data sources</h2>
   <p>Visualization data are created by processing the source data in GRIB2 and NetCDF formats in a perodical schedule, following the schedule of the respective data source:</p>
   <ul>
@@ -37,7 +38,7 @@
   </ul>
   <p>PNG is the best choice for visualization-only use cases, because of the best compression ratio. However, quantization into 8-bit means that there is an implicit precision error. For use cases where exact values are needed (e.g. picking an exact value at user mouse position), data formats supporting 32-bit float values are more suitable, such as GeoTIFF.</p>
   <h2>Layers</h2>
-  <p>All layers are available as deck.gl plugins. They can be rendered either with standalone deck.gl, or integrated with any supported basemap library. See demos below.</p>
+  <p>All layers are available as deck.gl plugins. They can be rendered either with standalone deck.gl, or integrated with any supported basemap library.</p>
   <h3>Raster layer</h3>
   <p>Variables rendered as an overlay, colored by a colormap.</p>
   <p>Scalar variables are rendered as-is. Vector variables need to be converted to their length.</p>
@@ -139,17 +140,6 @@ const deckgl = new Deck({
   <p>Scalar variable rendered as contours (isolines). WIP</p>
   <h3>Symbol layer</h3>
   <p>Vector variable rendered as symbols (arrows, wind barbs). WIP</p>
-  <h2>Demos</h2>
-  <ul>
-    <li><a href="./map.html">Map</a></li>
-    <li><a href="./map-arcgis.html">Map + ArcGIS</a> WIP</li>
-    <li><a href="./map-arcgis-renderer.html">Map + ArcGIS renderer</a> WIP</li>
-    <li><a href="./map-leaflet.html">Map + Leaflet</a> WIP</li>
-    <li><a href="./map-google-maps.html">Map + Google Maps</a></li>
-    <li><a href="./map-mapbox.html">Map + Mapbox</a></li>
-    <li><a href="./globe.html">Globe</a></li>
-    <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a> WIP</li>
-  </ul>
   <h2>Weather layers as a service</h2>
   <p>Interested in integrating weather layers into your existing map application? <a href="mailto:jan@kamzek.com">Get in touch for a private beta!</a></p>
 </body>
