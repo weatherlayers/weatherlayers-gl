@@ -24,7 +24,7 @@
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
-    import { initConfig, initGuiAdvanced, initFpsMeter } from './config.js';
+    import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
     function formatNumber(value, decimals = 6) {
@@ -90,14 +90,11 @@
       });
 
       // animation
-      const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
       const rotateAnimation = new DeckGlParticle.Animation(() => {
         const initialViewState = { ...deckgl.props.initialViewState };
         initialViewState.longitude += 0.3;
         deckgl.setProps({ initialViewState });
       });
-      const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
-      particleAnimation.start();
 
       // legend
       const legendControl = new LegendControl(config.raster);
@@ -105,12 +102,12 @@
 
       // config
       async function update() {
-        const colormapUrl = getColormapUrl(config.meta.dataset);
-        const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
-        const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+        const colormapUrl = getColormapUrl(config.dataset);
+        const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
+        const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        // deck.gl-raster doesn't re-render after URL is loaded
+        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
 
         deckgl.setProps({
@@ -195,15 +192,18 @@
                 getColor: config.particle.color,
                 getWidth: config.particle.width,
                 opacity: config.particle.opacity,
-              }),
+                animate: config.particle.animate,
+              }),,
             ] : []),
           ],
+          _animate: particleUrl && config.particle.animate,
         });
 
+        rotateAnimation.toggle(config.rotate);
         legendControl.update(config.raster);
       }
       update();
-      initGuiAdvanced(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation });
+      initGui(config, update, { deckgl, datasets, globe: true });
       initFpsMeter();
     });
   </script>

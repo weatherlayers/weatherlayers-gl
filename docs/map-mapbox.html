@@ -28,7 +28,7 @@
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
-    import { initConfig, initGuiAdvanced, initFpsMeter } from './config.js';
+    import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
     function formatNumber(value, decimals = 6) {
@@ -109,23 +109,18 @@
       map.on('zoom', updateDeckView);
       updateDeckView();
 
-      // animation
-      const getParticleLayer = () => deckgl.props.layers.find(x => x.id === 'particle');
-      const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
-      particleAnimation.start();
-
       // legend
       const legendControl = new LegendControl();
       map.addControl(legendControl, 'bottom-left');
 
       // config
       async function update() {
-        const colormapUrl = getColormapUrl(config.meta.dataset);
-        const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
-        const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+        const colormapUrl = getColormapUrl(config.dataset);
+        const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
+        const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        // deck.gl-raster doesn't re-render after URL is loaded
+        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
 
         if (deckLayer) {
@@ -206,15 +201,17 @@
                 getColor: config.particle.color,
                 getWidth: config.particle.width,
                 opacity: config.particle.opacity,
-              })
+                animate: config.particle.animate,
+              }),
             ] : []),
           ],
+          _animate: particleUrl && config.particle.animate,
         });
 
         legendControl.update(config.raster);
       }
       update();
-      initGuiAdvanced(config, update, { datasets, getParticleLayer, particleAnimation });
+      initGui(config, update, { deckgl, datasets });
       initFpsMeter();
     });
   </script>

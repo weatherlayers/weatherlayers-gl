@@ -50,11 +50,11 @@ export function initConfig({ datasets } = {}) {
       colorBounds: [0, 100],
       legendTitle: 'Relative Humidity [%]',
     }],
-    ['gfs/apcp', {
-      imageBounds: [0, 150],
-      colorBounds: [0, 150],
-      legendTitle: 'Precipitation Accumulation [kg/m²]',
-    }],
+    // ['gfs/apcp', {
+    //   imageBounds: [0, 150],
+    //   colorBounds: [0, 150],
+    //   legendTitle: 'Precipitation Accumulation [kg/m²]',
+    // }],
     ['gfs/apcp_3h', {
       imageBounds: [0, 150],
       colorBounds: [0, 150],
@@ -172,27 +172,28 @@ export function initConfig({ datasets } = {}) {
   ]);
 
   const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
-  const meta = {
-    dataset: DEFAULT_DATASET,
-    datetimes: datetimes,
-    datetime: datetimes[datetimes.length - 1],
-    rotate: false,
-    raster: {},
-    particle: {
-      dataset: DEFAULT_DATASET,
-      datetimes: datetimes,
-      datetime: datetimes[datetimes.length - 1],
-    },
-  };
 
   const config = {
     staticConfig,
     rasterConfigs,
     particleConfigs,
 
-    meta,
-    raster: { ...staticConfig.raster, ...rasterConfigs.get(meta.dataset) },
-    particle: { ...staticConfig.particle, ...particleConfigs.get(meta.particle.dataset) },
+    dataset: DEFAULT_DATASET,
+    datetimes: datetimes,
+    datetime: datetimes[datetimes.length - 1],
+    rotate: false,
+
+    raster: {
+      ...staticConfig.raster,
+      ...rasterConfigs.get(DEFAULT_DATASET),
+    },
+    particle: {
+      dataset: DEFAULT_DATASET,
+      datetimes: datetimes,
+      datetime: datetimes[datetimes.length - 1],
+      ...staticConfig.particle,
+      ...particleConfigs.get(DEFAULT_DATASET),
+    },
   };
 
   return config;
@@ -224,34 +225,34 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
-export function initGui(config, update, { datasets, rotateAnimation } = {}) {
+export function initGuiSimple(config, update, { datasets, globe } = {}) {
   const { staticConfig, rasterConfigs, particleConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
 
-  gui.add(config.meta, 'dataset', [...rasterConfigs.keys()]).onChange(async () => {
+  gui.add(config, 'dataset', [...rasterConfigs.keys()]).onChange(async () => {
     // update datetime options
-    config.meta.datetimes = getDatetimes(datasets, config.meta.dataset);
-    updateGuiDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
-    if (!config.meta.datetimes.includes(config.meta.datetime)) {
-      config.meta.datetime = config.meta.datetimes[config.meta.datetimes.length - 1];
+    config.datetimes = getDatetimes(datasets, config.dataset);
+    updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
+    if (!config.datetimes.includes(config.datetime)) {
+      config.datetime = config.datetimes[config.datetimes.length - 1];
     }
 
     // update raster config
-    const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.meta.dataset) };
+    const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.dataset) };
     Object.keys(rasterConfig).forEach(key => {
       config.raster[key] = rasterConfig[key];
     });
 
     // update particle config
-    config.meta.particle.dataset = particleConfigs.has(config.meta.dataset) ? config.meta.dataset : 'none';
-    config.meta.particle.datetimes = getDatetimes(datasets, config.meta.particle.dataset);
-    config.meta.particle.datetime = config.meta.datetime;
-    if (!config.meta.particle.datetimes.includes(config.meta.particle.datetime)) {
-      config.meta.particle.datetime = [...config.meta.particle.datetimes].reverse().find(x => x <= config.meta.datetime);
+    config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : 'none';
+    config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
+    config.particle.datetime = config.datetime;
+    if (!config.particle.datetimes.includes(config.particle.datetime)) {
+      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
     }
-    const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.meta.particle.dataset) };
+    const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
     Object.keys(particleConfig).forEach(key => {
       config.particle[key] = particleConfig[key];
     });
@@ -259,17 +260,18 @@ export function initGui(config, update, { datasets, rotateAnimation } = {}) {
     gui.updateDisplay();
     update();
   });
-  gui.add(config.meta, 'datetime', []).onChange(() => {
-    config.meta.particle.datetime = config.meta.datetime;
-    if (!config.meta.particle.datetimes.includes(config.meta.particle.datetime)) {
-      config.meta.particle.datetime = [...config.meta.particle.datetimes].reverse().find(x => x <= config.meta.datetime);
+  gui.add(config, 'datetime', []).onChange(() => {
+    config.particle.datetime = config.datetime;
+    if (!config.particle.datetimes.includes(config.particle.datetime)) {
+      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
     }
 
     update();
   });
-  updateGuiDatetimeOptions(gui, config.meta, 'datetime', config.meta.datetimes);
-  if (rotateAnimation) {
-    gui.add(config.meta, 'rotate').onChange(() => rotateAnimation.toggle(config.meta.rotate));
+  updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
+
+  if (globe) {
+    gui.add(config, 'rotate').onChange(update);
   }
 
   gui.add({ 'Documentation': () => location.href = './docs.html' }, 'Documentation');
@@ -277,43 +279,41 @@ export function initGui(config, update, { datasets, rotateAnimation } = {}) {
   return gui;
 }
 
-export function initGuiAdvanced(config, update, { datasets, getParticleLayer, rotateAnimation, particleAnimation } = {}) {
+export function initGui(config, update, { deckgl, datasets, globe } = {}) {
   const { staticConfig, particleConfigs } = config;
 
-  const gui = initGui(config, update, { datasets, rotateAnimation });
+  const gui = initGuiSimple(config, update, { datasets, globe });
 
   const raster = gui.addFolder('RasterLayer');
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
-  if (getParticleLayer) {
-    const particle = gui.addFolder('ParticleLayer');
-    particle.add(config.meta.particle, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
-      // update particle config
-      config.meta.particle.datetimes = getDatetimes(datasets, config.meta.particle.dataset);
-      config.meta.particle.datetime = config.meta.datetime;
-      if (!config.meta.particle.datetimes.includes(config.meta.particle.datetime)) {
-        config.meta.particle.datetime = [...config.meta.particle.datetimes].reverse().find(x => x <= config.meta.datetime);
-      }
-      const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.meta.particle.dataset) };
-      Object.keys(particleConfig).forEach(key => {
-        config.particle[key] = particleConfig[key];
-      });
-
-      gui.updateDisplay();
-      update();
+  const particle = gui.addFolder('ParticleLayer');
+  particle.add(config.particle, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
+    // update particle config
+    config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
+    config.particle.datetime = config.datetime;
+    if (!config.particle.datetimes.includes(config.particle.datetime)) {
+      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
+    }
+    const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
+    Object.keys(particleConfig).forEach(key => {
+      config.particle[key] = particleConfig[key];
     });
-    particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
-    particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
-    particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
-    particle.addColor(config.particle, 'color').onChange(update);
-    particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
-    particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
-    particle.add(config.particle, 'animate').onChange(() => particleAnimation.toggle(config.particle.animate));
-    particle.add({ frame: () => getParticleLayer()?.frame() }, 'frame');
-    particle.add({ clear: () => getParticleLayer()?.clear() }, 'clear');
-    particle.open();
-  }
+
+    gui.updateDisplay();
+    update();
+  });
+  particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
+  particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
+  particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
+  particle.addColor(config.particle, 'color').onChange(update);
+  particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
+  particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
+  particle.add(config.particle, 'animate').onChange(update);
+  particle.add({ step: () => deckgl.props.layers.find(x => x.id === 'particle')?.step() }, 'step');
+  particle.add({ clear: () => deckgl.props.layers.find(x => x.id === 'particle')?.clear() }, 'clear');
+  particle.open();
 
   return gui;
 }

@@ -11,15 +11,18 @@ body {
     position: relative;
     z-index: 0;
 }
-#canvas, #mapbox, #google-maps, #arcgis, #leaflet, #deck {
+#arcgis, #leaflet, #google-maps, #mapbox, #deck {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
 }
-#mapbox + #deck, #google-maps + #deck, #arcgis + #deck {
+#arcgis + #deck, #leaflet + #deck, #google-maps + #deck, #mapbox + #deck {
     pointer-events: none;
+}
+#leaflet + #deck {
+    z-index: 1000;
 }
 #leaflet, #google-maps > div {
     background: transparent !important;

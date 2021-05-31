@@ -20,6 +20,7 @@
 <body>
   <div id="container">
     <div id="leaflet"></div>
+    <div id="deck"></div>
   </div>
   <div id="info">
     <div id="info1"></div>
@@ -28,7 +29,7 @@
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
-    import { initConfig, initGuiAdvanced, initFpsMeter } from './config.js';
+    import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend-control.js';
 
     function formatNumber(value, decimals = 6) {
@@ -93,15 +94,26 @@
         layers: [],
       });
       map.addLayer(deckLayer);
-      const deckLayer2 = new DeckGlLeaflet.LeafletLayer({
+      const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {},
+        controller: false,
         layers: [],
       });
-      map.addLayer(deckLayer2);
+      function updateDeckView() {
+        const viewState = {
+          longitude: map.getCenter().lng,
+          latitude: map.getCenter().lat,
+          zoom: map.getZoom() - 1,
+        };
+        deckgl.setProps({ viewState });
+      }
+      map.on('move', updateDeckView);
+      map.on('zoom', updateDeckView);
+      updateDeckView();
 
       // animation
       const getParticleLayer = () => deckLayer2.props.layers.find(x => x.id === 'particle');
-      const particleAnimation = new DeckGlParticle.Animation(() => getParticleLayer()?.frame());
-      particleAnimation.start();
 
       // legend
       const legendControl = new LegendControl(config.raster);
@@ -109,12 +121,12 @@
 
       // config
       async function update() {
-        const colormapUrl = getColormapUrl(config.meta.dataset);
-        const rasterUrl = getDataUrl(datasets, config.meta.dataset, config.meta.datetime);
-        const particleUrl = getDataUrl(datasets, config.meta.particle.dataset, config.meta.particle.datetime);
+        const colormapUrl = getColormapUrl(config.dataset);
+        const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
+        const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        // deck.gl-raster doesn't re-render after URL is loaded
+        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
 
         deckLayer.setProps({
@@ -177,7 +189,7 @@
             }),
           ],
         });
-        deckLayer2.setProps({
+        deckgl.setProps({
           layers: [
             ...(particleUrl ? [
               new DeckGlParticle.ParticleLayer({
@@ -189,15 +201,17 @@
                 getColor: config.particle.color,
                 getWidth: config.particle.width,
                 opacity: config.particle.opacity,
-              }),
+                animate: config.particle.animate,
+              }),,
             ] : []),
           ],
+          _animate: particleUrl && config.particle.animate,
         });
 
         legendControl.update(config.raster);
       }
       update();
-      initGuiAdvanced(config, update, { datasets, getParticleLayer, particleAnimation });
+      initGui(config, update, { deckgl, datasets });
       initFpsMeter();
     });
   </script>

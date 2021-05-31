@@ -29,7 +29,7 @@ export function getDataUrl(datasets, datasetName, datetime) {
 export async function loadLand() {
   const isPointValid = point => -85.051129 < point[1] && point[1] < 85.051129;
 
-  const url = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson';
+  const url = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson';
   const geojson = await (await fetch(url)).json();
 
   // transform polygons to lines

@@ -43,11 +43,13 @@
 import { COORDINATE_SYSTEM, Deck } from '@deck.gl/core';
 import { ClipExtension } from '@deck.gl/extensions';
 import GL from '@luma.gl/constants';
-import { load } from '@loaders.gl/core';
-import { RasterLayer, linearRescale, vectorLength, colormap, maskImage } from '@kylebarron/deck.gl-raster';
 
-const raster = await load(rasterUrl);
-const colormap = await load(colormapUrl);
+// build latest https://github.com/kylebarron/deck.gl-raster
+import { RasterLayer, linearRescale, vectorLength, colormap, maskImage } from './deck.gl-raster';
+
+const rasterUrl = ...; // string
+const colormapUrl = ...; // string
+const vector = ...; // boolean
 
 const deckgl = new Deck({
   layers: [
@@ -55,7 +57,7 @@ const deckgl = new Deck({
       id: 'raster',
       images: {
         imageRgba: {
-          data: raster,
+          data: rasterUrl,
           format: GL.RGB,
           parameters: {
             [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
@@ -63,7 +65,7 @@ const deckgl = new Deck({
           },
         },
         imageColormap: {
-          data: colormap,
+          data: colormapUrl,
           format: GL.RGBA,
           parameters: {
             [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
@@ -71,7 +73,7 @@ const deckgl = new Deck({
           },
         },
         imageMask: {
-          data: raster,
+          data: rasterUrl,
           format: GL.ALPHA,
           parameters: {
             [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
@@ -81,7 +83,7 @@ const deckgl = new Deck({
       },
       modules: [
         rgbaImage,
-        ...(config.raster.vector ? [
+        ...(vector ? [
           linearRescale,
           vectorLength,
         ] : []),
@@ -94,7 +96,7 @@ const deckgl = new Deck({
         colormapScaler: 1,
         colormapOffset: 0,
       },
-      opacity: config.raster.opacity,
+      opacity: ..., // number
       bounds: [-180, -90, 180, 90],
       _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
       extensions: [new ClipExtension()],
@@ -105,26 +107,29 @@ const deckgl = new Deck({
   </pre>
   <h3>Particle layer</h3>
   <p>Vector variable rendered as animated particle simulation layer.</p>
+  <p>Requires <code>_animate: true</code> on Deck object.</p>
   <pre>
 import { Deck } from '@deck.gl/core';
-import { load } from '@loaders.gl/core';
-import { ParticleLayer } from 'deck.gl-particle';
 
-const particle = await load(particleUrl);
+// build latest https://github.com/zakjan/deck.gl-particle
+import { ParticleLayer } from './deck.gl-particle';
+
+const particleUrl = ...;
 
 const deckgl = new Deck({
   layers: [
     new DeckGlParticle.ParticleLayer({
       id: 'particle',
-      image: particle,
-      numParticles: config.particle.numParticles,
-      maxAge: config.particle.maxAge,
-      speedFactor: config.particle.speedFactor,
-      getColor: config.particle.color,
-      getWidth: config.particle.width,
-      opacity: config.particle.opacity,
+      image: particleUrl,
+      numParticles: ..., // number
+      maxAge: ..., // number
+      speedFactor: ..., // number
+      getColor: ..., // [number, number, number]
+      getWidth: ..., // number
+      opacity: ..., // number
     });
   ],
+  _animate: true,
 });
   </pre>
   <h3>Contour layer</h3>
@@ -143,7 +148,7 @@ const deckgl = new Deck({
     <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a> WIP</li>
   </ul>
   <h2>Weather layers as a service</h2>
-  <p>Interested in integrating weather layers into your existing map application? <a href="mailto:jan@kamzek.com">Get in touch to sign up for a private beta!</a></p>
+  <p>Interested in integrating weather layers into your existing map application? <a href="mailto:jan@kamzek.com">Get in touch for a private beta!</a></p>
 </body>
 
 </html>
