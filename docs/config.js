@@ -24,11 +24,11 @@ export function initConfig({ datasets } = {}) {
     },
     particle: {
       numParticles: 5000,
-      maxAge: 30,
-      speedFactor: 10,
+      maxAge: 25,
+      speedFactor: 2,
       color: [255, 255, 255],
-      opacity: 0.01,
       width: 2,
+      opacity: 0.1,
       animate: true,
     },
   };

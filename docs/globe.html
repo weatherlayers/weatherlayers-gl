@@ -9,7 +9,7 @@
   <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-particle@1.0.1/dist/deck.gl-particle.min.js"></script>
+  <script src="https://unpkg.com/deck.gl-particle@1.0.2/dist/deck.gl-particle.min.js"></script>
   <link href="./style.css" rel="stylesheet">
 </head>
 
@@ -175,9 +175,10 @@
             new deck.GeoJsonLayer({
               id: 'land',
               data: land,
-              getLineColor: [255, 255, 255, 127],
+              getLineColor: [255, 255, 255],
               getLineWidth: 1,
               lineWidthUnits: 'pixels',
+              opacity: 0.5,
               parameters: {
                 cull: true,
                 depthTest: false,
@@ -190,8 +191,8 @@
                 numParticles: config.particle.numParticles,
                 maxAge: config.particle.maxAge,
                 speedFactor: config.particle.speedFactor,
-                getColor: config.particle.color,
-                getWidth: config.particle.width,
+                color: config.particle.color,
+                width: config.particle.width,
                 opacity: config.particle.opacity,
                 animate: config.particle.animate,
               }),
