@@ -37,6 +37,8 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
@@ -49,6 +51,17 @@
           new deck._GlobeView(),
         ],
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
 
       // info panels
@@ -90,7 +103,7 @@
         onHover: (event) => updateMouseInfo(event),
       });
 
-      // animation
+      // rotate
       const rotateAnimation = new Animation(() => {
         const initialViewState = { ...deckgl.props.initialViewState };
         initialViewState.longitude += 0.3;

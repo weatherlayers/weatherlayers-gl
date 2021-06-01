@@ -38,12 +38,12 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // ArcGIS
       const { DeckLayer, modules: [Map, MapView, watchUtils] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/MapView',
         'esri/core/watchUtils',
       ], { version: '4.19' });
-
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -53,6 +53,20 @@
         map: map,
         center: [30, 0],
         zoom: 0,
+      });
+
+      // ArcGIS deck.gl layer
+      await watchUtils.whenFalseOnce(view, 'updating');
+      const deckLayer = new DeckLayer({
+        'deck.layers': [],
+      });
+      map.add(deckLayer);
+      const deckLayerView = await view.whenLayerView(deckLayer);
+      await watchUtils.whenFalseOnce(deckLayerView, 'updating');
+      deckLayerView.deckInstance.setProps({
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
       });
 
       // info panels
@@ -92,24 +106,24 @@
       // map.on('mousemove', updateMouseInfo);
       // updateInfo();
 
-      // layers
-      await watchUtils.whenFalseOnce(view, 'updating');
-      const deckLayer = new DeckLayer({
-        'deck.layers': [],
-      });
-      map.add(deckLayer);
-      const deckLayerView = await view.whenLayerView(deckLayer);
-      await watchUtils.whenFalseOnce(deckLayerView, 'updating');
-      deckLayerView.deckInstance.setProps({
-        views: [
-          new deck.MapView({ repeat: true }),
-        ],
-      });
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
       function updateDeckView() {
         const viewState = {

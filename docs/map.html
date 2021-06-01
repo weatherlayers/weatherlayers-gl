@@ -36,6 +36,8 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
@@ -52,10 +54,22 @@
         ],
         layers: [],
         layerFilter: ({ layer, viewport }) => {
+          // render particle layer in non-repeated MapView
           if (layer.id == 'particle') {
             return !viewport.subViewports;
           } else {
             return !!viewport.subViewports;
+          }
+        },
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
           }
         },
       });

@@ -40,6 +40,7 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // Mapbox
       const map = new mapboxgl.Map({
         container: 'mapbox',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ',
@@ -47,6 +48,11 @@
         center: [30, 0],
         zoom: 1,
       });
+
+      // Mapbox deck.gl layers
+      await new Promise(resolve => map.on('load', resolve));
+      let deckLayer;
+      let deckLayer2;
 
       // info panels
       function updateInfo() {
@@ -85,15 +91,24 @@
       map.on('mousemove', updateMouseInfo);
       updateInfo();
 
-      // layers
-      await new Promise(resolve => map.on('load', resolve));
-      let deckLayer;
-      let deckLayer2;
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
       function updateDeckView() {
         const viewState = {

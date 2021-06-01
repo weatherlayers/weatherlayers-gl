@@ -41,12 +41,25 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // Leaflet
       const map = L.map('leaflet', {
         center: [0, 30],
         zoom: 1,
         zoomSnap: 0.001,
         zoomControl: false,
       });
+      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+        attribution: 'Map tiles by <a href="https://carto.com/">Carto</a>, under CC BY 3.0. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under ODbL.'
+      }).addTo(map);
+
+      // Leaflet deck.gl layer
+      const deckLayer = new DeckGlLeaflet.LeafletLayer({
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
+        layers: [],
+      });
+      map.addLayer(deckLayer);
 
       // info panels
       function updateInfo() {
@@ -83,22 +96,24 @@
       map.on('mousemove', updateMouseInfo);
       updateInfo();
 
-      // layers
-      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="https://carto.com/">Carto</a>, under CC BY 3.0. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under ODbL.'
-      }).addTo(map);
-      const deckLayer = new DeckGlLeaflet.LeafletLayer({
-        views: [
-          new deck.MapView({ repeat: true }),
-        ],
-        layers: [],
-      });
-      map.addLayer(deckLayer);
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
       function updateDeckView() {
         const viewState = {
@@ -111,9 +126,6 @@
       map.on('move', updateDeckView);
       map.on('zoom', updateDeckView);
       updateDeckView();
-
-      // animation
-      const getParticleLayer = () => deckLayer2.props.layers.find(x => x.id === 'particle');
 
       // legend
       const legendControl = new LegendControl(config.raster);

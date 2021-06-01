@@ -38,13 +38,13 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // ArcGIS
       const { DeckRenderer, modules: [Map, SceneView, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
         'esri/core/watchUtils',
         'esri/views/3d/externalRenderers',
       ], { version: '4.19' });
-
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -60,6 +60,18 @@
           },
         },
         viewingMode: 'local',
+      });
+
+      // ArcGIS deck.gl layer
+      await watchUtils.whenFalseOnce(view, 'updating');
+      const deckRenderer = new DeckRenderer(view, {
+        layers: [],
+      });
+      externalRenderers.add(view, deckRenderer);
+      deckRenderer.deckInstance.setProps({
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
       });
 
       // info panels
@@ -99,22 +111,24 @@
       // map.on('mousemove', updateMouseInfo);
       // updateInfo();
 
-      // layers
-      await watchUtils.whenFalseOnce(view, 'updating');
-      const deckRenderer = new DeckRenderer(view, {
-        layers: [],
-      });
-      externalRenderers.add(view, deckRenderer);
-      deckRenderer.deckInstance.setProps({
-        views: [
-          new deck.MapView({ repeat: true }),
-        ],
-      });
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
       // see https://github.com/visgl/deck.gl/blob/master/modules/arcgis/src/deck-renderer.js#L6
       function arcgisFOVToDeckAltitude(fov, aspectRatio) {

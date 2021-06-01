@@ -39,12 +39,20 @@
       const config = initConfig({ datasets });
       const land = await loadLand();
 
+      // Google Maps
       const map = new google.maps.Map(document.getElementById('google-maps'), {
         center: { lng: 30, lat: 0 },
         zoom: 1,
         mapTypeId: 'satellite',
         disableDefaultUI: true,
       });
+
+      // Google Maps deck.gl layer
+      await new Promise(resolve => google.maps.event.addListenerOnce(map, 'tilesloaded', resolve));
+      const deckLayer = new deck.GoogleMapsOverlay({
+        layers: [],
+      });
+      deckLayer.setMap(map);
 
       // info panels
       // function updateInfo() {
@@ -83,17 +91,24 @@
       // map.on('mousemove', updateMouseInfo);
       // updateInfo();
 
-      // layers
-      await new Promise(resolve => google.maps.event.addListenerOnce(map, 'tilesloaded', resolve));
-      const deckLayer = new deck.GoogleMapsOverlay({
-        layers: [],
-      });
-      deckLayer.setMap(map);
+      // animated deck.gl
+      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
+        _customRender: redrawReason => {
+          // limit FPS
+          const fps = 30;
+          const fpsInterval = 1000 / fps;
+          const now = Date.now();
+          const elapsed = now - lastRenderTime;
+          if (elapsed > fpsInterval) {
+            lastRenderTime = now;
+            deckgl._drawLayers(redrawReason);
+          }
+        },
       });
       function updateDeckView() {
         const viewState = {
