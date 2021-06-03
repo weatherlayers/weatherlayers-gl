@@ -331,8 +331,7 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     gui.add(config, 'rotate').onChange(update);
   }
 
-  gui.add({ 'Documentation': () => location.href = './docs.html' }, 'Documentation');
-  gui.add({ 'Examples': () => location.href = './examples.html' }, 'Examples');
+  gui.add({ 'About': () => location.href = './about.html' }, 'About');
 
   return gui;
 }
