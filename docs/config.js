@@ -109,21 +109,6 @@ export function initConfig({ datasets } = {}) {
       legendTitle: 'Apparent Temperature [°C]',
       attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
-    ['gfswave/waves', {
-      imageBounds: [-20, 20],
-      colorBounds: [0, 25],
-      colormap: 'gfswave/waves',
-      legendTitle: 'Peak Wave Period [s]',
-      vector: true,
-      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
-    }],
-    ['gfswave/significant_wave_height', {
-      imageBounds: [0, 15],
-      colorBounds: [0, 15],
-      colormap: 'gfswave/significant_wave_height',
-      legendTitle: 'Significant Wave Height [m]',
-      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
-    }],
     ['cams/carbon_monoxide_10m_above_ground', {
       imageBounds: [0.0044e-6, 9.4e-6],
       colorBounds: [0.0044e-6, 9.4e-6],
@@ -163,6 +148,21 @@ export function initConfig({ datasets } = {}) {
       legendTitle: 'PM10 [μg/m³]',
       legendValueFormat: value => value * 1000000000,
       attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
+    }],
+    ['gfswave/waves', {
+      imageBounds: [-20, 20],
+      colorBounds: [0, 25],
+      colormap: 'gfswave/waves',
+      legendTitle: 'Peak Wave Period [s]',
+      vector: true,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
+    }],
+    ['gfswave/significant_wave_height', {
+      imageBounds: [0, 15],
+      colorBounds: [0, 15],
+      colormap: 'gfswave/significant_wave_height',
+      legendTitle: 'Significant Wave Height [m]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
       imageBounds: [270 - 273.15, 304.65 - 273.15],
