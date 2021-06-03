@@ -8,8 +8,8 @@ export async function loadDatasets() {
   return (await fetch(url)).json();
 }
 
-export function getColormapUrl(datasetName) {
-  const url = `${COLORMAP_URL}/${datasetName.replace('/', '_')}.png`;
+export function getColormapUrl(colormap) {
+  const url = `${COLORMAP_URL}/${colormap}.png`;
   return url;
 }
 

@@ -130,7 +130,7 @@
 
       // config
       async function update() {
-        const colormapUrl = getColormapUrl(config.dataset);
+        const colormapUrl = getColormapUrl(config.raster.colormap);
         const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
         const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;

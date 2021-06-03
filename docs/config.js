@@ -1,4 +1,4 @@
-const DEFAULT_DATASET = 'gfs/wind';
+const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 
 function getDatetimes(datasets, datasetName) {
   const dataset = datasets.find(x => x.name === datasetName);
@@ -16,6 +16,7 @@ export function initConfig({ datasets } = {}) {
       opacity: 0.3,
       imageBounds: null,
       colorBounds: null,
+      colormap: null,
       legendWidth: 220,
       legendTitle: null,
       legendTicksCount: 6,
@@ -34,118 +35,139 @@ export function initConfig({ datasets } = {}) {
   };
 
   const rasterConfigs = new Map([
-    ['gfs/wind', {
+    ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
       colorBounds: [0, 100],
+      colormap: 'gfs/wind',
       legendTitle: 'Wind [m/s]',
       vector: true,
     }],
-    ['gfs/tmp', {
+    ['gfs/temperature_2m_above_ground', {
       imageBounds: [193 - 273.15, 328 - 273.15],
       colorBounds: [193 - 273.15, 328 - 273.15],
+      colormap: 'gfs/temperature',
       legendTitle: 'Temperature [°C]',
     }],
-    ['gfs/rh', {
+    ['gfs/relative_humidity_2m_above_ground', {
       imageBounds: [0, 100],
       colorBounds: [0, 100],
+      colormap: 'gfs/relative_humidity',
       legendTitle: 'Relative Humidity [%]',
     }],
-    // ['gfs/apcp', {
+    // ['gfs/accumulated_precipitation_surface', {
     //   imageBounds: [0, 150],
     //   colorBounds: [0, 150],
+    //   colormap: 'gfs/accumulated_precipitation',
     //   legendTitle: 'Precipitation Accumulation [kg/m²]',
     // }],
-    ['gfs/apcp_3h', {
+    ['gfs/accumulated_precipitation_next_3h_surface', {
       imageBounds: [0, 150],
       colorBounds: [0, 150],
+      colormap: 'gfs/accumulated_precipitation',
       legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
     }],
-    ['gfs/cape', {
+    ['gfs/convective_available_potential_energy_surface', {
       imageBounds: [0, 5000],
       colorBounds: [0, 5000],
+      colormap: 'gfs/convective_available_potential_energy',
       legendTitle: 'Convective Available Potential Energy [J/kg]',
     }],
-    ['gfs/pwat', {
+    ['gfs/precipitable_water_entire_atmosphere', {
       imageBounds: [0, 70],
       colorBounds: [0, 70],
+      colormap: 'gfs/precipitable_water',
       legendTitle: 'Total Precipitable Water [kg/m²]',
     }],
-    ['gfs/cwat', {
+    ['gfs/cloud_water_entire_atmosphere', {
       imageBounds: [0, 1],
       colorBounds: [0, 1],
+      colormap: 'gfs/cloud_water',
       legendTitle: 'Total Cloud Water [kg/m²]',
       legendValueDecimals: 1,
     }],
-    ['gfs/prmsl', {
+    ['gfs/pressure_mean_sea_level', {
       imageBounds: [92000, 105000],
       colorBounds: [92000, 105000],
+      colormap: 'gfs/pressure',
       legendTitle: 'Mean Sea Level Pressure [hPa]',
       legendValueFormat: value => value / 100,
     }],
-    ['gfs/aptmp', {
+    ['gfs/apparent_temperature_2m_above_ground', {
       imageBounds: [236 - 273.15, 332 - 273.15],
       colorBounds: [236 - 273.15, 332 - 273.15],
-      legendTitle: 'Misery (Wind Chill & Heat Index) [°C]',
+      colormap: 'gfs/apparent_temperature',
+      legendTitle: 'Apparent Temperature [°C]',
     }],
     ['gfswave/waves', {
       imageBounds: [-20, 20],
       colorBounds: [0, 25],
+      colormap: 'gfswave/waves',
       legendTitle: 'Peak Wave Period [s]',
       vector: true,
     }],
-    ['gfswave/htsgw', {
+    ['gfswave/significant_wave_height', {
       imageBounds: [0, 15],
       colorBounds: [0, 15],
+      colormap: 'gfswave/significant_wave_height',
       legendTitle: 'Significant Wave Height [m]',
     }],
-    ['cams/co', {
+    ['cams/carbon_monoxide_10m_above_ground', {
       imageBounds: [0.0044e-6, 9.4e-6],
       colorBounds: [0.0044e-6, 9.4e-6],
+      colormap: 'cams/carbon_monoxide',
       legendTitle: 'CO [μg/m³]',
       legendValueFormat: value => value * 1000000000,
     }],
-    ['cams/so2', {
+    ['cams/sulphur_dioxide_10m_above_ground', {
       imageBounds: [0.035e-9, 75e-9],
       colorBounds: [0.035e-9, 75e-9],
+      colormap: 'cams/sulphur_dioxide',
       legendTitle: 'SO₂ [ppb]',
       legendValueFormat: value => value * 1000000000,
     }],
-    ['cams/no2', {
+    ['cams/nitrogen_dioxide_10m_above_ground', {
       imageBounds: [0.053e-9, 100e-9],
       colorBounds: [0.053e-9, 100e-9],
+      colormap: 'cams/nitrogen_dioxide',
       legendTitle: 'NO₂ [ppb]',
       legendValueFormat: value => value * 1000000000,
     }],
-    ['cams/pm2p5', {
+    ['cams/particulate_matter_2p5um_10m_above_ground', {
       imageBounds: [0.012e-9, 35.4e-9],
       colorBounds: [0.012e-9, 35.4e-9],
+      colormap: 'cams/particulate_matter_2p5um',
       legendTitle: 'PM2.5 [μg/m³]',
       legendValueFormat: value => value * 1000000000,
     }],
-    ['cams/pm10', {
+    ['cams/particulate_matter_10um_10m_above_ground', {
       imageBounds: [0.054e-9, 154e-9],
       colorBounds: [0.054e-9, 154e-9],
+      colormap: 'cams/particulate_matter_10um',
       legendTitle: 'PM10 [μg/m³]',
       legendValueFormat: value => value * 1000000000,
     }],
-    ['ostia_sst/analysed_sst', {
+    ['ostia_sst/analysed_sea_surface_temperature', {
       imageBounds: [270 - 273.15, 304.65 - 273.15],
       colorBounds: [270 - 273.15, 304.65 - 273.15],
+      colormap: 'ostia_sst/analysed_sea_surface_temperature',
       legendTitle: 'Sea Surface Temperature [°C]',
     }],
     ['ostia_sst/sea_ice_fraction', {
       imageBounds: [0, 100],
       colorBounds: [0, 100],
+      colormap: 'ostia_sst/sea_ice_fraction',
       legendTitle: 'Sea Ice Fraction [%]',
     }],
-    ['ostia_anom/sst_anomaly', {
+    ['ostia_anom/sea_surface_temperature_anomaly', {
       imageBounds: [-11, 11],
       colorBounds: [-11, 11],
+      colormap: 'ostia_anom/sea_surface_temperature_anomaly',
       legendTitle: 'Sea Surface Temperature Anomaly [°C]',
     }],
     ['oscar/currents', {
       imageBounds: [-1, 1],
       colorBounds: [0, 1.5],
+      colormap: 'oscar/currents',
       legendTitle: 'Currents [m/s]',
       legendValueDecimals: 1,
       vector: true,
@@ -153,7 +175,7 @@ export function initConfig({ datasets } = {}) {
   ]);
 
   const particleConfigs = new Map([
-    ['gfs/wind', {
+    ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
       maxAge: 25,     // 100,
       speedFactor: 2, // 33 / 100,
