@@ -331,7 +331,11 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     gui.add(config, 'rotate').onChange(update);
   }
 
-  gui.add({ 'About': () => location.href = './about.html' }, 'About');
+  gui.add({ 'Data': () => location.href = './data.html' }, 'Data');
+  gui.add({ 'Layers': () => location.href = './layers.html' }, 'Layers');
+  gui.add({ 'Examples': () => location.href = './examples.html' }, 'Examples');
+  gui.add({ 'Roadmap': () => location.href = './roadmap.html' }, 'Roadmap');
+  gui.add({ 'Contact': () => location.href = './contact.html' }, 'Contact');
 
   return gui;
 }
