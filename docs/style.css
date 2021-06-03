@@ -63,6 +63,10 @@ body > .legend {
     bottom: 10px;
     left: 10px;
 }
+.cr.string a {
+    color: white;
+    text-decoration: none;
+}
 .cr.function .property-name {
     width: auto;
 }

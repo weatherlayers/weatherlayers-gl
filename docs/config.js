@@ -22,6 +22,7 @@ export function initConfig({ datasets } = {}) {
       legendTicksCount: 6,
       legendValueFormat: null,
       vector: false,
+      attribution: null,
     },
     particle: {
       numParticles: 5000,
@@ -41,42 +42,49 @@ export function initConfig({ datasets } = {}) {
       colormap: 'gfs/wind',
       legendTitle: 'Wind [m/s]',
       vector: true,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/temperature_2m_above_ground', {
       imageBounds: [193 - 273.15, 328 - 273.15],
       colorBounds: [193 - 273.15, 328 - 273.15],
       colormap: 'gfs/temperature',
       legendTitle: 'Temperature [°C]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/relative_humidity_2m_above_ground', {
       imageBounds: [0, 100],
       colorBounds: [0, 100],
       colormap: 'gfs/relative_humidity',
       legendTitle: 'Relative Humidity [%]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     // ['gfs/accumulated_precipitation_surface', {
     //   imageBounds: [0, 150],
     //   colorBounds: [0, 150],
     //   colormap: 'gfs/accumulated_precipitation',
     //   legendTitle: 'Precipitation Accumulation [kg/m²]',
+    //   attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     // }],
     ['gfs/accumulated_precipitation_next_3h_surface', {
       imageBounds: [0, 150],
       colorBounds: [0, 150],
       colormap: 'gfs/accumulated_precipitation',
       legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/convective_available_potential_energy_surface', {
       imageBounds: [0, 5000],
       colorBounds: [0, 5000],
       colormap: 'gfs/convective_available_potential_energy',
       legendTitle: 'Convective Available Potential Energy [J/kg]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/precipitable_water_entire_atmosphere', {
       imageBounds: [0, 70],
       colorBounds: [0, 70],
       colormap: 'gfs/precipitable_water',
       legendTitle: 'Total Precipitable Water [kg/m²]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/cloud_water_entire_atmosphere', {
       imageBounds: [0, 1],
@@ -84,6 +92,7 @@ export function initConfig({ datasets } = {}) {
       colormap: 'gfs/cloud_water',
       legendTitle: 'Total Cloud Water [kg/m²]',
       legendValueDecimals: 1,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/pressure_mean_sea_level', {
       imageBounds: [92000, 105000],
@@ -91,12 +100,14 @@ export function initConfig({ datasets } = {}) {
       colormap: 'gfs/pressure',
       legendTitle: 'Mean Sea Level Pressure [hPa]',
       legendValueFormat: value => value / 100,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfs/apparent_temperature_2m_above_ground', {
       imageBounds: [236 - 273.15, 332 - 273.15],
       colorBounds: [236 - 273.15, 332 - 273.15],
       colormap: 'gfs/apparent_temperature',
       legendTitle: 'Apparent Temperature [°C]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfswave/waves', {
       imageBounds: [-20, 20],
@@ -104,12 +115,14 @@ export function initConfig({ datasets } = {}) {
       colormap: 'gfswave/waves',
       legendTitle: 'Peak Wave Period [s]',
       vector: true,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
     }],
     ['gfswave/significant_wave_height', {
       imageBounds: [0, 15],
       colorBounds: [0, 15],
       colormap: 'gfswave/significant_wave_height',
       legendTitle: 'Significant Wave Height [m]',
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
     }],
     ['cams/carbon_monoxide_10m_above_ground', {
       imageBounds: [0.0044e-6, 9.4e-6],
@@ -117,6 +130,7 @@ export function initConfig({ datasets } = {}) {
       colormap: 'cams/carbon_monoxide',
       legendTitle: 'CO [μg/m³]',
       legendValueFormat: value => value * 1000000000,
+      attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
     }],
     ['cams/sulphur_dioxide_10m_above_ground', {
       imageBounds: [0.035e-9, 75e-9],
@@ -124,6 +138,7 @@ export function initConfig({ datasets } = {}) {
       colormap: 'cams/sulphur_dioxide',
       legendTitle: 'SO₂ [ppb]',
       legendValueFormat: value => value * 1000000000,
+      attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
     }],
     ['cams/nitrogen_dioxide_10m_above_ground', {
       imageBounds: [0.053e-9, 100e-9],
@@ -131,6 +146,7 @@ export function initConfig({ datasets } = {}) {
       colormap: 'cams/nitrogen_dioxide',
       legendTitle: 'NO₂ [ppb]',
       legendValueFormat: value => value * 1000000000,
+      attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
     }],
     ['cams/particulate_matter_2p5um_10m_above_ground', {
       imageBounds: [0.012e-9, 35.4e-9],
@@ -138,6 +154,7 @@ export function initConfig({ datasets } = {}) {
       colormap: 'cams/particulate_matter_2p5um',
       legendTitle: 'PM2.5 [μg/m³]',
       legendValueFormat: value => value * 1000000000,
+      attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
     }],
     ['cams/particulate_matter_10um_10m_above_ground', {
       imageBounds: [0.054e-9, 154e-9],
@@ -145,24 +162,28 @@ export function initConfig({ datasets } = {}) {
       colormap: 'cams/particulate_matter_10um',
       legendTitle: 'PM10 [μg/m³]',
       legendValueFormat: value => value * 1000000000,
+      attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
       imageBounds: [270 - 273.15, 304.65 - 273.15],
       colorBounds: [270 - 273.15, 304.65 - 273.15],
       colormap: 'ostia_sst/analysed_sea_surface_temperature',
       legendTitle: 'Sea Surface Temperature [°C]',
+      attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
     }],
     ['ostia_sst/sea_ice_fraction', {
       imageBounds: [0, 100],
       colorBounds: [0, 100],
       colormap: 'ostia_sst/sea_ice_fraction',
       legendTitle: 'Sea Ice Fraction [%]',
+      attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
     }],
     ['ostia_anom/sea_surface_temperature_anomaly', {
       imageBounds: [-11, 11],
       colorBounds: [-11, 11],
       colormap: 'ostia_anom/sea_surface_temperature_anomaly',
       legendTitle: 'Sea Surface Temperature Anomaly [°C]',
+      attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
     }],
     ['oscar/currents', {
       imageBounds: [-1, 1],
@@ -171,6 +192,7 @@ export function initConfig({ datasets } = {}) {
       legendTitle: 'Currents [m/s]',
       legendValueDecimals: 1,
       vector: true,
+      attribution: '<a href="https://www.esr.org/research/oscar/">ESR OSCAR</a>',
     }],
   ]);
 
@@ -247,6 +269,12 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
+function updateGuiText(gui, object, property, text) {
+  const controller = gui.__controllers.find(x => x.object === object && x.property === property);
+
+  controller.domElement.innerHTML = text;
+}
+
 export function initGuiSimple(config, update, { datasets, globe } = {}) {
   const { staticConfig, rasterConfigs, particleConfigs } = config;
 
@@ -267,6 +295,9 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
       config.raster[key] = rasterConfig[key];
     });
 
+    // update attribution
+    updateGuiText(gui, config.raster, 'attribution', config.raster.attribution);
+
     // update particle config
     config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : 'none';
     config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
@@ -282,6 +313,7 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     gui.updateDisplay();
     update();
   });
+
   gui.add(config, 'datetime', []).onChange(() => {
     config.particle.datetime = config.datetime;
     if (!config.particle.datetimes.includes(config.particle.datetime)) {
@@ -291,6 +323,9 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     update();
   });
   updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
+
+  gui.add(config.raster, 'attribution');
+  updateGuiText(gui, config.raster, 'attribution', config.raster.attribution);
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);
