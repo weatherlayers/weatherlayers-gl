@@ -13,7 +13,7 @@ function getDatetimes(datasets, datasetName) {
 export function initConfig({ datasets } = {}) {
   const staticConfig = {
     raster: {
-      opacity: 0.3,
+      opacity: 0.2,
       imageBounds: null,
       colorBounds: null,
       colormap: null,

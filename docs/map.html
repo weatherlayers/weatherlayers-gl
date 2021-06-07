@@ -23,7 +23,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend.js';
 
@@ -34,7 +34,6 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const land = await loadLand();
 
       // animated deck.gl
       let lastRenderTime = 0;
@@ -131,13 +130,20 @@
 
         deckgl.setProps({
           layers: [
-            new deck.SolidPolygonLayer({
-              id: 'background',
-              data: [[[-180, 85.051129], [0, 85.051129], [180, 85.051129], [180, -85.051129], [0, -85.051129], [-180, -85.051129]]],
-              getPolygon: d => d,
-              stroked: false,
-              filled: true,
-              getFillColor: [26, 26, 26],
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+              minZoom: 0,
+              maxZoom: 19,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north]
+                });
+              },
             }),
             new deck['gl-raster'].RasterLayer({
               id: 'raster',
@@ -187,14 +193,6 @@
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
-            }),
-            new deck.GeoJsonLayer({
-              id: 'land',
-              data: land,
-              getLineColor: [255, 255, 255],
-              getLineWidth: 1,
-              lineWidthUnits: 'pixels',
-              opacity: 0.5,
             }),
             ...(particleUrl ? [
               new DeckGlParticle.ParticleLayer({

@@ -28,7 +28,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { LegendControl } from './legend.js';
 
@@ -39,7 +39,6 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const land = await loadLand();
 
       // Leaflet
       const map = L.map('leaflet', {
@@ -191,14 +190,6 @@
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
-            }),
-            new deck.GeoJsonLayer({
-              id: 'land',
-              data: land,
-              getLineColor: [255, 255, 255],
-              getLineWidth: 1,
-              lineWidthUnits: 'pixels',
-              opacity: 0.5,
             }),
           ],
         });

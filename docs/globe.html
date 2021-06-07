@@ -23,7 +23,7 @@
   </div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
     import { initConfig, initGui, initFpsMeter } from './config.js';
     import { Animation } from './animation.js';
     import { LegendControl } from './legend.js';
@@ -35,7 +35,6 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const land = await loadLand();
 
       // animated deck.gl
       let lastRenderTime = 0;
@@ -134,6 +133,25 @@
               filled: true,
               getFillColor: [26, 26, 26],
             }),
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+              minZoom: 0,
+              maxZoom: 19,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north]
+                });
+              },
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
             new deck['gl-raster'].RasterLayer({
               id: 'raster',
               images: {
@@ -180,18 +198,6 @@
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-              parameters: {
-                cull: true,
-                depthTest: false,
-              },
-            }),
-            new deck.GeoJsonLayer({
-              id: 'land',
-              data: land,
-              getLineColor: [255, 255, 255],
-              getLineWidth: 1,
-              lineWidthUnits: 'pixels',
-              opacity: 0.5,
               parameters: {
                 cull: true,
                 depthTest: false,
