@@ -1,4 +1,8 @@
 .attribution {
+  margin-top: 2px;
+}
+.attribution > div {
+  display: inline-block;
   background: rgba(255, 255, 255, 0.5);
   padding: 0 5px;
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;

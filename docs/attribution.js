@@ -34,6 +34,6 @@ export class AttributionControl {
       return;
     }
 
-    this.container.innerHTML = html;
+    this.container.innerHTML = `<div>${html}</div>`;
   }
 }

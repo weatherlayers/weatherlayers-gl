@@ -121,6 +121,8 @@
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // attribution
+      const basemapAttributionControl = new AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+      document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
       const attributionControl = new AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
@@ -238,7 +240,7 @@
 
         rotateAnimation.toggle(config.rotate);
         legendControl.update(config.raster);
-        attributionControl.update(`Data by ${config.raster.attribution} | Basemap © <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`);
+        attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
       initGui(config, update, { deckgl, datasets, globe: true });
