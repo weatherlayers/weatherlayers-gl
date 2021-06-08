@@ -1,0 +1,4 @@
+.fps-meter > div {
+  position: static !important;
+  display: inline-block;
+}

@@ -10,7 +10,10 @@
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.3/dist/deck.gl-particle.min.js"></script>
-  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./legend.css">
+  <link rel="stylesheet" href="./attribution.css">
+  <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
 <body>
@@ -21,11 +24,15 @@
     <div id="info1"></div>
     <div id="info2"></div>
   </div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
-    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
+    import { AttributionControl } from './attribution.js';
+    import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -116,7 +123,15 @@
 
       // legend
       const legendControl = new LegendControl(config.raster);
-      document.body.appendChild(legendControl.onAdd());
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsMeterControl = new FpsMeterControl();
+      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
       async function update() {
@@ -141,7 +156,7 @@
                 return new deck.BitmapLayer(props, {
                   data: null,
                   image: props.data,
-                  bounds: [west, south, east, north]
+                  bounds: [west, south, east, north],
                 });
               },
             }),
@@ -213,10 +228,10 @@
         });
 
         legendControl.update(config.raster);
+        attributionControl.update(`Data by ${config.raster.attribution} | Basemap © <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`);
       }
       update();
       initGui(config, update, { deckgl, datasets });
-      initFpsMeter();
     });
   </script>
 

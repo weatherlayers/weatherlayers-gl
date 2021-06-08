@@ -9,12 +9,16 @@
   <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.3/dist/deck.gl-particle.min.js"></script>
-  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./legend.css">
+  <link rel="stylesheet" href="./attribution.css">
+  <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
-<body>
+<body class="arcgis">
   <div id="container">
     <div id="arcgis"></div>
     <div id="deck"></div>
@@ -23,12 +27,16 @@
     <div id="info1"></div>
     <div id="info2"></div>
   </div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
-    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { initConfig, initGui } from './config.js';
     import { Animation } from './animation.js';
     import { LegendControl } from './legend.js';
+    import { AttributionControl } from './attribution.js';
+    import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -39,11 +47,11 @@
       const config = initConfig({ datasets });
 
       // ArcGIS
-      const { DeckRenderer, modules: [Map, SceneView, watchUtils, externalRenderers] } = await deck.loadArcGISModules([
+      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, watchUtils] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
-        'esri/core/watchUtils',
         'esri/views/3d/externalRenderers',
+        'esri/core/watchUtils',
       ], { version: '4.19' });
       const map = new Map({
         basemap: 'dark-gray-vector',
@@ -61,6 +69,7 @@
         },
         viewingMode: 'global',
       });
+      view.ui.components = ['attribution'];
 
       // ArcGIS deck.gl layer
       await watchUtils.whenFalseOnce(view, 'updating');
@@ -162,7 +171,15 @@
 
       // legend
       const legendControl = new LegendControl(config.raster);
-      document.body.appendChild(legendControl.onAdd());
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsMeterControl = new FpsMeterControl();
+      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
       async function update() {
@@ -250,10 +267,10 @@
 
         rotateAnimation.toggle(config.rotate);
         legendControl.update(config.raster);
+        attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
       initGui(config, update, { deckgl, datasets, globe: true });
-      initFpsMeter();
     });
   </script>
 

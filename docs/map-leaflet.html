@@ -14,10 +14,13 @@
   <script src="https://unpkg.com/deck.gl-leaflet@1.0.6/dist/deck.gl-leaflet.min.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.3/dist/deck.gl-particle.min.js"></script>
-  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./legend.css">
+  <link rel="stylesheet" href="./attribution.css">
+  <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
-<body>
+<body class="leaflet">
   <div id="container">
     <div id="leaflet"></div>
     <div id="deck"></div>
@@ -26,11 +29,15 @@
     <div id="info1"></div>
     <div id="info2"></div>
   </div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
-    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
+    import { AttributionControl } from './attribution.js';
+    import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -46,10 +53,9 @@
         zoom: 1,
         zoomSnap: 0.001,
         zoomControl: false,
+        attributionControl: false,
       });
-      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="https://carto.com/">Carto</a>, under CC BY 3.0. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under ODbL.'
-      }).addTo(map);
+      L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png').addTo(map);
 
       // Leaflet deck.gl layer
       const deckLayer = new DeckGlLeaflet.LeafletLayer({
@@ -128,7 +134,15 @@
 
       // legend
       const legendControl = new LegendControl(config.raster);
-      document.body.appendChild(legendControl.onAdd());
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsMeterControl = new FpsMeterControl();
+      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
       async function update() {
@@ -213,10 +227,10 @@
         });
 
         legendControl.update(config.raster);
+        attributionControl.update(`Data by ${config.raster.attribution} | Basemap © <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`);
       }
       update();
       initGui(config, update, { deckgl, datasets });
-      initFpsMeter();
     });
   </script>
 

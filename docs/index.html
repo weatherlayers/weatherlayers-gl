@@ -13,19 +13,24 @@
   <script src="https://unpkg.com/@deck.gl/mapbox@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.3/dist/deck.gl-particle.min.js"></script>
-  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./legend.css">
+  <link rel="stylesheet" href="./attribution.css">
 </head>
 
-<body>
+<body class="mapbox">
   <div id="container">
     <div id="mapbox"></div>
     <div id="deck"></div>
   </div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
     import { initConfig, initGuiSimple } from './config.js';
     import { LegendControl } from './legend.js';
+    import { AttributionControl } from './attribution.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -42,10 +47,6 @@
         style: 'mapbox://styles/mapbox/dark-v10',
         center: [30, 0],
         zoom: 1,
-        // center: [-4, 52.5],
-        // zoom: 5.8,
-        // pitch: 60,
-        // bearing: -12.5,
       });
 
       // Mapbox deck.gl layer
@@ -86,8 +87,12 @@
       updateDeckView();
 
       // legend
-      const legendControl = new LegendControl();
-      map.addControl(legendControl, 'bottom-left');
+      const legendControl = new LegendControl(config.raster);
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // config
       async function update() {
@@ -173,6 +178,7 @@
         });
 
         legendControl.update(config.raster);
+        attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
       initGuiSimple(config, update, { deckgl, datasets });

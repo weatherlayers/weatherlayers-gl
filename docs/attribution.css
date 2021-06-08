@@ -1,0 +1,15 @@
+.attribution {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0 5px;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.75);
+}
+.attribution a {
+  color: rgba(0, 0, 0, 0.75);
+  text-decoration: none;
+}
+.attribution a:hover {
+  text-decoration: underline;
+}

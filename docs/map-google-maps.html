@@ -12,10 +12,13 @@
   <script src="https://unpkg.com/@deck.gl/google-maps@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.3/dist/deck.gl-particle.min.js"></script>
-  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./legend.css">
+  <link rel="stylesheet" href="./attribution.css">
+  <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
-<body>
+<body class="google-maps">
   <div id="container">
     <div id="google-maps"></div>
     <div id="deck"></div>
@@ -24,11 +27,15 @@
     <div id="info1"></div>
     <div id="info2"></div>
   </div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
-    import { initConfig, initGui, initFpsMeter } from './config.js';
+    import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
+    import { AttributionControl } from './attribution.js';
+    import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -123,7 +130,15 @@
 
       // legend
       const legendControl = new LegendControl(config.raster);
-      document.body.appendChild(legendControl.onAdd());
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsMeterControl = new FpsMeterControl();
+      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
       async function update() {
@@ -208,10 +223,10 @@
         });
 
         legendControl.update(config.raster);
+        attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
       initGui(config, update, { deckgl, datasets });
-      initFpsMeter();
     });
   </script>
 

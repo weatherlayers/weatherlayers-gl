@@ -269,12 +269,6 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
-function updateGuiText(gui, object, property, text) {
-  const controller = gui.__controllers.find(x => x.object === object && x.property === property);
-
-  controller.domElement.innerHTML = text;
-}
-
 export function initGuiSimple(config, update, { datasets, globe } = {}) {
   const { staticConfig, rasterConfigs, particleConfigs } = config;
 
@@ -294,9 +288,6 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     Object.keys(rasterConfig).forEach(key => {
       config.raster[key] = rasterConfig[key];
     });
-
-    // update attribution
-    updateGuiText(gui, config.raster, 'attribution', config.raster.attribution);
 
     // update particle config
     config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : 'none';
@@ -323,9 +314,6 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
     update();
   });
   updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
-
-  gui.add(config.raster, 'attribution');
-  updateGuiText(gui, config.raster, 'attribution', config.raster.attribution);
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);
