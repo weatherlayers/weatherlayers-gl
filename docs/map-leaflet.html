@@ -11,7 +11,7 @@
   <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
   <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-leaflet@1.0.6/dist/deck.gl-leaflet.min.js"></script>
+  <script src="https://unpkg.com/deck.gl-leaflet@1.1.0/dist/deck.gl-leaflet.min.js"></script>
   <script src="./deck.gl-raster.min.js"></script>
   <script src="https://unpkg.com/deck.gl-particle@1.0.4/dist/deck.gl-particle.min.js"></script>
   <link rel="stylesheet" href="./style.css">
@@ -23,7 +23,6 @@
 <body class="leaflet">
   <div id="container">
     <div id="leaflet"></div>
-    <div id="deck"></div>
   </div>
   <div id="info">
     <div id="info1"></div>
@@ -51,20 +50,10 @@
       const map = L.map('leaflet', {
         center: [0, 30],
         zoom: 1,
-        zoomSnap: 0.001,
         zoomControl: false,
         attributionControl: false,
       });
       L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png').addTo(map);
-
-      // Leaflet deck.gl layer
-      const deckLayer = new DeckGlLeaflet.LeafletLayer({
-        views: [
-          new deck.MapView({ repeat: true }),
-        ],
-        layers: [],
-      });
-      map.addLayer(deckLayer);
 
       // info panels
       function updateInfo() {
@@ -103,11 +92,20 @@
 
       // animated deck.gl
       let lastRenderTime = 0;
-      const deckgl = new deck.Deck({
-        parent: document.getElementById('deck'),
-        initialViewState: {},
-        controller: false,
+      const deckLayer = new DeckGlLeaflet.LeafletLayer({
+        views: [
+          new deck.MapView({ repeat: true }),
+          new deck.MapView(),
+        ],
         layers: [],
+        layerFilter: ({ layer, viewport }) => {
+          // render particle layer in non-repeated MapView
+          if (layer.id == 'particle') {
+            return !viewport.subViewports;
+          } else {
+            return !!viewport.subViewports;
+          }
+        },
         _customRender: redrawReason => {
           // limit FPS
           const fps = 30;
@@ -116,21 +114,11 @@
           const elapsed = now - lastRenderTime;
           if (elapsed > fpsInterval) {
             lastRenderTime = now;
-            deckgl._drawLayers(redrawReason);
+            deckLayer._deck._drawLayers(redrawReason);
           }
         },
       });
-      function updateDeckView() {
-        const viewState = {
-          longitude: map.getCenter().lng,
-          latitude: map.getCenter().lat,
-          zoom: map.getZoom() - 1,
-        };
-        deckgl.setProps({ viewState });
-      }
-      map.on('move', updateDeckView);
-      map.on('zoom', updateDeckView);
-      updateDeckView();
+      map.addLayer(deckLayer);
 
       // legend
       const legendControl = new LegendControl(config.raster);
@@ -207,10 +195,6 @@
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
             ...(particleUrl ? [
               new DeckGlParticle.ParticleLayer({
                 id: 'particle',
@@ -232,7 +216,7 @@
         attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
-      initGui(config, update, { deckgl, datasets });
+      initGui(config, update, { deckgl: deckLayer._deck, datasets });
     });
   </script>
 

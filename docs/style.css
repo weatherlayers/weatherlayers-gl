@@ -18,11 +18,8 @@ body {
   bottom: 0;
   left: 0;
 }
-body.arcgis #deck, body.leaflet #deck, body.google-maps #deck, body.mapbox #deck {
+body.arcgis #deck, body.google-maps #deck, body.mapbox #deck {
   pointer-events: none;
-}
-body.leaflet #deck {
-  z-index: 1000;
 }
 #leaflet, #google-maps > div {
   background: transparent !important;
