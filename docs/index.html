@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./legend.css">
   <link rel="stylesheet" href="./attribution.css">
+  <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
 <body class="mapbox">
@@ -31,6 +32,7 @@
     import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
     import { AttributionControl } from './attribution.js';
+    import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -52,8 +54,16 @@
 
       // Mapbox deck.gl layer
       await new Promise(resolve => map.on('load', resolve));
-      let deckLayer;
-      let deckLayer2;
+      const deckLayer = new deck.MapboxLayer({
+        type: class extends deck.CompositeLayer {
+          renderLayers() {
+            return this.props.layers;
+          }
+        },
+        id: 'deck',
+        layers: [],
+      });
+      map.addLayer(deckLayer, 'waterway-label');
 
       // animated deck.gl
       let lastRenderTime = 0;
@@ -96,6 +106,10 @@
       const attributionControl = new AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
+      // FPS meter
+      const fpsMeterControl = new FpsMeterControl();
+      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
+
       // config
       async function update() {
         const colormapUrl = getColormapUrl(config.raster.colormap);
@@ -106,94 +120,83 @@
         // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
 
-        if (deckLayer) {
-          map.removeLayer(deckLayer.id);
-          deckLayer = undefined;
-        }
-        if (config.raster.enabled) {
-          deckLayer = new deck.MapboxLayer({
-            type: deck['gl-raster'].RasterLayer,
-            id: 'raster',
-            images: {
-              imageRgba: {
-                data: raster,
-                format: luma.GL.RGB,
-                parameters: {
-                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+        deckLayer.setProps({
+          layers: [
+            new deck['gl-raster'].RasterLayer({
+              id: 'raster',
+              visible: config.raster.enabled,
+              images: {
+                imageRgba: {
+                  data: raster,
+                  format: luma.GL.RGB,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageColormap: {
+                  data: colormap,
+                  format: luma.GL.RGBA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
+                },
+                imageMask: {
+                  data: raster,
+                  format: luma.GL.ALPHA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
                 },
               },
-              imageColormap: {
-                data: colormap,
-                format: luma.GL.RGBA,
-                parameters: {
-                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                },
+              modules: [
+                deck['gl-raster'].rgbaImage,
+                ...(config.raster.vector ? [
+                  deck['gl-raster'].linearRescale,
+                  deck['gl-raster'].vectorLength,
+                ] : []),
+                deck['gl-raster'].colormap,
+                deck['gl-raster'].maskImage,
+              ],
+              moduleProps: {
+                linearRescaleScaler: 2,
+                linearRescaleOffset: -1,
+                colormapScaler: 1,
+                colormapOffset: 0,
               },
-              imageMask: {
-                data: raster,
-                format: luma.GL.ALPHA,
-                parameters: {
-                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                },
-              },
-            },
-            modules: [
-              deck['gl-raster'].rgbaImage,
-              ...(config.raster.vector ? [
-                deck['gl-raster'].linearRescale,
-                deck['gl-raster'].vectorLength,
-              ] : []),
-              deck['gl-raster'].colormap,
-              deck['gl-raster'].maskImage,
-            ],
-            moduleProps: {
-              linearRescaleScaler: 2,
-              linearRescaleOffset: -1,
-              colormapScaler: 1,
-              colormapOffset: 0,
-            },
-            opacity: config.raster.opacity,
-            bounds: [-180, -90, 180, 90],
-            _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-            extensions: [new deck.ClipExtension()],
-            clipBounds: [-360, -85.051129, 360, 85.051129],
-          });
-          map.addLayer(deckLayer, 'waterway-label');
-        }
-        if (deckLayer2) {
-          map.removeLayer(deckLayer2.id);
-          deckLayer2 = undefined;
-        }
-        if (config.outline.enabled) {
-          deckLayer2 = new deck.MapboxLayer({
-            type: deck.GeoJsonLayer,
-            id: 'outline',
-            data: land,
-            getLineColor: config.outline.color,
-            getLineWidth: config.outline.width,
-            lineWidthUnits: 'pixels',
-            opacity: config.outline.opacity,
-          });
-          map.addLayer(deckLayer2, 'waterway-label');
-        }
+              opacity: config.raster.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-360, -85.051129, 360, 85.051129],
+            }),
+            new deck.GeoJsonLayer({
+              id: 'outline',
+              visible: config.outline.enabled,
+              data: land,
+              getLineColor: config.outline.color,
+              getLineWidth: config.outline.width,
+              lineWidthUnits: 'pixels',
+              opacity: config.outline.opacity,
+            }),
+          ],
+        });
         deckgl.setProps({
           layers: [
-            ...(config.particle.enabled && particleUrl ? [
-              new DeckGlParticle.ParticleLayer({
-                id: 'particle',
-                image: particleUrl,
-                numParticles: config.particle.numParticles,
-                maxAge: config.particle.maxAge,
-                speedFactor: config.particle.speedFactor,
-                color: config.particle.color,
-                width: config.particle.width,
-                opacity: config.particle.opacity,
-                animate: config.particle.animate,
-              }),
-            ] : []),
+            new DeckGlParticle.ParticleLayer({
+              id: 'particle',
+              visible: config.particle.enabled && particleUrl,
+              image: particleUrl,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              color: config.particle.color,
+              width: config.particle.width,
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+            }),
           ],
           _animate: config.particle.enabled && config.particle.animate && particleUrl,
         });

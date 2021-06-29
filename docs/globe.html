@@ -171,86 +171,83 @@
                 depthTest: false,
               },
             }),
-            ...(config.raster.enabled ? [
-              new deck['gl-raster'].RasterLayer({
-                id: 'raster',
-                images: {
-                  imageRgba: {
-                    data: raster,
-                    format: luma.GL.RGB,
-                    parameters: {
-                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                    },
-                  },
-                  imageColormap: {
-                    data: colormap,
-                    format: luma.GL.RGBA,
-                    parameters: {
-                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                    },
-                  },
-                  imageMask: {
-                    data: raster,
-                    format: luma.GL.ALPHA,
-                    parameters: {
-                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                    },
+            new deck['gl-raster'].RasterLayer({
+              id: 'raster',
+              visible: config.raster.enabled,
+              images: {
+                imageRgba: {
+                  data: raster,
+                  format: luma.GL.RGB,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
                   },
                 },
-                modules: [
-                  deck['gl-raster'].rgbaImage,
-                  ...(config.raster.vector ? [
-                    deck['gl-raster'].linearRescale,
-                    deck['gl-raster'].vectorLength,
-                  ] : []),
-                  deck['gl-raster'].colormap,
-                  deck['gl-raster'].maskImage,
-                ],
-                moduleProps: {
-                  linearRescaleScaler: 2,
-                  linearRescaleOffset: -1,
-                  colormapScaler: 1,
-                  colormapOffset: 0,
+                imageColormap: {
+                  data: colormap,
+                  format: luma.GL.RGBA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
                 },
-                opacity: config.raster.opacity,
-                bounds: [-180, -90, 180, 90],
-                _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-                parameters: {
-                  cull: true,
-                  depthTest: false,
+                imageMask: {
+                  data: raster,
+                  format: luma.GL.ALPHA,
+                  parameters: {
+                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                  },
                 },
-              }),
-            ] : []),
-            ...(config.outline.enabled ? [
-              new deck.GeoJsonLayer({
-                id: 'outline',
-                data: land,
-                getLineColor: config.outline.color,
-                getLineWidth: config.outline.width,
-                lineWidthUnits: 'pixels',
-                opacity: config.outline.opacity,
-                parameters: {
-                  cull: true,
-                  depthTest: false,
-                },
-              })
-            ] : []),
-            ...(config.particle.enabled && particleUrl ? [
-              new DeckGlParticle.ParticleLayer({
-                id: 'particle',
-                image: particleUrl,
-                numParticles: config.particle.numParticles,
-                maxAge: config.particle.maxAge,
-                speedFactor: config.particle.speedFactor,
-                color: config.particle.color,
-                width: config.particle.width,
-                opacity: config.particle.opacity,
-                animate: config.particle.animate,
-              }),
-            ] : []),
+              },
+              modules: [
+                deck['gl-raster'].rgbaImage,
+                ...(config.raster.vector ? [
+                  deck['gl-raster'].linearRescale,
+                  deck['gl-raster'].vectorLength,
+                ] : []),
+                deck['gl-raster'].colormap,
+                deck['gl-raster'].maskImage,
+              ],
+              moduleProps: {
+                linearRescaleScaler: 2,
+                linearRescaleOffset: -1,
+                colormapScaler: 1,
+                colormapOffset: 0,
+              },
+              opacity: config.raster.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new deck.GeoJsonLayer({
+              id: 'outline',
+              visible: config.outline.enabled,
+              data: land,
+              getLineColor: config.outline.color,
+              getLineWidth: config.outline.width,
+              lineWidthUnits: 'pixels',
+              opacity: config.outline.opacity,
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new DeckGlParticle.ParticleLayer({
+              id: 'particle',
+              visible: config.particle.enabled && particleUrl,
+              image: particleUrl,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              color: config.particle.color,
+              width: config.particle.width,
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+            }),
           ],
           _animate: config.particle.enabled && config.particle.animate && particleUrl,
         });
