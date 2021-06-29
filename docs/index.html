@@ -27,8 +27,8 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
-    import { initConfig, initGuiSimple } from './config.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
     import { AttributionControl } from './attribution.js';
 
@@ -39,6 +39,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      const land = await loadLand();
 
       // Mapbox
       const map = new mapboxgl.Map({
@@ -52,6 +53,7 @@
       // Mapbox deck.gl layer
       await new Promise(resolve => map.on('load', resolve));
       let deckLayer;
+      let deckLayer2;
 
       // animated deck.gl
       let lastRenderTime = 0;
@@ -106,61 +108,80 @@
 
         if (deckLayer) {
           map.removeLayer(deckLayer.id);
+          deckLayer = undefined;
         }
-        deckLayer = new deck.MapboxLayer({
-          type: deck['gl-raster'].RasterLayer,
-          id: 'raster',
-          images: {
-            imageRgba: {
-              data: raster,
-              format: luma.GL.RGB,
-              parameters: {
-                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+        if (config.raster.enabled) {
+          deckLayer = new deck.MapboxLayer({
+            type: deck['gl-raster'].RasterLayer,
+            id: 'raster',
+            images: {
+              imageRgba: {
+                data: raster,
+                format: luma.GL.RGB,
+                parameters: {
+                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                },
+              },
+              imageColormap: {
+                data: colormap,
+                format: luma.GL.RGBA,
+                parameters: {
+                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                },
+              },
+              imageMask: {
+                data: raster,
+                format: luma.GL.ALPHA,
+                parameters: {
+                  [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                  [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                },
               },
             },
-            imageColormap: {
-              data: colormap,
-              format: luma.GL.RGBA,
-              parameters: {
-                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-              },
+            modules: [
+              deck['gl-raster'].rgbaImage,
+              ...(config.raster.vector ? [
+                deck['gl-raster'].linearRescale,
+                deck['gl-raster'].vectorLength,
+              ] : []),
+              deck['gl-raster'].colormap,
+              deck['gl-raster'].maskImage,
+            ],
+            moduleProps: {
+              linearRescaleScaler: 2,
+              linearRescaleOffset: -1,
+              colormapScaler: 1,
+              colormapOffset: 0,
             },
-            imageMask: {
-              data: raster,
-              format: luma.GL.ALPHA,
-              parameters: {
-                [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-              },
-            },
-          },
-          modules: [
-            deck['gl-raster'].rgbaImage,
-            ...(config.raster.vector ? [
-              deck['gl-raster'].linearRescale,
-              deck['gl-raster'].vectorLength,
-            ] : []),
-            deck['gl-raster'].colormap,
-            deck['gl-raster'].maskImage,
-          ],
-          moduleProps: {
-            linearRescaleScaler: 2,
-            linearRescaleOffset: -1,
-            colormapScaler: 1,
-            colormapOffset: 0,
-          },
-          opacity: config.raster.opacity,
-          bounds: [-180, -90, 180, 90],
-          _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-          extensions: [new deck.ClipExtension()],
-          clipBounds: [-360, -85.051129, 360, 85.051129],
-        });
-        map.addLayer(deckLayer, 'waterway-label');
+            opacity: config.raster.opacity,
+            bounds: [-180, -90, 180, 90],
+            _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+            extensions: [new deck.ClipExtension()],
+            clipBounds: [-360, -85.051129, 360, 85.051129],
+          });
+          map.addLayer(deckLayer, 'waterway-label');
+        }
+        if (deckLayer2) {
+          map.removeLayer(deckLayer2.id);
+          deckLayer2 = undefined;
+        }
+        if (config.outline.enabled) {
+          deckLayer2 = new deck.MapboxLayer({
+            type: deck.GeoJsonLayer,
+            id: 'outline',
+            data: land,
+            getLineColor: config.outline.color,
+            getLineWidth: config.outline.width,
+            lineWidthUnits: 'pixels',
+            opacity: config.outline.opacity,
+          });
+          map.addLayer(deckLayer2, 'waterway-label');
+        }
         deckgl.setProps({
           layers: [
-            ...(particleUrl ? [
+            ...(config.particle.enabled && particleUrl ? [
               new DeckGlParticle.ParticleLayer({
                 id: 'particle',
                 image: particleUrl,
@@ -174,14 +195,14 @@
               }),
             ] : []),
           ],
-          _animate: particleUrl && config.particle.animate,
+          _animate: config.particle.enabled && config.particle.animate && particleUrl,
         });
 
         legendControl.update(config.raster);
         attributionControl.update(`Data by ${config.raster.attribution}`);
       }
       update();
-      initGuiSimple(config, update, { deckgl, datasets });
+      initGui(config, update, { deckgl, datasets });
     });
   </script>
 

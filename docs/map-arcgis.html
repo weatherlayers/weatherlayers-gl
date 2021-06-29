@@ -172,74 +172,76 @@
 
         deckLayer.deck.set({
           layers: [
-            new deck['gl-raster'].RasterLayer({
-              id: 'raster',
-              images: {
-                imageRgba: {
-                  data: raster,
-                  format: luma.GL.RGB,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+            ...(config.raster.enabled ? [
+              new deck['gl-raster'].RasterLayer({
+                id: 'raster',
+                images: {
+                  imageRgba: {
+                    data: raster,
+                    format: luma.GL.RGB,
+                    parameters: {
+                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                    },
+                  },
+                  imageColormap: {
+                    data: colormap,
+                    format: luma.GL.RGBA,
+                    parameters: {
+                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                    },
+                  },
+                  imageMask: {
+                    data: raster,
+                    format: luma.GL.ALPHA,
+                    parameters: {
+                      [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
+                      [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
+                    },
                   },
                 },
-                imageColormap: {
-                  data: colormap,
-                  format: luma.GL.RGBA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
+                modules: [
+                  deck['gl-raster'].rgbaImage,
+                  ...(config.raster.vector ? [
+                    deck['gl-raster'].linearRescale,
+                    deck['gl-raster'].vectorLength,
+                  ] : []),
+                  deck['gl-raster'].colormap,
+                  deck['gl-raster'].maskImage,
+                ],
+                moduleProps: {
+                  linearRescaleScaler: 2,
+                  linearRescaleOffset: -1,
+                  colormapScaler: 1,
+                  colormapOffset: 0,
                 },
-                imageMask: {
-                  data: raster,
-                  format: luma.GL.ALPHA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
+                opacity: config.raster.opacity,
+                bounds: [-180, -90, 180, 90],
+                _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+                extensions: [new deck.ClipExtension()],
+                clipBounds: [-360, -85.051129, 360, 85.051129],
+                parameters: {
+                  cull: true,
+                  depthTest: false,
                 },
-              },
-              modules: [
-                deck['gl-raster'].rgbaImage,
-                ...(config.raster.vector ? [
-                  deck['gl-raster'].linearRescale,
-                  deck['gl-raster'].vectorLength,
-                ] : []),
-                deck['gl-raster'].colormap,
-                deck['gl-raster'].maskImage,
-              ],
-              moduleProps: {
-                linearRescaleScaler: 2,
-                linearRescaleOffset: -1,
-                colormapScaler: 1,
-                colormapOffset: 0,
-              },
-              opacity: config.raster.opacity,
-              bounds: [-180, -90, 180, 90],
-              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
-              parameters: {
-                cull: true,
-                depthTest: false,
-              },
-            }),
+              }),
+            ] : []),
             ...(config.outline.enabled ? [
               new deck.GeoJsonLayer({
                 id: 'outline',
                 data: land,
-                getLineColor: [255, 255, 255],
-                getLineWidth: 1,
+                getLineColor: config.outline.color,
+                getLineWidth: config.outline.width,
                 lineWidthUnits: 'pixels',
-                opacity: 0.5,
+                opacity: config.outline.opacity,
               }),
             ] : []),
           ],
         });
         deckgl.setProps({
           layers: [
-            ...(particleUrl ? [
+            ...(config.particle.enabled && particleUrl ? [
               new DeckGlParticle.ParticleLayer({
                 id: 'particle',
                 image: particleUrl,
@@ -253,7 +255,7 @@
               }),
             ] : []),
           ],
-          _animate: particleUrl && config.particle.animate,
+          _animate: config.particle.enabled && config.particle.animate && particleUrl,
         });
 
         legendControl.update(config.raster);

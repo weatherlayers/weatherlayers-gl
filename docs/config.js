@@ -11,30 +11,6 @@ function getDatetimes(datasets, datasetName) {
 }
 
 export function initConfig({ datasets } = {}) {
-  const staticConfig = {
-    raster: {
-      opacity: 0.2,
-      imageBounds: null,
-      colorBounds: null,
-      colormap: null,
-      legendWidth: 220,
-      legendTitle: null,
-      legendTicksCount: 6,
-      legendValueFormat: null,
-      vector: false,
-      attribution: null,
-    },
-    particle: {
-      numParticles: 5000,
-      maxAge: 25,
-      speedFactor: 2,
-      color: [255, 255, 255],
-      width: 2,
-      opacity: 0.1,
-      animate: true,
-    },
-  };
-
   const rasterConfigs = new Map([
     ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
@@ -217,22 +193,51 @@ export function initConfig({ datasets } = {}) {
 
   const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
 
+  const staticConfig = {
+    raster: {
+      enabled: true,
+      opacity: 0.2,
+      imageBounds: null,
+      colorBounds: null,
+      colormap: null,
+      legendWidth: 220,
+      legendTitle: null,
+      legendTicksCount: 6,
+      legendValueFormat: null,
+      vector: false,
+      attribution: null,
+    },
+    particle: {
+      enabled: true,
+      numParticles: 5000,
+      maxAge: 25,
+      speedFactor: 2,
+      color: [255, 255, 255],
+      width: 2,
+      opacity: 0.1,
+      animate: true,
+    },
+  };
+
   const config = {
-    staticConfig,
     rasterConfigs,
     particleConfigs,
+    staticConfig,
 
     dataset: DEFAULT_DATASET,
     datetimes: datetimes,
     datetime: datetimes[datetimes.length - 1],
     rotate: false,
 
-    outline: {
-      enabled: false,
-    },
     raster: {
       ...staticConfig.raster,
       ...rasterConfigs.get(DEFAULT_DATASET),
+    },
+    outline: {
+      enabled: false,
+      color: [255, 255, 255],
+      width: 1,
+      opacity: 0.5,
     },
     particle: {
       dataset: DEFAULT_DATASET,
@@ -336,15 +341,20 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
 
   const gui = initGuiSimple(config, update, { datasets, globe });
 
-  const outline = gui.addFolder('Outline layer');
-  outline.add(config.outline, 'enabled').onChange(update);
-  outline.open();
-
   const raster = gui.addFolder('Raster layer');
+  raster.add(config.raster, 'enabled').onChange(update);
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
+  const outline = gui.addFolder('Outline layer');
+  outline.add(config.outline, 'enabled').onChange(update);
+  outline.addColor(config.outline, 'color').onChange(update);
+  outline.add(config.outline, 'width', 0.5, 10, 0.5).onChange(update);
+  outline.add(config.outline, 'opacity', 0, 1, 0.01).onChange(update);
+  outline.open();
+
   const particle = gui.addFolder('Particle layer');
+  particle.add(config.particle, 'enabled').onChange(update);
   particle.add(config.particle, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
     // update particle config
     config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
