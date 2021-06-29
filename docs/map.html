@@ -28,7 +28,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
     import { AttributionControl } from './attribution.js';
@@ -41,6 +41,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      const land = await loadLand();
 
       // animated deck.gl
       let lastRenderTime = 0;
@@ -211,6 +212,16 @@
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
+            ...(config.outline.enabled ? [
+              new deck.GeoJsonLayer({
+                id: 'outline',
+                data: land,
+                getLineColor: [255, 255, 255],
+                getLineWidth: 1,
+                lineWidthUnits: 'pixels',
+                opacity: 0.5,
+              }),
+            ] : []),
             ...(particleUrl ? [
               new DeckGlParticle.ParticleLayer({
                 id: 'particle',

@@ -227,6 +227,9 @@ export function initConfig({ datasets } = {}) {
     datetime: datetimes[datetimes.length - 1],
     rotate: false,
 
+    outline: {
+      enabled: false,
+    },
     raster: {
       ...staticConfig.raster,
       ...rasterConfigs.get(DEFAULT_DATASET),
@@ -333,11 +336,15 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
 
   const gui = initGuiSimple(config, update, { datasets, globe });
 
-  const raster = gui.addFolder('RasterLayer');
+  const outline = gui.addFolder('Outline layer');
+  outline.add(config.outline, 'enabled').onChange(update);
+  outline.open();
+
+  const raster = gui.addFolder('Raster layer');
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
-  const particle = gui.addFolder('ParticleLayer');
+  const particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
     // update particle config
     config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);

@@ -32,7 +32,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
     import { AttributionControl } from './attribution.js';
@@ -45,6 +45,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      const land = await loadLand();
 
       // Mapbox
       const map = new mapboxgl.Map({
@@ -58,6 +59,7 @@
       // Mapbox deck.gl layer
       await new Promise(resolve => map.on('load', resolve));
       let deckLayer;
+      let deckLayer2;
 
       // info panels
       function updateInfo() {
@@ -205,6 +207,21 @@
           clipBounds: [-360, -85.051129, 360, 85.051129],
         });
         map.addLayer(deckLayer, 'waterway-label');
+        if (deckLayer2) {
+          map.removeLayer(deckLayer2.id);
+        }
+        if (config.outline.enabled) {
+          deckLayer2 = new deck.MapboxLayer({
+            type: deck.GeoJsonLayer,
+            id: 'outline',
+            data: land,
+            getLineColor: [255, 255, 255],
+            getLineWidth: 1,
+            lineWidthUnits: 'pixels',
+            opacity: 0.5,
+          });
+          map.addLayer(deckLayer2, 'waterway-label');
+        }
         deckgl.setProps({
           layers: [
             ...(particleUrl ? [
