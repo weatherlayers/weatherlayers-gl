@@ -1,4 +1,5 @@
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
+const DEFAULT_OUTLINE_DATASET = 'ne_110m_land';
 
 function getDatetimes(datasets, datasetName) {
   const dataset = datasets.find(x => x.name === datasetName);
@@ -172,6 +173,21 @@ export function initConfig({ datasets } = {}) {
     }],
   ]);
 
+  const outlineConfigs = new Map([
+    ['ne_110m_land', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson',
+    }],
+    ['ne_50m_land', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson',
+    }],
+    ['ne_110m_admin_0_countries', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson',
+    }],
+    ['ne_50m_admin_0_countries', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
+    }],
+  ]);
+
   const particleConfigs = new Map([
     ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
@@ -207,6 +223,7 @@ export function initConfig({ datasets } = {}) {
       vector: false,
       attribution: null,
     },
+    outline: {},
     particle: {
       enabled: true,
       numParticles: 5000,
@@ -221,6 +238,7 @@ export function initConfig({ datasets } = {}) {
 
   const config = {
     rasterConfigs,
+    outlineConfigs,
     particleConfigs,
     staticConfig,
 
@@ -235,9 +253,11 @@ export function initConfig({ datasets } = {}) {
     },
     outline: {
       enabled: false,
+      dataset: DEFAULT_OUTLINE_DATASET,
       color: [255, 255, 255],
       width: 1,
       opacity: 0.5,
+      ...outlineConfigs.get(DEFAULT_OUTLINE_DATASET),
     },
     particle: {
       dataset: DEFAULT_DATASET,
@@ -277,8 +297,8 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
-export function initGuiSimple(config, update, { datasets, globe } = {}) {
-  const { staticConfig, rasterConfigs, particleConfigs } = config;
+export function initGui(config, update, { deckgl, datasets, globe } = {}) {
+  const { staticConfig, rasterConfigs, outlineConfigs, particleConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
@@ -333,14 +353,6 @@ export function initGuiSimple(config, update, { datasets, globe } = {}) {
   gui.add({ 'Roadmap': () => location.href = './roadmap.html' }, 'Roadmap');
   gui.add({ 'Contact': () => location.href = './contact.html' }, 'Contact');
 
-  return gui;
-}
-
-export function initGui(config, update, { deckgl, datasets, globe } = {}) {
-  const { staticConfig, particleConfigs } = config;
-
-  const gui = initGuiSimple(config, update, { datasets, globe });
-
   const raster = gui.addFolder('Raster layer');
   raster.add(config.raster, 'enabled').onChange(update);
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
@@ -348,6 +360,14 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
 
   const outline = gui.addFolder('Outline layer');
   outline.add(config.outline, 'enabled').onChange(update);
+  outline.add(config.outline, 'dataset', [...outlineConfigs.keys()]).onChange(async () => {
+    const outlineConfig = { ...staticConfig.outline, ...outlineConfigs.get(config.outline.dataset) };
+    Object.keys(outlineConfig).forEach(key => {
+      config.outline[key] = outlineConfig[key];
+    });
+
+    update();
+  });
   outline.addColor(config.outline, 'color').onChange(update);
   outline.add(config.outline, 'width', 0.5, 10, 0.5).onChange(update);
   outline.add(config.outline, 'opacity', 0, 1, 0.01).onChange(update);

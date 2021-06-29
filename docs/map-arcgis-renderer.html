@@ -31,7 +31,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadLand } from './data.js';
+    import { loadDatasets, getColormapUrl, getDataUrl, loadOutline } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { LegendControl } from './legend.js';
     import { AttributionControl } from './attribution.js';
@@ -44,7 +44,6 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
-      const land = await loadLand();
 
       // ArcGIS
       const { DeckRenderer, modules: [Map, SceneView, externalRenderers, watchUtils] } = await deck.loadArcGISModules([
@@ -175,8 +174,11 @@
       async function update() {
         const colormapUrl = getColormapUrl(config.raster.colormap);
         const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
+        const outlineUrl = config.outline.datasetUrl;
         const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
+
+        const outline = await loadOutline(outlineUrl);
 
         // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
         const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
@@ -236,7 +238,7 @@
             new deck.GeoJsonLayer({
               id: 'outline',
               visible: config.outline.enabled,
-              data: land,
+              data: outline,
               getLineColor: config.outline.color,
               getLineWidth: config.outline.width,
               lineWidthUnits: 'pixels',
