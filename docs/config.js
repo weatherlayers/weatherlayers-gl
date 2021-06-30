@@ -12,6 +12,19 @@ function getDatetimes(datasets, datasetName) {
   return datetimes;
 }
 
+function getDatetime(datetimes, datetime) {
+  if (datetimes.includes(datetime)) {
+    return datetime;
+  }
+
+  const closestDatetime = [...datetimes].reverse().find(x => x <= datetime);
+  if (!closestDatetime) {
+    return datetimes[0];
+  }
+
+  return closestDatetime;
+}
+
 export function initConfig({ datasets } = {}) {
   const outlineConfigs = new Map([
     ['ne_110m_land', {
@@ -341,9 +354,7 @@ function updatePresetDataset(config, { datasets } = {}) {
   const { rasterConfigs, particleConfigs } = config;
 
   config.datetimes = getDatetimes(datasets, config.dataset);
-  if (!config.datetimes.includes(config.datetime)) {
-    config.datetime = [...config.datetimes].reverse().find(x => x <= config.datetime);
-  }
+  config.datetime = getDatetime(config.datetimes, config.datetime);
 
   config.raster.dataset = rasterConfigs.has(config.dataset) ? config.dataset : NO_DATA;
   config.raster.datetime = rasterConfigs.has(config.dataset) ? config.datetime : NO_DATA;
@@ -354,15 +365,8 @@ function updatePresetDataset(config, { datasets } = {}) {
 function updatePresetDatetime(config) {
   const { rasterConfigs, particleConfigs } = config;
 
-  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? config.datetime : NO_DATA;
-  if (!config.raster.datetimes.includes(config.raster.datetime)) {
-    config.raster.datetime = [...config.raster.datetimes].reverse().find(x => x <= config.raster.datetime);
-  }
-
-  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? config.datetime : NO_DATA;
-  if (!config.particle.datetimes.includes(config.particle.datetime)) {
-    config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.particle.datetime);
-  }
+  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? getDatetime(config.raster.datetimes, config.datetime) : NO_DATA;
+  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? getDatetime(config.particle.datetimes, config.datetime) : NO_DATA;
 }
 
 function updateOutlineDataset(config) {
@@ -378,10 +382,7 @@ function updateRasterDataset(config, { datasets } = {}) {
   const { staticConfig, rasterConfigs } = config;
 
   config.raster.datetimes = rasterConfigs.has(config.raster.dataset) ? getDatetimes(datasets, config.raster.dataset) : [NO_DATA];
-  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? config.raster.datetime : NO_DATA;
-  if (!config.raster.datetimes.includes(config.raster.datetime)) {
-    config.raster.datetime = [...config.raster.datetimes].reverse().find(x => x <= config.raster.datetime);
-  }
+  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? getDatetime(config.raster.datetimes, config.raster.datetime) : NO_DATA;
   const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.raster.dataset) };
   Object.keys(rasterConfig).forEach(key => {
     config.raster[key] = rasterConfig[key];
@@ -392,10 +393,7 @@ function updateParticleDataset(config, { datasets } = {}) {
   const { staticConfig, particleConfigs } = config;
 
   config.particle.datetimes = particleConfigs.has(config.particle.dataset) ? getDatetimes(datasets, config.particle.dataset) : [NO_DATA];
-  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? config.particle.datetime : NO_DATA;
-  if (!config.particle.datetimes.includes(config.particle.datetime)) {
-    config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.particle.datetime);
-  }
+  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? getDatetime(config.particle.datetimes, config.particle.datetime) : NO_DATA;
   const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
   Object.keys(particleConfig).forEach(key => {
     config.particle[key] = particleConfig[key];
