@@ -1,3 +1,5 @@
+const NO_DATA = 'no data';
+
 const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
 const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
 const COLORMAP_URL = 'https://weather-config.kamzek.com/colormaps';
@@ -9,6 +11,10 @@ export async function loadDatasets() {
 }
 
 export function getColormapUrl(colormap) {
+  if (!colormap || colormap === NO_DATA) {
+    return;
+  }
+
   const url = `${COLORMAP_URL}/${colormap}.png`;
   return url;
 }
@@ -26,12 +32,17 @@ export function getDataUrl(datasets, datasetName, datetime) {
   return url;
 }
 
+const OUTLINE_CACHE = new Map();
+
 export async function loadOutline(url) {
-  const isPointValid = point => -85.051129 < point[1] && point[1] < 85.051129;
-
+  if (OUTLINE_CACHE.has(url)) {
+    return OUTLINE_CACHE.get(url);
+  }
+  
   const geojson = await (await fetch(url)).json();
-
+  
   // transform polygons to lines
+  const isPointValid = point => -85.051129 < point[1] && point[1] < 85.051129;
   geojson.features = geojson.features.map(feature => {
     let newFeature;
     if (feature.geometry.type === 'Polygon') {
@@ -71,6 +82,8 @@ export async function loadOutline(url) {
 
     return newFeature;
   });
+
+  OUTLINE_CACHE.set(url, geojson);
   
   return geojson;
 }

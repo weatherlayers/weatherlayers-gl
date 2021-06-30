@@ -142,16 +142,17 @@
 
       // config
       async function update() {
+        const outline = await loadOutline(config.outline.datasetUrl);
         const colormapUrl = getColormapUrl(config.raster.colormap);
-        const rasterUrl = getDataUrl(datasets, config.dataset, config.datetime);
-        const outlineUrl = config.outline.datasetUrl;
+        const rasterUrl = getDataUrl(datasets, config.raster.dataset, config.raster.datetime);
         const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        const outline = await loadOutline(outlineUrl);
-
         // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
-        const [raster, colormap] = await Promise.all([loaders.load(rasterUrl), loaders.load(colormapUrl)]);
+        const [raster, colormap] = await Promise.all([
+          rasterUrl ? loaders.load(rasterUrl) : undefined,
+          colormapUrl ? loaders.load(colormapUrl) : undefined,
+        ]);
 
         deckLayer.setProps({
           layers: [
@@ -235,7 +236,9 @@
         });
 
         legendControl.update(config.raster);
-        attributionControl.update(`Data by ${config.raster.attribution}`);
+
+        const attributions = Array.from(new Set([config.outline, config.raster, config.particle].map(x => x.enabled ? x.attribution : undefined).filter(x => x)));
+        attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
       }
       update();
       initGui(config, update, { deckgl, datasets });

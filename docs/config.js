@@ -1,3 +1,4 @@
+const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_OUTLINE_DATASET = 'ne_110m_land';
 
@@ -12,6 +13,49 @@ function getDatetimes(datasets, datasetName) {
 }
 
 export function initConfig({ datasets } = {}) {
+  const outlineConfigs = new Map([
+    ['ne_110m_land', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson',
+      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
+    }],
+    ['ne_50m_land', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson',
+      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
+    }],
+    ['ne_110m_admin_0_countries', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson',
+      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
+    }],
+    ['ne_50m_admin_0_countries', {
+      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
+      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
+    }],
+  ]);
+
+  const colormapConfigs = [
+    'gfs/wind',
+    'gfs/temperature',
+    'gfs/relative_humidity',
+    'gfs/accumulated_precipitation',
+    'gfs/accumulated_precipitation',
+    'gfs/convective_available_potential_energy',
+    'gfs/precipitable_water',
+    'gfs/cloud_water',
+    'gfs/pressure',
+    'gfs/apparent_temperature',
+    'cams/carbon_monoxide',
+    'cams/sulphur_dioxide',
+    'cams/nitrogen_dioxide',
+    'cams/particulate_matter_2p5um',
+    'cams/particulate_matter_10um',
+    'gfswave/waves',
+    'gfswave/significant_wave_height',
+    'ostia_sst/analysed_sea_surface_temperature',
+    'ostia_sst/sea_ice_fraction',
+    'ostia_anom/sea_surface_temperature_anomaly',
+    'oscar/currents',
+  ];
+
   const rasterConfigs = new Map([
     ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
@@ -173,49 +217,38 @@ export function initConfig({ datasets } = {}) {
     }],
   ]);
 
-  const outlineConfigs = new Map([
-    ['ne_110m_land', {
-      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson',
-    }],
-    ['ne_50m_land', {
-      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson',
-    }],
-    ['ne_110m_admin_0_countries', {
-      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson',
-    }],
-    ['ne_50m_admin_0_countries', {
-      datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
-    }],
-  ]);
-
   const particleConfigs = new Map([
     ['gfs/wind_10m_above_ground', {
       imageBounds: [-128, 127],
       maxAge: 25,     // 100,
       speedFactor: 2, // 33 / 100,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     }],
     ['gfswave/waves', {
       imageBounds: [-20, 20],
       maxAge: 25,       // 40,
       speedFactor: 0.2, // 33 / 612,
       width: 10,
+      attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
     }],
     ['oscar/currents', {
       imageBounds: [-1, 1],
       maxAge: 25,       // 100,
       speedFactor: 0.2, // 33 / 7,
+      attribution: '<a href="https://www.esr.org/research/oscar/">ESR OSCAR</a>',
     }],
   ]);
 
   const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
 
   const staticConfig = {
+    outline: {},
     raster: {
       enabled: true,
       opacity: 0.2,
       imageBounds: null,
       colorBounds: null,
-      colormap: null,
+      colormap: NO_DATA,
       legendWidth: 220,
       legendTitle: null,
       legendTicksCount: 6,
@@ -223,7 +256,6 @@ export function initConfig({ datasets } = {}) {
       vector: false,
       attribution: null,
     },
-    outline: {},
     particle: {
       enabled: true,
       numParticles: 5000,
@@ -237,8 +269,9 @@ export function initConfig({ datasets } = {}) {
   };
 
   const config = {
-    rasterConfigs,
     outlineConfigs,
+    colormapConfigs,
+    rasterConfigs,
     particleConfigs,
     staticConfig,
 
@@ -247,10 +280,6 @@ export function initConfig({ datasets } = {}) {
     datetime: datetimes[datetimes.length - 1],
     rotate: false,
 
-    raster: {
-      ...staticConfig.raster,
-      ...rasterConfigs.get(DEFAULT_DATASET),
-    },
     outline: {
       enabled: false,
       dataset: DEFAULT_OUTLINE_DATASET,
@@ -258,6 +287,13 @@ export function initConfig({ datasets } = {}) {
       width: 1,
       opacity: 0.5,
       ...outlineConfigs.get(DEFAULT_OUTLINE_DATASET),
+    },
+    raster: {
+      dataset: DEFAULT_DATASET,
+      datetimes: datetimes,
+      datetime: datetimes[datetimes.length - 1],
+      ...staticConfig.raster,
+      ...rasterConfigs.get(DEFAULT_DATASET),
     },
     particle: {
       dataset: DEFAULT_DATASET,
@@ -272,6 +308,10 @@ export function initConfig({ datasets } = {}) {
 }
 
 function formatDatetime(datetime) {
+  if (!datetime.match(/^\d+$/)) {
+    return datetime;
+  }
+
   const formattedDatetime = `${datetime.substr(0, 4)}/${datetime.substr(4, 2)}/${datetime.substr(6, 2)} ${datetime.substr(8, 2)}:00 UTC`;
   return formattedDatetime;
 }
@@ -297,48 +337,95 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
+function updatePresetDataset(config, { datasets } = {}) {
+  const { rasterConfigs, particleConfigs } = config;
+
+  config.datetimes = getDatetimes(datasets, config.dataset);
+  if (!config.datetimes.includes(config.datetime)) {
+    config.datetime = [...config.datetimes].reverse().find(x => x <= config.datetime);
+  }
+
+  config.raster.dataset = rasterConfigs.has(config.dataset) ? config.dataset : NO_DATA;
+  config.raster.datetime = rasterConfigs.has(config.dataset) ? config.datetime : NO_DATA;
+  config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : NO_DATA;
+  config.particle.datetime = particleConfigs.has(config.dataset) ? config.datetime : NO_DATA;
+}
+
+function updatePresetDatetime(config) {
+  const { rasterConfigs, particleConfigs } = config;
+
+  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? config.datetime : NO_DATA;
+  if (!config.raster.datetimes.includes(config.raster.datetime)) {
+    config.raster.datetime = [...config.raster.datetimes].reverse().find(x => x <= config.raster.datetime);
+  }
+
+  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? config.datetime : NO_DATA;
+  if (!config.particle.datetimes.includes(config.particle.datetime)) {
+    config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.particle.datetime);
+  }
+}
+
+function updateOutlineDataset(config) {
+  const { staticConfig, outlineConfigs } = config;
+
+  const outlineConfig = { ...staticConfig.outline, ...outlineConfigs.get(config.outline.dataset) };
+  Object.keys(outlineConfig).forEach(key => {
+    config.outline[key] = outlineConfig[key];
+  });
+}
+
+function updateRasterDataset(config, { datasets } = {}) {
+  const { staticConfig, rasterConfigs } = config;
+
+  config.raster.datetimes = rasterConfigs.has(config.raster.dataset) ? getDatetimes(datasets, config.raster.dataset) : [NO_DATA];
+  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? config.raster.datetime : NO_DATA;
+  if (!config.raster.datetimes.includes(config.raster.datetime)) {
+    config.raster.datetime = [...config.raster.datetimes].reverse().find(x => x <= config.raster.datetime);
+  }
+  const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.raster.dataset) };
+  Object.keys(rasterConfig).forEach(key => {
+    config.raster[key] = rasterConfig[key];
+  });
+}
+
+function updateParticleDataset(config, { datasets } = {}) {
+  const { staticConfig, particleConfigs } = config;
+
+  config.particle.datetimes = particleConfigs.has(config.particle.dataset) ? getDatetimes(datasets, config.particle.dataset) : [NO_DATA];
+  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? config.particle.datetime : NO_DATA;
+  if (!config.particle.datetimes.includes(config.particle.datetime)) {
+    config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.particle.datetime);
+  }
+  const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
+  Object.keys(particleConfig).forEach(key => {
+    config.particle[key] = particleConfig[key];
+  });
+}
+
 export function initGui(config, update, { deckgl, datasets, globe } = {}) {
-  const { staticConfig, rasterConfigs, outlineConfigs, particleConfigs } = config;
+  const { outlineConfigs, colormapConfigs, rasterConfigs, particleConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
 
+  let outline;
+  let raster;
+  let particle;
+
   gui.add(config, 'dataset', [...rasterConfigs.keys()]).onChange(async () => {
-    // update datetime options
-    config.datetimes = getDatetimes(datasets, config.dataset);
+    updatePresetDataset(config, { datasets });
+    updateRasterDataset(config, { datasets });
+    updateParticleDataset(config, { datasets });
     updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
-    if (!config.datetimes.includes(config.datetime)) {
-      config.datetime = config.datetimes[config.datetimes.length - 1];
-    }
-
-    // update raster config
-    const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.dataset) };
-    Object.keys(rasterConfig).forEach(key => {
-      config.raster[key] = rasterConfig[key];
-    });
-
-    // update particle config
-    config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : 'none';
-    config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
-    config.particle.datetime = config.datetime;
-    if (!config.particle.datetimes.includes(config.particle.datetime)) {
-      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
-    }
-    const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
-    Object.keys(particleConfig).forEach(key => {
-      config.particle[key] = particleConfig[key];
-    });
-
+    updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
+    updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
     gui.updateDisplay();
     update();
   });
 
   gui.add(config, 'datetime', []).onChange(() => {
-    config.particle.datetime = config.datetime;
-    if (!config.particle.datetimes.includes(config.particle.datetime)) {
-      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
-    }
-
+    updatePresetDatetime(config);
+    gui.updateDisplay();
     update();
   });
   updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
@@ -347,25 +434,12 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
     gui.add(config, 'rotate').onChange(update);
   }
 
-  gui.add({ 'Data': () => location.href = './data.html' }, 'Data');
-  gui.add({ 'Layers': () => location.href = './layers.html' }, 'Layers');
-  gui.add({ 'Examples': () => location.href = './examples.html' }, 'Examples');
-  gui.add({ 'Roadmap': () => location.href = './roadmap.html' }, 'Roadmap');
-  gui.add({ 'Contact': () => location.href = './contact.html' }, 'Contact');
+  gui.add({ 'Docs': () => location.href = 'http://docs.weatherlayers.com/' }, 'Docs');
 
-  const raster = gui.addFolder('Raster layer');
-  raster.add(config.raster, 'enabled').onChange(update);
-  raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
-  raster.open();
-
-  const outline = gui.addFolder('Outline layer');
+  outline = gui.addFolder('Outline layer');
   outline.add(config.outline, 'enabled').onChange(update);
   outline.add(config.outline, 'dataset', [...outlineConfigs.keys()]).onChange(async () => {
-    const outlineConfig = { ...staticConfig.outline, ...outlineConfigs.get(config.outline.dataset) };
-    Object.keys(outlineConfig).forEach(key => {
-      config.outline[key] = outlineConfig[key];
-    });
-
+    updateOutlineDataset(config);
     update();
   });
   outline.addColor(config.outline, 'color').onChange(update);
@@ -373,23 +447,30 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
   outline.add(config.outline, 'opacity', 0, 1, 0.01).onChange(update);
   outline.open();
 
-  const particle = gui.addFolder('Particle layer');
-  particle.add(config.particle, 'enabled').onChange(update);
-  particle.add(config.particle, 'dataset', ['none', ...particleConfigs.keys()]).onChange(async () => {
-    // update particle config
-    config.particle.datetimes = getDatetimes(datasets, config.particle.dataset);
-    config.particle.datetime = config.datetime;
-    if (!config.particle.datetimes.includes(config.particle.datetime)) {
-      config.particle.datetime = [...config.particle.datetimes].reverse().find(x => x <= config.datetime);
-    }
-    const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
-    Object.keys(particleConfig).forEach(key => {
-      config.particle[key] = particleConfig[key];
-    });
-
+  raster = gui.addFolder('Raster layer');
+  raster.add(config.raster, 'enabled').onChange(update);
+  raster.add(config.raster, 'dataset', [NO_DATA, ...rasterConfigs.keys()]).onChange(async () => {
+    updateRasterDataset(config, { datasets });
+    updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
     gui.updateDisplay();
     update();
   });
+  raster.add(config.raster, 'datetime', []).onChange(update);
+  updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
+  raster.add(config.raster, 'colormap', [NO_DATA, ...colormapConfigs]).onChange(update);
+  raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
+  raster.open();
+
+  particle = gui.addFolder('Particle layer');
+  particle.add(config.particle, 'enabled').onChange(update);
+  particle.add(config.particle, 'dataset', [NO_DATA, ...particleConfigs.keys()]).onChange(async () => {
+    updateParticleDataset(config, { datasets });
+    updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
+    gui.updateDisplay();
+    update();
+  });
+  particle.add(config.particle, 'datetime', []).onChange(update);
+  updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
   particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
   particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
   particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
