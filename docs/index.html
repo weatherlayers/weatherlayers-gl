@@ -3,216 +3,27 @@
 
 <head>
   <meta charset="utf-8">
-  <title>kamzek-weather</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
-  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
-  <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/mapbox@8.5.0-alpha.5/dist/dist.dev.js"></script>
-  <script src="./deck.gl-raster.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-particle@1.0.4/dist/deck.gl-particle.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./legend.css">
-  <link rel="stylesheet" href="./attribution.css">
-  <link rel="stylesheet" href="./fps-meter.css">
+  <title>WeatherLayers</title>
+  <style>
+    body {
+      font-family: 'Lucida Grande', sans-serif;
+      font-size: 12px;
+    }
+  </style>
 </head>
 
-<body class="mapbox">
-  <div id="container">
-    <div id="mapbox"></div>
-    <div id="deck"></div>
-  </div>
-  <div id="bottom-left"></div>
-  <div id="bottom-right"></div>
-
-  <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadOutline } from './data.js';
-    import { initConfig, initGui } from './config.js';
-    import { LegendControl } from './legend.js';
-    import { AttributionControl } from './attribution.js';
-    import { FpsMeterControl } from './fps-meter.js';
-
-    function formatNumber(value, decimals = 6) {
-      return Math.floor(value * 10 ** decimals) / 10 ** decimals;
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      const datasets = await loadDatasets();
-      const config = initConfig({ datasets });
-
-      // Mapbox
-      const map = new mapboxgl.Map({
-        container: 'mapbox',
-        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ', // kamzek-weather access token
-        style: 'mapbox://styles/mapbox/dark-v10',
-        center: [30, 0],
-        zoom: 1,
-      });
-
-      // Mapbox deck.gl layer
-      await new Promise(resolve => map.on('load', resolve));
-      const deckLayer = new deck.MapboxLayer({
-        type: class extends deck.CompositeLayer {
-          renderLayers() {
-            return this.props.layers;
-          }
-        },
-        id: 'deck',
-        layers: [],
-      });
-      map.addLayer(deckLayer, 'waterway-label');
-
-      // animated deck.gl
-      let lastRenderTime = 0;
-      const deckgl = new deck.Deck({
-        parent: document.getElementById('deck'),
-        initialViewState: {},
-        controller: false,
-        layers: [],
-        _customRender: redrawReason => {
-          // limit FPS
-          const fps = 30;
-          const fpsInterval = 1000 / fps;
-          const now = Date.now();
-          const elapsed = now - lastRenderTime;
-          if (elapsed > fpsInterval) {
-            lastRenderTime = now;
-            deckgl._drawLayers(redrawReason);
-          }
-        },
-      });
-      function updateDeckView() {
-        const viewState = {
-          longitude: map.getCenter().lng,
-          latitude: map.getCenter().lat,
-          zoom: map.getZoom(),
-          pitch: map.getPitch(),
-          bearing: map.getBearing(),
-        };
-        deckgl.setProps({ viewState });
-      }
-      map.on('move', updateDeckView);
-      map.on('zoom', updateDeckView);
-      updateDeckView();
-
-      // legend
-      const legendControl = new LegendControl(config.raster);
-      document.getElementById('bottom-left').prepend(legendControl.onAdd());
-
-      // attribution
-      const attributionControl = new AttributionControl();
-      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
-
-      // FPS meter
-      const fpsMeterControl = new FpsMeterControl();
-      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
-
-      // config
-      async function update() {
-        const outline = await loadOutline(config.outline.datasetUrl);
-        const colormapUrl = getColormapUrl(config.raster.colormap);
-        const rasterUrl = getDataUrl(datasets, config.raster.dataset, config.raster.datetime);
-        const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
-        config.raster.colormapUrl = colormapUrl;
-
-        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
-        const [raster, colormap] = await Promise.all([
-          rasterUrl ? loaders.load(rasterUrl) : undefined,
-          colormapUrl ? loaders.load(colormapUrl) : undefined,
-        ]);
-
-        deckLayer.setProps({
-          layers: [
-            new deck['gl-raster'].RasterLayer({
-              id: 'raster',
-              visible: config.raster.enabled,
-              images: {
-                imageRgba: {
-                  data: raster,
-                  format: luma.GL.RGB,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageColormap: {
-                  data: colormap,
-                  format: luma.GL.RGBA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageMask: {
-                  data: raster,
-                  format: luma.GL.ALPHA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-              },
-              modules: [
-                deck['gl-raster'].rgbaImage,
-                ...(config.raster.vector ? [
-                  deck['gl-raster'].linearRescale,
-                  deck['gl-raster'].vectorLength,
-                ] : []),
-                deck['gl-raster'].colormap,
-                deck['gl-raster'].maskImage,
-              ],
-              moduleProps: {
-                linearRescaleScaler: 2,
-                linearRescaleOffset: -1,
-                colormapScaler: 1,
-                colormapOffset: 0,
-              },
-              opacity: config.raster.opacity,
-              bounds: [-180, -90, 180, 90],
-              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
-            }),
-            new deck.GeoJsonLayer({
-              id: 'outline',
-              visible: config.outline.enabled,
-              data: outline,
-              getLineColor: config.outline.color,
-              getLineWidth: config.outline.width,
-              lineWidthUnits: 'pixels',
-              opacity: config.outline.opacity,
-            }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
-            new DeckGlParticle.ParticleLayer({
-              id: 'particle',
-              visible: config.particle.enabled && particleUrl,
-              image: particleUrl,
-              numParticles: config.particle.numParticles,
-              maxAge: config.particle.maxAge,
-              speedFactor: config.particle.speedFactor,
-              color: config.particle.color,
-              width: config.particle.width,
-              opacity: config.particle.opacity,
-              animate: config.particle.animate,
-            }),
-          ],
-          _animate: config.particle.enabled && config.particle.animate && particleUrl,
-        });
-
-        legendControl.update(config.raster);
-
-        const attributions = Array.from(new Set([config.outline, config.raster, config.particle].map(x => x.enabled ? x.attribution : undefined).filter(x => x)));
-        attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
-      }
-      update();
-      initGui(config, update, { deckgl, datasets });
-    });
-  </script>
+<body>
+  <h1>WeatherLayers</h2>
+  <ul>
+    <li><a href="./map.html">Map</a></li>
+    <li><a href="./map-arcgis.html">Map + ArcGIS</a> WIP</li>
+    <li><a href="./map-arcgis-renderer.html">Map + ArcGIS renderer</a> WIP</li>
+    <li><a href="./map-leaflet.html">Map + Leaflet</a></li>
+    <li><a href="./map-google-maps.html">Map + Google Maps</a></li>
+    <li><a href="./map-mapbox.html">Map + Mapbox</a></li>
+    <li><a href="./globe.html">Globe</a></li>
+    <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a> WIP</li>
+  </ul>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCJJ11QS77"></script>
