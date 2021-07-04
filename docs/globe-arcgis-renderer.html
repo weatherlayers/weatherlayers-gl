@@ -6,12 +6,11 @@
   <title>WeatherLayers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.11/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
-  <script src="./deck.gl-raster.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-particle@1.0.4/dist/deck.gl-particle.min.js"></script>
+  <script src="../dist/deck.gl-weatherlayers.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./legend.css">
   <link rel="stylesheet" href="./attribution.css">
@@ -84,41 +83,55 @@
       });
 
       // info panels
-      // function updateInfo() {
-      //     const bounds = map.getBounds();
+      function updateInfo(viewState) {
+        const viewport = new deck.WebMercatorViewport(viewState);
+        const bounds = viewport.getBounds();
 
-      //     document.getElementById('info1').innerHTML = `
-      //         Center: ${map.getCenter().toArray().map(x => formatNumber(x)).join(', ')}<br>
-      //         Zoom: ${formatNumber(map.getZoom())}<br>
-      //         Pitch: ${formatNumber(map.getPitch())}<br>
-      //         Bearing: ${formatNumber(map.getBearing())}<br>
-      //         <br>
-      //         Bounds:<br>
-      //         <div class="grid-2">
-      //             ${bounds.getSouthWest().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-      //             ${bounds.getNorthEast().toArray().map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-      //         </div><br>
-      //     `;
-      // };
-      // function updateMouseInfo(event) {
-      //     // TODO: RasterLayer picking, see https://github.com/kylebarron/deck.gl-raster/issues/32
-      //     const rasterValue = undefined; // rasterLayer ? rasterLayer.getPositionValue(event.lngLat) : undefined;
-      //     const particlesVector = undefined; // particleLayer ? particleLayer.getPositionVector(event.lngLat) : undefined;
-      //     const particlesBearing = undefined; // particleLayer ? particleLayer.getPositionBearing(event.lngLat) : undefined;
+        document.getElementById('info1').innerHTML = `
+          Center: ${formatNumber(viewport.longitude)}, ${formatNumber(viewport.latitude)}<br>
+          Altitude: ${formatNumber(viewport.altitude)}<br>
+          Zoom: ${formatNumber(viewport.zoom)}<br>
+          Pitch: ${formatNumber(viewport.pitch)}<br>
+          Bearing: ${formatNumber(viewport.bearing)}<br>
+          <br>
+          Bounds:<br>
+          <div class="grid-2">
+            ${bounds.slice(0, 2).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            ${bounds.slice(2, 4).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+          </div><br>
+        `;
+      }
+      function updateMouseInfo(event) {
+        if (!event.coordinate) {
+          return;
+        }
 
-      //     document.getElementById('info2').innerHTML = `
-      //         Mouse:<br>
-      //         Position: ${formatNumber(event.lngLat.lng)}, ${formatNumber(event.lngLat.lat)}<br>
-      //         Raster Value: ${typeof rasterValue !== 'undefined' ? formatNumber(rasterValue) : 'n/a'}<br>
-      //         Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
-      //         Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
-      //     `;
-      // }
-      // map.on('move', updateInfo);
-      // map.on('zoom', updateInfo);
-      // map.on('resize', updateInfo);
-      // map.on('mousemove', updateMouseInfo);
-      // updateInfo();
+        document.getElementById('info2').innerHTML = `
+          Mouse:<br>
+          Position: ${event.coordinate.map(x => formatNumber(x)).join(', ')}<br>
+        `;
+        
+        if (event.raster) {
+          const value = config.raster.colorBounds[0] + event.raster.value * (config.raster.colorBounds[1] - config.raster.colorBounds[0]);
+          document.getElementById('info2').innerHTML += `
+            Value: ${typeof value !== 'undefined' ? formatNumber(value) : 'n/a'}<br>
+          `;
+          
+          if (event.raster.vectorValue) {
+            const vectorValue = event.raster.vectorValue.map(x => config.raster.imageBounds[0] + x * (config.raster.imageBounds[1] - config.raster.imageBounds[0]));
+            const vectorDirection = event.raster.vectorDirection;
+
+            document.getElementById('info2').innerHTML += `
+              Vector Value: ${typeof vectorValue !== 'undefined' ? `${formatNumber(vectorValue[0])}, ${formatNumber(vectorValue[1])}` : 'n/a'}<br>
+              Vector Direction: ${typeof vectorDirection !== 'undefined' ? Math.round(vectorDirection) : 'n/a'}<br>
+            `;
+          }
+        }
+      }
+      deckRenderer.deckInstance.setProps({
+        onViewStateChange: ({ viewState }) => updateInfo(viewState),
+        onHover: (event) => updateMouseInfo(event),
+      });
 
       // rotate
       const rotateAnimation = new Animation(() => {
@@ -189,61 +202,21 @@
         const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
-        const [raster, colormap] = await Promise.all([
-          rasterUrl ? loaders.load(rasterUrl) : undefined,
-          colormapUrl ? loaders.load(colormapUrl) : undefined,
-        ]);
+        // preload textures
+        const [raster, colormap] = await Promise.all([rasterUrl, colormapUrl].map(x => loaders.load(x)));
 
         deckRenderer.deck.set({
           layers: [
-            new deck['gl-raster'].RasterLayer({
+            new DeckGlWeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              images: {
-                imageRgba: {
-                  data: raster,
-                  format: luma.GL.RGB,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageColormap: {
-                  data: colormap,
-                  format: luma.GL.RGBA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageMask: {
-                  data: raster,
-                  format: luma.GL.ALPHA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-              },
-              modules: [
-                deck['gl-raster'].rgbaImage,
-                ...(config.raster.vector ? [
-                  deck['gl-raster'].linearRescale,
-                  deck['gl-raster'].vectorLength,
-                ] : []),
-                deck['gl-raster'].colormap,
-                deck['gl-raster'].maskImage,
-              ],
-              moduleProps: {
-                linearRescaleScaler: 2,
-                linearRescaleOffset: -1,
-                colormapScaler: 1,
-                colormapOffset: 0,
-              },
+              image: raster,
+              rasterImageType: config.raster.vector ? DeckGlWeatherLayers.IMAGE_TYPE.VECTOR : DeckGlWeatherLayers.IMAGE_TYPE.SCALAR,
+              rasterColormapImage: colormap,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+              pickable: true,
               parameters: {
                 cull: true,
                 depthTest: false,
@@ -266,7 +239,7 @@
         });
         deckgl.setProps({
           layers: [
-            new DeckGlParticle.ParticleLayer({
+            new DeckGlWeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled && particleUrl,
               image: particleUrl,
@@ -277,6 +250,7 @@
               width: config.particle.width,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate && particleUrl,

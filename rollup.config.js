@@ -13,11 +13,14 @@ function bundle(format, filename, options = {}) {
     output: {
       file: filename,
       format: format,
-      name: 'WeatherGl',
+      name: 'DeckGlWeatherLayers',
       sourcemap: true,
       globals: {
-        'mapboxgl': 'mapboxgl',
-        'resize-observer-polyfill': 'ResizeObserver',
+        '@deck.gl/core': 'deck',
+        '@deck.gl/extensions': 'deck',
+        '@deck.gl/layers': 'deck',
+        '@luma.gl/constants': 'luma.GL',
+        '@luma.gl/core': 'luma',
       },
     },
     external: [

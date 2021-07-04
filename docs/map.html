@@ -6,10 +6,9 @@
   <title>WeatherLayers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.5/dist.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.11/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
-  <script src="./deck.gl-raster.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-particle@1.0.4/dist/deck.gl-particle.min.js"></script>
+  <script src="../dist/deck.gl-weatherlayers.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./legend.css">
   <link rel="stylesheet" href="./attribution.css">
@@ -86,16 +85,17 @@
         const bounds = viewport.getBounds();
 
         document.getElementById('info1').innerHTML = `
-            Center: ${formatNumber(viewport.longitude)}, ${formatNumber(viewport.latitude)}<br>
-            Zoom: ${formatNumber(viewport.zoom)}<br>
-            Pitch: ${formatNumber(viewport.pitch)}<br>
-            Bearing: ${formatNumber(viewport.bearing)}<br>
-            <br>
-            Bounds:<br>
-            <div class="grid-2">
-                ${bounds.slice(0, 2).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-                ${bounds.slice(2, 4).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-            </div><br>
+          Center: ${formatNumber(viewport.longitude)}, ${formatNumber(viewport.latitude)}<br>
+          Altitude: ${formatNumber(viewport.altitude)}<br>
+          Zoom: ${formatNumber(viewport.zoom)}<br>
+          Pitch: ${formatNumber(viewport.pitch)}<br>
+          Bearing: ${formatNumber(viewport.bearing)}<br>
+          <br>
+          Bounds:<br>
+          <div class="grid-2">
+            ${bounds.slice(0, 2).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+            ${bounds.slice(2, 4).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
+          </div><br>
         `;
       }
       function updateMouseInfo(event) {
@@ -103,18 +103,27 @@
           return;
         }
 
-        // TODO: RasterLayer picking, see https://github.com/kylebarron/deck.gl-raster/issues/32
-        const rasterValue = undefined; // rasterLayer ? rasterLayer.getPositionValue(event.coordinate) : undefined;
-        const particlesVector = undefined; // particleLayer ? particleLayer.getPositionVector(event.coordinate) : undefined;
-        const particlesBearing = undefined; // particleLayer ? particleLayer.getPositionBearing(event.coordinate) : undefined;
-
         document.getElementById('info2').innerHTML = `
-            Mouse:<br>
-            Position: ${event.coordinate.map(x => formatNumber(x)).join(', ')}<br>
-            Raster Value: ${typeof rasterValue !== 'undefined' ? formatNumber(rasterValue) : 'n/a'}<br>
-            Particles Vector: ${typeof particlesVector !== 'undefined' ? `${formatNumber(particlesVector[0])}, ${formatNumber(particlesVector[1])}` : 'n/a'}<br>
-            Particles Bearing: ${typeof particlesBearing !== 'undefined' ? Math.round(particlesBearing) : 'n/a'}
+          Mouse:<br>
+          Position: ${event.coordinate.map(x => formatNumber(x)).join(', ')}<br>
         `;
+        
+        if (event.raster) {
+          const value = config.raster.colorBounds[0] + event.raster.value * (config.raster.colorBounds[1] - config.raster.colorBounds[0]);
+          document.getElementById('info2').innerHTML += `
+            Value: ${typeof value !== 'undefined' ? formatNumber(value) : 'n/a'}<br>
+          `;
+          
+          if (event.raster.vectorValue) {
+            const vectorValue = event.raster.vectorValue.map(x => config.raster.imageBounds[0] + x * (config.raster.imageBounds[1] - config.raster.imageBounds[0]));
+            const vectorDirection = event.raster.vectorDirection;
+
+            document.getElementById('info2').innerHTML += `
+              Vector Value: ${typeof vectorValue !== 'undefined' ? `${formatNumber(vectorValue[0])}, ${formatNumber(vectorValue[1])}` : 'n/a'}<br>
+              Vector Direction: ${typeof vectorDirection !== 'undefined' ? Math.round(vectorDirection) : 'n/a'}<br>
+            `;
+          }
+        }
       }
       deckgl.setProps({
         onViewStateChange: ({ viewState }) => updateInfo(viewState),
@@ -143,11 +152,8 @@
         const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
         config.raster.colormapUrl = colormapUrl;
 
-        // preload data for deck.gl-raster, because it doesn't re-render yet after URL is loaded
-        const [raster, colormap] = await Promise.all([
-          rasterUrl ? loaders.load(rasterUrl) : undefined,
-          colormapUrl ? loaders.load(colormapUrl) : undefined,
-        ]);
+        // preload textures
+        const [raster, colormap] = await Promise.all([rasterUrl, colormapUrl].map(x => loaders.load(x)));
 
         deckgl.setProps({
           layers: [
@@ -166,55 +172,18 @@
                 });
               },
             }),
-            new deck['gl-raster'].RasterLayer({
+            new DeckGlWeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              images: {
-                imageRgba: {
-                  data: raster,
-                  format: luma.GL.RGB,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageColormap: {
-                  data: colormap,
-                  format: luma.GL.RGBA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-                imageMask: {
-                  data: raster,
-                  format: luma.GL.ALPHA,
-                  parameters: {
-                    [luma.GL.TEXTURE_MIN_FILTER]: luma.GL.LINEAR,
-                    [luma.GL.TEXTURE_MAG_FILTER]: luma.GL.LINEAR,
-                  },
-                },
-              },
-              modules: [
-                deck['gl-raster'].rgbaImage,
-                ...(config.raster.vector ? [
-                  deck['gl-raster'].linearRescale,
-                  deck['gl-raster'].vectorLength,
-                ] : []),
-                deck['gl-raster'].colormap,
-                deck['gl-raster'].maskImage,
-              ],
-              moduleProps: {
-                linearRescaleScaler: 2,
-                linearRescaleOffset: -1,
-                colormapScaler: 1,
-                colormapOffset: 0,
-              },
+              image: raster,
+              rasterImageType: config.raster.vector ? DeckGlWeatherLayers.IMAGE_TYPE.VECTOR : DeckGlWeatherLayers.IMAGE_TYPE.SCALAR,
+              rasterColormapImage: colormap,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
+              pickable: true,
             }),
             new deck.GeoJsonLayer({
               id: 'outline',
@@ -225,7 +194,7 @@
               lineWidthUnits: 'pixels',
               opacity: config.outline.opacity,
             }),
-            new DeckGlParticle.ParticleLayer({
+            new DeckGlWeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled && particleUrl,
               image: particleUrl,
@@ -236,7 +205,7 @@
               width: config.particle.width,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
-              getPolygonOffset: ({ layerIndex }) => [0, -1000], // layerIndex is per view
+              getPolygonOffset: () => [0, -1000],
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate && particleUrl,

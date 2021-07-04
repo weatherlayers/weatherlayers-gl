@@ -1,17 +1,17 @@
 {
-  "name": "weather-gl",
+  "name": "deck.gl-weatherlayers",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/weather-gl.cjs.js",
-  "module": "dist/weather-gl.esm.js",
-  "browser": "dist/weather-gl.umd.min.js",
+  "main": "dist/deck.gl-weatherlayers.cjs.js",
+  "module": "dist/deck.gl-weatherlayers.esm.js",
+  "browser": "dist/deck.gl-weatherlayers.umd.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Jan Zak <zj@zakjan.cz>",
+  "author": "WeatherLayers.com <info@weatherlayers.com>",
   "private": true,
   "dependencies": {
     "color-rgba": "^2.2.3"
@@ -22,13 +22,15 @@
     "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
     "@babel/runtime": "^7.13.10",
+    "@deck.gl/core": "^8.5.0-alpha.11",
+    "@deck.gl/extensions": "^8.5.0-alpha.11",
+    "@deck.gl/layers": "^8.5.0-alpha.11",
+    "@luma.gl/constants": "^8.4.5",
+    "@luma.gl/core": "^8.4.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@types/color-rgba": "^2.1.0",
-    "@types/mapbox-gl": "^1.10.1",
-    "glsl-random": "0.0.5",
-    "mapbox-gl": "^1.13.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.41.1",
     "rollup-plugin-glslify": "^1.2.0",
@@ -38,6 +40,10 @@
     "typescript": "^4.2.3"
   },
   "peerDependencies": {
-    "mapbox-gl": "^1.13.1"
+    "@deck.gl/core": "^8.5.0-alpha.11",
+    "@deck.gl/extensions": "^8.5.0-alpha.11",
+    "@deck.gl/layers": "^8.5.0-alpha.11",
+    "@luma.gl/constants": "^8.4.5",
+    "@luma.gl/core": "^8.4.5"
   }
 }
