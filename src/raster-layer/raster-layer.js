@@ -27,6 +27,7 @@ export class RasterLayer extends CompositeLayer {
         id: 'bitmap',
         // pass textures manually, because they are getters
         image: this.props.image,
+        image2: this.props.image2,
         rasterColormapImage: this.props.rasterColormapImage,
         // apply opacity in RasterBitmapLayer
         opacity: 1,

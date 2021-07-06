@@ -149,24 +149,49 @@
       document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
+      const imageCache = new Map();
+      const colormapCache = new WeakMap();
+      async function loadImage(url) {
+        let image = imageCache.get(url);
+        if (!image) {
+          image = await loaders.load(url);
+          imageCache.set(url, image);
+        }
+        return image;
+      }
+      async function loadColormap(image) {
+        let colormap = colormapCache.get(image);
+        if (!colormap) {
+          const canvas = document.createElement('canvas');
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(image, 0, 0);
+          colormap = canvas.toDataURL();
+          colormapCache.set(image, colormap);
+        }
+        return colormap;
+      }
       async function update() {
         const outline = await loadOutline(config.outline.datasetUrl);
+        const dataUrl = getDataUrl(datasets, config.dataset, config.datetime);
+        const dataUrl2 = getDataUrl(datasets, config.dataset, config.datetime2);
         const colormapUrl = getColormapUrl(config.raster.colormap);
-        const rasterUrl = getDataUrl(datasets, config.raster.dataset, config.raster.datetime);
-        const particleUrl = getDataUrl(datasets, config.particle.dataset, config.particle.datetime);
-        config.raster.colormapUrl = colormapUrl;
 
         // preload textures
-        const [raster, colormap] = await Promise.all([rasterUrl, colormapUrl].map(x => loaders.load(x)));
+        const [dataImage, dataImage2, colormapImage] = await Promise.all([dataUrl, dataUrl2, colormapUrl].map(x => x && loadImage(x)));
+        config.raster.colormapUrl = await loadColormap(colormapImage);
 
         deckLayer.setProps({
           layers: [
             new DeckGlWeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              image: raster,
+              image: dataImage,
+              image2: dataImage2,
+              imageWeight: config.datetimeWeight,
               rasterImageType: config.raster.vector ? DeckGlWeatherLayers.IMAGE_TYPE.VECTOR : DeckGlWeatherLayers.IMAGE_TYPE.SCALAR,
-              rasterColormapImage: colormap,
+              rasterColormapImage: colormapImage,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -185,8 +210,10 @@
             }),
             new DeckGlWeatherLayers.ParticleLayer({
               id: 'particle',
-              visible: config.particle.enabled && particleUrl,
-              image: particleUrl,
+              visible: config.particle.enabled,
+              image: dataImage,
+              image2: dataImage2,
+              imageWeight: config.datetimeWeight,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
@@ -197,7 +224,7 @@
               getPolygonOffset: () => [0, -1000],
             }),
           ],
-          _animate: config.particle.enabled && config.particle.animate && particleUrl,
+          _animate: config.particle.enabled && config.particle.animate,
         });
 
         legendControl.update(config.raster);

@@ -15,6 +15,8 @@ in vec3 sourcePosition;
 out vec3 targetPosition;
 
 uniform sampler2D speedTexture;
+uniform sampler2D speedTexture2;
+uniform float speedTextureWeight;
 uniform vec4 bounds;
 
 uniform float numParticles;
@@ -123,6 +125,9 @@ void main() {
     // update position
     vec2 uv = getUV(sourcePosition.xy);
     vec4 values = texture2D(speedTexture, uv);
+    if (speedTextureWeight > 0.) {
+      values = mix(values, texture2D(speedTexture2, uv), speedTextureWeight);
+    }
     vec2 speed = values.xy * 2. - 1.;
     // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * viewportSpeedFactor * 10000.;
     // float bearing = degrees(-atan2(speed.y, speed.x));

@@ -23,6 +23,8 @@ const defaultProps = {
   ...LineLayer.defaultProps,
 
   image: {type: 'image', value: null, async: true},
+  image2: {type: 'image', value: null, async: true},
+  imageWeight: {type: 'number', value: 0},
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
   _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
   textureParameters: DEFAULT_TEXTURE_PARAMETERS,
@@ -154,7 +156,7 @@ export class ParticleLayer extends LineLayer {
 
   _runTransformFeedback() {
     const {gl, viewport, timeline} = this.context;
-    const {image, bounds, numParticles, speedFactor, maxAge} = this.props;
+    const {image, image2, imageWeight, bounds, numParticles, speedFactor, maxAge} = this.props;
     const {numAgedInstances, transform} = this.state;
 
     if (!image) {
@@ -192,6 +194,8 @@ export class ParticleLayer extends LineLayer {
     // update particles
     const uniforms = {
       speedTexture: image,
+      speedTexture2: image2,
+      speedTextureWeight: image2 ? imageWeight : 0,
       bounds,
       numParticles,
       maxAge,

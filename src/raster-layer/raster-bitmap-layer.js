@@ -9,6 +9,8 @@ import {BitmapLayer} from '@deck.gl/layers';
 
 const defaultProps = {
   ...BitmapLayer.defaultProps,
+  image2: {type: 'image', value: null, async: true},
+  imageWeight: {type: 'number', value: 0},
   rasterImageType: {type: 'number', value: 0},
   rasterColormapImage: {type: 'image', value: null, async: true},
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
@@ -24,6 +26,9 @@ export class RasterBitmapLayer extends BitmapLayer {
         ...parentShaders.inject,
         'fs:#decl': `
           ${(parentShaders.inject || {})['fs:#decl'] || ''}
+          uniform sampler2D bitmapTexture2;
+          uniform float bitmapTextureWeight;
+
           uniform float rasterImageType;
           uniform sampler2D rasterColormapImage;
           uniform float rasterOpacity;
@@ -42,6 +47,9 @@ export class RasterBitmapLayer extends BitmapLayer {
         `,
         'fs:#main-end': `
           ${(parentShaders.inject || {})['fs:#main-end'] || ''}
+          if (bitmapTextureWeight > 0.) {
+            bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), bitmapTextureWeight);
+          }
           if (bitmapColor.a != 1.) {
             discard;
           }
@@ -60,10 +68,19 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {rasterImageType, rasterColormapImage, rasterOpacity} = this.props;
+    const {image, image2, imageWeight, rasterImageType, rasterColormapImage, rasterOpacity} = this.props;
 
-    if (rasterColormapImage && model) {
+    if (!image) {
+      return;
+    }
+    if (!rasterColormapImage) {
+      return;
+    }
+
+    if (model) {
       model.setUniforms({
+        bitmapTexture2: image2,
+        bitmapTextureWeight: image2 ? imageWeight : 0,
         rasterImageType: rasterImageType,
         rasterColormapImage: rasterColormapImage,
         rasterOpacity: rasterOpacity,

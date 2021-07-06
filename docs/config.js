@@ -19,7 +19,7 @@ function getDatetime(datetimes, datetime) {
 
   const closestDatetime = [...datetimes].reverse().find(x => x <= datetime);
   if (!closestDatetime) {
-    return datetimes[0];
+    return datetimes[0] || NO_DATA;
   }
 
   return closestDatetime;
@@ -291,6 +291,8 @@ export function initConfig({ datasets } = {}) {
     dataset: DEFAULT_DATASET,
     datetimes: datetimes,
     datetime: datetimes[datetimes.length - 1],
+    datetime2: NO_DATA,
+    datetimeWeight: 0,
     rotate: false,
 
     outline: {
@@ -302,16 +304,10 @@ export function initConfig({ datasets } = {}) {
       ...outlineConfigs.get(DEFAULT_OUTLINE_DATASET),
     },
     raster: {
-      dataset: DEFAULT_DATASET,
-      datetimes: datetimes,
-      datetime: datetimes[datetimes.length - 1],
       ...staticConfig.raster,
       ...rasterConfigs.get(DEFAULT_DATASET),
     },
     particle: {
-      dataset: DEFAULT_DATASET,
-      datetimes: datetimes,
-      datetime: datetimes[datetimes.length - 1],
       ...staticConfig.particle,
       ...particleConfigs.get(DEFAULT_DATASET),
     },
@@ -351,22 +347,8 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
 }
 
 function updatePresetDataset(config, { datasets } = {}) {
-  const { rasterConfigs, particleConfigs } = config;
-
   config.datetimes = getDatetimes(datasets, config.dataset);
   config.datetime = getDatetime(config.datetimes, config.datetime);
-
-  config.raster.dataset = rasterConfigs.has(config.dataset) ? config.dataset : NO_DATA;
-  config.raster.datetime = rasterConfigs.has(config.dataset) ? config.datetime : NO_DATA;
-  config.particle.dataset = particleConfigs.has(config.dataset) ? config.dataset : NO_DATA;
-  config.particle.datetime = particleConfigs.has(config.dataset) ? config.datetime : NO_DATA;
-}
-
-function updatePresetDatetime(config) {
-  const { rasterConfigs, particleConfigs } = config;
-
-  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? getDatetime(config.raster.datetimes, config.datetime) : NO_DATA;
-  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? getDatetime(config.particle.datetimes, config.datetime) : NO_DATA;
 }
 
 function updateOutlineDataset(config) {
@@ -378,30 +360,26 @@ function updateOutlineDataset(config) {
   });
 }
 
-function updateRasterDataset(config, { datasets } = {}) {
+function updateRasterDataset(config) {
   const { staticConfig, rasterConfigs } = config;
 
-  config.raster.datetimes = rasterConfigs.has(config.raster.dataset) ? getDatetimes(datasets, config.raster.dataset) : [NO_DATA];
-  config.raster.datetime = rasterConfigs.has(config.raster.dataset) ? getDatetime(config.raster.datetimes, config.raster.datetime) : NO_DATA;
-  const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.raster.dataset) };
+  const rasterConfig = { ...staticConfig.raster, ...rasterConfigs.get(config.dataset) };
   Object.keys(rasterConfig).forEach(key => {
     config.raster[key] = rasterConfig[key];
   });
 }
 
-function updateParticleDataset(config, { datasets } = {}) {
+function updateParticleDataset(config) {
   const { staticConfig, particleConfigs } = config;
 
-  config.particle.datetimes = particleConfigs.has(config.particle.dataset) ? getDatetimes(datasets, config.particle.dataset) : [NO_DATA];
-  config.particle.datetime = particleConfigs.has(config.particle.dataset) ? getDatetime(config.particle.datetimes, config.particle.datetime) : NO_DATA;
-  const particleConfig = { ...staticConfig.particle, ...particleConfigs.get(config.particle.dataset) };
+  const particleConfig = particleConfigs.has(config.dataset) ? { ...staticConfig.particle, ...particleConfigs.get(config.dataset) } : { enabled: false };
   Object.keys(particleConfig).forEach(key => {
     config.particle[key] = particleConfig[key];
   });
 }
 
 export function initGui(config, update, { deckgl, datasets, globe } = {}) {
-  const { outlineConfigs, colormapConfigs, rasterConfigs, particleConfigs } = config;
+  const { outlineConfigs, colormapConfigs, rasterConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
@@ -410,23 +388,21 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
   let raster;
   let particle;
 
-  gui.add(config, 'dataset', [...rasterConfigs.keys()]).onChange(async () => {
+  gui.add(config, 'dataset', [NO_DATA, ...rasterConfigs.keys()]).onChange(async () => {
     updatePresetDataset(config, { datasets });
-    updateRasterDataset(config, { datasets });
-    updateParticleDataset(config, { datasets });
-    updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
-    updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
-    updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
+    updateRasterDataset(config);
+    updateParticleDataset(config);
+    updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
+    updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
     gui.updateDisplay();
     update();
   });
 
-  gui.add(config, 'datetime', []).onChange(() => {
-    updatePresetDatetime(config);
-    gui.updateDisplay();
-    update();
-  });
-  updateGuiDatetimeOptions(gui, config, 'datetime', config.datetimes);
+  gui.add(config, 'datetime', []).onChange(update);
+  updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
+  gui.add(config, 'datetime2', []).onChange(update);
+  updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
+  gui.add(config, 'datetimeWeight', 0, 1, 0.01).onChange(update);
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);
@@ -436,7 +412,7 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
 
   outline = gui.addFolder('Outline layer');
   outline.add(config.outline, 'enabled').onChange(update);
-  outline.add(config.outline, 'dataset', [...outlineConfigs.keys()]).onChange(async () => {
+  outline.add(config.outline, 'dataset', [NO_DATA, ...outlineConfigs.keys()]).onChange(async () => {
     updateOutlineDataset(config);
     update();
   });
@@ -447,28 +423,12 @@ export function initGui(config, update, { deckgl, datasets, globe } = {}) {
 
   raster = gui.addFolder('Raster layer');
   raster.add(config.raster, 'enabled').onChange(update);
-  raster.add(config.raster, 'dataset', [NO_DATA, ...rasterConfigs.keys()]).onChange(async () => {
-    updateRasterDataset(config, { datasets });
-    updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
-    gui.updateDisplay();
-    update();
-  });
-  raster.add(config.raster, 'datetime', []).onChange(update);
-  updateGuiDatetimeOptions(raster, config.raster, 'datetime', config.raster.datetimes);
   raster.add(config.raster, 'colormap', [NO_DATA, ...colormapConfigs]).onChange(update);
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
   particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'enabled').onChange(update);
-  particle.add(config.particle, 'dataset', [NO_DATA, ...particleConfigs.keys()]).onChange(async () => {
-    updateParticleDataset(config, { datasets });
-    updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
-    gui.updateDisplay();
-    update();
-  });
-  particle.add(config.particle, 'datetime', []).onChange(update);
-  updateGuiDatetimeOptions(particle, config.particle, 'datetime', config.particle.datetimes);
   particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
   particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
   particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
