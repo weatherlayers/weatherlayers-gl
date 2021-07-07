@@ -349,6 +349,7 @@ export function initConfig({ datasets } = {}) {
     rasterColormaps,
     outlineConfigs,
 
+    datasets,
     dataset: DEFAULT_DATASET,
     datetimes: datetimes,
     datetime: datetimes[datetimes.length - 1],
@@ -407,10 +408,10 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
-function updatePresetDataset(config, { datasets } = {}) {
+function updatePresetDataset(config) {
   const { staticConfig, datasetConfigs } = config;
 
-  config.datetimes = getDatetimes(datasets, config.dataset);
+  config.datetimes = getDatetimes(config.datasets, config.dataset);
   config.datetime = getDatetime(config.datetimes, config.datetime);
 
   const rasterConfig = { ...staticConfig.raster, ...datasetConfigs.get(config.dataset)?.raster };
@@ -433,14 +434,14 @@ function updateOutlineDataset(config) {
   });
 }
 
-export function initGui(config, update, { deckgl, datasets, globe } = {}) {
+export function initGui(config, update, { deckgl, globe } = {}) {
   const { outlineConfigs, rasterColormaps, datasetConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
 
   gui.add(config, 'dataset', [NO_DATA, ...datasetConfigs.keys()]).onChange(async () => {
-    updatePresetDataset(config, { datasets });
+    updatePresetDataset(config);
     updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
     updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
     gui.updateDisplay();

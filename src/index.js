@@ -9,4 +9,6 @@ export { IMAGE_TYPE } from './layers/raster-layer/image-type';
 export { RasterLayer } from './layers/raster-layer/raster-layer';
 export { ParticleLayer } from './layers/particle-layer/particle-layer';
 export { LegendControl } from './controls/legend-control/legend-control';
+export { TimelineControl } from './controls/timeline-control/timeline-control';
 export { AttributionControl } from './controls/attribution-control/attribution-control';
+export { Animation } from './utils/animation';

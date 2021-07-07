@@ -41,7 +41,7 @@ export class Animation {
     this.raf = null;
   }
 
-  toggle(running) {
+  toggle(running = !this.running) {
     if (running) {
       this.start();
     } else {

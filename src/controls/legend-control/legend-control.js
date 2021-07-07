@@ -60,13 +60,16 @@ export class LegendControl {
       return;
     }
 
+    const div = document.createElement('div');
+    this.container.appendChild(div);
+
     const xmlns = 'http://www.w3.org/2000/svg';
     const paddingY = 15;
     const svg = document.createElementNS(xmlns, 'svg');
     svg.setAttribute('width', `${config.legendWidth + 2 * paddingY}px`);
     svg.setAttribute('height', '50px');
     svg.style.display = 'block';
-    this.container.appendChild(svg);
+    div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
     title.innerHTML = config.legendTitle;

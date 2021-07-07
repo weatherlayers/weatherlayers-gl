@@ -5,14 +5,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-.legend {
-  margin: 10px;
+export interface TimelineConfig {
+  datetimes: string[];
+  onUpdate: (event: TimelineUpdateEvent) => void;
+  onStart?: () => void;
+  onStop?: () => void;
 }
-.legend > div {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.5);
-  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  line-height: 20px;
-  color: rgba(0, 0, 0, 0.75);
+
+export interface TimelineUpdateEvent {
+  datetimeIndex: number;
+  datetimeWeight: number;
 }

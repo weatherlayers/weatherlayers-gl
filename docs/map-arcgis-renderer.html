@@ -35,10 +35,40 @@
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
     }
+    
+    const imageCache = new Map();
+    function loadImage(url) {
+      let image = imageCache.get(url);
+      if (!image) {
+        const imagePromise = loaders.load(url);
+        imagePromise.then(image => {
+          imageCache.set(url, image);
+        });
+        imageCache.set(url, imagePromise);
+        image = imagePromise;
+      }
+      return image;
+    }
+
+    const colormapCache = new WeakMap();
+    function loadColormap(image) {
+      let colormap = colormapCache.get(image);
+      if (!colormap) {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        colormap = canvas.toDataURL();
+        colormapCache.set(image, colormap);
+      }
+      return colormap;
+    }
 
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await loadDatasets();
       const config = initConfig({ datasets });
+      let gui;
 
       // ArcGIS
       const { DeckRenderer, modules: [Map, SceneView, externalRenderers, watchUtils] } = await deck.loadArcGISModules([
@@ -171,6 +201,25 @@
       const legendControl = new DeckGlWeatherLayers.LegendControl(config.raster);
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
+      // timeline
+      const timelineControl = new DeckGlWeatherLayers.TimelineControl({
+        datetimes: config.datetimes,
+        update: event => {
+          config.datetime = config.datetimes[event.datetimeIndex];
+          config.datetime2 = config.datetimes[event.datetimeIndex + 1];
+          config.datetimeWeight = event.datetimeWeight;
+          gui.updateDisplay();
+          update();
+
+          // preload next image
+          if (event.datetimeIndex < config.datetimes.length - 2) {
+            const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetimes[event.datetimeIndex + 2]);
+            loadImage(dataUrl);
+          }
+        },
+      });
+      document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+
       // attribution
       const attributionControl = new DeckGlWeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
@@ -180,33 +229,10 @@
       document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
 
       // config
-      const imageCache = new Map();
-      const colormapCache = new WeakMap();
-      async function loadImage(url) {
-        let image = imageCache.get(url);
-        if (!image) {
-          image = await loaders.load(url);
-          imageCache.set(url, image);
-        }
-        return image;
-      }
-      async function loadColormap(image) {
-        let colormap = colormapCache.get(image);
-        if (!colormap) {
-          const canvas = document.createElement('canvas');
-          canvas.width = image.width;
-          canvas.height = image.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(image, 0, 0);
-          colormap = canvas.toDataURL();
-          colormapCache.set(image, colormap);
-        }
-        return colormap;
-      }
       async function update() {
         const outline = await loadOutline(config.outline.datasetUrl);
-        const dataUrl = getDataUrl(datasets, config.dataset, config.datetime);
-        const dataUrl2 = getDataUrl(datasets, config.dataset, config.datetime2);
+        const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetime);
+        const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
         const colormapUrl = getColormapUrl(config.raster.colormap);
 
         // preload textures
@@ -268,7 +294,7 @@
         attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
       }
       update();
-      initGui(config, update, { deckgl, datasets });
+      gui = initGui(config, update, { deckgl });
     });
   </script>
 
