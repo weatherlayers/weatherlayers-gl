@@ -205,18 +205,19 @@
       // timeline
       const timelineControl = new DeckGlWeatherLayers.TimelineControl({
         datetimes: config.datetimes,
-        update: event => {
+        onStart: () => {
+          // preload images
+          config.datetimes.forEach(datetime => {
+            const dataUrl = getDataUrl(config.datasets, config.dataset, datetime);
+            loadImage(dataUrl);
+          });
+        },
+        onUpdate: event => {
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
           gui.updateDisplay();
           update();
-
-          // preload next image
-          if (event.datetimeIndex < config.datetimes.length - 2) {
-            const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetimes[event.datetimeIndex + 2]);
-            loadImage(dataUrl);
-          }
         },
       });
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
