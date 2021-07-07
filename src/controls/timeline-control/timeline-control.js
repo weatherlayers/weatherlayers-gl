@@ -34,11 +34,14 @@ export class TimelineControl {
       }
 
       const datetimeIndex = Math.floor(this.progress);
-      const datetimeWeight = this.progress - datetimeIndex;
+      const datetime = this.config.datetimes[datetimeIndex];
+      const datetime2 = this.config.datetimes[datetimeIndex + 1];
+      const datetimeWeight = Math.round((this.progress - datetimeIndex) * 100) / 100;
       
       this.config.onUpdate({
-        datetimeIndex,
-        datetimeWeight,
+        datetime: datetimeIndex % 2 === 0 ? datetime : datetime2,
+        datetime2: datetimeIndex % 2 === 0 ? datetime2 : datetime,
+        datetimeWeight: datetimeIndex % 2 === 0 ? datetimeWeight : 1 - datetimeWeight,
       });
     });
   }

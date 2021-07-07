@@ -194,8 +194,8 @@
       const timelineControl = new DeckGlWeatherLayers.TimelineControl({
         datetimes: config.datetimes,
         update: event => {
-          config.datetime = config.datetimes[event.datetimeIndex];
-          config.datetime2 = config.datetimes[event.datetimeIndex + 1];
+          config.datetime = event.datetime;
+          config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
           gui.updateDisplay();
           update();

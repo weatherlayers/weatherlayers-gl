@@ -13,6 +13,7 @@ export interface TimelineConfig {
 }
 
 export interface TimelineUpdateEvent {
-  datetimeIndex: number;
+  datetime: string;
+  datetime2: string;
   datetimeWeight: number;
 }
