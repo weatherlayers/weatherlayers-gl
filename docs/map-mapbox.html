@@ -13,8 +13,6 @@
   <script src="https://unpkg.com/@deck.gl/mapbox@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <script src="../dist/deck.gl-weatherlayers.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./legend.css">
-  <link rel="stylesheet" href="./attribution.css">
   <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
@@ -33,8 +31,6 @@
   <script type="module">
     import { loadDatasets, getColormapUrl, getDataUrl, loadOutline } from './data.js';
     import { initConfig, initGui } from './config.js';
-    import { LegendControl } from './legend.js';
-    import { AttributionControl } from './attribution.js';
     import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
@@ -173,11 +169,11 @@
       updateDeckView();
 
       // legend
-      const legendControl = new LegendControl(config.raster);
+      const legendControl = new DeckGlWeatherLayers.LegendControl(config.raster);
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // attribution
-      const attributionControl = new AttributionControl();
+      const attributionControl = new DeckGlWeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter

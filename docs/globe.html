@@ -10,8 +10,6 @@
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="../dist/deck.gl-weatherlayers.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./legend.css">
-  <link rel="stylesheet" href="./attribution.css">
   <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
@@ -30,8 +28,6 @@
     import { loadDatasets, getColormapUrl, getDataUrl, loadOutline } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { Animation } from './animation.js';
-    import { LegendControl } from './legend.js';
-    import { AttributionControl } from './attribution.js';
     import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
@@ -129,13 +125,13 @@
       });
 
       // legend
-      const legendControl = new LegendControl(config.raster);
+      const legendControl = new DeckGlWeatherLayers.LegendControl(config.raster);
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // attribution
-      const basemapAttributionControl = new AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+      const basemapAttributionControl = new DeckGlWeatherLayers.AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
       document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
-      const attributionControl = new AttributionControl();
+      const attributionControl = new DeckGlWeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter

@@ -3,7 +3,9 @@ import commonjs from '@rollup/plugin-commonjs';
 import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
-import glslify from 'rollup-plugin-glslify';
+import postcss from 'rollup-plugin-postcss';
+import autoprefixer from 'autoprefixer';
+import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 
@@ -37,7 +39,7 @@ function bundle(format, filename, options = {}) {
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
       babel({ babelHelpers: 'runtime' }),
-      glslify({ compress: !!options.minimize }),
+      postcss({ plugins: [autoprefixer(), assets()] }),
       ...(options.minimize ? [terser()] : []),
       ...(options.stats ? [visualizer({
         filename: filename + '.stats.html',

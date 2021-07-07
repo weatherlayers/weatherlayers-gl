@@ -1,11 +1,30 @@
+/*
+ * Copyright (c) 2021 WeatherLayers.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+import './legend-control.css';
+
+/** @typedef {import('./legend-control').LegendConfig} LegendConfig */
+
 export class LegendControl {
+  /** @type {LegendConfig} */
   config = undefined;
+  /** @type {HTMLElement} */
   container = undefined;
 
+  /**
+   * @param {LegendConfig} config
+   */
   constructor(config) {
     this.config = config;
   }
 
+  /**
+   * @returns {HTMLElement}
+   */
   onAdd() {
     this.container = document.createElement('div');
     this.container.className = 'legend';
@@ -15,6 +34,9 @@ export class LegendControl {
     return this.container;
   }
 
+  /**
+   * @returns {void}
+   */
   onRemove() {
     if (this.container && this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
@@ -22,6 +44,10 @@ export class LegendControl {
     }
   }
 
+  /**
+   * @param {LegendConfig} config
+   * @returns {void}
+   */
   update(config) {
     if (!this.container) {
       return;
