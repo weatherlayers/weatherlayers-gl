@@ -11,9 +11,26 @@
 .timeline > div {
   display: inline-block;
   background: rgba(255, 255, 255, 0.5);
-  padding: 5px;
+  padding: 5px 10px;
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
+}
+.timeline a {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  background: no-repeat center / contain;
+}
+.timeline a.play {
+  background-image: inline('./play.svg');
+}
+.timeline a.pause {
+  background-image: inline('./pause.svg');
+}
+.timeline input {
+  vertical-align: middle;
+  margin-left: 10px;
 }

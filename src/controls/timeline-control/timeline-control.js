@@ -33,16 +33,24 @@ export class TimelineControl {
         this.progress = 0;
       }
 
-      const datetimeIndex = Math.floor(this.progress);
-      const datetime = this.config.datetimes[datetimeIndex];
-      const datetime2 = this.config.datetimes[datetimeIndex + 1];
-      const datetimeWeight = Math.round((this.progress - datetimeIndex) * 100) / 100;
-      
-      this.config.onUpdate({
-        datetime: datetimeIndex % 2 === 0 ? datetime : datetime2,
-        datetime2: datetimeIndex % 2 === 0 ? datetime2 : datetime,
-        datetimeWeight: datetimeIndex % 2 === 0 ? datetimeWeight : 1 - datetimeWeight,
-      });
+      this.container.querySelector('input').value = this.progress;
+      this.updateProgress();
+    });
+  }
+
+  /**
+   * @returns {void}
+   */
+  updateProgress() {
+    const datetimeIndex = Math.floor(this.progress);
+    const datetime = this.config.datetimes[datetimeIndex];
+    const datetime2 = this.config.datetimes[datetimeIndex + 1];
+    const datetimeWeight = Math.round((this.progress - datetimeIndex) * 100) / 100;
+    
+    this.config.onUpdate({
+      datetime: datetimeIndex % 2 === 0 ? datetime : datetime2,
+      datetime2: datetimeIndex % 2 === 0 ? datetime2 : datetime,
+      datetimeWeight: datetimeIndex % 2 === 0 ? datetimeWeight : 1 - datetimeWeight,
     });
   }
 
@@ -87,19 +95,32 @@ export class TimelineControl {
     const div = document.createElement('div');
     this.container.appendChild(div);
 
-    const button = document.createElement('button');
-    button.innerHTML = 'Play';
-    button.addEventListener('click', () => {
+    const playPauseButton = document.createElement('a');
+    playPauseButton.href = 'javascript:void(0)';
+    playPauseButton.className = 'play';
+    playPauseButton.addEventListener('click', () => {
       if (this.animation.running) {
         this.animation.stop();
         this.config.onStop?.();
-        button.innerHTML = 'Play';
+        playPauseButton.className = 'play';
       } else {
         this.animation.start();
         this.config.onStart?.();
-        button.innerHTML = 'Pause';
+        playPauseButton.className = 'pause';
       }
     });
-    div.appendChild(button);
+    div.appendChild(playPauseButton);
+
+    const progressInput = document.createElement('input');
+    progressInput.type = 'range';
+    progressInput.min = 0;
+    progressInput.max = this.config.datetimes.length - 1;
+    progressInput.step = 0.05;
+    progressInput.value = this.progress;
+    progressInput.addEventListener('input', () => {
+      this.progress = progressInput.value;
+      this.updateProgress();
+    });
+    div.appendChild(progressInput);
   }
 }
