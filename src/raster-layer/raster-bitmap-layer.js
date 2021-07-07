@@ -11,8 +11,8 @@ const defaultProps = {
   ...BitmapLayer.defaultProps,
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
-  rasterImageType: {type: 'number', value: 0},
-  rasterColormapImage: {type: 'image', value: null, async: true},
+  imageType: {type: 'number', value: 0},
+  colormapImage: {type: 'image', value: null, async: true},
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 
@@ -29,12 +29,12 @@ export class RasterBitmapLayer extends BitmapLayer {
           uniform sampler2D bitmapTexture2;
           uniform float bitmapTextureWeight;
 
-          uniform float rasterImageType;
-          uniform sampler2D rasterColormapImage;
+          uniform float imageType;
+          uniform sampler2D colormapImage;
           uniform float rasterOpacity;
 
           float raster_get_value(vec4 color) {
-            if (rasterImageType > 0.5) {
+            if (imageType > 0.5) {
               return length(color.rg * 2. - 1.);
             } else {
               return color.r;
@@ -55,7 +55,7 @@ export class RasterBitmapLayer extends BitmapLayer {
           }
 
           float value = raster_get_value(bitmapColor);
-          vec4 rasterColor = texture2D(rasterColormapImage, vec2(value, 0.));
+          vec4 rasterColor = texture2D(colormapImage, vec2(value, 0.));
           gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
 
           if (picking_uActive) {
@@ -68,12 +68,12 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {image, image2, imageWeight, rasterImageType, rasterColormapImage, rasterOpacity} = this.props;
+    const {image, image2, imageWeight, imageType, colormapImage, rasterOpacity} = this.props;
 
     if (!image) {
       return;
     }
-    if (!rasterColormapImage) {
+    if (!colormapImage) {
       return;
     }
 
@@ -81,8 +81,8 @@ export class RasterBitmapLayer extends BitmapLayer {
       model.setUniforms({
         bitmapTexture2: image2,
         bitmapTextureWeight: image2 ? imageWeight : 0,
-        rasterImageType: rasterImageType,
-        rasterColormapImage: rasterColormapImage,
+        imageType: imageType,
+        colormapImage: colormapImage,
         rasterOpacity: rasterOpacity,
       });
 

@@ -28,7 +28,7 @@ export class RasterLayer extends CompositeLayer {
         // pass textures manually, because they are getters
         image: this.props.image,
         image2: this.props.image2,
-        rasterColormapImage: this.props.rasterColormapImage,
+        colormapImage: this.props.colormapImage,
         // apply opacity in RasterBitmapLayer
         opacity: 1,
         rasterOpacity,
@@ -37,7 +37,7 @@ export class RasterLayer extends CompositeLayer {
   }
 
   isRasterVector() {
-    return this.props.rasterImageType === IMAGE_TYPE.VECTOR;
+    return this.props.imageType === IMAGE_TYPE.VECTOR;
   }
 
   getRasterValue(color) {
