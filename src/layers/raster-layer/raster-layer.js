@@ -11,6 +11,7 @@ import {RasterBitmapLayer} from './raster-bitmap-layer';
 
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
+
   rasterOpacity: undefined,
 };
 

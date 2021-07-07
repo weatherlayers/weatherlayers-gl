@@ -9,10 +9,12 @@ import {BitmapLayer} from '@deck.gl/layers';
 
 const defaultProps = {
   ...BitmapLayer.defaultProps,
+
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'number', value: 0},
   colormapImage: {type: 'image', value: null, async: true},
+
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 

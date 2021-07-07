@@ -72,7 +72,6 @@ export class ParticleLayer extends LineLayer {
     super.updateState({props, oldProps, changeFlags});
 
     if (
-      props.image !== oldProps.image ||
       props.numParticles !== oldProps.numParticles ||
       props.maxAge !== oldProps.maxAge ||
       props.color !== oldProps.color ||
