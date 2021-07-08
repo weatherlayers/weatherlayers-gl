@@ -28,7 +28,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getColormapUrl, getDataUrl, loadOutline } from './data.js';
+    import { loadDatasets, getDataUrl, loadOutline } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
@@ -234,11 +234,11 @@
         const outline = await loadOutline(config.outline.datasetUrl);
         const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetime);
         const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
-        const colormapUrl = getColormapUrl(config.raster.colormap);
+        const colormapUrl = config.raster.colormapUrl;
 
         // preload textures
         const [dataImage, dataImage2, colormapImage] = await Promise.all([dataUrl, dataUrl2, colormapUrl].map(x => x && loadImage(x)));
-        config.raster.colormapUrl = await loadColormap(colormapImage);
+        config.raster.legendColormapUrl = await loadColormap(colormapImage);
 
         deckRenderer.deck.set({
           layers: [

@@ -2,21 +2,11 @@ const NO_DATA = 'no data';
 
 const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
 const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
-const COLORMAP_URL = 'https://weather-config.kamzek.com/colormaps';
 const DATA_URL = 'https://weather-api.kamzek.com/data';
 
 export async function loadDatasets() {
   const url = `${DATASETS_URL}?access_token=${ACCESS_TOKEN}`;
   return (await fetch(url)).json();
-}
-
-export function getColormapUrl(colormap) {
-  if (!colormap || colormap === NO_DATA) {
-    return;
-  }
-
-  const url = `${COLORMAP_URL}/${colormap}.png`;
-  return url;
 }
 
 export function getDataUrl(datasets, datasetName, datetime) {

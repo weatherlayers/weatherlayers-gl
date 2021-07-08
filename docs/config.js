@@ -33,6 +33,7 @@ export function initConfig({ datasets } = {}) {
       imageBounds: null,
       colorBounds: null,
       colormap: NO_DATA,
+      colormapUrl: null,
       legendWidth: 220,
       legendTitle: null,
       legendTicksCount: 6,
@@ -298,29 +299,67 @@ export function initConfig({ datasets } = {}) {
     }],
   ]);
 
-  const rasterColormaps = [
-    'gfs/wind',
-    'gfs/temperature',
-    'gfs/relative_humidity',
-    'gfs/accumulated_precipitation',
-    'gfs/accumulated_precipitation',
-    'gfs/convective_available_potential_energy',
-    'gfs/precipitable_water',
-    'gfs/cloud_water',
-    'gfs/pressure',
-    'gfs/apparent_temperature',
-    'cams/carbon_monoxide',
-    'cams/sulphur_dioxide',
-    'cams/nitrogen_dioxide',
-    'cams/particulate_matter_2p5um',
-    'cams/particulate_matter_10um',
-    'gfswave/waves',
-    'gfswave/significant_wave_height',
-    'ostia_sst/analysed_sea_surface_temperature',
-    'ostia_sst/sea_ice_fraction',
-    'ostia_anom/sea_surface_temperature_anomaly',
-    'oscar/currents',
-  ];
+  const colormapConfigs = new Map([
+    ['gfs/wind', 'https://weather-config.kamzek.com/colormaps/gfs/wind.png'],
+    ['gfs/temperature', 'https://weather-config.kamzek.com/colormaps/gfs/temperature.png'],
+    ['gfs/relative_humidity', 'https://weather-config.kamzek.com/colormaps/gfs/relative_humidity.png'],
+    ['gfs/accumulated_precipitation', 'https://weather-config.kamzek.com/colormaps/gfs/accumulated_precipitation.png'],
+    ['gfs/accumulated_precipitation', 'https://weather-config.kamzek.com/colormaps/gfs/accumulated_precipitation.png'],
+    ['gfs/convective_available_potential_energy', 'https://weather-config.kamzek.com/colormaps/gfs/convective_available_potential_energy.png'],
+    ['gfs/precipitable_water', 'https://weather-config.kamzek.com/colormaps/gfs/precipitable_water.png'],
+    ['gfs/cloud_water', 'https://weather-config.kamzek.com/colormaps/gfs/cloud_water.png'],
+    ['gfs/pressure', 'https://weather-config.kamzek.com/colormaps/gfs/pressure.png'],
+    ['gfs/apparent_temperature', 'https://weather-config.kamzek.com/colormaps/gfs/apparent_temperature.png'],
+    ['cams/carbon_monoxide', 'https://weather-config.kamzek.com/colormaps/cams/carbon_monoxide.png'],
+    ['cams/sulphur_dioxide', 'https://weather-config.kamzek.com/colormaps/cams/sulphur_dioxide.png'],
+    ['cams/nitrogen_dioxide', 'https://weather-config.kamzek.com/colormaps/cams/nitrogen_dioxide.png'],
+    ['cams/particulate_matter_2p5um', 'https://weather-config.kamzek.com/colormaps/cams/particulate_matter_2p5um.png'],
+    ['cams/particulate_matter_10um', 'https://weather-config.kamzek.com/colormaps/cams/particulate_matter_10um.png'],
+    ['gfswave/waves', 'https://weather-config.kamzek.com/colormaps/gfswave/waves.png'],
+    ['gfswave/significant_wave_height', 'https://weather-config.kamzek.com/colormaps/gfswave/significant_wave_height.png'],
+    ['ostia_sst/analysed_sea_surface_temperature', 'https://weather-config.kamzek.com/colormaps/ostia_sst/analysed_sea_surface_temperature.png'],
+    ['ostia_sst/sea_ice_fraction', 'https://weather-config.kamzek.com/colormaps/ostia_sst/sea_ice_fraction.png'],
+    ['ostia_anom/sea_surface_temperature_anomaly', 'https://weather-config.kamzek.com/colormaps/ostia_anom/sea_surface_temperature_anomaly.png'],
+    ['oscar/currents', 'https://weather-config.kamzek.com/colormaps/oscar/currents.png'],
+    ['BrBG', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BrBG.png'],
+    ['PRGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PRGn.png'],
+    ['PiYG', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PiYG.png'],
+    ['PuOr', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuOr.png'],
+    ['RdBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdBu.png'],
+    ['RdGy', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdGy.png'],
+    ['RdYlBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlBu.png'],
+    ['RdYlGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlGn.png'],
+    ['Spectral', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Spectral.png'],
+    ['Blues', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Blues.png'],
+    ['Greens', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greens.png'],
+    ['Greys', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greys.png'],
+    ['Oranges', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Oranges.png'],
+    ['Purples', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Purples.png'],
+    ['Reds', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Reds.png'],
+    ['turbo', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/turbo.png'],
+    ['viridis', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/viridis.png'],
+    ['inferno', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/inferno.png'],
+    ['magma', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/magma.png'],
+    ['plasma', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/plasma.png'],
+    ['cividis', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cividis.png'],
+    ['warm', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/warm.png'],
+    ['cool', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cool.png'],
+    ['cubehelix', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cubehelix.png'],
+    ['BuGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuGn.png'],
+    ['BuPu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuPu.png'],
+    ['GnBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/GnBu.png'],
+    ['OrRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/OrRd.png'],
+    ['PuBuGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBuGn.png'],
+    ['PuBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBu.png'],
+    ['PuRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuRd.png'],
+    ['RdPu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdPu.png'],
+    ['YlGnBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGnBu.png'],
+    ['YlGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGn.png'],
+    ['YlOrBr', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrBr.png'],
+    ['YlOrRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrRd.png'],
+    ['rainbow', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/rainbow.png'],
+    ['sinebow', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/sinebow.png'],
+  ]);
 
   const outlineConfigs = new Map([
     ['ne_110m_land', {
@@ -346,7 +385,7 @@ export function initConfig({ datasets } = {}) {
   const config = {
     staticConfig,
     datasetConfigs,
-    rasterColormaps,
+    colormapConfigs,
     outlineConfigs,
 
     datasets,
@@ -359,11 +398,12 @@ export function initConfig({ datasets } = {}) {
 
     raster: {
       ...staticConfig.raster,
-      ...datasetConfigs.get(DEFAULT_DATASET)?.raster,
+      ...datasetConfigs.get(DEFAULT_DATASET).raster,
+      colormapUrl: colormapConfigs.get(datasetConfigs.get(DEFAULT_DATASET).raster.colormap),
     },
     particle: {
       ...staticConfig.particle,
-      ...datasetConfigs.get(DEFAULT_DATASET)?.particle,
+      ...datasetConfigs.get(DEFAULT_DATASET).particle,
     },
     outline: {
       enabled: false,
@@ -409,7 +449,7 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
 }
 
 function updatePresetDataset(config) {
-  const { staticConfig, datasetConfigs } = config;
+  const { staticConfig, datasetConfigs, colormapConfigs } = config;
 
   config.datetimes = getDatetimes(config.datasets, config.dataset);
   config.datetime = getDatetime(config.datetimes, config.datetime);
@@ -418,6 +458,9 @@ function updatePresetDataset(config) {
   Object.keys(rasterConfig).forEach(key => {
     config.raster[key] = rasterConfig[key];
   });
+
+  const colormapUrl = colormapConfigs.get(config.raster.colormap);
+  config.raster.colormapUrl = colormapUrl;
 
   const particleConfig = { ...staticConfig.particle, ...datasetConfigs.get(config.dataset)?.particle };
   Object.keys(particleConfig).forEach(key => {
@@ -434,8 +477,15 @@ function updateOutlineDataset(config) {
   });
 }
 
+function updateRasterColormap(config) {
+  const { colormapConfigs } = config;
+
+  const colormapUrl = colormapConfigs.get(config.raster.colormap);
+  config.raster.colormapUrl = colormapUrl;
+}
+
 export function initGui(config, update, { deckgl, globe } = {}) {
-  const { outlineConfigs, rasterColormaps, datasetConfigs } = config;
+  const { outlineConfigs, colormapConfigs, datasetConfigs } = config;
 
   const gui = new dat.GUI();
   gui.width = 300;
@@ -462,7 +512,10 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   const raster = gui.addFolder('Raster layer');
   raster.add(config.raster, 'enabled').onChange(update);
-  raster.add(config.raster, 'colormap', [NO_DATA, ...rasterColormaps]).onChange(update);
+  raster.add(config.raster, 'colormap', [NO_DATA, ...colormapConfigs.keys()]).onChange(() => {
+    updateRasterColormap(config);
+    update();
+  });
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 

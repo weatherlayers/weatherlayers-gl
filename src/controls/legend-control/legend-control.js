@@ -56,7 +56,7 @@ export class LegendControl {
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!config.colormapUrl) {
+    if (!config.legendColormapUrl) {
       return;
     }
 
@@ -82,7 +82,7 @@ export class LegendControl {
     svg.appendChild(scale);
 
     const image = document.createElementNS(xmlns, 'image');
-    image.setAttribute('href', config.colormapUrl);
+    image.setAttribute('href', config.legendColormapUrl);
     image.setAttribute('width', `${config.legendWidth}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');

@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 export interface LegendConfig {
-  colormapUrl: string;
+  legendColormapUrl: string;
   legendWidth: number;
   legendTitle: string;
   colorBounds: [number, number];
