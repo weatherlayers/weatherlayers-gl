@@ -216,10 +216,10 @@
         datetimes: config.datetimes,
         onStart: () => {
           // preload images
-          config.datetimes.forEach(datetime => {
+          return Promise.all(config.datetimes.map(datetime => {
             const dataUrl = getDataUrl(config.datasets, config.dataset, datetime);
-            loadImage(dataUrl);
-          });
+            return loadImage(dataUrl);
+          }));
         },
         onUpdate: event => {
           config.datetime = event.datetime;

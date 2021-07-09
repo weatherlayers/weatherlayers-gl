@@ -48,9 +48,9 @@ export class TimelineControl {
     const datetimeWeight = Math.round((this.progress - datetimeIndex) * 100) / 100;
     
     this.config.onUpdate({
-      datetime: datetimeIndex % 2 === 0 ? datetime : datetime2,
-      datetime2: datetimeIndex % 2 === 0 ? datetime2 : datetime,
-      datetimeWeight: datetimeIndex % 2 === 0 ? datetimeWeight : 1 - datetimeWeight,
+      datetime,
+      datetime2,
+      datetimeWeight,
     });
   }
 
@@ -98,14 +98,14 @@ export class TimelineControl {
     const playPauseButton = document.createElement('a');
     playPauseButton.href = 'javascript:void(0)';
     playPauseButton.className = 'play';
-    playPauseButton.addEventListener('click', () => {
+    playPauseButton.addEventListener('click', async () => {
       if (this.animation.running) {
-        this.animation.stop();
         this.config.onStop?.();
+        this.animation.stop();
         playPauseButton.className = 'play';
       } else {
+        await this.config.onStart?.();
         this.animation.start();
-        this.config.onStart?.();
         playPauseButton.className = 'pause';
       }
     });

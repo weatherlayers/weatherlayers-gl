@@ -8,7 +8,7 @@
 export interface TimelineConfig {
   datetimes: string[];
   onUpdate: (event: TimelineUpdateEvent) => void;
-  onStart?: () => void;
+  onStart?: () => Promise<void>;
   onStop?: () => void;
 }
 
