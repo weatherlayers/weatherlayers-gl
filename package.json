@@ -1,10 +1,10 @@
 {
-  "name": "deck.gl-weatherlayers",
+  "name": "weatherlayers-gl",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/deck.gl-weatherlayers.cjs.js",
-  "module": "dist/deck.gl-weatherlayers.esm.js",
-  "browser": "dist/deck.gl-weatherlayers.umd.min.js",
+  "main": "dist/weatherlayers-gl.cjs.js",
+  "module": "dist/weatherlayers-gl.esm.js",
+  "browser": "dist/weatherlayers-gl.umd.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rimraf dist && rollup -c",
