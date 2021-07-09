@@ -84,6 +84,9 @@ export class TimelineControl {
     if (!this.container) {
       return;
     }
+    if (this.container.children.length && this.config.datetimes === config.datetimes) {
+      return;
+    }
 
     this.config = config;
     this.container.innerHTML = '';
@@ -97,7 +100,7 @@ export class TimelineControl {
 
     const playPauseButton = document.createElement('a');
     playPauseButton.href = 'javascript:void(0)';
-    playPauseButton.className = 'play';
+    playPauseButton.className = this.animation.running ? 'pause' : 'play';
     playPauseButton.addEventListener('click', async () => {
       if (this.animation.running) {
         this.config.onStop?.();

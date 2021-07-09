@@ -261,7 +261,10 @@
           _animate: config.particle.enabled && config.particle.animate,
         });
 
+
         legendControl.update(config.raster);
+
+        timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
 
         const attributions = Array.from(new Set([config.outline, config.raster, config.particle].map(x => x.enabled ? x.attribution : undefined).filter(x => x)));
         attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
