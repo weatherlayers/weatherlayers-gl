@@ -1,8 +1,8 @@
 const NO_DATA = 'no data';
 
 const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
-const DATASETS_URL = 'https://weather-api.kamzek.com/datasets';
-const DATA_URL = 'https://weather-api.kamzek.com/data';
+const DATASETS_URL = 'https://api.weatherlayers.com/datasets';
+const DATA_URL = 'https://api.weatherlayers.com/data';
 
 export async function loadDatasets() {
   const url = `${DATASETS_URL}?access_token=${ACCESS_TOKEN}`;
