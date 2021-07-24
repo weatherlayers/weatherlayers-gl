@@ -11,6 +11,6 @@ export interface LegendConfig {
   legendTitle: string;
   colorBounds: [number, number];
   legendTicksCount: number;
-  legendValueFormat?: (value: number) => number;
+  legendValueFormatter?: (value: number) => number;
   legendValueDecimals?: number;
 }

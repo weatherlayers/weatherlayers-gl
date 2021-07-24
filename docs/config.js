@@ -34,10 +34,12 @@ export function initConfig({ datasets } = {}) {
       colorBounds: null,
       colormap: NO_DATA,
       colormapUrl: null,
+      colormapBreaks: null,
       legendWidth: 220,
       legendTitle: null,
       legendTicksCount: 6,
-      legendValueFormat: null,
+      legendValueFormatter: null,
+      legendValueDecimals: 0,
       vector: false,
       attribution: null,
     },
@@ -75,10 +77,11 @@ export function initConfig({ datasets } = {}) {
     ['gfs/temperature_2m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [193 - 273.15, 328 - 273.15],
-        colorBounds: [193 - 273.15, 328 - 273.15],
+        imageBounds: [193, 328],
+        colorBounds: [193, 328],
         colormap: 'gfs/temperature',
         legendTitle: 'Temperature [°C]',
+        legendValueFormatter: value => value - 273.15,
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
@@ -150,17 +153,18 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [92000, 105000],
         colormap: 'gfs/pressure',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
-        legendValueFormat: value => value / 100,
+        legendValueFormatter: value => value / 100,
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/apparent_temperature_2m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [236 - 273.15, 332 - 273.15],
-        colorBounds: [236 - 273.15, 332 - 273.15],
+        imageBounds: [236, 332],
+        colorBounds: [236, 332],
         colormap: 'gfs/apparent_temperature',
         legendTitle: 'Apparent Temperature [°C]',
+        legendValueFormatter: value => value - 273.15,
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
@@ -171,7 +175,7 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [0.0044e-6, 9.4e-6],
         colormap: 'cams/carbon_monoxide',
         legendTitle: 'CO [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
+        legendValueFormatter: value => value * 1000000000,
         attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
@@ -182,7 +186,7 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [0.035e-9, 75e-9],
         colormap: 'cams/sulphur_dioxide',
         legendTitle: 'SO₂ [ppb]',
-        legendValueFormat: value => value * 1000000000,
+        legendValueFormatter: value => value * 1000000000,
         attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
@@ -193,7 +197,7 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [0.053e-9, 100e-9],
         colormap: 'cams/nitrogen_dioxide',
         legendTitle: 'NO₂ [ppb]',
-        legendValueFormat: value => value * 1000000000,
+        legendValueFormatter: value => value * 1000000000,
         attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
@@ -204,7 +208,7 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [0.012e-9, 35.4e-9],
         colormap: 'cams/particulate_matter_2p5um',
         legendTitle: 'PM2.5 [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
+        legendValueFormatter: value => value * 1000000000,
         attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
@@ -215,7 +219,7 @@ export function initConfig({ datasets } = {}) {
         colorBounds: [0.054e-9, 154e-9],
         colormap: 'cams/particulate_matter_10um',
         legendTitle: 'PM10 [μg/m³]',
-        legendValueFormat: value => value * 1000000000,
+        legendValueFormatter: value => value * 1000000000,
         attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
@@ -251,10 +255,11 @@ export function initConfig({ datasets } = {}) {
     ['ostia_sst/analysed_sea_surface_temperature', {
       raster: {
         enabled: true,
-        imageBounds: [270 - 273.15, 304.65 - 273.15],
-        colorBounds: [270 - 273.15, 304.65 - 273.15],
+        imageBounds: [270, 304.65],
+        colorBounds: [270, 304.65],
         colormap: 'ostia_sst/analysed_sea_surface_temperature',
         legendTitle: 'Sea Surface Temperature [°C]',
+        legendValueFormatter: value => value - 273.15,
         attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
       },
     }],
@@ -300,65 +305,346 @@ export function initConfig({ datasets } = {}) {
   ]);
 
   const colormapConfigs = new Map([
-    ['gfs/wind', 'https://config.weatherlayers.com/colormaps/gfs/wind.png'],
-    ['gfs/temperature', 'https://config.weatherlayers.com/colormaps/gfs/temperature.png'],
-    ['gfs/relative_humidity', 'https://config.weatherlayers.com/colormaps/gfs/relative_humidity.png'],
-    ['gfs/accumulated_precipitation', 'https://config.weatherlayers.com/colormaps/gfs/accumulated_precipitation.png'],
-    ['gfs/accumulated_precipitation', 'https://config.weatherlayers.com/colormaps/gfs/accumulated_precipitation.png'],
-    ['gfs/convective_available_potential_energy', 'https://config.weatherlayers.com/colormaps/gfs/convective_available_potential_energy.png'],
-    ['gfs/precipitable_water', 'https://config.weatherlayers.com/colormaps/gfs/precipitable_water.png'],
-    ['gfs/cloud_water', 'https://config.weatherlayers.com/colormaps/gfs/cloud_water.png'],
-    ['gfs/pressure', 'https://config.weatherlayers.com/colormaps/gfs/pressure.png'],
-    ['gfs/apparent_temperature', 'https://config.weatherlayers.com/colormaps/gfs/apparent_temperature.png'],
-    ['cams/carbon_monoxide', 'https://config.weatherlayers.com/colormaps/cams/carbon_monoxide.png'],
-    ['cams/sulphur_dioxide', 'https://config.weatherlayers.com/colormaps/cams/sulphur_dioxide.png'],
-    ['cams/nitrogen_dioxide', 'https://config.weatherlayers.com/colormaps/cams/nitrogen_dioxide.png'],
-    ['cams/particulate_matter_2p5um', 'https://config.weatherlayers.com/colormaps/cams/particulate_matter_2p5um.png'],
-    ['cams/particulate_matter_10um', 'https://config.weatherlayers.com/colormaps/cams/particulate_matter_10um.png'],
-    ['gfswave/waves', 'https://config.weatherlayers.com/colormaps/gfswave/waves.png'],
-    ['gfswave/significant_wave_height', 'https://config.weatherlayers.com/colormaps/gfswave/significant_wave_height.png'],
-    ['ostia_sst/analysed_sea_surface_temperature', 'https://config.weatherlayers.com/colormaps/ostia_sst/analysed_sea_surface_temperature.png'],
-    ['ostia_sst/sea_ice_fraction', 'https://config.weatherlayers.com/colormaps/ostia_sst/sea_ice_fraction.png'],
-    ['ostia_anom/sea_surface_temperature_anomaly', 'https://config.weatherlayers.com/colormaps/ostia_anom/sea_surface_temperature_anomaly.png'],
-    ['oscar/currents', 'https://config.weatherlayers.com/colormaps/oscar/currents.png'],
-    ['BrBG', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BrBG.png'],
-    ['PRGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PRGn.png'],
-    ['PiYG', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PiYG.png'],
-    ['PuOr', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuOr.png'],
-    ['RdBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdBu.png'],
-    ['RdGy', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdGy.png'],
-    ['RdYlBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlBu.png'],
-    ['RdYlGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlGn.png'],
-    ['Spectral', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Spectral.png'],
-    ['Blues', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Blues.png'],
-    ['Greens', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greens.png'],
-    ['Greys', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greys.png'],
-    ['Oranges', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Oranges.png'],
-    ['Purples', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Purples.png'],
-    ['Reds', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Reds.png'],
-    ['turbo', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/turbo.png'],
-    ['viridis', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/viridis.png'],
-    ['inferno', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/inferno.png'],
-    ['magma', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/magma.png'],
-    ['plasma', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/plasma.png'],
-    ['cividis', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cividis.png'],
-    ['warm', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/warm.png'],
-    ['cool', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cool.png'],
-    ['cubehelix', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cubehelix.png'],
-    ['BuGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuGn.png'],
-    ['BuPu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuPu.png'],
-    ['GnBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/GnBu.png'],
-    ['OrRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/OrRd.png'],
-    ['PuBuGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBuGn.png'],
-    ['PuBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBu.png'],
-    ['PuRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuRd.png'],
-    ['RdPu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdPu.png'],
-    ['YlGnBu', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGnBu.png'],
-    ['YlGn', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGn.png'],
-    ['YlOrBr', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrBr.png'],
-    ['YlOrRd', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrRd.png'],
-    ['rainbow', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/rainbow.png'],
-    ['sinebow', 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/sinebow.png'],
+    ['gfs/wind', {
+      colormapUrl: 'https://config.weatherlayers.com/colormaps/gfs/wind.png',
+    }],
+    ['gfs/temperature', {
+      colormapBreaks: [
+        [193,     [37, 4, 42]],
+        [206,     [41, 10, 130]],
+        [219,     [81, 40, 40]],
+        [233.15,  [192, 37, 149]], // -40 C/F
+        [255.372, [70, 215, 215]], // 0 F
+        [273.15,  [21, 84, 187]],  // 0 C
+        [275.15,  [24, 132, 14]],  // just above 0 C
+        [291,     [247, 251, 59]],
+        [298,     [235, 167, 21]],
+        [311,     [230, 71, 39]],
+        [328,     [88, 27, 67]],
+      ],
+    }],
+    ['gfs/relative_humidity', {
+      colormapBreaks: [
+        [0,   [230, 165, 30]],
+        [25,  [120, 100, 95]],
+        [60,  [40, 44, 92]],
+        [75,  [21, 13, 193]],
+        [90,  [75, 63, 235]],
+        [100, [25, 255, 255]],
+      ],
+    }],
+    ['gfs/accumulated_precipitation', {
+      colormapBreaks: [
+        [0,   [37, 79, 92]],
+        [2,   [240, 248, 255]],
+        [15,  [51, 26, 155]],
+        [50,  [230, 0, 116]],
+        [100, [255, 215, 0]],
+        [150, [255, 215, 0]],
+      ],
+    }],
+    ['gfs/convective_available_potential_energy', {
+      colormapBreaks: [
+        [0,    [5, 48, 97]],     // weak
+        [500,  [33, 102, 172]],  // weak
+        [1000, [67, 147, 195]],  // weak
+        [1500, [146, 197, 222]], // moderate
+        [2000, [209, 229, 240]], // moderate
+        [2500, [247, 247, 247]], // moderate
+        [3000, [253, 219, 199]], // strong
+        [3500, [244, 165, 130]], // strong
+        [4000, [214, 96, 77]],   // strong
+        [4500, [178, 24, 43]],   // extreme
+        [5000, [103, 0, 31]],    // extreme
+      ],
+    }],
+    ['gfs/precipitable_water', {
+      colormapBreaks: [
+        [0,  [230, 165, 30]],
+        [10, [120, 100, 95]],
+        [20, [40, 44, 92]],
+        [30, [21, 13, 193]],
+        [40, [75, 63, 235]],
+        [60, [25, 255, 255]],
+        [70, [150, 255, 255]],
+      ],
+    }],
+    ['gfs/cloud_water', {
+      colormapBreaks: [
+        [0.0, [5, 5, 89]],
+        [0.2, [170, 170, 230]],
+        [1.0, [255, 255, 255]],
+      ],
+    }],
+    ['gfs/pressure', {
+      colormapBreaks: [
+        [92000,  [40, 0, 0]],
+        [95000,  [187, 60, 31]],
+        [96500,  [137, 32, 30]],
+        [98000,  [16, 1, 43]],
+        [100500, [36, 1, 93]],
+        [101300, [241, 254, 18]],
+        [103000, [228, 246, 223]],
+        [105000, [255, 255, 255]],
+      ],
+    }],
+    ['gfs/apparent_temperature', {
+      colormapBreaks: [
+        [236,   [255, 255, 255]],
+        [241,   [255, 255, 255]], // -32 C, -25 F extreme frostbite
+        [245.5, [6, 82, 255]],
+        [250,   [6, 82, 255]],    // -23 C, -10 F frostbite
+        [258,   [46, 131, 255]],
+        [266,   [46, 131, 255]],  // -7 C, 20 F hypothermia
+        [280,   [0, 0, 0]],       // 7 C, 45 F begin suckage [cold)
+        [300,   [0, 0, 0]],       // 27 C, 80 F begin caution [heat)
+        [305,   [247, 20, 35]],   // 32 C, 90 F extreme caution
+        [309.5, [247, 20, 35]],
+        [314,   [245, 210, 5]],   // 41 C, 105 F danger
+        [320.5, [245, 210, 5]],
+        [327,   [255, 255, 255]], // 54 C, 130 F extreme danger
+        [332,   [255, 255, 255]],
+      ],
+    }],
+    ['cams/carbon_monoxide', {
+      colormapBreaks: [
+        [0.0044e-6, '#c6bc7300'],
+        [0.44e-6,   '#c6bc73'],
+        [4.4e-6,    '#e4672a'],
+        [9.4e-6,    '#4b0c00'],
+      ],
+    }],
+    ['cams/sulphur_dioxide', {
+      colormapBreaks: [
+        [0.035e-9, '#c6bc7300'],
+        [3.5e-9,   '#c6bc73'],
+        [35e-9,    '#e4672a'],
+        [75e-9,    '#4b0c00'],
+      ],
+    }],
+    ['cams/nitrogen_dioxide', {
+      colormapBreaks: [
+        [0.053e-9, '#c6bc7300'],
+        [5.3e-9,   '#c6bc73'],
+        [53e-9,    '#e4672a'],
+        [100e-9,   '#4b0c00'],
+      ],
+    }],
+    ['cams/particulate_matter_2p5um', {
+      colormapBreaks: [
+        [0.012e-9, '#c6bc7300'],
+        [1.2e-9,   '#c6bc73'],
+        [12e-9,    '#e4672a'],
+        [35.4e-9,  '#4b0c00'],
+      ],
+    }],
+    ['cams/particulate_matter_10um', {
+      colormapBreaks: [
+        [0.054e-9, '#c6bc7300'],
+        [5.4e-9,   '#c6bc73'],
+        [54e-9,    '#e4672a'],
+        [154e-9,   '#4b0c00'],
+      ],
+    }],
+    ['gfswave/waves', {
+      colormapBreaks: [
+        [0,  [0, 0, 0]],
+        [25, [21, 255, 255]],
+      ],
+    }],
+    ['gfswave/significant_wave_height', {
+      colormapBreaks: [
+        [0,  [8, 29, 88]],
+        [1,  [37, 52, 148]],
+        [2,  [34, 94, 168]],
+        [3,  [29, 145, 192]],
+        [4,  [65, 182, 196]],
+        [5,  [127, 205, 187]],
+        [6,  [199, 233, 180]],
+        [7,  [237, 248, 177]],
+        [8,  [254, 204, 92]],
+        [10, [253, 141, 60]],
+        [12, [240, 59, 32]],
+        [14, [189, 0, 38]],
+        [15, [189, 0, 38]],
+      ],
+    }],
+    ['ostia_sst/analysed_sea_surface_temperature', {
+      colormapBreaks: [
+        [270,    [255, 255, 255]],
+        [271.25, [255, 255, 255]], // -1.9 C sea water freeze
+        [271.30, [15, 4, 168]],
+        [273.15, [15, 54, 208]],   // 0 C fresh water freeze
+        [273.25, [15, 54, 188]],
+        [275.65, [15, 4, 168]],    // lower boundary for cool currents
+        [281.65, [24, 132, 14]],   // upper boundary for cool currents
+        [291.15, [247, 251, 59]],  // lower boundary for warm currents
+        [295,    [235, 167, 0]],
+        [299.65, [245, 0, 39]],    // minimum needed for tropical cyclone formation
+        [303,    [87, 17, 0]],
+        [304.65, [238, 0, 242]],
+      ],
+    }],
+    ['ostia_sst/sea_ice_fraction', {
+      colormapBreaks: [
+        // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
+        [0,   [0, 0, 0]],
+        [5,   [3, 5, 18]],
+        [10,  [20, 20, 43]],
+        [15,  [34, 33, 68]],
+        [20,  [40, 47, 96]],
+        [25,  [59, 59, 124]],
+        [30,  [63, 74, 150]],
+        [35,  [62, 93, 169]],
+        [40,  [63, 113, 180]],
+        [45,  [71, 132, 186]],
+        [50,  [82, 149, 192]],
+        [55,  [93, 166, 200]],
+        [60,  [117, 186, 206]],
+        [65,  [138, 204, 215]],
+        [70,  [170, 218, 224]],
+        [75,  [204, 234, 237]],
+        [80,  [233, 251, 252]],
+        [100, [255, 255, 255]],
+      ],
+    }],
+    ['ostia_anom/sea_surface_temperature_anomaly', {
+      colormapBreaks: [
+        [-11,   [255, 255, 255]],
+        [-3,    [7, 252, 254]],
+        [-1.5,  [66, 42, 253]],
+        [-0.75, [34, 55, 134]],
+        [0,     [0, 0, 6]],
+        [0.75,  [134, 55, 34]],
+        [1.5,   [253, 14, 16]],
+        [3.0,   [254, 252, 0]],
+        [11.0,  [255, 255, 255]],
+      ],
+    }],
+    ['oscar/currents', {
+      colormapBreaks: [
+        [0,    [10, 25, 68]],
+        [0.15, [10, 25, 250]],
+        [0.4,  [24, 255, 93]],
+        [0.65, [255, 233, 102]],
+        [1.0,  [255, 233, 15]],
+        [1.5,  [255, 15, 15]],
+      ],
+    }],
+    ['BrBG', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BrBG.png',
+    }],
+    ['PRGn', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PRGn.png',
+    }],
+    ['PiYG', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PiYG.png',
+    }],
+    ['PuOr', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuOr.png',
+    }],
+    ['RdBu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdBu.png',
+    }],
+    ['RdGy', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdGy.png',
+    }],
+    ['RdYlBu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlBu.png',
+    }],
+    ['RdYlGn', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdYlGn.png',
+    }],
+    ['Spectral', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Spectral.png',
+    }],
+    ['Blues', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Blues.png',
+    }],
+    ['Greens', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greens.png',
+    }],
+    ['Greys', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Greys.png',
+    }],
+    ['Oranges', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Oranges.png',
+    }],
+    ['Purples', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Purples.png',
+    }],
+    ['Reds', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/Reds.png',
+    }],
+    ['turbo', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/turbo.png',
+    }],
+    ['viridis', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/viridis.png',
+    }],
+    ['inferno', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/inferno.png',
+    }],
+    ['magma', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/magma.png',
+    }],
+    ['plasma', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/plasma.png',
+    }],
+    ['cividis', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cividis.png',
+    }],
+    ['warm', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/warm.png',
+    }],
+    ['cool', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cool.png',
+    }],
+    ['cubehelix', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/cubehelix.png',
+    }],
+    ['BuGn', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuGn.png',
+    }],
+    ['BuPu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BuPu.png',
+    }],
+    ['GnBu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/GnBu.png',
+    }],
+    ['OrRd', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/OrRd.png',
+    }],
+    ['PuBuGn', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBuGn.png',
+    }],
+    ['PuBu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuBu.png',
+    }],
+    ['PuRd', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/PuRd.png',
+    }],
+    ['RdPu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/RdPu.png',
+    }],
+    ['YlGnBu', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGnBu.png',
+    }],
+    ['YlGn', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlGn.png',
+    }],
+    ['YlOrBr', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrBr.png',
+    }],
+    ['YlOrRd', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/YlOrRd.png',
+    }],
+    ['rainbow', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/rainbow.png',
+    }],
+    ['sinebow', {
+      colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/sinebow.png',
+    }],
   ]);
 
   const outlineConfigs = new Map([
@@ -399,7 +685,7 @@ export function initConfig({ datasets } = {}) {
     raster: {
       ...staticConfig.raster,
       ...datasetConfigs.get(DEFAULT_DATASET).raster,
-      colormapUrl: colormapConfigs.get(datasetConfigs.get(DEFAULT_DATASET).raster.colormap),
+      ...colormapConfigs.get(datasetConfigs.get(DEFAULT_DATASET).raster.colormap),
     },
     particle: {
       ...staticConfig.particle,
@@ -459,8 +745,10 @@ function updatePresetDataset(config) {
     config.raster[key] = rasterConfig[key];
   });
 
-  const colormapUrl = colormapConfigs.get(config.raster.colormap);
-  config.raster.colormapUrl = colormapUrl;
+  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  Object.keys(colormapConfig).forEach(key => {
+    config.raster[key] = colormapConfig[key];
+  });
 
   const particleConfig = { ...staticConfig.particle, ...datasetConfigs.get(config.dataset)?.particle };
   Object.keys(particleConfig).forEach(key => {
@@ -480,8 +768,10 @@ function updateOutlineDataset(config) {
 function updateRasterColormap(config) {
   const { colormapConfigs } = config;
 
-  const colormapUrl = colormapConfigs.get(config.raster.colormap);
-  config.raster.colormapUrl = colormapUrl;
+  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  Object.keys(colormapConfig).forEach(key => {
+    config.raster[key] = colormapConfig[key];
+  });
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {

@@ -125,18 +125,20 @@
         `;
         
         if (event.raster) {
-          const value = config.raster.colorBounds[0] + event.raster.value * (config.raster.colorBounds[1] - config.raster.colorBounds[0]);
+          const value = DeckGlWeatherLayers.unscaleValue(event.raster.value, { bounds: config.raster.colorBounds });
+          const formattedValue = DeckGlWeatherLayers.formatValue(value, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
           document.getElementById('info2').innerHTML += `
-            Value: ${typeof value !== 'undefined' ? formatNumber(value) : 'n/a'}<br>
+            Value: ${formattedValue}<br>
           `;
           
           if (event.raster.vectorValue) {
-            const vectorValue = event.raster.vectorValue.map(x => config.raster.imageBounds[0] + x * (config.raster.imageBounds[1] - config.raster.imageBounds[0]));
-            const vectorDirection = event.raster.vectorDirection;
+            const vectorValue = DeckGlWeatherLayers.unscaleVectorValue(event.raster.vectorValue, { bounds: config.raster.imageBounds });
+            const formattedVectorValue = DeckGlWeatherLayers.formatVectorValue(vectorValue, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
+            const formattedVectorDirection = DeckGlWeatherLayers.formatVectorDirection(vectorValue);
 
             document.getElementById('info2').innerHTML += `
-              Vector Value: ${typeof vectorValue !== 'undefined' ? `${formatNumber(vectorValue[0])}, ${formatNumber(vectorValue[1])}` : 'n/a'}<br>
-              Vector Direction: ${typeof vectorDirection !== 'undefined' ? Math.round(vectorDirection) : 'n/a'}<br>
+              Vector Value: ${formattedVectorValue[0]}, ${formattedVectorValue[1]}<br>
+              Vector Direction: ${formattedVectorDirection}<br>
             `;
           }
         }
@@ -192,7 +194,7 @@
         const outline = await loadOutline(config.outline.datasetUrl);
         const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetime);
         const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
-        const colormapUrl = config.raster.colormapUrl;
+        const colormapUrl = config.raster.colormapUrl || DeckGlWeatherLayers.colorRampUrl(DeckGlWeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: config.raster.colorBounds });
 
         // preload textures
         const [dataImage, dataImage2, colormapImage] = await Promise.all([dataUrl, dataUrl2, colormapUrl].map(x => x && loadImage(x)));

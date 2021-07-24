@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
+import { formatValue } from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 
@@ -96,8 +97,7 @@ export class LegendControl {
     const delta = (bounds[1] - bounds[0]) / (config.legendTicksCount - 1);
     for (let i = 0; i < config.legendTicksCount; i++) {
       const value = bounds[0] + i * delta;
-      const formattedValue = config.legendValueFormat?.(value) ?? value;
-      const roundedFormattedValue = config.legendValueDecimals ? Math.round(formattedValue * 10 ** config.legendValueDecimals) / 10 ** config.legendValueDecimals : Math.round(formattedValue);
+      const formattedValue = formatValue(value, { formatter: config.legendValueFormatter, decimals: config.legendValueDecimals });
 
       const tick = document.createElementNS(xmlns, 'g');
       tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * config.legendWidth}px, 0)`;
@@ -110,7 +110,7 @@ export class LegendControl {
       tick.appendChild(tickLine);
 
       const tickValue = document.createElementNS(xmlns, 'text');
-      tickValue.innerHTML = `${roundedFormattedValue}`;
+      tickValue.innerHTML = `${formattedValue}`;
       tickValue.style.transform = 'translate(0, 22px)';
       tick.appendChild(tickValue);
     }

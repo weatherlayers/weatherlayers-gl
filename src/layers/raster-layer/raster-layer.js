@@ -55,13 +55,6 @@ export class RasterLayer extends CompositeLayer {
     }
   }
 
-  getRasterVectorDirection(color) {
-    if (this.isRasterVector()) {
-      const θ = Math.atan2(color[1] * 2 - 1, color[0] * 2 - 1);
-      return ((90 - θ / Math.PI * 180) + 360) % 360;
-    }
-  }
-
   getPickingInfo({info}) {
     if (!info.color) {
       return info;
@@ -70,12 +63,10 @@ export class RasterLayer extends CompositeLayer {
     const color = Array.from(info.color).map(x => x / 255);
     const value = this.getRasterValue(color);
     const vectorValue = this.getRasterVectorValue(color);
-    const vectorDirection = this.getRasterVectorDirection(color);
 
     info.raster = {
       value,
       vectorValue,
-      vectorDirection,
     };
 
     return info;
