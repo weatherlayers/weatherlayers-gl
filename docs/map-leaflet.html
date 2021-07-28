@@ -43,7 +43,7 @@
       if (!image) {
         let imagePromise;
         if (url.includes('.tif')) {
-          imagePromise = DeckGlWeatherLayers.loadGeotiff(url);
+          imagePromise = WeatherLayers.loadGeotiff(url);
         } else {
           imagePromise = loaders.load(url);
         }
@@ -146,14 +146,14 @@
         
         if (event.raster) {
           const value = event.raster.value;
-          const formattedValue = DeckGlWeatherLayers.formatValue(value, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
+          const formattedValue = WeatherLayers.formatValue(value, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
           document.getElementById('info2').innerHTML += `
             Value: ${formattedValue}<br>
           `;
           
           if (event.raster.direction) {
             const direction = event.raster.direction;
-            const formattedDirection = DeckGlWeatherLayers.formatDirection(direction);
+            const formattedDirection = WeatherLayers.formatDirection(direction);
 
             document.getElementById('info2').innerHTML += `
               Direction: ${formattedDirection}<br>
@@ -167,11 +167,11 @@
       });
 
       // legend
-      const legendControl = new DeckGlWeatherLayers.LegendControl(config.raster);
+      const legendControl = new WeatherLayers.LegendControl(config.raster);
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // timeline
-      const timelineControl = new DeckGlWeatherLayers.TimelineControl({
+      const timelineControl = new WeatherLayers.TimelineControl({
         datetimes: config.datetimes,
         onStart: () => {
           // preload images
@@ -191,9 +191,9 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // attribution
-      const basemapAttributionControl = new DeckGlWeatherLayers.AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+      const basemapAttributionControl = new WeatherLayers.AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
       document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
-      const attributionControl = new DeckGlWeatherLayers.AttributionControl();
+      const attributionControl = new WeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter
@@ -210,18 +210,18 @@
         const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadImage(x)));
         const imageBounds = config.raster.imageBounds; // TODO: read from data
         const colormapBounds = config.raster.colormapBounds || imageBounds;
-        const colormapImage = await loadImage(config.raster.colormapUrl || DeckGlWeatherLayers.colorRampUrl(DeckGlWeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
+        const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.colorRampUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const legendColormapUrl = await loadColormap(colormapImage);
 
         deckLayer.setProps({
           layers: [
-            new DeckGlWeatherLayers.RasterLayer({
+            new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: config.raster.vector ? DeckGlWeatherLayers.IMAGE_TYPE.VECTOR : DeckGlWeatherLayers.IMAGE_TYPE.SCALAR,
+              imageType: config.raster.vector ? WeatherLayers.IMAGE_TYPE.VECTOR : WeatherLayers.IMAGE_TYPE.SCALAR,
               imageBounds: imageBounds,
               colormapImage: colormapImage,
               colormapBounds: colormapBounds,
@@ -241,7 +241,7 @@
               lineWidthUnits: 'pixels',
               opacity: config.outline.opacity,
             }),
-            new DeckGlWeatherLayers.ParticleLayer({
+            new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
               image: dataImage,

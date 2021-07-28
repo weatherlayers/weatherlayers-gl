@@ -15,7 +15,7 @@ function bundle(format, filename, options = {}) {
     output: {
       file: filename,
       format: format,
-      name: 'DeckGlWeatherLayers',
+      name: 'WeatherLayers',
       sourcemap: true,
       globals: {
         '@deck.gl/core': 'deck',
