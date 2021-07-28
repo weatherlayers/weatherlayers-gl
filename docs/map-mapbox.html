@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
-  <script src="https://unpkg.com/deck.gl@8.5.0/dist.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.5.0-alpha.11/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
   <script src="https://unpkg.com/@deck.gl/mapbox@8.5.0-alpha.5/dist/dist.dev.js"></script>
@@ -37,17 +37,26 @@
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
     }
+
+    const dataCache = new Map();
+    function loadData(url) {
+      let data = dataCache.get(url);
+      if (!data) {
+        const dataPromise = WeatherLayers.loadData(url);
+        dataPromise.then(data => {
+          dataCache.set(url, data);
+        });
+        dataCache.set(url, dataPromise);
+        data = dataPromise;
+      }
+      return data;
+    }
     
     const imageCache = new Map();
     function loadImage(url) {
       let image = imageCache.get(url);
       if (!image) {
-        let imagePromise;
-        if (url.includes('.tif')) {
-          imagePromise = WeatherLayers.loadGeotiff(url);
-        } else {
-          imagePromise = loaders.load(url);
-        }
+        const imagePromise = loaders.load(url);
         imagePromise.then(image => {
           imageCache.set(url, image);
         });
@@ -215,7 +224,7 @@
           // preload images
           return Promise.all(config.datetimes.map(datetime => {
             const dataUrl = getDataUrl(config.datasets, config.dataset, datetime);
-            return loadImage(dataUrl);
+            return loadData(dataUrl);
           }));
         },
         onUpdate: event => {
@@ -243,10 +252,10 @@
         const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
 
         // preload textures
-        const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadImage(x)));
+        const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadData(x)));
         const imageBounds = config.raster.imageBounds; // TODO: read from data
         const colormapBounds = config.raster.colormapBounds || imageBounds;
-        const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.colorRampUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
+        const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const legendColormapUrl = await loadColormap(colormapImage);
 
         deckLayer.setProps({
@@ -257,7 +266,7 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: config.raster.vector ? WeatherLayers.IMAGE_TYPE.VECTOR : WeatherLayers.IMAGE_TYPE.SCALAR,
+              imageType: config.raster.vector ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
               imageBounds: imageBounds,
               colormapImage: colormapImage,
               colormapBounds: colormapBounds,
@@ -301,11 +310,8 @@
           _animate: config.particle.enabled && config.particle.animate,
         });
 
-
         legendControl.update({ ...config.raster, colormapBounds, legendColormapUrl });
-
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
-
         const attributions = Array.from(new Set([config.outline, config.raster, config.particle].map(x => x.enabled ? x.attribution : undefined).filter(x => x)));
         attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
       }

@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer} from '@deck.gl/layers';
-import {IMAGE_TYPE} from './image-type';
+import {ImageType} from './image-type';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
 
 const defaultProps = {
@@ -38,7 +38,7 @@ export class RasterLayer extends CompositeLayer {
   }
 
   isRasterVector() {
-    return this.props.imageType === IMAGE_TYPE.VECTOR;
+    return this.props.imageType === ImageType.VECTOR;
   }
 
   getRasterValue(color) {

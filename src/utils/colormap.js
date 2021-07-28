@@ -111,7 +111,7 @@ function colorRamp(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
  * @param {{ bounds?: [number, number], count?: number }} options
  * @return {string}
  */
-export function colorRampUrl(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
+export function getColormapUrl(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
   const colors = colorRamp(colormapFunction, { bounds, count });
 
   const canvas = /** @type HTMLCanvasElement */ (document.createElement('canvas'));

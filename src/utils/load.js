@@ -5,6 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import { load } from '@loaders.gl/core';
 import GL from '@luma.gl/constants';
 import * as GeoTIFF from 'geotiff';
 
@@ -32,7 +33,7 @@ function maskData(data, nodata = undefined) {
  * @param {string} url
  * @returns {Promise<{ width: number, height: number, format: number, data: Float32Array }>}
  */
-export async function loadGeotiff(url) {
+async function loadGeotiff(url) {
   const geotiff = await GeoTIFF.fromUrl(url);
   const geotiffImage = await geotiff.getImage(0);
 
@@ -55,4 +56,16 @@ export async function loadGeotiff(url) {
     format,
     data: maskedData
   };
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<ImageBitmap | { width: number, height: number, format: number, data: Float32Array }>}
+ */
+export function loadData(url) {
+  if (url.includes('.tif')) {
+    return loadGeotiff(url);
+  } else {
+    return load(url);
+  }
 }
