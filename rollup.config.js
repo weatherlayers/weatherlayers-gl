@@ -23,6 +23,7 @@ function bundle(format, filename, options = {}) {
         '@deck.gl/layers': 'deck',
         '@luma.gl/constants': 'luma.GL',
         '@luma.gl/core': 'luma',
+        'geotiff': 'GeoTIFF',
       },
     },
     external: [

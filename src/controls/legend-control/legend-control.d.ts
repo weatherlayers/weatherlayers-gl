@@ -9,7 +9,7 @@ export interface LegendConfig {
   legendColormapUrl: string;
   legendWidth: number;
   legendTitle: string;
-  colorBounds: [number, number];
+  colormapBounds: [number, number];
   legendTicksCount: number;
   legendValueFormatter?: (value: number) => number;
   legendValueDecimals?: number;

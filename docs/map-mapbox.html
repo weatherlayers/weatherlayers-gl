@@ -10,6 +10,7 @@
   <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/deck.gl@8.5.0-alpha.11/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
+  <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
   <script src="https://unpkg.com/@deck.gl/mapbox@8.5.0-alpha.5/dist/dist.dev.js"></script>
   <script src="../dist/weatherlayers-gl.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
@@ -41,7 +42,12 @@
     function loadImage(url) {
       let image = imageCache.get(url);
       if (!image) {
-        const imagePromise = loaders.load(url);
+        let imagePromise;
+        if (url.includes('.tif')) {
+          imagePromise = DeckGlWeatherLayers.loadGeotiff(url);
+        } else {
+          imagePromise = loaders.load(url);
+        }
         imagePromise.then(image => {
           imageCache.set(url, image);
         });
@@ -144,20 +150,18 @@
         `;
         
         if (event.raster) {
-          const value = DeckGlWeatherLayers.unscaleValue(event.raster.value, { bounds: config.raster.colorBounds });
+          const value = event.raster.value;
           const formattedValue = DeckGlWeatherLayers.formatValue(value, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
           document.getElementById('info2').innerHTML += `
             Value: ${formattedValue}<br>
           `;
           
-          if (event.raster.vectorValue) {
-            const vectorValue = DeckGlWeatherLayers.unscaleVectorValue(event.raster.vectorValue, { bounds: config.raster.imageBounds });
-            const formattedVectorValue = DeckGlWeatherLayers.formatVectorValue(vectorValue, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
-            const formattedVectorDirection = DeckGlWeatherLayers.formatVectorDirection(vectorValue);
+          if (event.raster.direction) {
+            const direction = event.raster.direction;
+            const formattedDirection = DeckGlWeatherLayers.formatDirection(direction);
 
             document.getElementById('info2').innerHTML += `
-              Vector Value: ${formattedVectorValue[0]}, ${formattedVectorValue[1]}<br>
-              Vector Direction: ${formattedVectorDirection}<br>
+              Direction: ${formattedDirection}<br>
             `;
           }
         }
@@ -237,11 +241,13 @@
         const outline = await loadOutline(config.outline.datasetUrl);
         const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetime);
         const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
-        const colormapUrl = config.raster.colormapUrl || DeckGlWeatherLayers.colorRampUrl(DeckGlWeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: config.raster.colorBounds });
 
         // preload textures
-        const [dataImage, dataImage2, colormapImage] = await Promise.all([dataUrl, dataUrl2, colormapUrl].map(x => x && loadImage(x)));
-        config.raster.legendColormapUrl = await loadColormap(colormapImage);
+        const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadImage(x)));
+        const imageBounds = config.raster.imageBounds; // TODO: read from data
+        const colormapBounds = config.raster.colormapBounds || imageBounds;
+        const colormapImage = await loadImage(config.raster.colormapUrl || DeckGlWeatherLayers.colorRampUrl(DeckGlWeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
+        const legendColormapUrl = await loadColormap(colormapImage);
 
         deckLayer.setProps({
           layers: [
@@ -252,7 +258,9 @@
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
               imageType: config.raster.vector ? DeckGlWeatherLayers.IMAGE_TYPE.VECTOR : DeckGlWeatherLayers.IMAGE_TYPE.SCALAR,
+              imageBounds: imageBounds,
               colormapImage: colormapImage,
+              colormapBounds: colormapBounds,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -279,6 +287,7 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
+              imageBounds: imageBounds,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
@@ -293,7 +302,7 @@
         });
 
 
-        legendControl.update(config.raster);
+        legendControl.update({ ...config.raster, colormapBounds, legendColormapUrl });
 
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
 

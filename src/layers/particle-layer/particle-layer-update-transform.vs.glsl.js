@@ -14,9 +14,11 @@ precision highp float;
 in vec3 sourcePosition;
 out vec3 targetPosition;
 
-uniform sampler2D speedTexture;
-uniform sampler2D speedTexture2;
-uniform float speedTextureWeight;
+uniform sampler2D bitmapTexture;
+uniform sampler2D bitmapTexture2;
+uniform float imageWeight;
+uniform float imageUnscale;
+uniform vec2 imageBounds;
 uniform vec4 bounds;
 
 uniform float numParticles;
@@ -81,6 +83,22 @@ vec2 destinationPoint(vec2 from, float dist, float bearing) {
   return vec2(lon, lat);
 }
 
+bool isNan(float value) {
+  return (value <= 0.0 || 0.0 <= value) ? false : true;
+}
+
+bool hasValues(vec4 values) {
+  return !isNan(values.x) && !isNan(values.y) && values.a == 1.0;
+}
+
+vec2 getSpeed(vec4 color) {
+  if (imageUnscale > 0.5) {
+    return mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
+  } else {
+    return color.xy;
+  }
+}
+
 float rand(vec2 co) {
   return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -124,11 +142,12 @@ void main() {
   if (sourcePosition.xy != DROP_POSITION) {
     // update position
     vec2 uv = getUV(sourcePosition.xy);
-    vec4 values = texture2D(speedTexture, uv);
-    if (speedTextureWeight > 0.) {
-      values = mix(values, texture2D(speedTexture2, uv), speedTextureWeight);
+    vec4 bitmapColor = texture2D(bitmapTexture, uv);
+    if (imageWeight > 0.) {
+      bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
     }
-    vec2 speed = values.xy * 2. - 1.;
+    vec2 speed = getSpeed(bitmapColor);
+
     // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * viewportSpeedFactor * 10000.;
     // float bearing = degrees(-atan2(speed.y, speed.x));
     // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
@@ -137,8 +156,8 @@ void main() {
     vec2 offset = distortedSpeed * viewportSpeedFactor;
     targetPosition.xy = sourcePosition.xy + offset;
 
-    if (values.a != 1.) {
-      // drop nodata
+    // drop nodata
+    if (!hasValues(bitmapColor)) {
       targetPosition.xy = DROP_POSITION;
     }
 

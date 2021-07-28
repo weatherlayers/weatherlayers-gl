@@ -12,5 +12,6 @@ export { LegendControl } from './controls/legend-control/legend-control';
 export { TimelineControl } from './controls/timeline-control/timeline-control';
 export { AttributionControl } from './controls/attribution-control/attribution-control';
 export { Animation } from './utils/animation';
+export { loadGeotiff } from './utils/geotiff';
 export { linearColormap, colorRampUrl } from './utils/colormap';
-export { unscaleValue, formatValue, unscaleVectorValue, formatVectorValue, formatVectorDirection } from './utils/value';
+export { formatValue, formatDirection } from './utils/value';

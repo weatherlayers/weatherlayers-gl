@@ -32,6 +32,7 @@
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@types/color-rgba": "^2.1.0",
     "autoprefixer": "^10.2.6",
+    "geotiff": "^1.0.4",
     "postcss-assets": "^6.0.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.41.1",
@@ -46,6 +47,7 @@
     "@deck.gl/extensions": "^8.5.0-alpha.11",
     "@deck.gl/layers": "^8.5.0-alpha.11",
     "@luma.gl/constants": "^8.4.5",
-    "@luma.gl/core": "^8.4.5"
+    "@luma.gl/core": "^8.4.5",
+    "geotiff": "^1.0.4"
   }
 }

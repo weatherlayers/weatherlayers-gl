@@ -25,6 +25,7 @@ const defaultProps = {
   image: {type: 'image', value: null, async: true},
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
+  imageBounds: {type: 'array', value: null},
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
   _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
   textureParameters: DEFAULT_TEXTURE_PARAMETERS,
@@ -155,12 +156,14 @@ export class ParticleLayer extends LineLayer {
 
   _runTransformFeedback() {
     const {gl, viewport, timeline} = this.context;
-    const {image, image2, imageWeight, bounds, numParticles, speedFactor, maxAge} = this.props;
+    const {image, image2, imageWeight, imageBounds, bounds, numParticles, speedFactor, maxAge} = this.props;
     const {numAgedInstances, transform} = this.state;
 
     if (!image) {
       return;
     }
+
+    const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
     const viewportSphere = viewport.resolution ? 1 : 0; // globe
     const viewportSphereCenter = [viewport.longitude, viewport.latitude];
@@ -177,7 +180,7 @@ export class ParticleLayer extends LineLayer {
 
     // speed factor for current zoom level
     const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
-    const viewportSpeedFactor = speedFactor * devicePixelRatio / 2 ** viewport.zoom;
+    const viewportSpeedFactor = speedFactor * devicePixelRatio / 2 ** viewport.zoom / 128;
 
     // age particles
     // copy age0-age(N-2) targetPositions to age1-age(N-1) sourcePositions
@@ -192,9 +195,11 @@ export class ParticleLayer extends LineLayer {
 
     // update particles
     const uniforms = {
-      speedTexture: image,
-      speedTexture2: image2,
-      speedTextureWeight: image2 ? imageWeight : 0,
+      bitmapTexture: image,
+      bitmapTexture2: image2,
+      imageWeight: image2 ? imageWeight : 0,
+      imageUnscale,
+      imageBounds,
       bounds,
       numParticles,
       maxAge,

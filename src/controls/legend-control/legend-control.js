@@ -93,7 +93,7 @@ export class LegendControl {
     ticks.style.textAnchor = 'middle';
     scale.appendChild(ticks);
 
-    const bounds = config.colorBounds;
+    const bounds = config.colormapBounds;
     const delta = (bounds[1] - bounds[0]) / (config.legendTicksCount - 1);
     for (let i = 0; i < config.legendTicksCount; i++) {
       const value = bounds[0] + i * delta;

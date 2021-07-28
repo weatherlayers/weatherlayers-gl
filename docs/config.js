@@ -31,10 +31,10 @@ export function initConfig({ datasets } = {}) {
       enabled: false,
       opacity: 0.2,
       imageBounds: null,
-      colorBounds: null,
       colormap: NO_DATA,
       colormapUrl: null,
       colormapBreaks: null,
+      colormapBounds: null,
       legendWidth: 220,
       legendTitle: null,
       legendTicksCount: 6,
@@ -60,7 +60,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [-128, 127],
-        colorBounds: [0, 100],
         colormap: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
         vector: true,
@@ -68,7 +67,6 @@ export function initConfig({ datasets } = {}) {
       },
       particle: {
         enabled: true,
-        imageBounds: [-128, 127],
         maxAge: 25,     // 100,
         speedFactor: 2, // 33 / 100,
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -78,7 +76,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [193, 328],
-        colorBounds: [193, 328],
         colormap: 'gfs/temperature',
         legendTitle: 'Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -89,7 +86,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 100],
-        colorBounds: [0, 100],
         colormap: 'gfs/relative_humidity',
         legendTitle: 'Relative Humidity [%]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -99,7 +95,6 @@ export function initConfig({ datasets } = {}) {
     //   raster: {
     //     enabled: true,
     //     imageBounds: [0, 150],
-    //     colorBounds: [0, 150],
     //     colormap: 'gfs/accumulated_precipitation',
     //     legendTitle: 'Precipitation Accumulation [kg/m²]',
     //     attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -109,7 +104,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 150],
-        colorBounds: [0, 150],
         colormap: 'gfs/accumulated_precipitation',
         legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -119,7 +113,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 5000],
-        colorBounds: [0, 5000],
         colormap: 'gfs/convective_available_potential_energy',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -129,7 +122,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 70],
-        colorBounds: [0, 70],
         colormap: 'gfs/precipitable_water',
         legendTitle: 'Total Precipitable Water [kg/m²]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -139,7 +131,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 1],
-        colorBounds: [0, 1],
         colormap: 'gfs/cloud_water',
         legendTitle: 'Total Cloud Water [kg/m²]',
         legendValueDecimals: 1,
@@ -150,7 +141,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [92000, 105000],
-        colorBounds: [92000, 105000],
         colormap: 'gfs/pressure',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
         legendValueFormatter: value => value / 100,
@@ -161,7 +151,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [236, 332],
-        colorBounds: [236, 332],
         colormap: 'gfs/apparent_temperature',
         legendTitle: 'Apparent Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -172,7 +161,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0.0044e-6, 9.4e-6],
-        colorBounds: [0.0044e-6, 9.4e-6],
         colormap: 'cams/carbon_monoxide',
         legendTitle: 'CO [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -183,7 +171,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0.035e-9, 75e-9],
-        colorBounds: [0.035e-9, 75e-9],
         colormap: 'cams/sulphur_dioxide',
         legendTitle: 'SO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
@@ -194,7 +181,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0.053e-9, 100e-9],
-        colorBounds: [0.053e-9, 100e-9],
         colormap: 'cams/nitrogen_dioxide',
         legendTitle: 'NO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
@@ -205,7 +191,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0.012e-9, 35.4e-9],
-        colorBounds: [0.012e-9, 35.4e-9],
         colormap: 'cams/particulate_matter_2p5um',
         legendTitle: 'PM2.5 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -216,7 +201,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0.054e-9, 154e-9],
-        colorBounds: [0.054e-9, 154e-9],
         colormap: 'cams/particulate_matter_10um',
         legendTitle: 'PM10 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -227,7 +211,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [-20, 20],
-        colorBounds: [0, 25],
         colormap: 'gfswave/waves',
         legendTitle: 'Peak Wave Period [s]',
         vector: true,
@@ -235,10 +218,9 @@ export function initConfig({ datasets } = {}) {
       },
       particle: {
         enabled: true,
-        imageBounds: [-20, 20],
-        maxAge: 25,       // 40,
-        speedFactor: 0.2, // 33 / 612,
-        width: 10,
+        maxAge: 25,     // 40,
+        speedFactor: 1, // 33 / 612,
+        width: 5,
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
       },
     }],
@@ -246,7 +228,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 15],
-        colorBounds: [0, 15],
         colormap: 'gfswave/significant_wave_height',
         legendTitle: 'Significant Wave Height [m]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
@@ -256,7 +237,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [270, 304.65],
-        colorBounds: [270, 304.65],
         colormap: 'ostia_sst/analysed_sea_surface_temperature',
         legendTitle: 'Sea Surface Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -267,9 +247,9 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [0, 100],
-        colorBounds: [0, 100],
         colormap: 'ostia_sst/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
+        legendValueFormatter: value => value * 100,
         attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
       },
     }],
@@ -277,7 +257,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [-11, 11],
-        colorBounds: [-11, 11],
         colormap: 'ostia_anom/sea_surface_temperature_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
         attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
@@ -287,7 +266,6 @@ export function initConfig({ datasets } = {}) {
       raster: {
         enabled: true,
         imageBounds: [-1, 1],
-        colorBounds: [0, 1.5],
         colormap: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
         legendValueDecimals: 1,
@@ -296,9 +274,8 @@ export function initConfig({ datasets } = {}) {
       },
       particle: {
         enabled: true,
-        imageBounds: [-1, 1],
-        maxAge: 25,       // 100,
-        speedFactor: 0.2, // 33 / 7,
+        maxAge: 25,      // 100,
+        speedFactor: 20, // 33 / 7,
         attribution: '<a href="https://www.esr.org/research/oscar/">ESR OSCAR</a>',
       },
     }],
@@ -307,6 +284,7 @@ export function initConfig({ datasets } = {}) {
   const colormapConfigs = new Map([
     ['gfs/wind', {
       colormapUrl: 'https://config.weatherlayers.com/colormaps/gfs/wind.png',
+      colormapBounds: [0, 100],
     }],
     ['gfs/temperature', {
       colormapBreaks: [
@@ -322,6 +300,7 @@ export function initConfig({ datasets } = {}) {
         [311,     [230, 71, 39]],
         [328,     [88, 27, 67]],
       ],
+      colormapBounds: [193, 328],
     }],
     ['gfs/relative_humidity', {
       colormapBreaks: [
@@ -332,6 +311,7 @@ export function initConfig({ datasets } = {}) {
         [90,  [75, 63, 235]],
         [100, [25, 255, 255]],
       ],
+      colormapBounds: [0, 100],
     }],
     ['gfs/accumulated_precipitation', {
       colormapBreaks: [
@@ -342,6 +322,7 @@ export function initConfig({ datasets } = {}) {
         [100, [255, 215, 0]],
         [150, [255, 215, 0]],
       ],
+      colormapBounds: [0, 150],
     }],
     ['gfs/convective_available_potential_energy', {
       colormapBreaks: [
@@ -357,6 +338,7 @@ export function initConfig({ datasets } = {}) {
         [4500, [178, 24, 43]],   // extreme
         [5000, [103, 0, 31]],    // extreme
       ],
+      colormapBounds: [0, 5000],
     }],
     ['gfs/precipitable_water', {
       colormapBreaks: [
@@ -368,13 +350,15 @@ export function initConfig({ datasets } = {}) {
         [60, [25, 255, 255]],
         [70, [150, 255, 255]],
       ],
+      colormapBounds: [0, 70],
     }],
     ['gfs/cloud_water', {
       colormapBreaks: [
-        [0.0, [5, 5, 89]],
+        [0,   [5, 5, 89]],
         [0.2, [170, 170, 230]],
-        [1.0, [255, 255, 255]],
+        [1,   [255, 255, 255]],
       ],
+      colormapBounds: [0, 1],
     }],
     ['gfs/pressure', {
       colormapBreaks: [
@@ -387,6 +371,7 @@ export function initConfig({ datasets } = {}) {
         [103000, [228, 246, 223]],
         [105000, [255, 255, 255]],
       ],
+      colormapBounds: [92000, 105000],
     }],
     ['gfs/apparent_temperature', {
       colormapBreaks: [
@@ -405,6 +390,7 @@ export function initConfig({ datasets } = {}) {
         [327,   [255, 255, 255]], // 54 C, 130 F extreme danger
         [332,   [255, 255, 255]],
       ],
+      colormapBounds: [236, 332],
     }],
     ['cams/carbon_monoxide', {
       colormapBreaks: [
@@ -413,6 +399,7 @@ export function initConfig({ datasets } = {}) {
         [4.4e-6,    '#e4672a'],
         [9.4e-6,    '#4b0c00'],
       ],
+      colormapBounds: [0.0044e-6, 9.4e-6],
     }],
     ['cams/sulphur_dioxide', {
       colormapBreaks: [
@@ -421,6 +408,7 @@ export function initConfig({ datasets } = {}) {
         [35e-9,    '#e4672a'],
         [75e-9,    '#4b0c00'],
       ],
+      colormapBounds: [0.035e-9, 75e-9],
     }],
     ['cams/nitrogen_dioxide', {
       colormapBreaks: [
@@ -429,6 +417,7 @@ export function initConfig({ datasets } = {}) {
         [53e-9,    '#e4672a'],
         [100e-9,   '#4b0c00'],
       ],
+      colormapBounds: [0.053e-9, 100e-9],
     }],
     ['cams/particulate_matter_2p5um', {
       colormapBreaks: [
@@ -437,6 +426,7 @@ export function initConfig({ datasets } = {}) {
         [12e-9,    '#e4672a'],
         [35.4e-9,  '#4b0c00'],
       ],
+      colormapBounds: [0.012e-9, 35.4e-9],
     }],
     ['cams/particulate_matter_10um', {
       colormapBreaks: [
@@ -445,12 +435,14 @@ export function initConfig({ datasets } = {}) {
         [54e-9,    '#e4672a'],
         [154e-9,   '#4b0c00'],
       ],
+      colormapBounds: [0.054e-9, 154e-9],
     }],
     ['gfswave/waves', {
       colormapBreaks: [
         [0,  [0, 0, 0]],
         [25, [21, 255, 255]],
       ],
+      colormapBounds: [0, 25],
     }],
     ['gfswave/significant_wave_height', {
       colormapBreaks: [
@@ -468,6 +460,7 @@ export function initConfig({ datasets } = {}) {
         [14, [189, 0, 38]],
         [15, [189, 0, 38]],
       ],
+      colormapBounds: [0, 15],
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
       colormapBreaks: [
@@ -484,29 +477,31 @@ export function initConfig({ datasets } = {}) {
         [303,    [87, 17, 0]],
         [304.65, [238, 0, 242]],
       ],
+      colormapBounds: [270, 304.65],
     }],
     ['ostia_sst/sea_ice_fraction', {
       colormapBreaks: [
         // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
-        [0,   [0, 0, 0]],
-        [5,   [3, 5, 18]],
-        [10,  [20, 20, 43]],
-        [15,  [34, 33, 68]],
-        [20,  [40, 47, 96]],
-        [25,  [59, 59, 124]],
-        [30,  [63, 74, 150]],
-        [35,  [62, 93, 169]],
-        [40,  [63, 113, 180]],
-        [45,  [71, 132, 186]],
-        [50,  [82, 149, 192]],
-        [55,  [93, 166, 200]],
-        [60,  [117, 186, 206]],
-        [65,  [138, 204, 215]],
-        [70,  [170, 218, 224]],
-        [75,  [204, 234, 237]],
-        [80,  [233, 251, 252]],
-        [100, [255, 255, 255]],
+        [0,    [0, 0, 0]],
+        [0.05, [3, 5, 18]],
+        [0.1,  [20, 20, 43]],
+        [0.15, [34, 33, 68]],
+        [0.2,  [40, 47, 96]],
+        [0.25, [59, 59, 124]],
+        [0.3,  [63, 74, 150]],
+        [0.35, [62, 93, 169]],
+        [0.4,  [63, 113, 180]],
+        [0.45, [71, 132, 186]],
+        [0.5,  [82, 149, 192]],
+        [0.55, [93, 166, 200]],
+        [0.6,  [117, 186, 206]],
+        [0.65, [138, 204, 215]],
+        [0.7,  [170, 218, 224]],
+        [0.75, [204, 234, 237]],
+        [0.8,  [233, 251, 252]],
+        [1,    [255, 255, 255]],
       ],
+      colormapBounds: [0, 1],
     }],
     ['ostia_anom/sea_surface_temperature_anomaly', {
       colormapBreaks: [
@@ -517,9 +512,10 @@ export function initConfig({ datasets } = {}) {
         [0,     [0, 0, 6]],
         [0.75,  [134, 55, 34]],
         [1.5,   [253, 14, 16]],
-        [3.0,   [254, 252, 0]],
-        [11.0,  [255, 255, 255]],
+        [3,     [254, 252, 0]],
+        [11,    [255, 255, 255]],
       ],
+      colormapBounds: [-11, 11],
     }],
     ['oscar/currents', {
       colormapBreaks: [
@@ -530,6 +526,7 @@ export function initConfig({ datasets } = {}) {
         [1.0,  [255, 233, 15]],
         [1.5,  [255, 15, 15]],
       ],
+      colormapBounds: [0, 1.5],
     }],
     ['BrBG', {
       colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BrBG.png',
@@ -745,7 +742,7 @@ function updatePresetDataset(config) {
     config.raster[key] = rasterConfig[key];
   });
 
-  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, colormapBounds: undefined, ...colormapConfigs.get(config.raster.colormap) };
   Object.keys(colormapConfig).forEach(key => {
     config.raster[key] = colormapConfig[key];
   });
@@ -768,7 +765,7 @@ function updateOutlineDataset(config) {
 function updateRasterColormap(config) {
   const { colormapConfigs } = config;
 
-  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, colormapBounds: undefined, ...colormapConfigs.get(config.raster.colormap) };
   Object.keys(colormapConfig).forEach(key => {
     config.raster[key] = colormapConfig[key];
   });

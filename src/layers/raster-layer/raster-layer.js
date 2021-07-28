@@ -42,16 +42,14 @@ export class RasterLayer extends CompositeLayer {
   }
 
   getRasterValue(color) {
-    if (this.isRasterVector()) {
-      return Math.hypot(color[0] * 2 - 1, color[1] * 2 - 1);
-    } else {
-      return color[0];
-    }
+    const {colormapBounds} = this.props;
+
+    return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
   }
 
-  getRasterVectorValue(color) {
+  getRasterDirection(color) {
     if (this.isRasterVector()) {
-      return [color[0], color[1]];
+      return (color[1] / 255 - 0.5) * 2 * Math.PI;
     }
   }
 
@@ -60,13 +58,12 @@ export class RasterLayer extends CompositeLayer {
       return info;
     }
 
-    const color = Array.from(info.color).map(x => x / 255);
-    const value = this.getRasterValue(color);
-    const vectorValue = this.getRasterVectorValue(color);
+    const value = this.getRasterValue(info.color);
+    const direction = this.getRasterDirection(info.color);
 
     info.raster = {
       value,
-      vectorValue,
+      direction,
     };
 
     return info;
