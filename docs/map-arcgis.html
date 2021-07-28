@@ -241,7 +241,7 @@
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadData(x)));
-        const imageBounds = config.raster.imageBounds; // TODO: read from data
+        const imageBounds = dataImage.imageBounds;
         const colormapBounds = config.raster.colormapBounds || imageBounds;
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const legendColormapUrl = await loadColormap(colormapImage);
@@ -251,8 +251,8 @@
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              image: dataImage,
-              image2: dataImage2,
+              image: dataImage.texture,
+              image2: dataImage2?.texture,
               imageWeight: config.datetimeWeight,
               imageType: config.raster.vector ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
               imageBounds: imageBounds,
@@ -285,8 +285,8 @@
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
-              image: dataImage,
-              image2: dataImage2,
+              image: dataImage.texture,
+              image2: dataImage2?.texture,
               imageWeight: config.datetimeWeight,
               imageBounds: imageBounds,
               numParticles: config.particle.numParticles,

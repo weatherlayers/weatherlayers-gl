@@ -21,7 +21,6 @@ function bundle(format, filename, options = {}) {
         '@deck.gl/core': 'deck',
         '@deck.gl/extensions': 'deck',
         '@deck.gl/layers': 'deck',
-        '@loaders.gl/core': 'loaders',
         '@luma.gl/constants': 'luma.GL',
         '@luma.gl/core': 'luma',
         'geotiff': 'GeoTIFF',

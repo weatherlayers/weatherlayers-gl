@@ -18,7 +18,7 @@ export function getDataUrl(datasets, datasetName, datetime) {
     return;
   }
 
-  const url = `${DATA_URL}/${datasetName}/${datetime}.png?access_token=${ACCESS_TOKEN}`;
+  const url = `${DATA_URL}/${datasetName}/${datetime}.byte.png?access_token=${ACCESS_TOKEN}`;
   return url;
 }
 

@@ -14,7 +14,8 @@
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "private": true,
   "dependencies": {
-    "color-rgba": "^2.2.3"
+    "color-rgba": "^2.2.3",
+    "meta-png": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -25,7 +26,6 @@
     "@deck.gl/core": "^8.5.0",
     "@deck.gl/extensions": "^8.5.0",
     "@deck.gl/layers": "^8.5.0",
-    "@loaders.gl/core": "^3.0.7",
     "@luma.gl/constants": "^8.4.5",
     "@luma.gl/core": "^8.4.5",
     "@rollup/plugin-babel": "^5.3.0",
@@ -47,7 +47,6 @@
     "@deck.gl/core": "^8.5.0",
     "@deck.gl/extensions": "^8.5.0",
     "@deck.gl/layers": "^8.5.0",
-    "@loaders.gl/core": "^3.0.7",
     "@luma.gl/constants": "^8.4.5",
     "@luma.gl/core": "^8.4.5",
     "geotiff": "^1.0.4"

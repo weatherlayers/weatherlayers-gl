@@ -30,7 +30,6 @@ export function initConfig({ datasets } = {}) {
     raster: {
       enabled: false,
       opacity: 0.2,
-      imageBounds: null,
       colormap: NO_DATA,
       colormapUrl: null,
       colormapBreaks: null,
@@ -59,7 +58,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/wind_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [-128, 127],
         colormap: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
         vector: true,
@@ -75,7 +73,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/temperature_2m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [193, 328],
         colormap: 'gfs/temperature',
         legendTitle: 'Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -85,7 +82,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/relative_humidity_2m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0, 100],
         colormap: 'gfs/relative_humidity',
         legendTitle: 'Relative Humidity [%]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -94,7 +90,6 @@ export function initConfig({ datasets } = {}) {
     // ['gfs/accumulated_precipitation_surface', {
     //   raster: {
     //     enabled: true,
-    //     imageBounds: [0, 150],
     //     colormap: 'gfs/accumulated_precipitation',
     //     legendTitle: 'Precipitation Accumulation [kg/m²]',
     //     attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -103,7 +98,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/accumulated_precipitation_next_3h_surface', {
       raster: {
         enabled: true,
-        imageBounds: [0, 150],
         colormap: 'gfs/accumulated_precipitation',
         legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -112,7 +106,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/convective_available_potential_energy_surface', {
       raster: {
         enabled: true,
-        imageBounds: [0, 5000],
         colormap: 'gfs/convective_available_potential_energy',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -121,7 +114,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/precipitable_water_entire_atmosphere', {
       raster: {
         enabled: true,
-        imageBounds: [0, 70],
         colormap: 'gfs/precipitable_water',
         legendTitle: 'Total Precipitable Water [kg/m²]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
@@ -130,7 +122,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/cloud_water_entire_atmosphere', {
       raster: {
         enabled: true,
-        imageBounds: [0, 1],
         colormap: 'gfs/cloud_water',
         legendTitle: 'Total Cloud Water [kg/m²]',
         legendValueDecimals: 1,
@@ -140,7 +131,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/pressure_mean_sea_level', {
       raster: {
         enabled: true,
-        imageBounds: [92000, 105000],
         colormap: 'gfs/pressure',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
         legendValueFormatter: value => value / 100,
@@ -150,7 +140,6 @@ export function initConfig({ datasets } = {}) {
     ['gfs/apparent_temperature_2m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [236, 332],
         colormap: 'gfs/apparent_temperature',
         legendTitle: 'Apparent Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -160,7 +149,6 @@ export function initConfig({ datasets } = {}) {
     ['cams/carbon_monoxide_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0.0044e-6, 9.4e-6],
         colormap: 'cams/carbon_monoxide',
         legendTitle: 'CO [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -170,7 +158,6 @@ export function initConfig({ datasets } = {}) {
     ['cams/sulphur_dioxide_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0.035e-9, 75e-9],
         colormap: 'cams/sulphur_dioxide',
         legendTitle: 'SO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
@@ -180,7 +167,6 @@ export function initConfig({ datasets } = {}) {
     ['cams/nitrogen_dioxide_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0.053e-9, 100e-9],
         colormap: 'cams/nitrogen_dioxide',
         legendTitle: 'NO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
@@ -190,7 +176,6 @@ export function initConfig({ datasets } = {}) {
     ['cams/particulate_matter_2p5um_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0.012e-9, 35.4e-9],
         colormap: 'cams/particulate_matter_2p5um',
         legendTitle: 'PM2.5 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -200,7 +185,6 @@ export function initConfig({ datasets } = {}) {
     ['cams/particulate_matter_10um_10m_above_ground', {
       raster: {
         enabled: true,
-        imageBounds: [0.054e-9, 154e-9],
         colormap: 'cams/particulate_matter_10um',
         legendTitle: 'PM10 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
@@ -210,7 +194,6 @@ export function initConfig({ datasets } = {}) {
     ['gfswave/waves', {
       raster: {
         enabled: true,
-        imageBounds: [-20, 20],
         colormap: 'gfswave/waves',
         legendTitle: 'Peak Wave Period [s]',
         vector: true,
@@ -227,7 +210,6 @@ export function initConfig({ datasets } = {}) {
     ['gfswave/significant_wave_height', {
       raster: {
         enabled: true,
-        imageBounds: [0, 15],
         colormap: 'gfswave/significant_wave_height',
         legendTitle: 'Significant Wave Height [m]',
         attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
@@ -236,7 +218,6 @@ export function initConfig({ datasets } = {}) {
     ['ostia_sst/analysed_sea_surface_temperature', {
       raster: {
         enabled: true,
-        imageBounds: [270, 304.65],
         colormap: 'ostia_sst/analysed_sea_surface_temperature',
         legendTitle: 'Sea Surface Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
@@ -246,7 +227,6 @@ export function initConfig({ datasets } = {}) {
     ['ostia_sst/sea_ice_fraction', {
       raster: {
         enabled: true,
-        imageBounds: [0, 100],
         colormap: 'ostia_sst/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
         legendValueFormatter: value => value * 100,
@@ -256,7 +236,6 @@ export function initConfig({ datasets } = {}) {
     ['ostia_anom/sea_surface_temperature_anomaly', {
       raster: {
         enabled: true,
-        imageBounds: [-11, 11],
         colormap: 'ostia_anom/sea_surface_temperature_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
         attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
@@ -265,7 +244,6 @@ export function initConfig({ datasets } = {}) {
     ['oscar/currents', {
       raster: {
         enabled: true,
-        imageBounds: [-1, 1],
         colormap: 'oscar/currents',
         legendTitle: 'Currents [m/s]',
         legendValueDecimals: 1,
