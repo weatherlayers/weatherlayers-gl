@@ -10,6 +10,20 @@ import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 
 /**
+ * see https://github.com/GoogleChromeLabs/jsbi/issues/4#issuecomment-851780893
+ * @this {DataView}
+ * @param {number} byteOffset
+ * @param {boolean} [littleEndian]
+ * @returns {BigInt}
+ */
+DataView.prototype.getBigUint64 ??= function(byteOffset, littleEndian) {
+  const [h, l] = littleEndian ? [4, 0] : [0, 4];
+  const wh = BigInt(this.getUint32(byteOffset + h, littleEndian));
+  const wl = BigInt(this.getUint32(byteOffset + l, littleEndian));
+  return (wh << 32n) + wl;
+};
+
+/**
  * @param {string | undefined} metadataString
  * @param {Float32Array | Uint8Array} [data]
  * @returns {[number, number] | undefined}
