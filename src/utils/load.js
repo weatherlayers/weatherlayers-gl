@@ -68,7 +68,7 @@ function maskData(data, nodata = undefined) {
 
 /**
  * @param {string} url
- * @returns {Promise<{ texture: ImageBitmap, imageBounds: [number, number] | undefined }>}
+ * @returns {Promise<{ texture: ImageBitmap | HTMLImageElement, imageBounds: [number, number] | undefined }>}
  */
 async function loadPng(url) {
   const blob = await (await fetch(url)).blob();
@@ -76,7 +76,7 @@ async function loadPng(url) {
   const image = new Image();
   image.src = URL.createObjectURL(blob);
   await image.decode();
-  const texture = await createImageBitmap(image);
+  const texture = window.createImageBitmap ? await window.createImageBitmap(image) : image;
 
   const imageData = new Uint8Array(await blob.arrayBuffer());
   const metadataString = getMetadata(imageData, 'METADATA');
@@ -139,7 +139,7 @@ async function loadGeotiff(url) {
 
 /**
  * @param {string} url
- * @returns {Promise<{ texture: ImageBitmap | { width: number, height: number, data: Float32Array | Uint8Array, format: number }, imageBounds: [number, number] | undefined }>}
+ * @returns {Promise<{ texture: ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }, imageBounds: [number, number] | undefined }>}
  */
 export function loadData(url) {
   if (url.includes('.png')) {
