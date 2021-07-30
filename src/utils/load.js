@@ -10,6 +10,8 @@ import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 
 /**
+ * DataView.getBigUint64 polyfill for Safari
+ * used in meta-png
  * see https://github.com/GoogleChromeLabs/jsbi/issues/4#issuecomment-851780893
  * @this {DataView}
  * @param {number} byteOffset
