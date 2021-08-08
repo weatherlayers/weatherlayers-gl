@@ -1,24 +1,36 @@
-const NO_DATA = 'no data';
-
 const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
-const DATASETS_URL = 'https://api.weatherlayers.com/datasets';
-const DATA_URL = 'https://api.weatherlayers.com/data';
+const CATALOG_URL = 'https://api.weatherlayers.com/catalog.json';
+const FORMAT = 'byte.png';
 
-export async function loadDatasets() {
-  const url = `${DATASETS_URL}?access_token=${ACCESS_TOKEN}`;
-  return (await fetch(url)).json();
+const DATA_CACHE = new Map();
+
+export async function loadData(url) {
+  if (DATA_CACHE.has(url)) {
+    return DATA_CACHE.get(url);
+  }
+  
+  const data = await (await fetch(url)).json();
+  DATA_CACHE.set(url, data);
+  return data;
 }
 
-export function getDataUrl(datasets, datasetName, datetime) {
-  const dataset = datasets.find(x => x.name === datasetName);
-  if (!dataset) {
-    return;
-  }
-  if (!dataset.datetimes.includes(datetime)) {
-    return;
-  }
+export async function loadStacCatalog() {
+  const url = `${CATALOG_URL}?access_token=${ACCESS_TOKEN}`;
+  return loadData(url);
+}
 
-  const url = `${DATA_URL}/${datasetName}/${datetime}.byte.png?access_token=${ACCESS_TOKEN}`;
+export async function loadStacCollection(stacCatalog, stacCollectionId) {
+  const link = stacCatalog.links.find(x => x.id === stacCollectionId);
+  return loadData(link.href);
+}
+
+export async function loadStacItem(stacCollection, stacItemId) {
+  const link = stacCollection.links.find(x => x.id === stacItemId);
+  return loadData(link.href);
+}
+
+export function getDataUrl(stacItem) {
+  const url = stacItem.assets[FORMAT].href;
   return url;
 }
 

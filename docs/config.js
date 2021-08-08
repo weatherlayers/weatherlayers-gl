@@ -1,14 +1,11 @@
+import { loadStacCollection, loadStacItem } from './data.js';
+
 const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_OUTLINE_DATASET = 'ne_110m_land';
 
-function getDatetimes(datasets, datasetName) {
-  const dataset = datasets.find(x => x.name === datasetName);
-  if (!dataset) {
-    return [];
-  }
-
-  const datetimes = dataset.datetimes;
+function getDatetimes(stacCollection) {
+  const datetimes = stacCollection.links.map(x => x.id);
   return datetimes;
 }
 
@@ -25,7 +22,7 @@ function getDatetime(datetimes, datetime) {
   return closestDatetime;
 }
 
-export function initConfig({ datasets } = {}) {
+export async function initConfig({ stacCatalog } = {}) {
   const staticConfig = {
     raster: {
       enabled: false,
@@ -641,7 +638,10 @@ export function initConfig({ datasets } = {}) {
     }],
   ]);
 
-  const datetimes = getDatetimes(datasets, DEFAULT_DATASET);
+  const stacCollection = await loadStacCollection(stacCatalog, DEFAULT_DATASET);
+  const datetimes = getDatetimes(stacCollection);
+  const datetime = datetimes[datetimes.length - 1];
+  const stacItem = await loadStacItem(stacCollection, datetime);
 
   const config = {
     staticConfig,
@@ -649,10 +649,13 @@ export function initConfig({ datasets } = {}) {
     colormapConfigs,
     outlineConfigs,
 
-    datasets,
+    stacCatalog,
+    stacCollection,
+    stacItem,
+    stacItem2: undefined,
     dataset: DEFAULT_DATASET,
     datetimes: datetimes,
-    datetime: datetimes[datetimes.length - 1],
+    datetime: datetime,
     datetime2: NO_DATA,
     datetimeWeight: 0,
     rotate: false,
@@ -709,11 +712,13 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
   updateGuiOptions(gui, object, property, options);
 }
 
-function updatePresetDataset(config) {
+async function updateDataset(config) {
   const { staticConfig, datasetConfigs, colormapConfigs } = config;
 
-  config.datetimes = getDatetimes(config.datasets, config.dataset);
+  config.stacCollection = await loadStacCollection(config.stacCatalog, config.dataset);
+  config.datetimes = getDatetimes(config.stacCollection);
   config.datetime = getDatetime(config.datetimes, config.datetime);
+  config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
 
   const rasterConfig = { ...staticConfig.raster, ...datasetConfigs.get(config.dataset)?.raster };
   Object.keys(rasterConfig).forEach(key => {
@@ -729,6 +734,14 @@ function updatePresetDataset(config) {
   Object.keys(particleConfig).forEach(key => {
     config.particle[key] = particleConfig[key];
   });
+}
+
+async function updateDatetime(config) {
+  config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
+}
+
+async function updateDatetime2(config) {
+  config.stacItem2 = await loadStacItem(config.stacCollection, config.datetime2);
 }
 
 function updateOutlineDataset(config) {
@@ -756,16 +769,22 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   gui.width = 300;
 
   gui.add(config, 'dataset', [NO_DATA, ...datasetConfigs.keys()]).onChange(async () => {
-    updatePresetDataset(config);
+    await updateDataset(config);
     updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
     updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
     gui.updateDisplay();
     update();
   });
 
-  gui.add(config, 'datetime', []).onChange(update);
+  gui.add(config, 'datetime', []).onChange(async () => {
+    await updateDatetime(config);
+    update();
+  });
   updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-  gui.add(config, 'datetime2', []).onChange(update);
+  gui.add(config, 'datetime2', []).onChange(async () => {
+    await updateDatetime2(config);
+    update();
+  });
   updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
   gui.add(config, 'datetimeWeight', 0, 1, 0.01).onChange(update);
 

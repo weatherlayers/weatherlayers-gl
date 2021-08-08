@@ -30,7 +30,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadDatasets, getDataUrl, loadOutline } from './data.js';
+    import { loadStacCatalog, loadStacItem, getDataUrl, loadOutline } from './data.js';
     import { initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
@@ -82,8 +82,8 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const datasets = await loadDatasets();
-      const config = initConfig({ datasets });
+      const stacCatalog = await loadStacCatalog();
+      const config = await initConfig({ stacCatalog });
       let gui;
 
       // Mapbox
@@ -220,17 +220,20 @@
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
         datetimes: config.datetimes,
-        onStart: () => {
+        onStart: async () => {
           // preload images
-          return Promise.all(config.datetimes.map(datetime => {
-            const dataUrl = getDataUrl(config.datasets, config.dataset, datetime);
-            return loadData(dataUrl);
+          await Promise.all(config.datetimes.map(async datetime => {
+            const stacItem = await loadStacItem(config.stacCollection, datetime);
+            const dataUrl = getDataUrl(stacItem);
+            await loadData(dataUrl);
           }));
         },
-        onUpdate: event => {
+        onUpdate: async event => {
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
+          config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
+          config.stacItem2 = await loadStacItem(config.stacCollection, config.datetime2);
           gui.updateDisplay();
           update();
         },
@@ -248,8 +251,8 @@
       // config
       async function update() {
         const outline = await loadOutline(config.outline.datasetUrl);
-        const dataUrl = getDataUrl(config.datasets, config.dataset, config.datetime);
-        const dataUrl2 = getDataUrl(config.datasets, config.dataset, config.datetime2);
+        const dataUrl = getDataUrl(config.stacItem);
+        const dataUrl2 = config.stacItem2 && getDataUrl(config.stacItem2);
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadData(x)));
