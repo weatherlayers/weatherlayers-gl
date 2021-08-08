@@ -26,8 +26,8 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadStacCatalog, loadStacItem, getDataUrl, loadOutline } from './data.js';
-    import { initConfig, initGui } from './config.js';
+    import { loadOutline } from './data.js';
+    import { STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN, STAC_ASSET_ID, initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
@@ -78,7 +78,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const stacCatalog = await loadStacCatalog();
+      const stacCatalog = await WeatherLayers.loadStacCatalog(STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN);
       const config = await initConfig({ stacCatalog });
       let gui;
 
@@ -181,17 +181,17 @@
         onStart: async () => {
           // preload images
           await Promise.all(config.datetimes.map(async datetime => {
-            const stacItem = await loadStacItem(config.stacCollection, datetime);
-            const dataUrl = getDataUrl(stacItem);
-            await loadData(dataUrl);
+            const stacItem = await WeatherLayers.loadStacItem(config.stacCollection, datetime);
+            const stacAsset = WeatherLayers.getStacAsset(stacItem, STAC_ASSET_ID);
+            await loadData(stacAsset.href);
           }));
         },
         onUpdate: async event => {
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
-          config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
-          config.stacItem2 = await loadStacItem(config.stacCollection, config.datetime2);
+          config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
+          config.stacItem2 = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime2);
           gui.updateDisplay();
           update();
         },
@@ -211,11 +211,11 @@
       // config
       async function update() {
         const outline = await loadOutline(config.outline.datasetUrl);
-        const dataUrl = getDataUrl(config.stacItem);
-        const dataUrl2 = config.stacItem2 && getDataUrl(config.stacItem2);
+        const stacAsset = WeatherLayers.getStacAsset(config.stacItem, STAC_ASSET_ID);
+        const stacAsset2 = config.stacItem2 && WeatherLayers.getStacAsset(config.stacItem2, STAC_ASSET_ID);
 
         // preload textures
-        const [dataImage, dataImage2] = await Promise.all([dataUrl, dataUrl2].map(x => x && loadData(x)));
+        const [dataImage, dataImage2] = await Promise.all([stacAsset, stacAsset2].map(x => x && loadData(x.href)));
         const imageBounds = dataImage.imageBounds;
         const colormapBounds = config.raster.colormapBounds || imageBounds;
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));

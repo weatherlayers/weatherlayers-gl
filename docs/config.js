@@ -1,4 +1,6 @@
-import { loadStacCollection, loadStacItem } from './data.js';
+export const STAC_CATALOG_URL = 'https://api.weatherlayers.com/catalog.json';
+export const STAC_CATALOG_ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
+export const STAC_ASSET_ID = 'byte.png';
 
 const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
@@ -638,10 +640,10 @@ export async function initConfig({ stacCatalog } = {}) {
     }],
   ]);
 
-  const stacCollection = await loadStacCollection(stacCatalog, DEFAULT_DATASET);
+  const stacCollection = await WeatherLayers.loadStacCollection(stacCatalog, DEFAULT_DATASET);
   const datetimes = getDatetimes(stacCollection);
   const datetime = datetimes[datetimes.length - 1];
-  const stacItem = await loadStacItem(stacCollection, datetime);
+  const stacItem = await WeatherLayers.loadStacItem(stacCollection, datetime);
 
   const config = {
     staticConfig,
@@ -715,10 +717,10 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
 async function updateDataset(config) {
   const { staticConfig, datasetConfigs, colormapConfigs } = config;
 
-  config.stacCollection = await loadStacCollection(config.stacCatalog, config.dataset);
+  config.stacCollection = await WeatherLayers.loadStacCollection(config.stacCatalog, config.dataset);
   config.datetimes = getDatetimes(config.stacCollection);
   config.datetime = getDatetime(config.datetimes, config.datetime);
-  config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
+  config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
 
   const rasterConfig = { ...staticConfig.raster, ...datasetConfigs.get(config.dataset)?.raster };
   Object.keys(rasterConfig).forEach(key => {
@@ -737,11 +739,11 @@ async function updateDataset(config) {
 }
 
 async function updateDatetime(config) {
-  config.stacItem = await loadStacItem(config.stacCollection, config.datetime);
+  config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
 }
 
 async function updateDatetime2(config) {
-  config.stacItem2 = await loadStacItem(config.stacCollection, config.datetime2);
+  config.stacItem2 = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime2);
 }
 
 function updateOutlineDataset(config) {

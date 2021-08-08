@@ -1,39 +1,3 @@
-const ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
-const CATALOG_URL = 'https://api.weatherlayers.com/catalog.json';
-const FORMAT = 'byte.png';
-
-const DATA_CACHE = new Map();
-
-export async function loadData(url) {
-  if (DATA_CACHE.has(url)) {
-    return DATA_CACHE.get(url);
-  }
-  
-  const data = await (await fetch(url)).json();
-  DATA_CACHE.set(url, data);
-  return data;
-}
-
-export async function loadStacCatalog() {
-  const url = `${CATALOG_URL}?access_token=${ACCESS_TOKEN}`;
-  return loadData(url);
-}
-
-export async function loadStacCollection(stacCatalog, stacCollectionId) {
-  const link = stacCatalog.links.find(x => x.id === stacCollectionId);
-  return loadData(link.href);
-}
-
-export async function loadStacItem(stacCollection, stacItemId) {
-  const link = stacCollection.links.find(x => x.id === stacItemId);
-  return loadData(link.href);
-}
-
-export function getDataUrl(stacItem) {
-  const url = stacItem.assets[FORMAT].href;
-  return url;
-}
-
 const OUTLINE_CACHE = new Map();
 
 export async function loadOutline(url) {
