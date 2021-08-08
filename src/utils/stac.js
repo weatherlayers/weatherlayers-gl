@@ -57,13 +57,13 @@ export async function loadStacItem(stacCollection, stacItemId) {
 }
 
 /**
- * @param {StacItem} stacItem
+ * @param {StacCollection} stacCollection
  * @returns {string}
  */
-export function getStacItemAttribution(stacItem) {
-  const stacProvider = stacItem.properties.providers.find(x => x.roles.includes('producer'));
+export function getStacCollectionAttribution(stacCollection) {
+  const stacProvider = stacCollection.providers.find(x => x.roles.includes('producer'));
   if (!stacProvider) {
-    throw new Error(`STAC item attribution not found`);
+    throw new Error(`STAC collection attribution not found`);
   }
   const attribution = `<a href="${stacProvider.url}">${stacProvider.name}</a>`;
   return attribution;

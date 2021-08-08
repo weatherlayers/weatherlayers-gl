@@ -277,7 +277,7 @@
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
         const attributions = [
           ...(config.outline.enabled ? [OUTLINE_ATTRIBUTION] : []),
-          ...(config.raster.enabled || config.particle.enabled ? [WeatherLayers.getStacItemAttribution(config.stacItem)] : []),
+          ...(config.raster.enabled || config.particle.enabled ? [WeatherLayers.getStacCollectionAttribution(config.stacCollection)] : []),
         ];
         attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
       }
