@@ -29,7 +29,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadOutline } from './data.js';
+    import { OUTLINE_ATTRIBUTION, loadOutline } from './outline.js';
     import { STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN, STAC_ASSET_ID, initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
@@ -212,8 +212,8 @@
           // preload images
           await Promise.all(config.datetimes.map(async datetime => {
             const stacItem = await WeatherLayers.loadStacItem(config.stacCollection, datetime);
-            const stacAsset = WeatherLayers.getStacAsset(stacItem, STAC_ASSET_ID);
-            await loadData(stacAsset.href);
+            const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
+            await loadData(stacItemAssetUrl);
           }));
         },
         onUpdate: async event => {
@@ -239,11 +239,11 @@
       // config
       async function update() {
         const outline = await loadOutline(config.outline.datasetUrl);
-        const stacAsset = WeatherLayers.getStacAsset(config.stacItem, STAC_ASSET_ID);
-        const stacAsset2 = config.stacItem2 && WeatherLayers.getStacAsset(config.stacItem2, STAC_ASSET_ID);
+        const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(config.stacItem, STAC_ASSET_ID);
+        const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2, STAC_ASSET_ID);
 
         // preload textures
-        const [dataImage, dataImage2] = await Promise.all([stacAsset, stacAsset2].map(x => x && loadData(x.href)));
+        const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && loadData(x)));
         const imageBounds = dataImage.imageBounds;
         const colormapBounds = config.raster.colormapBounds || imageBounds;
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
@@ -307,7 +307,10 @@
 
         legendControl.update({ ...config.raster, colormapBounds, legendColormapUrl });
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
-        const attributions = Array.from(new Set([config.outline, config.raster, config.particle].map(x => x.enabled ? x.attribution : undefined).filter(x => x)));
+        const attributions = [
+          ...(config.outline.enabled ? [OUTLINE_ATTRIBUTION] : []),
+          ...(config.raster.enabled || config.particle.enabled ? [WeatherLayers.getStacItemAttribution(config.stacItem)] : []),
+        ];
         attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
       }
       update();

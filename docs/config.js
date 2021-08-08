@@ -39,7 +39,6 @@ export async function initConfig({ stacCatalog } = {}) {
       legendValueFormatter: null,
       legendValueDecimals: 0,
       vector: false,
-      attribution: null,
     },
     particle: {
       enabled: false,
@@ -60,13 +59,11 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/wind',
         legendTitle: 'Wind [m/s]',
         vector: true,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
       particle: {
         enabled: true,
         maxAge: 25,     // 100,
         speedFactor: 2, // 33 / 100,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/temperature_2m_above_ground', {
@@ -75,7 +72,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/temperature',
         legendTitle: 'Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/relative_humidity_2m_above_ground', {
@@ -83,7 +79,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'gfs/relative_humidity',
         legendTitle: 'Relative Humidity [%]',
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     // ['gfs/accumulated_precipitation_surface', {
@@ -91,7 +86,6 @@ export async function initConfig({ stacCatalog } = {}) {
     //     enabled: true,
     //     colormap: 'gfs/accumulated_precipitation',
     //     legendTitle: 'Precipitation Accumulation [kg/m²]',
-    //     attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
     //   },
     // }],
     ['gfs/accumulated_precipitation_next_3h_surface', {
@@ -99,7 +93,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'gfs/accumulated_precipitation',
         legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/convective_available_potential_energy_surface', {
@@ -107,7 +100,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'gfs/convective_available_potential_energy',
         legendTitle: 'Convective Available Potential Energy [J/kg]',
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/precipitable_water_entire_atmosphere', {
@@ -115,7 +107,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'gfs/precipitable_water',
         legendTitle: 'Total Precipitable Water [kg/m²]',
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/cloud_water_entire_atmosphere', {
@@ -124,7 +115,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/cloud_water',
         legendTitle: 'Total Cloud Water [kg/m²]',
         legendValueDecimals: 1,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/pressure_mean_sea_level', {
@@ -133,7 +123,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/pressure',
         legendTitle: 'Mean Sea Level Pressure [hPa]',
         legendValueFormatter: value => value / 100,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['gfs/apparent_temperature_2m_above_ground', {
@@ -142,7 +131,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/apparent_temperature',
         legendTitle: 'Apparent Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_doc.shtml">NOAA GFS</a>',
       },
     }],
     ['cams/carbon_monoxide_10m_above_ground', {
@@ -151,7 +139,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'cams/carbon_monoxide',
         legendTitle: 'CO [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
-        attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
     ['cams/sulphur_dioxide_10m_above_ground', {
@@ -160,7 +147,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'cams/sulphur_dioxide',
         legendTitle: 'SO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
-        attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
     ['cams/nitrogen_dioxide_10m_above_ground', {
@@ -169,7 +155,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'cams/nitrogen_dioxide',
         legendTitle: 'NO₂ [ppb]',
         legendValueFormatter: value => value * 1000000000,
-        attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
     ['cams/particulate_matter_2p5um_10m_above_ground', {
@@ -178,7 +163,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'cams/particulate_matter_2p5um',
         legendTitle: 'PM2.5 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
-        attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
     ['cams/particulate_matter_10um_10m_above_ground', {
@@ -187,7 +171,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'cams/particulate_matter_10um',
         legendTitle: 'PM10 [μg/m³]',
         legendValueFormatter: value => value * 1000000000,
-        attribution: '<a href="https://ads.atmosphere.copernicus.eu/cdsapp#!/dataset/cams-global-atmospheric-composition-forecasts">Copernicus CAMS</a>',
       },
     }],
     ['gfswave/waves', {
@@ -196,14 +179,12 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfswave/waves',
         legendTitle: 'Peak Wave Period [s]',
         vector: true,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
       },
       particle: {
         enabled: true,
         maxAge: 25,     // 40,
         speedFactor: 1, // 33 / 612,
         width: 5,
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
       },
     }],
     ['gfswave/significant_wave_height', {
@@ -211,7 +192,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'gfswave/significant_wave_height',
         legendTitle: 'Significant Wave Height [m]',
-        attribution: '<a href="https://nomads.ncep.noaa.gov/txt_descriptions/GFS_Wave_doc.shtml">NOAA GFS Wave</a>',
       },
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
@@ -220,7 +200,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'ostia_sst/analysed_sea_surface_temperature',
         legendTitle: 'Sea Surface Temperature [°C]',
         legendValueFormatter: value => value - 273.15,
-        attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
       },
     }],
     ['ostia_sst/sea_ice_fraction', {
@@ -229,7 +208,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'ostia_sst/sea_ice_fraction',
         legendTitle: 'Sea Ice Fraction [%]',
         legendValueFormatter: value => value * 100,
-        attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
       },
     }],
     ['ostia_anom/sea_surface_temperature_anomaly', {
@@ -237,7 +215,6 @@ export async function initConfig({ stacCatalog } = {}) {
         enabled: true,
         colormap: 'ostia_anom/sea_surface_temperature_anomaly',
         legendTitle: 'Sea Surface Temperature Anomaly [°C]',
-        attribution: '<a href="https://resources.marine.copernicus.eu/?option=com_csw&view=details&product_id=SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001">Copernicus CMEMS OSTIA</a>',
       },
     }],
     ['oscar/currents', {
@@ -247,13 +224,11 @@ export async function initConfig({ stacCatalog } = {}) {
         legendTitle: 'Currents [m/s]',
         legendValueDecimals: 1,
         vector: true,
-        attribution: '<a href="https://www.esr.org/research/oscar/">ESR OSCAR</a>',
       },
       particle: {
         enabled: true,
         maxAge: 25,      // 100,
         speedFactor: 20, // 33 / 7,
-        attribution: '<a href="https://www.esr.org/research/oscar/">ESR OSCAR</a>',
       },
     }],
   ]);
@@ -624,19 +599,15 @@ export async function initConfig({ stacCatalog } = {}) {
   const outlineConfigs = new Map([
     ['ne_110m_land', {
       datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson',
-      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
     }],
     ['ne_50m_land', {
       datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_land.geojson',
-      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
     }],
     ['ne_110m_admin_0_countries', {
       datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson',
-      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
     }],
     ['ne_50m_admin_0_countries', {
       datasetUrl: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_admin_0_countries.geojson',
-      attribution: '<a href="https://www.naturalearthdata.com/">Natural Earth</a>',
     }],
   ]);
 

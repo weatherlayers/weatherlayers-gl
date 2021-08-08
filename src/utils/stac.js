@@ -58,13 +58,26 @@ export async function loadStacItem(stacCollection, stacItemId) {
 
 /**
  * @param {StacItem} stacItem
- * @param {string} stacAssetId
- * @returns {StacAsset}
+ * @returns {string}
  */
-export function getStacAsset(stacItem, stacAssetId) {
+export function getStacItemAttribution(stacItem) {
+  const stacProvider = stacItem.properties.providers.find(x => x.roles.includes('producer'));
+  if (!stacProvider) {
+    throw new Error(`STAC item attribution not found`);
+  }
+  const attribution = `<a href="${stacProvider.url}">${stacProvider.name}</a>`;
+  return attribution;
+}
+
+/**
+ * @param {StacItem} stacItem
+ * @param {string} stacAssetId
+ * @returns {string}
+ */
+export function getStacItemAssetUrl(stacItem, stacAssetId) {
   const asset = stacItem.assets[stacAssetId];
   if (!asset) {
-    throw new Error(`STAC asset ${stacAssetId} not found`);
+    throw new Error(`STAC item asset ${stacAssetId} not found`);
   }
-  return asset;
+  return asset.href;
 }

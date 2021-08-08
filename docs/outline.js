@@ -1,3 +1,5 @@
+export const OUTLINE_ATTRIBUTION = '<a href="https://www.naturalearthdata.com/">Natural Earth</a>';
+
 const OUTLINE_CACHE = new Map();
 
 export async function loadOutline(url) {
