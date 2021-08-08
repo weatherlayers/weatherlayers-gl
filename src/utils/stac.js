@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021 WeatherLayers.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacItem} StacItem */
@@ -54,6 +61,16 @@ export async function loadStacItem(stacCollection, stacItemId) {
     throw new Error(`STAC item ${stacItemId} not found`);
   }
   return loadData(link.href);
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @param {string} unitName
+ * @returns {string}
+ */
+export function getStacCollectionTitle(stacCollection, unitName) {
+  const title = `${stacCollection.title} [${unitName.replace('^2', '²').replace('^3', '³')}]`;
+  return title;
 }
 
 /**

@@ -33,12 +33,6 @@ export async function initConfig({ stacCatalog } = {}) {
       colormapUrl: null,
       colormapBreaks: null,
       colormapBounds: null,
-      legendWidth: 220,
-      legendTitle: null,
-      legendTicksCount: 6,
-      legendValueFormatter: null,
-      legendValueDecimals: 0,
-      vector: false,
     },
     particle: {
       enabled: false,
@@ -57,8 +51,6 @@ export async function initConfig({ stacCatalog } = {}) {
       raster: {
         enabled: true,
         colormap: 'gfs/wind',
-        legendTitle: 'Wind [m/s]',
-        vector: true,
       },
       particle: {
         enabled: true,
@@ -70,115 +62,90 @@ export async function initConfig({ stacCatalog } = {}) {
       raster: {
         enabled: true,
         colormap: 'gfs/temperature',
-        legendTitle: 'Temperature [°C]',
-        legendValueFormatter: value => value - 273.15,
       },
     }],
     ['gfs/relative_humidity_2m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'gfs/relative_humidity',
-        legendTitle: 'Relative Humidity [%]',
       },
     }],
     // ['gfs/accumulated_precipitation_surface', {
     //   raster: {
     //     enabled: true,
     //     colormap: 'gfs/accumulated_precipitation',
-    //     legendTitle: 'Precipitation Accumulation [kg/m²]',
     //   },
     // }],
     ['gfs/accumulated_precipitation_next_3h_surface', {
       raster: {
         enabled: true,
         colormap: 'gfs/accumulated_precipitation',
-        legendTitle: '3-hour Precipitation Accumulation [kg/m²]',
       },
     }],
     ['gfs/convective_available_potential_energy_surface', {
       raster: {
         enabled: true,
         colormap: 'gfs/convective_available_potential_energy',
-        legendTitle: 'Convective Available Potential Energy [J/kg]',
       },
     }],
     ['gfs/precipitable_water_entire_atmosphere', {
       raster: {
         enabled: true,
         colormap: 'gfs/precipitable_water',
-        legendTitle: 'Total Precipitable Water [kg/m²]',
       },
     }],
     ['gfs/cloud_water_entire_atmosphere', {
       raster: {
         enabled: true,
         colormap: 'gfs/cloud_water',
-        legendTitle: 'Total Cloud Water [kg/m²]',
-        legendValueDecimals: 1,
       },
     }],
     ['gfs/pressure_mean_sea_level', {
       raster: {
         enabled: true,
         colormap: 'gfs/pressure',
-        legendTitle: 'Mean Sea Level Pressure [hPa]',
-        legendValueFormatter: value => value / 100,
       },
     }],
     ['gfs/apparent_temperature_2m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'gfs/apparent_temperature',
-        legendTitle: 'Apparent Temperature [°C]',
-        legendValueFormatter: value => value - 273.15,
       },
     }],
     ['cams/carbon_monoxide_10m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'cams/carbon_monoxide',
-        legendTitle: 'CO [μg/m³]',
-        legendValueFormatter: value => value * 1000000000,
       },
     }],
     ['cams/sulphur_dioxide_10m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'cams/sulphur_dioxide',
-        legendTitle: 'SO₂ [ppb]',
-        legendValueFormatter: value => value * 1000000000,
       },
     }],
     ['cams/nitrogen_dioxide_10m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'cams/nitrogen_dioxide',
-        legendTitle: 'NO₂ [ppb]',
-        legendValueFormatter: value => value * 1000000000,
       },
     }],
     ['cams/particulate_matter_2p5um_10m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'cams/particulate_matter_2p5um',
-        legendTitle: 'PM2.5 [μg/m³]',
-        legendValueFormatter: value => value * 1000000000,
       },
     }],
     ['cams/particulate_matter_10um_10m_above_ground', {
       raster: {
         enabled: true,
         colormap: 'cams/particulate_matter_10um',
-        legendTitle: 'PM10 [μg/m³]',
-        legendValueFormatter: value => value * 1000000000,
       },
     }],
     ['gfswave/waves', {
       raster: {
         enabled: true,
         colormap: 'gfswave/waves',
-        legendTitle: 'Peak Wave Period [s]',
-        vector: true,
       },
       particle: {
         enabled: true,
@@ -191,39 +158,30 @@ export async function initConfig({ stacCatalog } = {}) {
       raster: {
         enabled: true,
         colormap: 'gfswave/significant_wave_height',
-        legendTitle: 'Significant Wave Height [m]',
       },
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
       raster: {
         enabled: true,
         colormap: 'ostia_sst/analysed_sea_surface_temperature',
-        legendTitle: 'Sea Surface Temperature [°C]',
-        legendValueFormatter: value => value - 273.15,
       },
     }],
     ['ostia_sst/sea_ice_fraction', {
       raster: {
         enabled: true,
         colormap: 'ostia_sst/sea_ice_fraction',
-        legendTitle: 'Sea Ice Fraction [%]',
-        legendValueFormatter: value => value * 100,
       },
     }],
     ['ostia_anom/sea_surface_temperature_anomaly', {
       raster: {
         enabled: true,
         colormap: 'ostia_anom/sea_surface_temperature_anomaly',
-        legendTitle: 'Sea Surface Temperature Anomaly [°C]',
       },
     }],
     ['oscar/currents', {
       raster: {
         enabled: true,
         colormap: 'oscar/currents',
-        legendTitle: 'Currents [m/s]',
-        legendValueDecimals: 1,
-        vector: true,
       },
       particle: {
         enabled: true,

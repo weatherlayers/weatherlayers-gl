@@ -7,6 +7,7 @@
  */
 import './legend-control.css';
 import { formatValue } from '../../utils/value';
+import { getStacCollectionTitle } from '../../utils/stac';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 
@@ -57,7 +58,7 @@ export class LegendControl {
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!config.legendColormapUrl) {
+    if (!config.colormapUrl) {
       return;
     }
 
@@ -67,13 +68,13 @@ export class LegendControl {
     const xmlns = 'http://www.w3.org/2000/svg';
     const paddingY = 15;
     const svg = document.createElementNS(xmlns, 'svg');
-    svg.setAttribute('width', `${config.legendWidth + 2 * paddingY}px`);
+    svg.setAttribute('width', `${config.width + 2 * paddingY}px`);
     svg.setAttribute('height', '50px');
     svg.style.display = 'block';
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = config.legendTitle;
+    title.innerHTML = getStacCollectionTitle(config.stacCollection, config.stacCollection.summaries.unit[0].name);
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);
@@ -83,8 +84,8 @@ export class LegendControl {
     svg.appendChild(scale);
 
     const image = document.createElementNS(xmlns, 'image');
-    image.setAttribute('href', config.legendColormapUrl);
-    image.setAttribute('width', `${config.legendWidth}`);
+    image.setAttribute('href', config.colormapUrl);
+    image.setAttribute('width', `${config.width}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
     scale.appendChild(image);
@@ -94,13 +95,13 @@ export class LegendControl {
     scale.appendChild(ticks);
 
     const bounds = config.colormapBounds;
-    const delta = (bounds[1] - bounds[0]) / (config.legendTicksCount - 1);
-    for (let i = 0; i < config.legendTicksCount; i++) {
+    const delta = (bounds[1] - bounds[0]) / (config.ticksCount - 1);
+    for (let i = 0; i < config.ticksCount; i++) {
       const value = bounds[0] + i * delta;
-      const formattedValue = formatValue(value, { formatter: config.legendValueFormatter, decimals: config.legendValueDecimals });
+      const formattedValue = formatValue(value, config.stacCollection.summaries.unit[0]);
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * config.legendWidth}px, 0)`;
+      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * config.width}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

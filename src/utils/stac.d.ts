@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021 WeatherLayers.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 export enum StacProviderRole {
   PRODUCER = 'producer',
   LICENSOR = 'licensor',
@@ -29,16 +36,16 @@ export interface StacAsset {
 }
 
 export interface StacCatalog {
-  stac_version: '1.0.0';
   type: 'Catalog';
+  stac_version: '1.0.0';
   id: string;
   title: string;
   links: StacLink[];
 }
 
 export interface StacCollection {
-  stac_version: '1.0.0';
   type: 'Collection';
+  stac_version: '1.0.0';
   id: string;
   title: string;
   providers: StacProvider[];
@@ -46,19 +53,22 @@ export interface StacCollection {
     spatial: { bbox: [number, number, number, number] };
     temporal: [[string, string]];
   };
+  summaries: {
+    vectorValue?: { minimum: number, maximum: number };
+    value: { minimum: number, maximum: number };
+    unit: { name: string, offset?: number, scale?: number, decimals?: number }[];
+  },
   links: StacLink[];
 }
 
 export interface StacItem {
-  stac_version: '1.0.0';
   type: 'Feature';
+  stac_version: '1.0.0';
   id: string;
+  geometry: { type: 'Polygon', coordinates: [[[number, number], [number, number], [number, number], [number, number], [number, number]]] }
   bbox: [number, number, number, number];
   properties: {
-    title: string;
-    license: string;
-    providers: StacProvider[];
     datetime: string;
   }
   assets: { [key: string]: StacAsset };
-}
+} 

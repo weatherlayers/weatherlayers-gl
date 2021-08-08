@@ -7,10 +7,7 @@
  */
 import { StacCollection } from '../../utils/stac';
 
-export interface LegendConfig {
-  width: number;
-  ticksCount: number;
-  stacCollection: StacCollection;
-  colormapBounds: [number, number];
-  colormapUrl: string;
+export interface AttributionConfig {
+  attribution?: string;
+  stacCollection?: StacCollection;
 }

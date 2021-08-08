@@ -6,18 +6,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './attribution-control.css';
+import { getStacCollectionAttribution } from '../../utils/stac';
+
+/** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
 
 export class AttributionControl {
-  /** @type {string} */
-  html = undefined;
+  /** @type {AttributionConfig} */
+  config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
 
   /**
-   * @param {string} html
+   * @param {AttributionConfig} [config]
    */
-  constructor(html) {
-    this.html = html;
+  constructor(config = {}) {
+    this.config = config;
   }
 
   /**
@@ -27,7 +30,7 @@ export class AttributionControl {
     this.container = document.createElement('div');
     this.container.className = 'attribution';
 
-    this.update(this.html);
+    this.update(this.config);
 
     return this.container;
   }
@@ -43,17 +46,18 @@ export class AttributionControl {
   }
 
   /**
-   * @param {string} html
+   * @param {AttributionConfig} config
    * @returns {void}
    */
-  update(html) {
+  update(config) {
     if (!this.container) {
       return;
     }
 
-    this.html = html;
+    this.config = config;
     this.container.innerHTML = '';
 
+    const html = config.stacCollection ? `Data by ${getStacCollectionAttribution(config.stacCollection)}` : config.attribution;
     if (!html) {
       return;
     }

@@ -29,7 +29,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { OUTLINE_ATTRIBUTION, loadOutline } from './outline.js';
+    import { loadOutline } from './outline.js';
     import { STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN, STAC_ASSET_ID, initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
@@ -155,7 +155,7 @@
         
         if (event.raster) {
           const value = event.raster.value;
-          const formattedValue = WeatherLayers.formatValue(value, { formatter: config.raster.legendValueFormatter, decimals: config.raster.legendValueDecimals });
+          const formattedValue = WeatherLayers.formatValue(value, config.stacCollection.summaries.unit[0]);
           document.getElementById('info2').innerHTML += `
             Value: ${formattedValue}<br>
           `;
@@ -176,7 +176,10 @@
       });
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl(config.raster);
+      const legendControl = new WeatherLayers.LegendControl({
+        width: 220,
+        ticksCount: 6,
+      });
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // timeline
@@ -203,7 +206,7 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // attribution
-      const basemapAttributionControl = new WeatherLayers.AttributionControl('© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
       document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
       const attributionControl = new WeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
@@ -220,20 +223,20 @@
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && loadData(x)));
-        const imageBounds = dataImage.imageBounds;
-        const colormapBounds = config.raster.colormapBounds || imageBounds;
+        const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
+        const colormapBounds = config.raster.colormapBounds || (config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : imageBounds);
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
-        const legendColormapUrl = await loadColormap(colormapImage);
+        const colormapUrl = await loadColormap(colormapImage);
 
         deckLayer.setProps({
           layers: [
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              image: dataImage.texture,
-              image2: dataImage2?.texture,
+              image: dataImage,
+              image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: config.raster.vector ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
+              imageType: config.stacCollection.summaries.vectorValue ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
               imageBounds: imageBounds,
               colormapImage: colormapImage,
               colormapBounds: colormapBounds,
@@ -256,8 +259,8 @@
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
-              image: dataImage.texture,
-              image2: dataImage2?.texture,
+              image: dataImage,
+              image2: dataImage2,
               imageWeight: config.datetimeWeight,
               imageBounds: imageBounds,
               numParticles: config.particle.numParticles,
@@ -273,13 +276,9 @@
           _animate: config.particle.enabled && config.particle.animate,
         });
 
-        legendControl.update({ ...config.raster, colormapBounds, legendColormapUrl });
+        legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection, colormapBounds, colormapUrl });
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
-        const attributions = [
-          ...(config.outline.enabled ? [OUTLINE_ATTRIBUTION] : []),
-          ...(config.raster.enabled || config.particle.enabled ? [WeatherLayers.getStacCollectionAttribution(config.stacCollection)] : []),
-        ];
-        attributionControl.update(attributions.length > 0 ? `Data by ${attributions.join(', ')}` : '');
+        attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
       }
       update();
       gui = initGui(config, update, { deckgl: deckLayer._deck });
