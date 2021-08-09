@@ -101,16 +101,16 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/pressure',
       },
     }],
-    ['gfs/apparent_temperature_2m_above_ground', {
-      raster: {
-        enabled: true,
-        colormap: 'gfs/apparent_temperature',
-      },
-    }],
     ['gfs/geopotential_height_500mb', {
       raster: {
         enabled: true,
         colormap: 'cubehelix',
+      },
+    }],
+    ['gfs/apparent_temperature_2m_above_ground', {
+      raster: {
+        enabled: true,
+        colormap: 'gfs/apparent_temperature',
       },
     }],
     ['cams/carbon_monoxide_10m_above_ground', {
