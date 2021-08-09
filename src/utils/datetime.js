@@ -16,7 +16,7 @@ export function formatDatetime(value) {
   }
 
   const year = date.getUTCFullYear();
-  const month = `${date.getUTCMonth()}`.padStart(2, '0');
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
   const day = `${date.getUTCDate()}`.padStart(2, '0');
   const hour = `${date.getUTCHours()}`.padStart(2, '0');
   const minute = `${date.getUTCMinutes()}`.padStart(2, '0');
