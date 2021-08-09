@@ -7,7 +7,7 @@ const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_OUTLINE_DATASET = 'ne_110m_land';
 
 function getDatetimes(stacCollection) {
-  const datetimes = stacCollection.links.map(x => x.id);
+  const datetimes = stacCollection.links.filter(x => x.rel === 'item').map(x => x.id);
   return datetimes;
 }
 
