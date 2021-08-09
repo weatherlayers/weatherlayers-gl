@@ -260,7 +260,7 @@
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && loadData(x)));
         const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
         const vectorImageBounds = config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
-        const colormapBounds = config.raster.colormapBounds || imageBounds;
+        const colormapBounds = config.raster.colormapBreaks ? [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]] : imageBounds;
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
 

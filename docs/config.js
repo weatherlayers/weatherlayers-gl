@@ -25,9 +25,8 @@ export async function initConfig({ stacCatalog } = {}) {
       enabled: false,
       opacity: 0.2,
       colormap: NO_DATA,
-      colormapUrl: null,
       colormapBreaks: null,
-      colormapBounds: null,
+      colormapUrl: null,
     },
     particle: {
       enabled: false,
@@ -191,7 +190,6 @@ export async function initConfig({ stacCatalog } = {}) {
       //   [45,  [180, 0, 180]],
       //   [100, [255, 255, 255]],
       // ],
-      // colormapBounds: [0, 100],
       // https://en.wikipedia.org/wiki/Beaufort_scale
       colormapBreaks: [
         [0,      [222, 222, 222]],
@@ -210,7 +208,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [45,     [180, 0, 180]],
         [100,    [255, 255, 255]],
       ],
-      colormapBounds: [0, 100],
     }],
     ['gfs/temperature', {
       colormapBreaks: [
@@ -226,7 +223,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [311,     [230, 71, 39]],
         [328,     [88, 27, 67]],
       ],
-      colormapBounds: [193, 328],
     }],
     ['gfs/relative_humidity', {
       colormapBreaks: [
@@ -237,7 +233,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [90,  [75, 63, 235]],
         [100, [25, 255, 255]],
       ],
-      colormapBounds: [0, 100],
     }],
     ['gfs/accumulated_precipitation', {
       colormapBreaks: [
@@ -248,7 +243,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [100, [255, 215, 0]],
         [150, [255, 215, 0]],
       ],
-      colormapBounds: [0, 150],
     }],
     ['gfs/convective_available_potential_energy', {
       colormapBreaks: [
@@ -264,7 +258,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [4500, [178, 24, 43]],   // extreme
         [5000, [103, 0, 31]],    // extreme
       ],
-      colormapBounds: [0, 5000],
     }],
     ['gfs/precipitable_water', {
       colormapBreaks: [
@@ -276,7 +269,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [60, [25, 255, 255]],
         [70, [150, 255, 255]],
       ],
-      colormapBounds: [0, 70],
     }],
     ['gfs/cloud_water', {
       colormapBreaks: [
@@ -284,7 +276,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [0.2, [170, 170, 230]],
         [1,   [255, 255, 255]],
       ],
-      colormapBounds: [0, 1],
     }],
     ['gfs/pressure', {
       colormapBreaks: [
@@ -297,7 +288,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [103000, [228, 246, 223]],
         [105000, [255, 255, 255]],
       ],
-      colormapBounds: [92000, 105000],
     }],
     ['gfs/apparent_temperature', {
       colormapBreaks: [
@@ -316,7 +306,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [327,   [255, 255, 255]], // 54 C, 130 F extreme danger
         [332,   [255, 255, 255]],
       ],
-      colormapBounds: [236, 332],
     }],
     ['cams/carbon_monoxide', {
       colormapBreaks: [
@@ -325,7 +314,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [4.4e-6,    '#e4672a'],
         [9.4e-6,    '#4b0c00'],
       ],
-      colormapBounds: [0.0044e-6, 9.4e-6],
     }],
     ['cams/sulphur_dioxide', {
       colormapBreaks: [
@@ -334,7 +322,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [35e-9,    '#e4672a'],
         [75e-9,    '#4b0c00'],
       ],
-      colormapBounds: [0.035e-9, 75e-9],
     }],
     ['cams/nitrogen_dioxide', {
       colormapBreaks: [
@@ -343,7 +330,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [53e-9,    '#e4672a'],
         [100e-9,   '#4b0c00'],
       ],
-      colormapBounds: [0.053e-9, 100e-9],
     }],
     ['cams/particulate_matter_2p5um', {
       colormapBreaks: [
@@ -352,7 +338,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [12e-9,    '#e4672a'],
         [35.4e-9,  '#4b0c00'],
       ],
-      colormapBounds: [0.012e-9, 35.4e-9],
     }],
     ['cams/particulate_matter_10um', {
       colormapBreaks: [
@@ -361,14 +346,12 @@ export async function initConfig({ stacCatalog } = {}) {
         [54e-9,    '#e4672a'],
         [154e-9,   '#4b0c00'],
       ],
-      colormapBounds: [0.054e-9, 154e-9],
     }],
     ['gfswave/waves', {
       colormapBreaks: [
         [0,  [0, 0, 0]],
         [25, [21, 255, 255]],
       ],
-      colormapBounds: [0, 25],
     }],
     ['gfswave/significant_wave_height', {
       colormapBreaks: [
@@ -386,7 +369,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [14, [189, 0, 38]],
         [15, [189, 0, 38]],
       ],
-      colormapBounds: [0, 15],
     }],
     ['ostia_sst/analysed_sea_surface_temperature', {
       colormapBreaks: [
@@ -403,7 +385,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [303,    [87, 17, 0]],
         [304.65, [238, 0, 242]],
       ],
-      colormapBounds: [270, 304.65],
     }],
     ['ostia_sst/sea_ice_fraction', {
       // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
@@ -427,7 +408,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [0.8,  [233, 251, 252]],
         [1,    [255, 255, 255]],
       ],
-      colormapBounds: [0, 1],
     }],
     ['ostia_anom/sea_surface_temperature_anomaly', {
       colormapBreaks: [
@@ -441,7 +421,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [3,     [254, 252, 0]],
         [11,    [255, 255, 255]],
       ],
-      colormapBounds: [-11, 11],
     }],
     ['oscar/currents', {
       colormapBreaks: [
@@ -452,7 +431,6 @@ export async function initConfig({ stacCatalog } = {}) {
         [1.0,  [255, 233, 15]],
         [1.5,  [255, 15, 15]],
       ],
-      colormapBounds: [0, 1.5],
     }],
     ['BrBG', {
       colormapUrl: 'https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/BrBG.png',
@@ -663,7 +641,7 @@ async function updateDataset(config) {
     config.raster[key] = rasterConfig[key];
   });
 
-  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, colormapBounds: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  const colormapConfig = { colormapBreaks: undefined, colormapUrl: undefined, ...colormapConfigs.get(config.raster.colormap) };
   Object.keys(colormapConfig).forEach(key => {
     config.raster[key] = colormapConfig[key];
   });
@@ -694,7 +672,7 @@ function updateOutlineDataset(config) {
 function updateRasterColormap(config) {
   const { colormapConfigs } = config;
 
-  const colormapConfig = { colormapUrl: undefined, colormapBreaks: undefined, colormapBounds: undefined, ...colormapConfigs.get(config.raster.colormap) };
+  const colormapConfig = { colormapBreaks: undefined, colormapUrl: undefined, ...colormapConfigs.get(config.raster.colormap) };
   Object.keys(colormapConfig).forEach(key => {
     config.raster[key] = colormapConfig[key];
   });
