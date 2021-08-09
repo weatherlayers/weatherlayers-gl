@@ -248,7 +248,8 @@
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && loadData(x)));
         const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
-        const colormapBounds = config.raster.colormapBounds || (config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : imageBounds);
+        const vectorImageBounds = config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
+        const colormapBounds = config.raster.colormapBounds || imageBounds;
         const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
 
@@ -260,8 +261,8 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: config.stacCollection.summaries.vectorValue ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
-              imageBounds: imageBounds,
+              imageType: vectorImageBounds ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
+              imageBounds: vectorImageBounds || imageBounds,
               colormapImage: colormapImage,
               colormapBounds: colormapBounds,
               opacity: config.raster.opacity,
@@ -294,7 +295,7 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageBounds: imageBounds,
+              imageBounds: vectorImageBounds,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
