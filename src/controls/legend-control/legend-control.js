@@ -98,7 +98,7 @@ export class LegendControl {
     const delta = (bounds[1] - bounds[0]) / (config.ticksCount - 1);
     for (let i = 0; i < config.ticksCount; i++) {
       const value = bounds[0] + i * delta;
-      const formattedValue = formatValue(value, config.stacCollection.summaries.unit[0]);
+      const formattedValue = formatValue(value, { ...config.stacCollection.summaries.unit[0], name: undefined });
 
       const tick = document.createElementNS(xmlns, 'g');
       tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * config.width}px, 0)`;

@@ -7,13 +7,14 @@
  */
 /**
  * @param {number} value
- * @param {{ offset?: number, scale?: number, decimals?: number }} options
- * @returns {number}
+ * @param {{ name?: string, offset?: number, scale?: number, decimals?: number }} options
+ * @returns {string}
  */
-export function formatValue(value, { offset = 0, scale = 1, decimals = 0 } = {}) {
+export function formatValue(value, { name = '', offset = 0, scale = 1, decimals = 0 } = {}) {
   const formattedValue = (value + offset) * scale;
   const roundedFormattedValue = decimals ? Math.round(formattedValue * 10 ** decimals) / 10 ** decimals : Math.round(formattedValue);
-  return roundedFormattedValue;
+  const roundedFormattedValueWithUnit = name ? `${roundedFormattedValue} ${name}` : `${roundedFormattedValue}`;
+  return roundedFormattedValueWithUnit;
 }
   
 /**
