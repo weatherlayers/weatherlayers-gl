@@ -65,12 +65,6 @@ export async function initConfig({ stacCatalog } = {}) {
         colormap: 'gfs/relative_humidity',
       },
     }],
-    // ['gfs/accumulated_precipitation_surface', {
-    //   raster: {
-    //     enabled: true,
-    //     colormap: 'gfs/accumulated_precipitation',
-    //   },
-    // }],
     ['gfs/accumulated_precipitation_next_3h_surface', {
       raster: {
         enabled: true,
@@ -99,12 +93,6 @@ export async function initConfig({ stacCatalog } = {}) {
       raster: {
         enabled: true,
         colormap: 'gfs/pressure',
-      },
-    }],
-    ['gfs/geopotential_height_500mb', {
-      raster: {
-        enabled: true,
-        colormap: 'cubehelix',
       },
     }],
     ['gfs/apparent_temperature_2m_above_ground', {
@@ -319,8 +307,8 @@ export async function initConfig({ stacCatalog } = {}) {
         [250,   [6, 82, 255]],    // -23 C, -10 F frostbite
         [258,   [46, 131, 255]],
         [266,   [46, 131, 255]],  // -7 C, 20 F hypothermia
-        [280,   [0, 0, 0]],       // 7 C, 45 F begin suckage [cold)
-        [300,   [0, 0, 0]],       // 27 C, 80 F begin caution [heat)
+        [280,   [0, 0, 0]],       // 7 C, 45 F begin suckage (cold)
+        [300,   [0, 0, 0]],       // 27 C, 80 F begin caution (heat)
         [305,   [247, 20, 35]],   // 32 C, 90 F extreme caution
         [309.5, [247, 20, 35]],
         [314,   [245, 210, 5]],   // 41 C, 105 F danger
@@ -418,8 +406,8 @@ export async function initConfig({ stacCatalog } = {}) {
       colormapBounds: [270, 304.65],
     }],
     ['ostia_sst/sea_ice_fraction', {
+      // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
       colormapBreaks: [
-        // https://archimer.ifremer.fr/doc/00448/55980/57458.pdf
         [0,    [0, 0, 0]],
         [0.05, [3, 5, 18]],
         [0.1,  [20, 20, 43]],
