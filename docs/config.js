@@ -1,4 +1,4 @@
-export const STAC_CATALOG_URL = 'https://api.weatherlayers.com/catalog.json';
+export const STAC_CATALOG_URL = 'https://api.weatherlayers.com/catalog';
 export const STAC_CATALOG_ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
 export const STAC_ASSET_ID = 'byte.png';
 
