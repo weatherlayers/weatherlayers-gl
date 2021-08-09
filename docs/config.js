@@ -194,7 +194,34 @@ export async function initConfig({ stacCatalog } = {}) {
 
   const colormapConfigs = new Map([
     ['gfs/wind', {
-      colormapUrl: 'https://config.weatherlayers.com/colormaps/gfs/wind.png',
+      // colormapBreaks: [
+      //   [0,   [0, 0, 255]],
+      //   [9,   [0, 180, 180]],
+      //   [18,  [0, 255, 0]],
+      //   [27,  [180, 180, 0]],
+      //   [36,  [255, 0, 0]],
+      //   [45,  [180, 0, 180]],
+      //   [100, [255, 255, 255]],
+      // ],
+      // colormapBounds: [0, 100],
+      // https://en.wikipedia.org/wiki/Beaufort_scale
+      colormapBreaks: [
+        [0,      [222, 222, 222]],
+        [0.836,  [174, 241, 249]], // 1 bft
+        [2.364,  [150, 247, 220]], // 2 bft
+        [4.343,  [150, 247, 180]], // 3 bft
+        [6.688,  [111, 244, 111]], // 4 bft
+        [9.346,  [115, 237, 18]],  // 5 bft
+        [12.286, [164, 237, 18]],  // 6 bft
+        [15.482, [218, 237, 18]],  // 7 bft
+        [18.916, [237, 194, 18]],  // 8 bft
+        [22.572, [237, 143, 18]],  // 9 bft
+        [26.436, [237, 99, 18]],   // 10 bft
+        [30.499, [237, 41, 18]],   // 11 bft
+        [34.751, [213, 16, 45]],   // 12 bft
+        [45,     [180, 0, 180]],
+        [100,    [255, 255, 255]],
+      ],
       colormapBounds: [0, 100],
     }],
     ['gfs/temperature', {
