@@ -18,3 +18,4 @@ export * from './utils/stac';
 export * from './utils/load';
 export * from './utils/colormap';
 export * from './utils/value';
+export * from './utils/datetime';

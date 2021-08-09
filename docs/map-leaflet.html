@@ -188,7 +188,7 @@
         onStart: async () => {
           // preload images
           await Promise.all(config.datetimes.map(async datetime => {
-            const stacItem = await WeatherLayers.loadStacItem(config.stacCollection, datetime);
+            const stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, datetime);
             const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
             await loadData(stacItemAssetUrl);
           }));
@@ -197,8 +197,8 @@
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
-          config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
-          config.stacItem2 = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime2);
+          config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
+          config.stacItem2 = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
           gui.updateDisplay();
           update();
         },

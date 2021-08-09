@@ -6,11 +6,6 @@ const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_OUTLINE_DATASET = 'ne_110m_land';
 
-function getDatetimes(stacCollection) {
-  const datetimes = stacCollection.links.filter(x => x.rel === 'item').map(x => x.id);
-  return datetimes;
-}
-
 function getDatetime(datetimes, datetime) {
   if (datetimes.includes(datetime)) {
     return datetime;
@@ -570,9 +565,9 @@ export async function initConfig({ stacCatalog } = {}) {
   ]);
 
   const stacCollection = await WeatherLayers.loadStacCollection(stacCatalog, DEFAULT_DATASET);
-  const datetimes = getDatetimes(stacCollection);
+  const datetimes = WeatherLayers.getStacCollectionDatetimes(stacCollection);
   const datetime = datetimes[datetimes.length - 1];
-  const stacItem = await WeatherLayers.loadStacItem(stacCollection, datetime);
+  const stacItem = await WeatherLayers.loadStacItemByDatetime(stacCollection, datetime);
 
   const config = {
     staticConfig,
@@ -613,18 +608,9 @@ export async function initConfig({ stacCatalog } = {}) {
   return config;
 }
 
-function formatDatetime(datetime) {
-  if (!datetime.match(/^\d+$/)) {
-    return datetime;
-  }
-
-  const formattedDatetime = `${datetime.substr(0, 4)}/${datetime.substr(4, 2)}/${datetime.substr(6, 2)} ${datetime.substr(8, 2)}:00 UTC`;
-  return formattedDatetime;
-}
-
 function getDatetimeOptions(datetimes) {
   return datetimes.map(datetime => {
-    const formattedDatetime = formatDatetime(datetime);
+    const formattedDatetime = WeatherLayers.formatDatetime(datetime);
     return { value: datetime, text: formattedDatetime };
   });
 }
@@ -647,9 +633,9 @@ async function updateDataset(config) {
   const { staticConfig, datasetConfigs, colormapConfigs } = config;
 
   config.stacCollection = await WeatherLayers.loadStacCollection(config.stacCatalog, config.dataset);
-  config.datetimes = getDatetimes(config.stacCollection);
+  config.datetimes = WeatherLayers.getStacCollectionDatetimes(config.stacCollection);
   config.datetime = getDatetime(config.datetimes, config.datetime);
-  config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
+  config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
 
   const rasterConfig = { ...staticConfig.raster, ...datasetConfigs.get(config.dataset)?.raster };
   Object.keys(rasterConfig).forEach(key => {
@@ -668,11 +654,11 @@ async function updateDataset(config) {
 }
 
 async function updateDatetime(config) {
-  config.stacItem = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime);
+  config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
 }
 
 async function updateDatetime2(config) {
-  config.stacItem2 = await WeatherLayers.loadStacItem(config.stacCollection, config.datetime2);
+  config.stacItem2 = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
 }
 
 function updateOutlineDataset(config) {

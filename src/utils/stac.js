@@ -52,15 +52,24 @@ export async function loadStacCollection(stacCatalog, stacCollectionId) {
 
 /**
  * @param {StacCollection} stacCollection
- * @param {string} stacItemId
+ * @param {string} datetime
  * @returns {Promise<StacItem>}
  */
-export async function loadStacItem(stacCollection, stacItemId) {
-  const link = stacCollection.links.find(x => x.id === stacItemId);
+export async function loadStacItemByDatetime(stacCollection, datetime) {
+  const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
   if (!link) {
-    throw new Error(`STAC item ${stacItemId} not found`);
+    throw new Error(`STAC item ${datetime} not found`);
   }
   return loadData(link.href);
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {string[]}
+ */
+ export function getStacCollectionDatetimes(stacCollection) {
+  const datetimes = stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x);
+  return datetimes;
 }
 
 /**

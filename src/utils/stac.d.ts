@@ -31,7 +31,8 @@ export interface StacLink {
   href: string;
   rel: StacLinkRel;
   type: string;
-  id: string; // custom
+  id: string; // custom, TODO: remove
+  datetime: string; // custom
 }
 
 export enum StacAssetRole {
