@@ -7,7 +7,7 @@
  */
 import rgba from 'color-rgba';
 
-/** @typedef {string | [number, number, number]} ColorLiteral */
+/** @typedef {string | [number, number, number] | [number, number, number, number]} ColorLiteral */
 /** @typedef {[number, number, number, number]} ColorValue */
 
 /**
@@ -16,21 +16,30 @@ import rgba from 'color-rgba';
  */
 function normalizeColor(value) {
   // extract alpha
-  let alpha;
+  let valueWithoutAlpha;
+  let colorAlpha;
   if (typeof value === 'string') {
-    const match = value.match(/^(#[0-9a-f]{6})([0-9a-f]{2})$/i);
-    if (match) {
-      value = match[1];
-      alpha = parseInt(match[2], 16) / 255;
+    valueWithoutAlpha = value.substr(0, 7);
+    const valueAlpha = value.substr(7, 2);
+    if (valueAlpha !== '') {
+      colorAlpha = parseInt(valueAlpha, 16) / 255;
     }
+  } else if (Array.isArray(value)) {
+    valueWithoutAlpha = /** @type {[number, number, number]} */ ([value[0], value[1], value[2]]);
+    const valueAlpha = value[3];
+    if (typeof valueAlpha !== 'undefined') {
+      colorAlpha = valueAlpha / 255;
+    }
+  } else {
+    throw new Error('Invalid state');
   }
 
-  let color = rgba(value);
+  let color = rgba(valueWithoutAlpha);
   if (!color) {
     throw new Error('Invalid color');
   }
-  if (typeof alpha !== 'undefined') {
-    color[3] = alpha;
+  if (typeof colorAlpha !== 'undefined') {
+    color[3] = colorAlpha;
   }
   return color;
 }
