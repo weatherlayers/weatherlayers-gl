@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
   <script src="../dist/weatherlayers-gl.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./info.css">
   <link rel="stylesheet" href="./fps-meter.css">
 </head>
 
@@ -21,15 +22,13 @@
     <div id="arcgis"></div>
     <div id="deck"></div>
   </div>
-  <div id="info">
-    <div id="info1"></div>
-    <div id="info2"></div>
-  </div>
+  <div id="top-left"></div>
   <div id="bottom-left"></div>
   <div id="bottom-right"></div>
 
   <script type="module">
     import { STAC_ASSET_ID, initConfig, initGui } from './config.js';
+    import { InfoControl } from './info.js';
     import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
@@ -107,55 +106,8 @@
       });
 
       // info panels
-      function updateInfo(viewState) {
-        const viewport = new deck.WebMercatorViewport(viewState);
-        const bounds = viewport.getBounds();
-
-        document.getElementById('info1').innerHTML = `
-          Center: ${formatNumber(viewport.longitude)}, ${formatNumber(viewport.latitude)}<br>
-          Altitude: ${formatNumber(viewport.altitude)}<br>
-          Zoom: ${formatNumber(viewport.zoom)}<br>
-          Pitch: ${formatNumber(viewport.pitch)}<br>
-          Bearing: ${formatNumber(viewport.bearing)}<br>
-          <br>
-          Bounds:<br>
-          <div class="grid-2">
-            ${bounds.slice(0, 2).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-            ${bounds.slice(2, 4).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
-          </div><br>
-        `;
-      }
-      function updateMouseInfo(event) {
-        if (!event.coordinate) {
-          return;
-        }
-
-        document.getElementById('info2').innerHTML = `
-          Mouse:<br>
-          Position: ${event.coordinate.map(x => formatNumber(x)).join(', ')}<br>
-        `;
-        
-        if (event.raster) {
-          const value = event.raster.value;
-          const formattedValue = WeatherLayers.formatValue(value, config.stacCollection.summaries.unit[0]);
-          document.getElementById('info2').innerHTML += `
-            Value: ${formattedValue}<br>
-          `;
-          
-          if (event.raster.direction) {
-            const direction = event.raster.direction;
-            const formattedDirection = WeatherLayers.formatDirection(direction);
-
-            document.getElementById('info2').innerHTML += `
-              Direction: ${formattedDirection}<br>
-            `;
-          }
-        }
-      }
-      deckRenderer.deckInstance.setProps({
-        onViewStateChange: ({ viewState }) => updateInfo(viewState),
-        onHover: (event) => updateMouseInfo(event),
-      });
+      const infoControl = new InfoControl({ deckgl: deckRenderer.deckInstance });
+      document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {
@@ -253,8 +205,8 @@
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
         const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
         const vectorImageBounds = config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
-        const colormapBounds = config.stacCollection.summaries.colormap ? [config.stacCollection.summaries.colormap[0][0], config.stacCollection.summaries.colormap[config.stacCollection.summaries.colormap.length - 1][0]] : imageBounds;
-        const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.stacCollection.summaries.colormap), { bounds: colormapBounds }));
+        const colormapBounds = config.raster.colormapBreaks ? [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]] : imageBounds;
+        const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
 
         deckRenderer.deck.set({

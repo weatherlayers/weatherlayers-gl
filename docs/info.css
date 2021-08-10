@@ -1,0 +1,28 @@
+.info {
+  position: absolute;
+  top: 0;
+  left: 15px;
+  min-width: 250px;
+}
+.info1, .info2 {
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #eee;
+  backdrop-filter: blur(1px);
+}
+.info1:empty, .info2:empty {
+  display: none;
+}
+.info2 {
+  margin-top: 4px;
+}
+.info .grid-2 {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 0.4ex; /* space */
+}
+.info .grid-4 {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 0.4ex; /* space */
+}
