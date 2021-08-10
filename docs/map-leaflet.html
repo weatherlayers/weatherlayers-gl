@@ -92,7 +92,7 @@
         zoomControl: false,
         attributionControl: false,
       });
-      L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png').addTo(map);
+      L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE').addTo(map); // WeatherLayers access token
 
       // animated Leaflet deck.gl layer
       let lastRenderTime = 0;
@@ -206,7 +206,7 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // attribution
-      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://carto.com/attribution">CARTO</a>, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
       document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
       const attributionControl = new WeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
