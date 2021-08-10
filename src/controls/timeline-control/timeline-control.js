@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { Animation } from '../../utils/animation';
+import { getStacCollectionDatetimes } from '../../utils/stac';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
@@ -15,6 +16,8 @@ export class TimelineControl {
   config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
+  /** @type {string[]} */
+  datetimes = undefined;
   /** @type {Animation} */
   animation = undefined;
   /** @type {number} */
@@ -27,7 +30,7 @@ export class TimelineControl {
     this.config = config;
 
     this.animation = new Animation(() => {
-      if (this.progress < this.config.datetimes.length - 1) {
+      if (this.progress < this.datetimes.length - 1) {
         this.progress += 0.05;
       } else {
         this.progress = 0;
@@ -43,8 +46,8 @@ export class TimelineControl {
    */
   updateProgress() {
     const datetimeIndex = Math.floor(this.progress);
-    const datetime = this.config.datetimes[datetimeIndex];
-    const datetime2 = this.config.datetimes[datetimeIndex + 1];
+    const datetime = this.datetimes[datetimeIndex];
+    const datetime2 = this.datetimes[datetimeIndex + 1];
     const datetimeWeight = Math.round((this.progress - datetimeIndex) * 100) / 100;
     
     this.config.onUpdate({
@@ -84,14 +87,19 @@ export class TimelineControl {
     if (!this.container) {
       return;
     }
-    if (this.container.children.length && this.config.datetimes === config.datetimes) {
+    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
       return;
     }
 
     this.config = config;
     this.container.innerHTML = '';
     
-    if (!config.datetimes || config.datetimes.length < 2) {
+    if (!this.config.stacCollection) {
+      return;
+    }
+
+    this.datetimes = getStacCollectionDatetimes(this.config.stacCollection);
+    if (this.datetimes.length < 2) {
       return;
     }
 
@@ -99,7 +107,7 @@ export class TimelineControl {
     const playPauseButtonWidth = 16;
     const progressInputMarginLeft = 10;
 
-    this.container.style.width = `${config.width}px`;
+    this.container.style.width = `${this.config.width}px`;
 
     const div = document.createElement('div');
     this.container.appendChild(div);
@@ -113,7 +121,7 @@ export class TimelineControl {
         this.animation.stop();
         playPauseButton.className = 'play';
       } else {
-        await this.config.onStart?.();
+        await this.config.onStart?.(this.datetimes);
         this.animation.start();
         playPauseButton.className = 'pause';
       }
@@ -123,10 +131,10 @@ export class TimelineControl {
     const progressInput = document.createElement('input');
     progressInput.type = 'range';
     progressInput.min = 0;
-    progressInput.max = this.config.datetimes.length - 1;
+    progressInput.max = this.datetimes.length - 1;
     progressInput.step = 0.05;
     progressInput.value = this.progress;
-    progressInput.style.width = `${config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
+    progressInput.style.width = `${this.config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
     progressInput.addEventListener('input', () => {
       this.progress = progressInput.value;
       this.updateProgress();

@@ -1,4 +1,4 @@
-export const STAC_CATALOG_URL = 'http://localhost:8080/catalog';
+export const STAC_CATALOG_URL = 'https://api.weatherlayers.com/catalog';
 export const STAC_CATALOG_ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
 export const STAC_ASSET_ID = 'byte.png';
 export const NO_DATA = 'no data';
@@ -15,7 +15,7 @@ export async function initConfig() {
     stacItem: null,
     stacItem2: null,
     dataset: DEFAULT_DATASET,
-    datetimes: null,
+    datetimes: [],
     datetime: NO_DATA,
     datetime2: NO_DATA,
     datetimeWeight: 0,
@@ -66,10 +66,24 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
 }
 
 async function updateDataset(config) {
+  if (config.dataset === NO_DATA) {
+    config.stacCollection = null;
+    config.datetimes = [];
+    config.datetime = NO_DATA;
+    config.datetime2 = NO_DATA;
+    config.stacItem = null;
+    config.stacItem2 = null;
+    config.raster.enabled = false;
+    config.particle.enabled = false;
+    return;
+  }
+
   config.stacCollection = await WeatherLayers.loadStacCollection(config.stacCatalog, config.dataset);
   config.datetimes = WeatherLayers.getStacCollectionDatetimes(config.stacCollection);
   config.datetime = WeatherLayers.getClosestDatetime(config.datetimes, config.datetime) || NO_DATA;
+  config.datetime2 = NO_DATA;
   config.stacItem = config.datetime && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
+  config.stacItem2 = null;
 
   config.raster.enabled = !!config.stacCollection.summaries.raster;
   if (config.stacCollection.summaries.raster) {
@@ -85,11 +99,21 @@ async function updateDataset(config) {
 }
 
 async function updateDatetime(config) {
-  config.stacItem = config.datetime !== NO_DATA ? await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime) : null;
+  if (config.datetime === NO_DATA) {
+    config.stacItem = null;
+    return;
+  }
+
+  config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
 }
 
 async function updateDatetime2(config) {
-  config.stacItem2 = config.datetime2 !== NO_DATA ? await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2) : null;
+  if (config.datetime2 === NO_DATA) {
+    config.stacItem2 = null;
+    return;
+  }
+
+  config.stacItem2 = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {

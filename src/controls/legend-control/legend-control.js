@@ -58,26 +58,26 @@ export class LegendControl {
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!config.colormapUrl) {
+    if (!this.config.stacCollection || !this.config.colormapUrl) {
       return;
     }
 
     const paddingY = 15;
 
-    this.container.style.width = `${config.width}px`;
+    this.container.style.width = `${this.config.width}px`;
 
     const div = document.createElement('div');
     this.container.appendChild(div);
 
     const xmlns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(xmlns, 'svg');
-    svg.setAttribute('width', `${config.width}px`);
+    svg.setAttribute('width', `${this.config.width}px`);
     svg.setAttribute('height', '50px');
     svg.style.display = 'block';
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = getStacCollectionTitle(config.stacCollection, config.stacCollection.summaries.unit[0].name);
+    title.innerHTML = getStacCollectionTitle(this.config.stacCollection, this.config.stacCollection.summaries.unit[0].name);
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);
@@ -87,8 +87,8 @@ export class LegendControl {
     svg.appendChild(scale);
 
     const image = document.createElementNS(xmlns, 'image');
-    image.setAttribute('href', config.colormapUrl);
-    image.setAttribute('width', `${config.width - 2 * paddingY}`);
+    image.setAttribute('href', this.config.colormapUrl);
+    image.setAttribute('width', `${this.config.width - 2 * paddingY}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
     scale.appendChild(image);
@@ -97,14 +97,14 @@ export class LegendControl {
     ticks.style.textAnchor = 'middle';
     scale.appendChild(ticks);
 
-    const bounds = config.colormapBounds;
-    const delta = (bounds[1] - bounds[0]) / (config.ticksCount - 1);
-    for (let i = 0; i < config.ticksCount; i++) {
+    const bounds = this.config.colormapBounds;
+    const delta = (bounds[1] - bounds[0]) / (this.config.ticksCount - 1);
+    for (let i = 0; i < this.config.ticksCount; i++) {
       const value = bounds[0] + i * delta;
-      const formattedValue = formatValue(value, { ...config.stacCollection.summaries.unit[0], name: undefined });
+      const formattedValue = formatValue(value, { ...this.config.stacCollection.summaries.unit[0], name: undefined });
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * (config.width - 2 * paddingY)}px, 0)`;
+      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

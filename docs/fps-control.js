@@ -1,11 +1,11 @@
-export class FpsMeterControl {
+export class FpsControl {
   container = undefined;
   running = false;
   raf = undefined;
 
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'fps-meter';
+    this.container.className = 'fps';
 
     this.stats = new Stats();
     this.stats.showPanel(0);

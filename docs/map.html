@@ -11,8 +11,8 @@
   <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
   <script src="../dist/weatherlayers-gl.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info.css">
-  <link rel="stylesheet" href="./fps-meter.css">
+  <link rel="stylesheet" href="./info-control.css">
+  <link rel="stylesheet" href="./fps-control.css">
 </head>
 
 <body>
@@ -25,8 +25,8 @@
 
   <script type="module">
     import { STAC_ASSET_ID, initConfig, initGui } from './config.js';
-    import { InfoControl } from './info.js';
-    import { FpsMeterControl } from './fps-meter.js';
+    import { InfoControl } from './info-control.js';
+    import { FpsControl } from './fps-control.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
@@ -116,10 +116,9 @@
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
         width: 250,
-        datetimes: config.datetimes,
-        onStart: async () => {
+        onStart: async (datetimes) => {
           // preload images
-          await Promise.all(config.datetimes.map(async datetime => {
+          await Promise.all(datetimes.map(async datetime => {
             const stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, datetime);
             const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
             await WeatherLayers.loadDataCached(stacItemAssetUrl);
@@ -148,18 +147,18 @@
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter
-      const fpsMeterControl = new FpsMeterControl();
-      document.getElementById('bottom-right').prepend(fpsMeterControl.onAdd());
+      const fpsControl = new FpsControl();
+      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
 
       // config
       async function update() {
-        const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(config.stacItem, STAC_ASSET_ID);
+        const stacItemAssetUrl = config.stacItem && WeatherLayers.getStacItemAssetUrl(config.stacItem, STAC_ASSET_ID);
         const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2, STAC_ASSET_ID);
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
-        const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
-        const vectorImageBounds = config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
+        const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
+        const vectorImageBounds = config.stacCollection && config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
         const colormapBounds = [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]];
         const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
@@ -219,7 +218,7 @@
         });
 
         legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection, colormapBounds, colormapUrl });
-        timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
+        timelineControl.update({ ...timelineControl.config, stacCollection: config.stacCollection });
         tooltipControl.update({ ...tooltipControl.config, stacCollection: config.stacCollection });
         attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
       }
