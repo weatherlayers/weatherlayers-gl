@@ -31,7 +31,6 @@ export interface StacLink {
   href: string;
   rel: StacLinkRel;
   type: string;
-  id: string; // custom, TODO: remove
   datetime: string; // custom
 }
 
