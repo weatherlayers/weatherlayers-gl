@@ -92,10 +92,8 @@
           }
         },
       });
-
-      // info panels
-      const infoControl = new InfoControl({ deckgl });
-      document.getElementById('top-left').prepend(infoControl.onAdd());
+      const rasterDeckgl = deckgl;
+      const particleDeckgl = deckgl;
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {
@@ -104,15 +102,17 @@
         deckgl.setProps({ initialViewState });
       });
 
+      // info panels
+      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      document.getElementById('top-left').prepend(infoControl.onAdd());
+
       // legend
-      const legendControl = new WeatherLayers.LegendControl({
-        width: 220,
-        ticksCount: 6,
-      });
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
+        width: 250,
         datetimes: config.datetimes,
         onStart: async () => {
           // preload images
@@ -133,6 +133,10 @@
         },
       });
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+
+      // tooltip
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
       const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
@@ -229,10 +233,11 @@
         rotateAnimation.toggle(config.rotate);
         legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection, colormapBounds, colormapUrl });
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
+        tooltipControl.update({ ...tooltipControl.config, stacCollection: config.stacCollection });
         attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
       }
       update();
-      gui = initGui(config, update, { deckgl, globe: true });
+      gui = initGui(config, update, { deckgl: particleDeckgl, globe: true });
     });
   </script>
 

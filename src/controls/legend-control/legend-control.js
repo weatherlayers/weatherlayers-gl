@@ -62,13 +62,16 @@ export class LegendControl {
       return;
     }
 
+    const paddingY = 15;
+
+    this.container.style.width = `${config.width}px`;
+
     const div = document.createElement('div');
     this.container.appendChild(div);
 
     const xmlns = 'http://www.w3.org/2000/svg';
-    const paddingY = 15;
     const svg = document.createElementNS(xmlns, 'svg');
-    svg.setAttribute('width', `${config.width + 2 * paddingY}px`);
+    svg.setAttribute('width', `${config.width}px`);
     svg.setAttribute('height', '50px');
     svg.style.display = 'block';
     div.appendChild(svg);
@@ -85,7 +88,7 @@ export class LegendControl {
 
     const image = document.createElementNS(xmlns, 'image');
     image.setAttribute('href', config.colormapUrl);
-    image.setAttribute('width', `${config.width}`);
+    image.setAttribute('width', `${config.width - 2 * paddingY}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
     scale.appendChild(image);
@@ -101,7 +104,7 @@ export class LegendControl {
       const formattedValue = formatValue(value, { ...config.stacCollection.summaries.unit[0], name: undefined });
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * config.width}px, 0)`;
+      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * (config.width - 2 * paddingY)}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

@@ -13,18 +13,9 @@ export class InfoControl {
   onAdd() {
     this.container = document.createElement('div');
     this.container.className = 'info';
-    
-    const info1 = document.createElement('div');
-    info1.className = 'info1';
-    this.container.appendChild(info1);
-    
-    const info2 = document.createElement('div');
-    info2.className = 'info2';
-    this.container.appendChild(info2);
 
     this.config.deckgl.setProps({
-      onViewStateChange: ({ viewState }) => this.updateInfo(viewState),
-      onHover: (event) => this.updateMouseInfo(event),
+      onViewStateChange: ({ viewState }) => this.onViewStateChange(viewState),
     });
 
     return this.container;
@@ -35,19 +26,22 @@ export class InfoControl {
       this.container.parentNode.removeChild(this.container);
       this.container = undefined;
 
-    this.config.deckgl.setProps({
-      onViewStateChange: undefined,
-      onHover: undefined,
-    });
+      this.config.deckgl.setProps({
+        onViewStateChange: undefined,
+      });
     }
   }
 
-  updateInfo(viewState) {
+  onViewStateChange(viewState) {
     const viewport = new deck.WebMercatorViewport(viewState);
     const bounds = viewport.getBounds();
 
-    const info1 = this.container.querySelector('.info1');
-    info1.innerHTML = `
+    this.container.innerHTML = '';
+
+    const div = document.createElement('div');
+    this.container.appendChild(div);
+
+    div.innerHTML = `
       Center: ${formatNumber(viewport.longitude)}, ${formatNumber(viewport.latitude)}<br>
       Altitude: ${formatNumber(viewport.altitude)}<br>
       Zoom: ${formatNumber(viewport.zoom)}<br>
@@ -60,34 +54,5 @@ export class InfoControl {
         ${bounds.slice(2, 4).map((x, i, array) => `<span>${formatNumber(x)}${i < array.length - 1 ? ',' : ''}</span>`).join('')}
       </div><br>
     `;
-  }
-  
-  updateMouseInfo(event) {
-    if (!event.coordinate) {
-      return;
-    }
-
-    const info2 = this.container.querySelector('.info2');
-    info2.innerHTML = `
-      Mouse:<br>
-      Position: ${event.coordinate.map(x => formatNumber(x)).join(', ')}<br>
-    `;
-    
-    if (event.raster) {
-      const value = event.raster.value;
-      const formattedValue = WeatherLayers.formatValue(value);
-      info2.innerHTML += `
-        Value: ${formattedValue}<br>
-      `;
-      
-      if (event.raster.direction) {
-        const direction = event.raster.direction;
-        const formattedDirection = WeatherLayers.formatDirection(direction);
-
-        info2.innerHTML += `
-          Direction: ${formattedDirection}<br>
-        `;
-      }
-    }
   }
 }

@@ -95,6 +95,12 @@ export class TimelineControl {
       return;
     }
 
+    const paddingY = 10;
+    const playPauseButtonWidth = 16;
+    const progressInputMarginLeft = 10;
+
+    this.container.style.width = `${config.width}px`;
+
     const div = document.createElement('div');
     this.container.appendChild(div);
 
@@ -120,6 +126,7 @@ export class TimelineControl {
     progressInput.max = this.config.datetimes.length - 1;
     progressInput.step = 0.05;
     progressInput.value = this.progress;
+    progressInput.style.width = `${config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
     progressInput.addEventListener('input', () => {
       this.progress = progressInput.value;
       this.updateProgress();

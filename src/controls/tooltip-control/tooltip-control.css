@@ -5,34 +5,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-.timeline {
+.tooltip {
   margin: 10px;
 }
-.timeline > div {
+.tooltip > div {
   display: inline-block;
   background: rgba(255, 255, 255, 0.5);
-  padding: 5px 10px;
-  width: calc(100% - 2 * 10px);
+  padding: 0 5px;
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
 }
-.timeline a {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-  background: no-repeat center / contain;
-}
-.timeline a.play {
-  background-image: inline('./play.svg');
-}
-.timeline a.pause {
-  background-image: inline('./pause.svg');
-}
-.timeline input {
-  vertical-align: middle;
-  margin-left: 10px;
-  margin-right: 0;
+.tooltip > div:empty {
+  display: none;
 }

@@ -83,10 +83,6 @@
       });
       deckLayer.setMap(map);
 
-      // info panels
-      const infoControl = new InfoControl({ deckgl: deckLayer });
-      document.getElementById('top-left').prepend(infoControl.onAdd());
-
       // animated deck.gl
       let lastRenderTime = 0;
       const deckgl = new deck.Deck({
@@ -117,16 +113,20 @@
       google.maps.event.addListener(map, 'center_changed', updateDeckView);
       google.maps.event.addListener(map, 'zoom_changed', updateDeckView);
       updateDeckView();
+      const rasterDeckgl = deckLayer;
+      const particleDeckgl = deckgl;
+
+      // info panels
+      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({
-        width: 220,
-        ticksCount: 6,
-      });
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
+        width: 250,
         datetimes: config.datetimes,
         onStart: async () => {
           // preload images
@@ -147,6 +147,10 @@
         },
       });
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+
+      // tooltip
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
       const attributionControl = new WeatherLayers.AttributionControl();
@@ -214,10 +218,11 @@
 
         legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection, colormapBounds, colormapUrl });
         timelineControl.update({ ...timelineControl.config, datetimes: config.datetimes });
+        tooltipControl.update({ ...tooltipControl.config, stacCollection: config.stacCollection });
         attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
       }
       update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl: particleDeckgl });
     });
   </script>
 

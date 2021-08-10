@@ -19,10 +19,10 @@ export function formatValue(value, { name = '', offset = 0, scale = 1, decimals 
   
 /**
  * @param {number} value
- * @returns {number}
+ * @returns {string}
  */
 export function formatDirection(value) {
   const direction = ((90 - value / Math.PI * 180) + 360) % 360;
-  const formattedDirection = Math.round(direction);
+  const formattedDirection = `${Math.round(direction)}°`;
   return formattedDirection;
 }

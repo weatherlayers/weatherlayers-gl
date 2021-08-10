@@ -10,6 +10,7 @@ export * from './layers/raster-layer/raster-layer';
 export * from './layers/particle-layer/particle-layer';
 
 export * from './controls/legend-control/legend-control';
+export * from './controls/tooltip-control/tooltip-control';
 export * from './controls/timeline-control/timeline-control';
 export * from './controls/attribution-control/attribution-control';
 
