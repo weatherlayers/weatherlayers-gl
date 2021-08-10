@@ -29,26 +29,11 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { loadOutline } from './outline.js';
-    import { STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN, STAC_ASSET_ID, initConfig, initGui } from './config.js';
+    import { STAC_ASSET_ID, initConfig, initGui } from './config.js';
     import { FpsMeterControl } from './fps-meter.js';
 
     function formatNumber(value, decimals = 6) {
       return Math.floor(value * 10 ** decimals) / 10 ** decimals;
-    }
-
-    const dataCache = new Map();
-    function loadData(url) {
-      let data = dataCache.get(url);
-      if (!data) {
-        const dataPromise = WeatherLayers.loadData(url);
-        dataPromise.then(data => {
-          dataCache.set(url, data);
-        });
-        dataCache.set(url, dataPromise);
-        data = dataPromise;
-      }
-      return data;
     }
     
     const imageCache = new Map();
@@ -81,8 +66,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const stacCatalog = await WeatherLayers.loadStacCatalog(STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN);
-      const config = await initConfig({ stacCatalog });
+      const config = await initConfig();
       let gui;
 
       // ArcGIS
@@ -237,15 +221,15 @@
           await Promise.all(config.datetimes.map(async datetime => {
             const stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, datetime);
             const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
-            await loadData(stacItemAssetUrl);
+            await WeatherLayers.loadDataCached(stacItemAssetUrl);
           }));
         },
         onUpdate: async event => {
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
           config.datetimeWeight = event.datetimeWeight;
-          config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
-          config.stacItem2 = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
+          config.stacItem = config.datetime && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
+          config.stacItem2 = config.datetime2 && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
           gui.updateDisplay();
           update();
         },
@@ -262,16 +246,15 @@
 
       // config
       async function update() {
-        const outline = await loadOutline(config.outline.datasetUrl);
         const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(config.stacItem, STAC_ASSET_ID);
         const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2, STAC_ASSET_ID);
 
         // preload textures
-        const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && loadData(x)));
+        const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
         const imageBounds = [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum];
         const vectorImageBounds = config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
         const colormapBounds = config.stacCollection.summaries.colormap ? [config.stacCollection.summaries.colormap[0][0], config.stacCollection.summaries.colormap[config.stacCollection.summaries.colormap.length - 1][0]] : imageBounds;
-        const colormapImage = await loadImage(config.raster.colormapUrl || WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.stacCollection.summaries.colormap), { bounds: colormapBounds }));
+        const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.stacCollection.summaries.colormap), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
 
         deckRenderer.deck.set({
@@ -290,19 +273,6 @@
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               pickable: true,
-              parameters: {
-                cull: true,
-                depthTest: false,
-              },
-            }),
-            new deck.GeoJsonLayer({
-              id: 'outline',
-              visible: config.outline.enabled,
-              data: outline,
-              getLineColor: config.outline.color,
-              getLineWidth: config.outline.width,
-              lineWidthUnits: 'pixels',
-              opacity: config.outline.opacity,
               parameters: {
                 cull: true,
                 depthTest: false,

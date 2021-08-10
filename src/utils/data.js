@@ -8,6 +8,40 @@
 import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 
+const CACHE = new Map();
+
+/**
+ * @param {string} url
+ * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ */
+export function loadData(url) {
+  if (url.includes('.png')) {
+    return loadPng(url);
+  } else if (url.includes('.tif')) {
+    return loadGeotiff(url);
+  } else {
+    throw new Error('Unsupported data format');
+  }
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ */
+export function loadDataCached(url) {
+  const dataOrDataPromise = CACHE.get(url);
+  if (dataOrDataPromise) {
+    return dataOrDataPromise;
+  }
+  
+  const dataPromise = loadData(url);
+  CACHE.set(url, dataPromise);
+  dataPromise.then(data => {
+    CACHE.set(url, data);
+  });
+  return dataPromise;
+}
+
 /**
  * @param {Float32Array | Uint8Array} data
  * @param {number} [nodata]
@@ -90,18 +124,4 @@ async function loadGeotiff(url) {
 
   const texture = { width, height, data, format };
   return texture;
-}
-
-/**
- * @param {string} url
- * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
- */
-export function loadData(url) {
-  if (url.includes('.png')) {
-    return loadPng(url);
-  } else if (url.includes('.tif')) {
-    return loadGeotiff(url);
-  } else {
-    throw new Error('Unsupported data format');
-  }
 }

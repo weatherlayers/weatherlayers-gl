@@ -10,6 +10,10 @@
  * @returns {string}
  */
 export function formatDatetime(value) {
+  if (!value) {
+    return value;
+  }
+
   const date = new Date(value);
   if (!date.getDate()) {
     return value;
@@ -22,4 +26,22 @@ export function formatDatetime(value) {
   const minute = `${date.getUTCMinutes()}`.padStart(2, '0');
   const formattedValue = `${year}/${month}/${day} ${hour}:${minute} UTC`;
   return formattedValue;
+}
+
+/**
+ * @param {string[]} datetimes
+ * @param {string} datetime
+ * @returns {string}
+ */
+export function getClosestDatetime(datetimes, datetime) {
+  if (datetimes.includes(datetime)) {
+    return datetime;
+  }
+
+  const closestDatetime = [...datetimes].reverse().find(x => x <= datetime);
+  if (!closestDatetime) {
+    return datetimes[0];
+  }
+
+  return closestDatetime;
 }

@@ -17,14 +17,27 @@ const CACHE = new Map();
  * @param {string} url
  * @return {Promise<T>}
  */
-async function loadData(url) {
-  if (CACHE.has(url)) {
-    return CACHE.get(url);
+async function loadJson(url) {
+  return (await fetch(url)).json();
+}
+
+/**
+ * @template T
+ * @param {string} url
+ * @return {Promise<T>}
+ */
+function loadJsonCached(url) {
+  const dataOrDataPromise = CACHE.get(url);
+  if (dataOrDataPromise) {
+    return dataOrDataPromise;
   }
   
-  const data = await (await fetch(url)).json();
-  CACHE.set(url, data);
-  return data;
+  const dataPromise = loadJson(url);
+  CACHE.set(url, dataPromise);
+  dataPromise.then(data => {
+    CACHE.set(url, data);
+  });
+  return dataPromise;
 }
 
 /**
@@ -34,7 +47,16 @@ async function loadData(url) {
  */
 export async function loadStacCatalog(catalogUrl, accessToken) {
   const url = `${catalogUrl}?access_token=${accessToken}`;
-  return loadData(url);
+  return loadJsonCached(url);
+}
+
+/**
+ * @param {StacCatalog} stacCatalog
+ * @returns {string[]}
+ */
+ export function getStacCatalogCollectionIds(stacCatalog) {
+  const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
+  return ids;
 }
 
 /**
@@ -47,7 +69,7 @@ export async function loadStacCollection(stacCatalog, stacCollectionId) {
   if (!link) {
     throw new Error(`STAC collection ${stacCollectionId} not found`);
   }
-  return loadData(link.href);
+  return loadJsonCached(link.href);
 }
 
 /**
@@ -60,7 +82,7 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
   if (!link) {
     throw new Error(`STAC item ${datetime} not found`);
   }
-  return loadData(link.href);
+  return loadJsonCached(link.href);
 }
 
 /**
@@ -68,7 +90,7 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
  * @returns {string[]}
  */
  export function getStacCollectionDatetimes(stacCollection) {
-  const datetimes = stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x);
+  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
   return datetimes;
 }
 
