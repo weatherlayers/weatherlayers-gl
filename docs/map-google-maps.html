@@ -6,7 +6,7 @@
   <title>WeatherLayers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=beta&key=AIzaSyCEpbzDGuiXiRqhgo5zv2neGu9lhF40DVM"></script><!-- WeatherLayers access token -->
   <script src="https://unpkg.com/deck.gl@8.5.0/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
@@ -72,7 +72,9 @@
       const map = new google.maps.Map(document.getElementById('google-maps'), {
         center: { lng: 30, lat: 10 },
         zoom: 1,
-        mapTypeId: 'satellite',
+        mapId: 'ac3c83c0af8794fe',
+        isFractionalZoomEnabled: true,
+        backgroundColor: 'none',
         disableDefaultUI: true,
       });
 
@@ -107,11 +109,12 @@
           longitude: map.getCenter().lng(),
           latitude: map.getCenter().lat(),
           zoom: map.getZoom() - 1,
+          pitch: map.getTilt(),
+          bearing: map.getHeading(),
         };
         deckgl.setProps({ viewState });
       }
-      google.maps.event.addListener(map, 'center_changed', updateDeckView);
-      google.maps.event.addListener(map, 'zoom_changed', updateDeckView);
+      google.maps.event.addListener(map, 'bounds_changed', updateDeckView);
       updateDeckView();
       const rasterDeckgl = deckLayer;
       const particleDeckgl = deckgl;
