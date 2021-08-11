@@ -73,8 +73,23 @@
       const map = new maplibregl.Map({
         container: 'maplibre',
         style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
-        center: [30, 0],
+        center: [30, 10],
         zoom: 1,
+        /*
+        // screenshot 600x335
+        zoom: 0,
+        */
+        /*
+        // banner 1500x500
+        center: [7, 46],
+        zoom: 3.5,
+        pitch: 40,
+        bearing: 0,
+        // particle
+        // maxAge: 100
+        // speedFactor: 4
+        // opacity: 0.02
+        */
       });
 
       // Mapbox deck.gl layer
@@ -89,6 +104,19 @@
         layers: [],
       });
       map.addLayer(deckLayer, 'label_airport');
+      /*
+      // screenshot, banner
+      // hide boundaries
+      map.setLayoutProperty('admin_sub', 'visibility', 'none');
+      map.setLayoutProperty('admin_country', 'visibility', 'none');
+      // hide labels
+      map.setLayoutProperty('label_airport', 'visibility', 'none');
+      map.setLayoutProperty('label_road', 'visibility', 'none');
+      map.setLayoutProperty('label_place_other', 'visibility', 'none');
+      map.setLayoutProperty('label_place_city', 'visibility', 'none');
+      map.setLayoutProperty('label_country_other', 'visibility', 'none');
+      map.setLayoutProperty('label_country', 'visibility', 'none');
+      */
 
       // animated deck.gl
       let lastRenderTime = 0;
