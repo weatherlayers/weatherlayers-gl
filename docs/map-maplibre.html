@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/deck.gl@8.5.0/dist.min.js"></script>
   <script src="https://unpkg.com/@luma.gl/constants@8.4.5/dist/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
@@ -18,9 +18,9 @@
   <link rel="stylesheet" href="./fps-control.css">
 </head>
 
-<body class="mapbox">
+<body class="maplibre">
   <div id="container">
-    <div id="mapbox"></div>
+    <div id="maplibre"></div>
     <div id="deck"></div>
   </div>
   <div id="top-left"></div>
@@ -70,10 +70,9 @@
       let gui;
 
       // Mapbox
-      const map = new mapboxgl.Map({
-        container: 'mapbox',
-        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v10',
+      const map = new maplibregl.Map({
+        container: 'maplibre',
+        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
         center: [30, 0],
         zoom: 1,
       });
@@ -89,28 +88,7 @@
         id: 'deck',
         layers: [],
       });
-      map.addLayer(deckLayer, 'waterway-label');
-      /*
-      // hide boundaries
-      map.setLayoutProperty('admin-0-boundary-disputed', 'visibility', 'none');
-      map.setLayoutProperty('admin-0-boundary', 'visibility', 'none');
-      map.setLayoutProperty('admin-1-boundary', 'visibility', 'none');
-      map.setLayoutProperty('admin-0-boundary-bg', 'visibility', 'none');
-      map.setLayoutProperty('admin-1-boundary-bg', 'visibility', 'none');
-      // hide labels
-      map.setLayoutProperty('country-label', 'visibility', 'none');
-      map.setLayoutProperty('state-label', 'visibility', 'none');
-      map.setLayoutProperty('settlement-label', 'visibility', 'none');
-      map.setLayoutProperty('settlement-subdivision-label', 'visibility', 'none');
-      map.setLayoutProperty('airport-label', 'visibility', 'none');
-      map.setLayoutProperty('poi-label', 'visibility', 'none');
-      map.setLayoutProperty('water-point-label', 'visibility', 'none');
-      map.setLayoutProperty('water-line-label', 'visibility', 'none');
-      map.setLayoutProperty('natural-point-label', 'visibility', 'none');
-      map.setLayoutProperty('natural-line-label', 'visibility', 'none');
-      map.setLayoutProperty('waterway-label', 'visibility', 'none');
-      map.setLayoutProperty('road-label', 'visibility', 'none');
-      */
+      map.addLayer(deckLayer, 'label_airport');
 
       // animated deck.gl
       let lastRenderTime = 0;
