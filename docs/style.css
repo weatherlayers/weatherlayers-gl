@@ -21,11 +21,8 @@ body {
 body.arcgis #deck, body.google-maps #deck, body.mapbox #deck, body.maplibre #deck {
   pointer-events: none;
 }
-#leaflet, #google-maps > div {
+#leaflet {
   background: transparent !important;
-}
-#google-maps > div:nth-child(2) {
-  display: none;
 }
 #top-left {
   position: absolute;
