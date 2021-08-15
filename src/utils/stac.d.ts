@@ -53,6 +53,22 @@ export interface StacCatalog {
   links: StacLink[];
 }
 
+export enum StacCollectionRasterImageType {
+  SCALAR = 0,
+  VECTOR = 1,
+}
+
+export interface StacCollectionRasterConfig {
+  imageType: StacCollectionRasterImageType;
+  colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
+}
+
+export interface StacCollectionParticleConfig {
+  maxAge: number;
+  speedFactor: number;
+  width: number;
+}
+
 export interface StacCollection {
   type: 'Collection';
   stac_version: '1.0.0';
@@ -68,17 +84,10 @@ export interface StacCollection {
     };
   };
   summaries: {
-    vectorValue?: { minimum: number, maximum: number }; // custom
     value: { minimum: number, maximum: number }; // custom
     unit: { name: string, offset?: number, scale?: number, decimals?: number }[]; // custom
-    raster?: {
-      colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
-    }; // custom
-    particle?: {
-      maxAge: number;
-      speedFactor: number;
-      width: number;
-    }; // custom
+    raster?: StacCollectionRasterConfig; // custom
+    particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];
 }
@@ -98,4 +107,4 @@ export interface StacItem {
   links: StacLink[];
   assets: { [key: string]: StacAsset };
   collection: string;
-} 
+}
