@@ -92,7 +92,6 @@ function loadDataCached(url) {
  * @returns {Promise<StacCatalog>}
  */
 export async function loadStacCatalog() {
-  const clientConfig = getClientConfig();
   const url = `${clientConfig.url}${clientConfig.accessToken ? `?access_token=${clientConfig.accessToken}` : ''}`;
   return loadJsonCached(url);
 }
@@ -156,7 +155,6 @@ export function getStacCollectionAttribution(stacCollection) {
  * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
  */
 export function loadStacItemData(stacItem) {
-  const clientConfig = getClientConfig();
   const asset = stacItem.assets[clientConfig.format];
   if (!asset) {
     throw new Error(`Asset ${clientConfig.format} not found`);
