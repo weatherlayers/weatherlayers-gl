@@ -121,7 +121,7 @@ export class LegendControl {
       tick.appendChild(tickLine);
 
       const tickValue = document.createElementNS(xmlns, 'text');
-      tickValue.innerHTML = `${formattedValue}`;
+      tickValue.innerHTML = formattedValue;
       tickValue.style.transform = 'translate(0, 22px)';
       tick.appendChild(tickValue);
     }
