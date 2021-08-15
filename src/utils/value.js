@@ -7,14 +7,13 @@
  */
 /**
  * @param {number} value
- * @param {{ name?: string, offset?: number, scale?: number, decimals?: number }} options
+ * @param {{ offset?: number, scale?: number, decimals?: number }} options
  * @returns {string}
  */
-export function formatValue(value, { name = '', offset = 0, scale = 1, decimals = 0 } = {}) {
+export function formatValue(value, { offset = 0, scale = 1, decimals = 0 } = {}) {
   const formattedValue = (value + offset) * scale;
   const roundedFormattedValue = decimals ? Math.round(formattedValue * 10 ** decimals) / 10 ** decimals : Math.round(formattedValue);
-  const roundedFormattedValueWithUnit = name ? `${roundedFormattedValue} ${name}` : `${roundedFormattedValue}`;
-  return roundedFormattedValueWithUnit;
+  return `${roundedFormattedValue}`;
 }
   
 /**
@@ -25,4 +24,13 @@ export function formatDirection(value) {
   const direction = ((90 - value / Math.PI * 180) + 360) % 360;
   const formattedDirection = `${Math.round(direction)}°`;
   return formattedDirection;
+}
+
+/**
+ * @param {string} unit
+ * @returns {string}
+ */
+export function formatUnit(unit) {
+  const formattedUnit = unit.replace('^2', '²').replace('^3', '³');
+  return formattedUnit;
 }

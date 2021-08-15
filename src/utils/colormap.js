@@ -101,15 +101,16 @@ export function linearColormap(colormapBreaks) {
 
 /**
  * @param {(i: number) => ColorValue} colormapFunction
- * @param {{ bounds?: [number, number], count?: number }} options
+ * @param {[number, number]} colormapBounds
+ * @param {{ count?: number }} options
  * @return {ColorValue[]}
  */
-function colorRamp(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
-  const delta = bounds[1] - bounds[0];
+function colorRamp(colormapFunction, colormapBounds, { count = 256 } = {}) {
+  const delta = colormapBounds[1] - colormapBounds[0];
 
   const colors = new Array(count).fill(undefined).map((_, i) => {
     const ratio = i / (count - 1);
-    return colormapFunction(bounds[0] + ratio * delta);
+    return colormapFunction(colormapBounds[0] + ratio * delta);
   });
 
   return colors;
@@ -117,11 +118,12 @@ function colorRamp(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
 
 /**
  * @param {(i: number) => ColorValue} colormapFunction
- * @param {{ bounds?: [number, number], count?: number }} options
- * @return {string}
+ * @param {[number, number]} colormapBounds
+ * @param {{ count?: number }} options
+ * @return {HTMLCanvasElement}
  */
-export function getColormapUrl(colormapFunction, { bounds = [0, 1], count = 256 } = {}) {
-  const colors = colorRamp(colormapFunction, { bounds, count });
+export function colorRampCanvas(colormapFunction, colormapBounds, { count = 256 } = {}) {
+  const colors = colorRamp(colormapFunction, colormapBounds, { count });
 
   const canvas = /** @type HTMLCanvasElement */ (document.createElement('canvas'));
   canvas.width = colors.length;
@@ -136,7 +138,30 @@ export function getColormapUrl(colormapFunction, { bounds = [0, 1], count = 256 
     ctx.fillRect(i, 0, 1, canvas.height);
   }
 
+  return canvas;
+}
+
+/**
+ * @param {(i: number) => ColorValue} colormapFunction
+ * @param {[number, number]} colormapBounds
+ * @param {{ count?: number }} options
+ * @return {string}
+ */
+export function colorRampUrl(colormapFunction, colormapBounds, { count = 256 } = {}) {
+  const canvas = colorRampCanvas(colormapFunction, colormapBounds, { count });
   const url = canvas.toDataURL();
-  
   return url;
+}
+
+/**
+ * @param {(i: number) => ColorValue} colormapFunction
+ * @param {[number, number]} colormapBounds
+ * @param {{ count?: number }} options
+ * @return {ImageData}
+ */
+export function colorRampImage(colormapFunction, colormapBounds, { count = 256 } = {}) {
+  const canvas = colorRampCanvas(colormapFunction, colormapBounds, { count });
+  const ctx = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
+  const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return image;
 }

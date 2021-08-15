@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './tooltip-control.css';
-import { formatValue, formatDirection } from '../../utils/value';
+import { formatValue, formatUnit, formatDirection } from '../../utils/value';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
 
@@ -74,7 +74,7 @@ export class TooltipControl {
     this.container.appendChild(div);
     
     if (typeof event.raster !== 'undefined') {
-      div.innerHTML = formatValue(event.raster.value, this.config.stacCollection.summaries.unit[0]);
+      div.innerHTML = `${formatValue(event.raster.value, this.config.stacCollection.summaries.unit[0])} ${formatUnit(this.config.stacCollection.summaries.unit[0].name)}`;
       
       if (typeof event.raster.direction !== 'undefined') {
         div.innerHTML += `, ${formatDirection(event.raster.direction)}`

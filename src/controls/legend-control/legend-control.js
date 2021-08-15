@@ -6,8 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
-import { formatValue } from '../../utils/value';
-import { getStacCollectionTitle } from '../../utils/stac';
+import { formatValue, formatUnit } from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 
@@ -77,7 +76,7 @@ export class LegendControl {
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = getStacCollectionTitle(this.config.stacCollection, this.config.stacCollection.summaries.unit[0].name);
+    title.innerHTML = `${this.config.stacCollection.title} [${formatUnit(this.config.stacCollection.summaries.unit[0].name)}]`;
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);

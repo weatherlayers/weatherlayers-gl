@@ -28,39 +28,6 @@
     import { InfoControl } from './info-control.js';
     import { FpsControl } from './fps-control.js';
 
-    function formatNumber(value, decimals = 6) {
-      return Math.floor(value * 10 ** decimals) / 10 ** decimals;
-    }
-    
-    const imageCache = new Map();
-    function loadImage(url) {
-      let image = imageCache.get(url);
-      if (!image) {
-        const imagePromise = loaders.load(url);
-        imagePromise.then(image => {
-          imageCache.set(url, image);
-        });
-        imageCache.set(url, imagePromise);
-        image = imagePromise;
-      }
-      return image;
-    }
-
-    const colormapCache = new WeakMap();
-    function loadColormap(image) {
-      let colormap = colormapCache.get(image);
-      if (!colormap) {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0);
-        colormap = canvas.toDataURL();
-        colormapCache.set(image, colormap);
-      }
-      return colormap;
-    }
-
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig();
       let gui;
@@ -160,8 +127,10 @@
         const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;
         const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
         const colormapBounds = [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]];
-        const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
-        const colormapUrl = await loadColormap(colormapImage);
+        // TODO: memoize
+        const colormapFunction = WeatherLayers.linearColormap(config.raster.colormapBreaks);
+        const colormapImage = WeatherLayers.colorRampImage(colormapFunction, colormapBounds);
+        const colormapUrl = WeatherLayers.colorRampUrl(colormapFunction, colormapBounds);
 
         deckgl.setProps({
           layers: [

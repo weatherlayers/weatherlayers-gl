@@ -96,16 +96,6 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
 
 /**
  * @param {StacCollection} stacCollection
- * @param {string} unitName
- * @returns {string}
- */
-export function getStacCollectionTitle(stacCollection, unitName) {
-  const title = `${stacCollection.title} [${unitName.replace('^2', '²').replace('^3', '³')}]`;
-  return title;
-}
-
-/**
- * @param {StacCollection} stacCollection
  * @returns {string}
  */
 export function getStacCollectionAttribution(stacCollection) {
