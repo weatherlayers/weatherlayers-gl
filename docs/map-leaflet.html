@@ -58,7 +58,7 @@
         layers: [],
         layerFilter: ({ layer, viewport }) => {
           // render particle layer in non-repeated MapView
-          if (layer.id == 'particle') {
+          if (layer.id == 'particle-line') {
             return !viewport.subViewports;
           } else {
             return !!viewport.subViewports;

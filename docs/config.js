@@ -157,8 +157,8 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
   particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
   particle.add(config.particle, 'animate').onChange(update);
-  particle.add({ step: () => deckgl.props.layers.find(x => x.id === 'particle')?.step() }, 'step');
-  particle.add({ clear: () => deckgl.props.layers.find(x => x.id === 'particle')?.clear() }, 'clear');
+  particle.add({ step: () => deckgl.props.layers.find(x => x.id === 'particle-line')?.step() }, 'step');
+  particle.add({ clear: () => deckgl.props.layers.find(x => x.id === 'particle-line')?.clear() }, 'clear');
   particle.open();
 
   return gui;
