@@ -112,8 +112,8 @@
 
       // config
       async function update() {
-        const dataImage = config.stacItem && await WeatherLayers.getStacItemData(config.stacItem);
-        const dataImage2 = config.stacItem2 && await WeatherLayers.getStacItemData(config.stacItem2);
+        const dataImage = config.stacItem && await WeatherLayers.loadStacItemData(config.stacItem);
+        const dataImage2 = config.stacItem2 && await WeatherLayers.loadStacItemData(config.stacItem2);
 
         // preload textures
         const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;

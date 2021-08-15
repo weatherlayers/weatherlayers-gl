@@ -15,7 +15,6 @@ export * from './controls/timeline-control/timeline-control';
 export * from './controls/attribution-control/attribution-control';
 
 export * from './utils/animation';
-export * from './utils/stac';
 export * from './utils/client';
 export * from './utils/data';
 export * from './utils/colormap';

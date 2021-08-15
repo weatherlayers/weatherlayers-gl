@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './attribution-control.css';
-import { getStacCollectionAttribution } from '../../utils/stac';
+import { getStacCollectionAttribution } from '../../utils/client';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
 
