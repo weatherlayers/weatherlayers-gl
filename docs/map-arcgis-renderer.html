@@ -27,9 +27,13 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { STAC_ASSET_ID, initConfig, initGui } from './config.js';
+    import { initConfig, initGui } from './config.js';
     import { InfoControl } from './info-control.js';
     import { FpsControl } from './fps-control.js';
+
+    WeatherLayers.setClientConfig({
+      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+    });
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig();
@@ -124,14 +128,6 @@
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
         width: 250,
-        onStart: async (datetimes) => {
-          // preload images
-          await Promise.all(datetimes.map(async datetime => {
-            const stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, datetime);
-            const stacItemAssetUrl = WeatherLayers.getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
-            await WeatherLayers.loadDataCached(stacItemAssetUrl);
-          }));
-        },
         onUpdate: async event => {
           config.datetime = event.datetime;
           config.datetime2 = event.datetime2;
@@ -158,8 +154,8 @@
 
       // config
       async function update() {
-        const stacItemAssetUrl = config.stacItem && WeatherLayers.getStacItemAssetUrl(config.stacItem, STAC_ASSET_ID);
-        const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2, STAC_ASSET_ID);
+        const stacItemAssetUrl = config.stacItem && WeatherLayers.getStacItemAssetUrl(config.stacItem);
+        const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2);
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));

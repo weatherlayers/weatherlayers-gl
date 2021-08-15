@@ -1,13 +1,10 @@
-export const STAC_CATALOG_URL = 'https://api.weatherlayers.com/catalog';
-export const STAC_CATALOG_ACCESS_TOKEN = '9djqrhlmAjv2Mv2z2Vwz'; // kamzek-weather token
-export const STAC_ASSET_ID = 'byte.png';
 export const NO_DATA = 'no data';
 
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
 export async function initConfig() {
-  const stacCatalog = await WeatherLayers.loadStacCatalog(STAC_CATALOG_URL, STAC_CATALOG_ACCESS_TOKEN);
+  const stacCatalog = await WeatherLayers.loadStacCatalog();
 
   const config = {
     stacCatalog,

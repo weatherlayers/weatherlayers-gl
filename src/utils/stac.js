@@ -5,6 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import { getClientConfig } from './client';
+
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacItem} StacItem */
@@ -41,12 +43,11 @@ function loadJsonCached(url) {
 }
 
 /**
- * @param {string} catalogUrl
- * @param {string} accessToken
  * @returns {Promise<StacCatalog>}
  */
-export async function loadStacCatalog(catalogUrl, accessToken) {
-  const url = `${catalogUrl}?access_token=${accessToken}`;
+export async function loadStacCatalog() {
+  const clientConfig = getClientConfig();
+  const url = `${clientConfig.url}${clientConfig.accessToken ? `?access_token=${clientConfig.accessToken}` : ''}`;
   return loadJsonCached(url);
 }
 
@@ -109,13 +110,13 @@ export function getStacCollectionAttribution(stacCollection) {
 
 /**
  * @param {StacItem} stacItem
- * @param {string} stacAssetId
  * @returns {string}
  */
-export function getStacItemAssetUrl(stacItem, stacAssetId) {
-  const asset = stacItem.assets[stacAssetId];
+export function getStacItemAssetUrl(stacItem) {
+  const clientConfig = getClientConfig();
+  const asset = stacItem.assets[clientConfig.format];
   if (!asset) {
-    throw new Error(`STAC item asset ${stacAssetId} not found`);
+    throw new Error(`STAC item asset ${clientConfig.format} not found`);
   }
   return asset.href;
 }

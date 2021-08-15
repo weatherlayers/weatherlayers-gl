@@ -11,8 +11,6 @@ export interface TimelineConfig {
   width: number;
   stacCollection: StacCollection;
   onUpdate: (event: TimelineUpdateEvent) => void;
-  onStart?: (datetimes: string[]) => Promise<void>;
-  onStop?: () => void;
 }
 
 export interface TimelineUpdateEvent {

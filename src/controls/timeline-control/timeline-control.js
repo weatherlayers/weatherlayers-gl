@@ -89,11 +89,16 @@ export class TimelineControl {
     }
 
     if (this.animation.running) {
-      this.config.onStop?.();
       this.animation.stop();
       playPauseButton.className = 'play';
     } else {
-      await this.config.onStart?.(this.datetimes);
+      // preload images
+      await Promise.all(this.datetimes.map(async datetime => {
+        const stacItem = await loadStacItemByDatetime(this.config.stacCollection, datetime);
+        const stacItemAssetUrl = getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
+        await loadDataCached(stacItemAssetUrl);
+      }));
+
       this.animation.start();
       playPauseButton.className = 'pause';
     }
