@@ -11,6 +11,7 @@ export async function initConfig() {
     stacCollection: null,
     stacItem: null,
     stacItem2: null,
+    datasets: WeatherLayers.getStacCatalogCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: NO_DATA,
@@ -115,7 +116,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   const gui = new dat.GUI();
   gui.width = 300;
 
-  gui.add(config, 'dataset', [NO_DATA, ...WeatherLayers.getStacCatalogCollectionIds(stacCatalog)]).onChange(async () => {
+  gui.add(config, 'dataset', [NO_DATA, ...config.datasets]).onChange(async () => {
     await updateDataset(config);
     updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
     updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
