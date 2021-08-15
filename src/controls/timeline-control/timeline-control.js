@@ -62,7 +62,7 @@ export class TimelineControl {
    */
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'timeline';
+    this.container.className = 'weatherlayers-timeline-control';
 
     this.update(this.config);
 
@@ -76,6 +76,26 @@ export class TimelineControl {
     if (this.container && this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
       this.container = undefined;
+    }
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async toggleAnimation() {
+    const playPauseButton = this.container.querySelector('a');
+    if (!playPauseButton) {
+      return;
+    }
+
+    if (this.animation.running) {
+      this.config.onStop?.();
+      this.animation.stop();
+      playPauseButton.className = 'play';
+    } else {
+      await this.config.onStart?.(this.datetimes);
+      this.animation.start();
+      playPauseButton.className = 'pause';
     }
   }
 
@@ -115,17 +135,7 @@ export class TimelineControl {
     const playPauseButton = document.createElement('a');
     playPauseButton.href = 'javascript:void(0)';
     playPauseButton.className = this.animation.running ? 'pause' : 'play';
-    playPauseButton.addEventListener('click', async () => {
-      if (this.animation.running) {
-        this.config.onStop?.();
-        this.animation.stop();
-        playPauseButton.className = 'play';
-      } else {
-        await this.config.onStart?.(this.datetimes);
-        this.animation.start();
-        playPauseButton.className = 'pause';
-      }
-    });
+    playPauseButton.addEventListener('click', this.toggleAnimation.bind(this));
     div.appendChild(playPauseButton);
 
     const progressInput = document.createElement('input');

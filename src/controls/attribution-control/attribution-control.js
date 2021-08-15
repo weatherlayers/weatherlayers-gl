@@ -28,7 +28,7 @@ export class AttributionControl {
    */
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'attribution';
+    this.container.className = 'weatherlayers-attribution-control';
 
     this.update(this.config);
 

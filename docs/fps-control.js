@@ -5,7 +5,7 @@ export class FpsControl {
 
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'fps';
+    this.container.className = 'fps-control';
 
     this.stats = new Stats();
     this.stats.showPanel(0);

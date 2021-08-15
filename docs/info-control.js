@@ -12,7 +12,7 @@ export class InfoControl {
 
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'info';
+    this.container.className = 'info-control';
 
     this.config.deckgl.setProps({
       onViewStateChange: ({ viewState }) => this.onViewStateChange(viewState),

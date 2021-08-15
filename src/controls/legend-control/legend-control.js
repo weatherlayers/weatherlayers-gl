@@ -29,7 +29,7 @@ export class LegendControl {
    */
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'legend';
+    this.container.className = 'weatherlayers-legend-control';
 
     this.update(this.config);
 

@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-.tooltip {
+.weatherlayers-tooltip-control {
   margin: 10px;
 }
-.tooltip > div {
+.weatherlayers-tooltip-control > div {
   display: inline-block;
   background: rgba(255, 255, 255, 0.5);
   padding: 0 5px;
@@ -17,6 +17,6 @@
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
 }
-.tooltip > div:empty {
+.weatherlayers-tooltip-control > div:empty {
   display: none;
 }

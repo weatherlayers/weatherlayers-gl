@@ -1,24 +1,24 @@
-.info {
+.info-control {
   position: absolute;
   top: 0;
   left: 15px;
   min-width: 250px;
 }
-.info > div {
+.info-control > div {
   padding: 4px 8px;
   background: rgba(0, 0, 0, 0.5);
   color: #eee;
   backdrop-filter: blur(1px);
 }
-.info > div:empty {
+.info-control > div:empty {
   display: none;
 }
-.info .grid-2 {
+.info-control .grid-2 {
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 0.4ex; /* space */
 }
-.info .grid-4 {
+.info-control .grid-4 {
   display: inline-grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-column-gap: 0.4ex; /* space */

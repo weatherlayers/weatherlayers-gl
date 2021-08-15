@@ -28,7 +28,7 @@ export class TooltipControl {
    */
   onAdd() {
     this.container = document.createElement('div');
-    this.container.className = 'tooltip';
+    this.container.className = 'weatherlayers-tooltip-control';
 
     this.config.deckgl.setProps({
       onHover: (/** @type {any} */ event) => this.onHover(event),

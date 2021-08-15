@@ -206,8 +206,8 @@
 
         // preload textures
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
+        const imageType = config.stacCollection ? config.stacCollection.raster.imageType : undefined;
         const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
-        const vectorImageBounds = config.stacCollection && config.stacCollection.summaries.vectorValue ? [config.stacCollection.summaries.vectorValue.minimum, config.stacCollection.summaries.vectorValue.maximum] : undefined;
         const colormapBounds = config.raster.colormapBreaks ? [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]] : imageBounds;
         const colormapImage = await loadImage(WeatherLayers.getColormapUrl(WeatherLayers.linearColormap(config.raster.colormapBreaks), { bounds: colormapBounds }));
         const colormapUrl = await loadColormap(colormapImage);
@@ -220,8 +220,8 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: vectorImageBounds ? WeatherLayers.ImageType.VECTOR : WeatherLayers.ImageType.SCALAR,
-              imageBounds: vectorImageBounds || imageBounds,
+              imageType: imageType,
+              imageBounds: imageBounds,
               colormapImage: colormapImage,
               colormapBounds: colormapBounds,
               opacity: config.raster.opacity,
@@ -243,7 +243,7 @@
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageBounds: vectorImageBounds,
+              imageBounds: imageBounds,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,

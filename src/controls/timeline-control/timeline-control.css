@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-.timeline {
+.weatherlayers-timeline-control {
   margin: 10px;
 }
-.timeline > div {
+.weatherlayers-timeline-control > div {
   display: inline-block;
   background: rgba(255, 255, 255, 0.5);
   padding: 5px 10px;
@@ -18,20 +18,20 @@
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
 }
-.timeline a {
+.weatherlayers-timeline-control a {
   display: inline-block;
   width: 16px;
   height: 16px;
   vertical-align: middle;
   background: no-repeat center / contain;
 }
-.timeline a.play {
+.weatherlayers-timeline-control a.play {
   background-image: inline('./play.svg');
 }
-.timeline a.pause {
+.weatherlayers-timeline-control a.pause {
   background-image: inline('./pause.svg');
 }
-.timeline input {
+.weatherlayers-timeline-control input {
   vertical-align: middle;
   margin-left: 10px;
   margin-right: 0;
