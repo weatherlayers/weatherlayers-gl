@@ -156,11 +156,10 @@
 
       // config
       async function update() {
-        const stacItemAssetUrl = config.stacItem && WeatherLayers.getStacItemAssetUrl(config.stacItem);
-        const stacItemAssetUrl2 = config.stacItem2 && WeatherLayers.getStacItemAssetUrl(config.stacItem2);
+        const dataImage = config.stacItem && await WeatherLayers.getStacItemData(config.stacItem);
+        const dataImage2 = config.stacItem2 && await WeatherLayers.getStacItemData(config.stacItem2);
 
         // preload textures
-        const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
         const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;
         const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
         const colormapBreaks = config.stacCollection ? config.stacCollection.summaries.raster.colormapBreaks : undefined;

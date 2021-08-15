@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { getClientConfig } from './client';
+import { loadData } from './data';
 
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
@@ -43,6 +44,24 @@ function loadJsonCached(url) {
 }
 
 /**
+ * @param {string} url
+ * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ */
+export function loadDataCached(url) {
+  const dataOrDataPromise = CACHE.get(url);
+  if (dataOrDataPromise) {
+    return dataOrDataPromise;
+  }
+  
+  const dataPromise = loadData(url);
+  CACHE.set(url, dataPromise);
+  dataPromise.then(data => {
+    CACHE.set(url, data);
+  });
+  return dataPromise;
+}
+
+/**
  * @returns {Promise<StacCatalog>}
  */
 export async function loadStacCatalog() {
@@ -68,7 +87,7 @@ export async function loadStacCatalog() {
 export async function loadStacCollection(stacCatalog, stacCollectionId) {
   const link = stacCatalog.links.find(x => x.id === stacCollectionId);
   if (!link) {
-    throw new Error(`STAC collection ${stacCollectionId} not found`);
+    throw new Error(`Collection ${stacCollectionId} not found`);
   }
   return loadJsonCached(link.href);
 }
@@ -81,7 +100,7 @@ export async function loadStacCollection(stacCatalog, stacCollectionId) {
 export async function loadStacItemByDatetime(stacCollection, datetime) {
   const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
   if (!link) {
-    throw new Error(`STAC item ${datetime} not found`);
+    throw new Error(`Item ${datetime} not found`);
   }
   return loadJsonCached(link.href);
 }
@@ -101,22 +120,19 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
  */
 export function getStacCollectionAttribution(stacCollection) {
   const stacProvider = stacCollection.providers.find(x => x.roles.includes('producer'));
-  if (!stacProvider) {
-    throw new Error(`STAC collection attribution not found`);
-  }
-  const attribution = `<a href="${stacProvider.url}">${stacProvider.name}</a>`;
+  const attribution = stacProvider ? `<a href="${stacProvider.url}">${stacProvider.name}</a>` : '';
   return attribution;
 }
 
 /**
  * @param {StacItem} stacItem
- * @returns {string}
+ * @returns {ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }}
  */
-export function getStacItemAssetUrl(stacItem) {
+export function getStacItemData(stacItem) {
   const clientConfig = getClientConfig();
   const asset = stacItem.assets[clientConfig.format];
   if (!asset) {
-    throw new Error(`STAC item asset ${clientConfig.format} not found`);
+    throw new Error(`Asset ${clientConfig.format} not found`);
   }
-  return asset.href;
+  return loadDataCached(asset.href);
 }

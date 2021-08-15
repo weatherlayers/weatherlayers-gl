@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { Animation } from '../../utils/animation';
-import { getStacCollectionDatetimes } from '../../utils/stac';
+import { getStacCollectionDatetimes, loadStacItemByDatetime, getStacItemData } from '../../utils/stac';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
@@ -95,8 +95,7 @@ export class TimelineControl {
       // preload images
       await Promise.all(this.datetimes.map(async datetime => {
         const stacItem = await loadStacItemByDatetime(this.config.stacCollection, datetime);
-        const stacItemAssetUrl = getStacItemAssetUrl(stacItem, STAC_ASSET_ID);
-        await loadDataCached(stacItemAssetUrl);
+        await getStacItemData(stacItem);
       }));
 
       this.animation.start();
