@@ -130,7 +130,7 @@
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
         width: 250,
-        onUpdate: async event => {
+        onUpdate: event => {
           config.datetime = event.datetime || NO_DATA;
           config.datetime2 = event.datetime2 || NO_DATA;
           config.datetimeWeight = event.datetimeWeight;
