@@ -23,16 +23,12 @@ export class RasterLayer extends CompositeLayer {
     const rasterOpacity = Math.pow(opacity, 1 / 2.2);
 
     return [
-      new RasterBitmapLayer(this.getSubLayerProps({
-        ...this.props,
-        id: 'bitmap',
-        // pass textures manually, because they are getters
-        image: this.props.image,
-        image2: this.props.image2,
+      new RasterBitmapLayer(this.props, {
+        id: 'raster-bitmap',
         // apply opacity in RasterBitmapLayer
         opacity: 1,
         rasterOpacity,
-      })),
+      }),
     ];
   }
 
