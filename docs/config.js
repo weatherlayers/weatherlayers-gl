@@ -87,8 +87,6 @@ async function updateDataset(config) {
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {
-  const { stacCatalog } = config;
-
   const gui = new dat.GUI();
   gui.width = 300;
 
