@@ -24,7 +24,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { initConfig, initGui } from './config.js';
+    import { NO_DATA, initConfig, initGui } from './config.js';
     import { InfoControl } from './info-control.js';
     import { FpsControl } from './fps-control.js';
 
@@ -88,11 +88,9 @@
       const timelineControl = new WeatherLayers.TimelineControl({
         width: 250,
         onUpdate: async event => {
-          config.datetime = event.datetime;
-          config.datetime2 = event.datetime2;
+          config.datetime = event.datetime || NO_DATA;
+          config.datetime2 = event.datetime2 || NO_DATA;
           config.datetimeWeight = event.datetimeWeight;
-          config.stacItem = config.datetime && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
-          config.stacItem2 = config.datetime2 && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
           gui.updateDisplay();
           update();
         },
@@ -115,8 +113,10 @@
 
       // config
       async function update() {
-        const dataImage = config.stacItem && await WeatherLayers.loadStacItemData(config.stacItem);
-        const dataImage2 = config.stacItem2 && await WeatherLayers.loadStacItemData(config.stacItem2);
+        const stacItem = config.datetime !== NO_DATA && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
+        const stacItem2 = config.datetime2 !== NO_DATA && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
+        const dataImage = stacItem && await WeatherLayers.loadStacItemData(stacItem);
+        const dataImage2 = stacItem2 && await WeatherLayers.loadStacItemData(stacItem2);
 
         // preload textures
         const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;

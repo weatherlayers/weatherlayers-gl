@@ -9,8 +9,6 @@ export async function initConfig() {
   const config = {
     stacCatalog,
     stacCollection: null,
-    stacItem: null,
-    stacItem2: null,
     datasets: WeatherLayers.getStacCatalogCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
@@ -68,8 +66,6 @@ async function updateDataset(config) {
     config.datetimes = [];
     config.datetime = NO_DATA;
     config.datetime2 = NO_DATA;
-    config.stacItem = null;
-    config.stacItem2 = null;
     config.raster.enabled = false;
     config.particle.enabled = false;
     return;
@@ -79,8 +75,6 @@ async function updateDataset(config) {
   config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(config.stacCollection);
   config.datetime = WeatherLayers.getClosestDatetime(config.datetimes, config.datetime) || NO_DATA;
   config.datetime2 = NO_DATA;
-  config.stacItem = config.datetime && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
-  config.stacItem2 = null;
 
   config.raster.enabled = !!config.stacCollection.summaries.raster;
 
@@ -90,24 +84,6 @@ async function updateDataset(config) {
     config.particle.speedFactor = config.stacCollection.summaries.particle.speedFactor;
     config.particle.width = config.stacCollection.summaries.particle.width;
   }
-}
-
-async function updateDatetime(config) {
-  if (config.datetime === NO_DATA) {
-    config.stacItem = null;
-    return;
-  }
-
-  config.stacItem = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
-}
-
-async function updateDatetime2(config) {
-  if (config.datetime2 === NO_DATA) {
-    config.stacItem2 = null;
-    return;
-  }
-
-  config.stacItem2 = await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {
@@ -124,15 +100,9 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     update();
   });
 
-  gui.add(config, 'datetime', []).onChange(async () => {
-    await updateDatetime(config);
-    update();
-  });
+  gui.add(config, 'datetime', []).onChange(update);
   updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-  gui.add(config, 'datetime2', []).onChange(async () => {
-    await updateDatetime2(config);
-    update();
-  });
+  gui.add(config, 'datetime2', []).onChange(update);
   updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
   gui.add(config, 'datetimeWeight', 0, 1, 0.01).onChange(update);
 
