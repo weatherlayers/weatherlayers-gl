@@ -120,6 +120,25 @@ export async function loadStacCollection(stacCatalog, stacCollectionId) {
 
 /**
  * @param {StacCollection} stacCollection
+ * @returns {string}
+ */
+export function getStacCollectionAttribution(stacCollection) {
+  const stacProvider = stacCollection.providers.find(x => x.roles.includes('producer'));
+  const attribution = stacProvider ? `<a href="${stacProvider.url}">${stacProvider.name}</a>` : '';
+  return attribution;
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {string[]}
+ */
+export function getStacCollectionItemDatetimes(stacCollection) {
+  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
+  return datetimes;
+}
+
+/**
+ * @param {StacCollection} stacCollection
  * @param {string} datetime
  * @returns {Promise<StacItem>}
  */
@@ -129,25 +148,6 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
     throw new Error(`Item ${datetime} not found`);
   }
   return loadJsonCached(link.href);
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {string[]}
- */
-export function getStacCollectionDatetimes(stacCollection) {
-  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
-  return datetimes;
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {string}
- */
-export function getStacCollectionAttribution(stacCollection) {
-  const stacProvider = stacCollection.providers.find(x => x.roles.includes('producer'));
-  const attribution = stacProvider ? `<a href="${stacProvider.url}">${stacProvider.name}</a>` : '';
-  return attribution;
 }
 
 /**

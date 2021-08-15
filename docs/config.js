@@ -76,7 +76,7 @@ async function updateDataset(config) {
   }
 
   config.stacCollection = await WeatherLayers.loadStacCollection(config.stacCatalog, config.dataset);
-  config.datetimes = WeatherLayers.getStacCollectionDatetimes(config.stacCollection);
+  config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(config.stacCollection);
   config.datetime = WeatherLayers.getClosestDatetime(config.datetimes, config.datetime) || NO_DATA;
   config.datetime2 = NO_DATA;
   config.stacItem = config.datetime && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);

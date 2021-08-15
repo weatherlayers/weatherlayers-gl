@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { Animation } from '../../utils/animation';
-import { getStacCollectionDatetimes, loadStacItemByDatetime, loadStacItemData } from '../../utils/client';
+import { getStacCollectionItemDatetimes, loadStacItemByDatetime, loadStacItemData } from '../../utils/client';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
@@ -122,7 +122,7 @@ export class TimelineControl {
       return;
     }
 
-    this.datetimes = getStacCollectionDatetimes(this.config.stacCollection);
+    this.datetimes = getStacCollectionItemDatetimes(this.config.stacCollection);
     if (this.datetimes.length < 2) {
       return;
     }
