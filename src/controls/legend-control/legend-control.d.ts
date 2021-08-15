@@ -11,6 +11,4 @@ export interface LegendConfig {
   width: number;
   ticksCount: number;
   stacCollection: StacCollection;
-  colormapBounds: [number, number];
-  colormapUrl: string;
 }

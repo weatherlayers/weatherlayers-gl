@@ -70,13 +70,15 @@ export class ParticleLayer extends LineLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
+    const {numParticles, maxAge, color, width} = props;
+
     super.updateState({props, oldProps, changeFlags});
 
     if (
-      props.numParticles !== oldProps.numParticles ||
-      props.maxAge !== oldProps.maxAge ||
-      props.color !== oldProps.color ||
-      props.width !== oldProps.width
+      numParticles !== oldProps.numParticles ||
+      maxAge !== oldProps.maxAge ||
+      color !== oldProps.color ||
+      width !== oldProps.width
     ) {
       this._setupTransformFeedback();
     }

@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
+import { linearColormap, colorRampUrl } from '../../utils/colormap';
 import { formatValue, formatUnit } from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
@@ -53,15 +54,23 @@ export class LegendControl {
     if (!this.container) {
       return;
     }
+    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
+      return;
+    }
 
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!this.config.stacCollection || !this.config.colormapUrl) {
+    if (!this.config.stacCollection) {
       return;
     }
 
     const paddingY = 15;
+    const unit = this.config.stacCollection.summaries.unit[0];
+    const colormapBreaks = this.config.stacCollection.summaries.raster.colormapBreaks;
+    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
+    const colormapFunction = linearColormap(colormapBreaks);
+    const colormapUrl = colorRampUrl(colormapFunction, colormapBounds);
 
     this.container.style.width = `${this.config.width}px`;
 
@@ -76,7 +85,7 @@ export class LegendControl {
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = `${this.config.stacCollection.title} [${formatUnit(this.config.stacCollection.summaries.unit[0].name)}]`;
+    title.innerHTML = `${this.config.stacCollection.title} [${formatUnit(unit.name)}]`;
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);
@@ -86,7 +95,7 @@ export class LegendControl {
     svg.appendChild(scale);
 
     const image = document.createElementNS(xmlns, 'image');
-    image.setAttribute('href', this.config.colormapUrl);
+    image.setAttribute('href', colormapUrl);
     image.setAttribute('width', `${this.config.width - 2 * paddingY}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
@@ -96,14 +105,13 @@ export class LegendControl {
     ticks.style.textAnchor = 'middle';
     scale.appendChild(ticks);
 
-    const bounds = this.config.colormapBounds;
-    const delta = (bounds[1] - bounds[0]) / (this.config.ticksCount - 1);
+    const delta = (colormapBounds[1] - colormapBounds[0]) / (this.config.ticksCount - 1);
     for (let i = 0; i < this.config.ticksCount; i++) {
-      const value = bounds[0] + i * delta;
-      const formattedValue = formatValue(value, { ...this.config.stacCollection.summaries.unit[0], name: undefined });
+      const value = colormapBounds[0] + i * delta;
+      const formattedValue = formatValue(value, unit);
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - bounds[0]) / (bounds[1] - bounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
+      tick.style.transform = `translate(${(value - colormapBounds[0]) / (colormapBounds[1] - colormapBounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

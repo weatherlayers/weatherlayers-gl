@@ -6,7 +6,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {BitmapLayer} from '@deck.gl/layers';
+import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
+import {linearColormap, colorRampImage} from '../../utils/colormap';
 
 const defaultProps = {
   ...BitmapLayer.defaultProps,
@@ -15,8 +17,7 @@ const defaultProps = {
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null},
   imageType: {type: 'number', value: 0},
-  colormapImage: {type: 'image', value: null, async: true},
-  colormapBounds: {type: 'array', value: null},
+  colormapBreaks: {type: 'array', value: null},
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
@@ -121,14 +122,30 @@ export class RasterBitmapLayer extends BitmapLayer {
     };
   }
 
+  updateState({props, oldProps, changeFlags}) {
+    const {gl} = this.context;
+    const {colormapBreaks} = props;
+
+    super.updateState({props, oldProps, changeFlags});
+
+    if (colormapBreaks !== oldProps.colormapBreaks) {
+      const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
+      const colormapFunction = linearColormap(colormapBreaks);
+      const colormapImage = new Texture2D(gl, colorRampImage(colormapFunction, colormapBounds));
+
+      this.setState({
+        colormapImage,
+        colormapBounds,
+      });
+    }
+  }
+
   draw(opts) {
     const {model} = this.state;
-    const {image, image2, imageWeight, imageType, imageBounds, colormapImage, colormapBounds, rasterOpacity} = this.props;
+    const {image, image2, imageWeight, imageType, imageBounds, rasterOpacity} = this.props;
+    const {colormapImage, colormapBounds} = this.state;
 
-    if (!image) {
-      return;
-    }
-    if (!colormapImage) {
+    if (!image || !colormapImage) {
       return;
     }
 

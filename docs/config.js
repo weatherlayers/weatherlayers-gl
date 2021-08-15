@@ -25,7 +25,6 @@ export async function initConfig() {
       enabled: false,
       opacity: 0.2,
       colormap: DEFAULT_COLORMAP,
-      colormapBreaks: null,
     },
     particle: {
       enabled: false,
@@ -86,9 +85,6 @@ async function updateDataset(config) {
   config.stacItem2 = null;
 
   config.raster.enabled = !!config.stacCollection.summaries.raster;
-  if (config.stacCollection.summaries.raster) {
-    config.raster.colormapBreaks = config.stacCollection.summaries.raster.colormapBreaks;
-  }
 
   config.particle.enabled = !!config.stacCollection.summaries.particle;
   if (config.stacCollection.summaries.particle) {

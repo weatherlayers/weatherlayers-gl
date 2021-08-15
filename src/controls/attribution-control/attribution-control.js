@@ -53,15 +53,20 @@ export class AttributionControl {
     if (!this.container) {
       return;
     }
+    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
+      return;
+    }
 
     this.config = config;
     this.container.innerHTML = '';
 
-    const html = config.stacCollection ? `Data by ${getStacCollectionAttribution(config.stacCollection)}` : config.attribution;
-    if (!html) {
+    if (!this.config.stacCollection) {
+      if (this.config.attribution) {
+        this.container.innerHTML = `<div>${this.config.attribution}</div>`;
+      }
       return;
     }
 
-    this.container.innerHTML = `<div>${html}</div>`;
+    this.container.innerHTML = `<div>Data by ${getStacCollectionAttribution(this.config.stacCollection)}</div>`;
   }
 }

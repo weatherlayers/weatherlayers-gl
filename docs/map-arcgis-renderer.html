@@ -165,11 +165,7 @@
         const [dataImage, dataImage2] = await Promise.all([stacItemAssetUrl, stacItemAssetUrl2].map(x => x && WeatherLayers.loadDataCached(x)));
         const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;
         const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
-        const colormapBounds = config.raster.colormapBreaks ? [config.raster.colormapBreaks[0][0], config.raster.colormapBreaks[config.raster.colormapBreaks.length - 1][0]] : imageBounds;
-        // TODO: memoize
-        const colormapFunction = WeatherLayers.linearColormap(config.raster.colormapBreaks);
-        const colormapImage = WeatherLayers.colorRampImage(colormapFunction, colormapBounds);
-        const colormapUrl = WeatherLayers.colorRampUrl(colormapFunction, colormapBounds);
+        const colormapBreaks = config.stacCollection ? config.stacCollection.summaries.raster.colormapBreaks : undefined;
 
         deckRenderer.deck.set({
           layers: [
@@ -181,8 +177,7 @@
               imageWeight: config.datetimeWeight,
               imageType: imageType,
               imageBounds: imageBounds,
-              colormapImage: colormapImage,
-              colormapBounds: colormapBounds,
+              colormapBreaks: colormapBreaks,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -214,7 +209,7 @@
           _animate: config.particle.enabled && config.particle.animate,
         });
 
-        legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection, colormapBounds, colormapUrl });
+        legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection });
         timelineControl.update({ ...timelineControl.config, stacCollection: config.stacCollection });
         tooltipControl.update({ ...tooltipControl.config, stacCollection: config.stacCollection });
         attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
