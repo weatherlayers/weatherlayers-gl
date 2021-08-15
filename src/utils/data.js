@@ -9,20 +9,6 @@ import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 
 /**
- * @param {string} url
- * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
- */
-export function loadData(url) {
-  if (url.includes('.png')) {
-    return loadPng(url);
-  } else if (url.includes('.tif')) {
-    return loadGeotiff(url);
-  } else {
-    throw new Error('Unsupported data format');
-  }
-}
-
-/**
  * @param {Float32Array | Uint8Array} data
  * @param {number} [nodata]
  * @returns {Float32Array | Uint8Array}
@@ -104,4 +90,18 @@ async function loadGeotiff(url) {
 
   const texture = { width, height, data, format };
   return texture;
+}
+
+/**
+ * @param {string} url
+ * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ */
+export function loadData(url) {
+  if (url.includes('.png')) {
+    return loadPng(url);
+  } else if (url.includes('.tif')) {
+    return loadGeotiff(url);
+  } else {
+    throw new Error('Unsupported data format');
+  }
 }
