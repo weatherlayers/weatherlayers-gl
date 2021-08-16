@@ -113,10 +113,9 @@
 
       // config
       async function update() {
-        const stacItem = config.datetime !== NO_DATA && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime);
-        const stacItem2 = config.datetime2 !== NO_DATA && await WeatherLayers.loadStacItemByDatetime(config.stacCollection, config.datetime2);
-        const dataImage = stacItem && await WeatherLayers.loadStacItemData(stacItem);
-        const dataImage2 = stacItem2 && await WeatherLayers.loadStacItemData(stacItem2);
+        const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+        const datetime2 = config.datetime2 !== NO_DATA ? config.datetime2 : undefined;
 
         deckgl.setProps({
           layers: [
@@ -138,10 +137,10 @@
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
-              stacCollection: config.stacCollection,
-              image: dataImage,
-              image2: dataImage2,
-              imageWeight: config.datetimeWeight,
+              dataset,
+              datetime,
+              datetime2,
+              datetimeWeight: config.datetimeWeight,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -152,10 +151,10 @@
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
-              stacCollection: config.stacCollection,
-              image: dataImage,
-              image2: dataImage2,
-              imageWeight: config.datetimeWeight,
+              dataset,
+              datetime,
+              datetime2,
+              datetimeWeight: config.datetimeWeight,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
@@ -169,10 +168,10 @@
           _animate: config.particle.enabled && config.particle.animate,
         });
 
-        legendControl.update({ ...legendControl.config, stacCollection: config.stacCollection });
-        timelineControl.update({ ...timelineControl.config, stacCollection: config.stacCollection });
-        tooltipControl.update({ ...tooltipControl.config, stacCollection: config.stacCollection });
-        attributionControl.update({ stacCollection: (config.raster.enabled || config.particle.enabled) && config.stacCollection });
+        legendControl.update({ ...legendControl.config, dataset });
+        timelineControl.update({ ...timelineControl.config, dataset });
+        tooltipControl.update({ ...tooltipControl.config, dataset });
+        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && config.dataset });
       }
       update();
       gui = initGui(config, update, { deckgl: particleDeckgl });

@@ -6,15 +6,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './attribution-control.css';
-import { getStacCollectionAttribution } from '../../utils/client';
+import { loadStacCollection, getStacCollectionProducer } from '../../utils/client';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
+/** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class AttributionControl {
   /** @type {AttributionConfig} */
   config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
+  /** @type {StacCollection} */
+  stacCollection = undefined;
 
   /**
    * @param {AttributionConfig} [config]
@@ -47,26 +50,33 @@ export class AttributionControl {
 
   /**
    * @param {AttributionConfig} config
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  update(config) {
+  async update(config) {
     if (!this.container) {
       return;
     }
-    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
+    if (this.stacCollection && this.config.dataset === config.dataset) {
       return;
     }
 
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!this.config.stacCollection) {
+    if (!this.config.dataset) {
       if (this.config.attribution) {
         this.container.innerHTML = `<div>${this.config.attribution}</div>`;
       }
       return;
     }
 
-    this.container.innerHTML = `<div>Data by ${getStacCollectionAttribution(this.config.stacCollection)}</div>`;
+    this.stacCollection = await loadStacCollection(this.config.dataset);
+
+    const producer = getStacCollectionProducer(this.stacCollection);
+    if (!producer) {
+      return;
+    }
+
+    this.container.innerHTML = `<div>Data by <a href="${producer.url}">${producer.name}</a></div>`;
   }
 }

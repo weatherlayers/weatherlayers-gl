@@ -6,16 +6,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
+import { loadStacCollection } from '../../utils/client';
 import { linearColormap, colorRampUrl } from '../../utils/colormap';
 import { formatValue, formatUnit } from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
+/** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class LegendControl {
   /** @type {LegendConfig} */
   config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
+  /** @type {StacCollection} */
+  stacCollection = undefined;
 
   /**
    * @param {LegendConfig} config
@@ -48,26 +52,28 @@ export class LegendControl {
 
   /**
    * @param {LegendConfig} config
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  update(config) {
+  async update(config) {
     if (!this.container) {
       return;
     }
-    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
+    if (this.stacCollection && this.config.dataset === config.dataset) {
       return;
     }
 
     this.config = config;
     this.container.innerHTML = '';
 
-    if (!this.config.stacCollection) {
+    if (!this.config.dataset) {
       return;
     }
 
+    this.stacCollection = await loadStacCollection(this.config.dataset);
+
     const paddingY = 15;
-    const unit = this.config.stacCollection.summaries.unit[0];
-    const colormapBreaks = this.config.stacCollection.summaries.raster.colormapBreaks;
+    const unit = this.stacCollection.summaries.unit[0];
+    const colormapBreaks = this.stacCollection.summaries.raster.colormapBreaks;
     const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
     const colormapFunction = linearColormap(colormapBreaks);
     const colormapUrl = colorRampUrl(colormapFunction, colormapBounds);
@@ -85,7 +91,7 @@ export class LegendControl {
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = `${this.config.stacCollection.title} [${formatUnit(unit.name)}]`;
+    title.innerHTML = `${this.stacCollection.title} [${formatUnit(unit.name)}]`;
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);

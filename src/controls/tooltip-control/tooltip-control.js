@@ -6,15 +6,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './tooltip-control.css';
+import { loadStacCollection } from '../../utils/client';
 import { formatValue, formatUnit, formatDirection } from '../../utils/value';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
+/** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class TooltipControl {
   /** @type {TooltipConfig} */
   config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
+  /** @type {StacCollection} */
+  stacCollection = undefined;
 
   /**
    * @param {TooltipConfig} config
@@ -53,10 +57,24 @@ export class TooltipControl {
 
   /**
    * @param {TooltipConfig} config
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  update(config) {
+  async update(config) {
+    if (!this.container) {
+      return;
+    }
+    if (this.stacCollection && this.config.dataset === config.dataset) {
+      return;
+    }
+    
     this.config = config;
+    this.container.innerHTML = '';
+    
+    if (!this.config.dataset) {
+      return;
+    }
+
+    this.stacCollection = await loadStacCollection(this.config.dataset);
   }
 
   /**
@@ -64,17 +82,13 @@ export class TooltipControl {
    * @returns {void}
    */
   onHover(event) {
-    if (!this.container) {
-      return;
-    }
-
     this.container.innerHTML = '';
 
     const div = document.createElement('div');
     this.container.appendChild(div);
     
     if (typeof event.raster !== 'undefined') {
-      div.innerHTML = `${formatValue(event.raster.value, this.config.stacCollection.summaries.unit[0])} ${formatUnit(this.config.stacCollection.summaries.unit[0].name)}`;
+      div.innerHTML = `${formatValue(event.raster.value, this.stacCollection.summaries.unit[0])} ${formatUnit(this.stacCollection.summaries.unit[0].name)}`;
       
       if (typeof event.raster.direction !== 'undefined') {
         div.innerHTML += `, ${formatDirection(event.raster.direction)}`

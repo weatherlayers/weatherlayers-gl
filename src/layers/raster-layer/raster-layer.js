@@ -6,20 +6,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer} from '@deck.gl/layers';
-import {ImageType} from './image-type';
+import {Texture2D} from '@luma.gl/core';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
+import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
 
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
 
-  stacCollection: { type: 'object', value: null, required: true },
+  dataset: { type: 'object', value: null, required: true },
+  datetime: { type: 'object', value: null, required: true },
+  datetime2: { type: 'object', value: null },
+  datetimeWeight: { type: 'number', value: 0 },
 };
 
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
-    const {stacCollection, opacity} = this.props;
+    const {opacity} = this.props;
+    const {stacCollection, image, image2, imageWeight} = this.state;
 
-    if (!stacCollection) {
+    if (!stacCollection || !stacCollection.summaries.raster || !image) {
       return [];
     }
 
@@ -27,51 +32,62 @@ export class RasterLayer extends CompositeLayer {
     const rasterOpacity = Math.pow(opacity, 1 / 2.2);
 
     return [
-      new RasterBitmapLayer(this.props, {
-        id: 'raster-bitmap',
+      new RasterBitmapLayer(this.props, this.getSubLayerProps({
+        id: 'bitmap',
+        image,
+        image2,
+        imageWeight,
         imageType: stacCollection.summaries.raster.imageType,
         imageBounds: stacCollection.summaries.raster.imageBounds,
         colormapBreaks: stacCollection.summaries.raster.colormapBreaks,
         // apply opacity in RasterBitmapLayer
         opacity: 1,
         rasterOpacity,
-      }),
+      })),
     ];
   }
 
-  isRasterVector() {
-    const {stacCollection} = this.props;
-    const imageType = stacCollection.summaries.raster.imageType;
-    return imageType === ImageType.VECTOR;
-  }
+  updateState({props, oldProps, changeFlags}) {
+    const {gl} = this.context;
+    const {dataset, datetime, datetime2, datetimeWeight} = this.props;
 
-  getRasterValue(color) {
-    const {stacCollection} = this.props;
-    const colormapBreaks = stacCollection.summaries.raster.colormapBreaks;
-    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-    return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
-  }
+    super.updateState({props, oldProps, changeFlags});
 
-  getRasterDirection(color) {
-    if (this.isRasterVector()) {
-      return (color[1] / 255 - 0.5) * 2 * Math.PI;
+    if (
+      dataset !== oldProps.dataset ||
+      datetime !== oldProps.datetime ||
+      datetime2 !== oldProps.datetime2
+    ) {
+      if (!dataset || !datetime) {
+        this.setState({
+          stacCollection: undefined,
+          image: undefined,
+          image2: undefined,
+          imageWeight: undefined,
+        });
+        return;
+      }
+
+      Promise.all([
+        loadStacCollection(dataset),
+        loadStacCollectionDataByDatetime(dataset, datetime),
+        datetime2 && loadStacCollectionDataByDatetime(dataset, datetime2),
+      ]).then(([stacCollection, image, image2]) => {
+        image = new Texture2D(gl, { data: image });
+        image2 = image2 && new Texture2D(gl, { data: image2 });
+
+        this.setState({
+          stacCollection,
+          image,
+          image2,
+          imageWeight: datetimeWeight,
+        });
+      });
+    } else {
+      this.setState({
+        imageWeight: datetimeWeight,
+      });
     }
-  }
-
-  getPickingInfo({info}) {
-    if (!info.color) {
-      return info;
-    }
-
-    const value = this.getRasterValue(info.color);
-    const direction = this.getRasterDirection(info.color);
-
-    info.raster = {
-      value,
-      direction,
-    };
-
-    return info;
   }
 }
 

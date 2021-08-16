@@ -7,8 +7,6 @@ export async function initConfig() {
   const stacCatalog = await WeatherLayers.loadStacCatalog();
 
   const config = {
-    stacCatalog,
-    stacCollection: null,
     datasets: WeatherLayers.getStacCatalogCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
@@ -62,7 +60,6 @@ function updateGuiDatetimeOptions(gui, object, property, datetimes) {
 
 async function updateDataset(config) {
   if (config.dataset === NO_DATA) {
-    config.stacCollection = null;
     config.datetimes = [];
     config.datetime = NO_DATA;
     config.datetime2 = NO_DATA;
@@ -71,18 +68,19 @@ async function updateDataset(config) {
     return;
   }
 
-  config.stacCollection = await WeatherLayers.loadStacCollection(config.stacCatalog, config.dataset);
-  config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(config.stacCollection);
+  const stacCollection = await WeatherLayers.loadStacCollection(config.dataset);
+
+  config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(stacCollection);
   config.datetime = WeatherLayers.getClosestDatetime(config.datetimes, config.datetime) || NO_DATA;
   config.datetime2 = NO_DATA;
 
-  config.raster.enabled = !!config.stacCollection.summaries.raster;
+  config.raster.enabled = !!stacCollection.summaries.raster;
 
-  config.particle.enabled = !!config.stacCollection.summaries.particle;
-  if (config.stacCollection.summaries.particle) {
-    config.particle.maxAge = config.stacCollection.summaries.particle.maxAge;
-    config.particle.speedFactor = config.stacCollection.summaries.particle.speedFactor;
-    config.particle.width = config.stacCollection.summaries.particle.width;
+  config.particle.enabled = !!stacCollection.summaries.particle;
+  if (stacCollection.summaries.particle) {
+    config.particle.maxAge = stacCollection.summaries.particle.maxAge;
+    config.particle.speedFactor = stacCollection.summaries.particle.speedFactor;
+    config.particle.width = stacCollection.summaries.particle.width;
   }
 }
 
@@ -125,8 +123,8 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
   particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
   particle.add(config.particle, 'animate').onChange(update);
-  particle.add({ step: () => deckgl.props.layers.find(x => x.id === 'particle-line')?.step() }, 'step');
-  particle.add({ clear: () => deckgl.props.layers.find(x => x.id === 'particle-line')?.clear() }, 'clear');
+  particle.add({ step: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step() }, 'step');
+  particle.add({ clear: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear() }, 'clear');
   particle.open();
 
   return gui;

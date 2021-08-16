@@ -10,10 +10,8 @@ import { loadData } from './data';
 /** @typedef {import('./client').ClientConfig} ClientConfig */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
-/** @typedef {import('./stac').StacCollectionRasterConfig} StacCollectionRasterConfig */
-/** @typedef {import('./stac').StacCollectionParticleConfig} StacCollectionParticleConfig */
+/** @typedef {import('./stac').StacProvider} StacProvider */
 /** @typedef {import('./stac').StacItem} StacItem */
-/** @typedef {import('./stac').StacAsset} StacAsset */
 
 /** @type {ClientConfig} */
 const DEFAULT_CLIENT_CONFIG = {
@@ -106,11 +104,11 @@ export function getStacCatalogCollectionIds(stacCatalog) {
 }
 
 /**
- * @param {StacCatalog} stacCatalog
  * @param {string} stacCollectionId
  * @returns {Promise<StacCollection>}
  */
-export async function loadStacCollection(stacCatalog, stacCollectionId) {
+export async function loadStacCollection(stacCollectionId) {
+  const stacCatalog = await loadStacCatalog();
   const link = stacCatalog.links.find(x => x.id === stacCollectionId);
   if (!link) {
     throw new Error(`Collection ${stacCollectionId} not found`);
@@ -120,12 +118,11 @@ export async function loadStacCollection(stacCatalog, stacCollectionId) {
 
 /**
  * @param {StacCollection} stacCollection
- * @returns {string}
+ * @returns {StacProvider | undefined}
  */
-export function getStacCollectionAttribution(stacCollection) {
-  const stacProvider = stacCollection.providers.find(x => x.roles.includes('producer'));
-  const attribution = stacProvider ? `<a href="${stacProvider.url}">${stacProvider.name}</a>` : '';
-  return attribution;
+export function getStacCollectionProducer(stacCollection) {
+  const producer = stacCollection.providers.find(x => x.roles.includes('producer'));
+  return producer;
 }
 
 /**
@@ -138,11 +135,12 @@ export function getStacCollectionItemDatetimes(stacCollection) {
 }
 
 /**
- * @param {StacCollection} stacCollection
+ * @param {string} dataset
  * @param {string} datetime
  * @returns {Promise<StacItem>}
  */
-export async function loadStacItemByDatetime(stacCollection, datetime) {
+export async function loadStacItemByDatetime(dataset, datetime) {
+  const stacCollection = await loadStacCollection(dataset);
   const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
   if (!link) {
     throw new Error(`Item ${datetime} not found`);
@@ -151,10 +149,12 @@ export async function loadStacItemByDatetime(stacCollection, datetime) {
 }
 
 /**
- * @param {StacItem} stacItem
+ * @param {string} dataset
+ * @param {string} datetime
  * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
  */
-export function loadStacItemData(stacItem) {
+export async function loadStacCollectionDataByDatetime(dataset, datetime) {
+  const stacItem = await loadStacItemByDatetime(dataset, datetime);
   const asset = stacItem.assets[clientConfig.format];
   if (!asset) {
     throw new Error(`Asset ${clientConfig.format} not found`);

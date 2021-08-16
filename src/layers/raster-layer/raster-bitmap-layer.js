@@ -8,12 +8,14 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
+import {ImageType} from './image-type';
 import {linearColormap, colorRampImage} from '../../utils/colormap';
 
 const defaultProps = {
   ...BitmapLayer.defaultProps,
 
-  image2: {type: 'image', value: null, async: true},
+  image: {type: 'image', value: null},
+  image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null},
   imageType: {type: 'number', value: 0},
@@ -39,7 +41,7 @@ export class RasterBitmapLayer extends BitmapLayer {
           uniform float imageType;
           uniform float imageUnscale;
           uniform vec2 imageBounds;
-          uniform sampler2D colormapImage;
+          uniform sampler2D colormapTexture;
           uniform vec2 colormapBounds;
           uniform float rasterOpacity;
 
@@ -110,7 +112,7 @@ export class RasterBitmapLayer extends BitmapLayer {
           }
 
           float colormapValue = raster_get_colormap_value(bitmapColor);
-          vec4 rasterColor = texture2D(colormapImage, vec2(colormapValue, 0.));
+          vec4 rasterColor = texture2D(colormapTexture, vec2(colormapValue, 0.));
           gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
 
           if (picking_uActive) {
@@ -131,10 +133,19 @@ export class RasterBitmapLayer extends BitmapLayer {
     if (colormapBreaks !== oldProps.colormapBreaks) {
       const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
       const colormapFunction = linearColormap(colormapBreaks);
-      const colormapImage = new Texture2D(gl, colorRampImage(colormapFunction, colormapBounds));
+      const colormapImage = colorRampImage(colormapFunction, colormapBounds);
+      const colormapTexture = new Texture2D(gl, {
+        data: colormapImage,
+        parameters: {
+          [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
+          [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
+          [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
+          [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+        },
+      });
 
       this.setState({
-        colormapImage,
+        colormapTexture,
         colormapBounds,
       });
     }
@@ -143,9 +154,9 @@ export class RasterBitmapLayer extends BitmapLayer {
   draw(opts) {
     const {model} = this.state;
     const {image, image2, imageWeight, imageType, imageBounds, rasterOpacity} = this.props;
-    const {colormapImage, colormapBounds} = this.state;
+    const {colormapTexture, colormapBounds} = this.state;
 
-    if (!image || !colormapImage) {
+    if (!image || !colormapTexture) {
       return;
     }
 
@@ -159,13 +170,42 @@ export class RasterBitmapLayer extends BitmapLayer {
         imageType,
         imageUnscale,
         imageBounds,
-        colormapImage,
+        colormapTexture,
         colormapBounds,
         rasterOpacity,
       });
 
       super.draw(opts);
     }
+  }
+
+  getRasterValue(color) {
+    const {colormapBreaks} = this.props;
+    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
+    return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
+  }
+
+  getRasterDirection(color) {
+    const {imageType} = this.props;
+    if (imageType === ImageType.VECTOR) {
+      return (color[1] / 255 - 0.5) * 2 * Math.PI;
+    }
+  }
+
+  getPickingInfo({info}) {
+    if (!info.color) {
+      return info;
+    }
+
+    const value = this.getRasterValue(info.color);
+    const direction = this.getRasterDirection(info.color);
+
+    info.raster = {
+      value,
+      direction,
+    };
+
+    return info;
   }
 }
 

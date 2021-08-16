@@ -22,8 +22,8 @@ const DEFAULT_COLOR = [255, 255, 255, 255];
 const defaultProps = {
   ...LineLayer.defaultProps,
 
-  image: {type: 'image', value: null, async: true},
-  image2: {type: 'image', value: null, async: true},
+  image: {type: 'image', value: null},
+  image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null},
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},

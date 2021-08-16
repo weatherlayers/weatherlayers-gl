@@ -6,16 +6,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { Animation } from '../../utils/animation';
-import { getStacCollectionItemDatetimes, loadStacItemByDatetime, loadStacItemData } from '../../utils/client';
+import { loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime } from '../../utils/client';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
+/** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class TimelineControl {
   /** @type {TimelineConfig} */
   config = undefined;
   /** @type {HTMLElement} */
   container = undefined;
+  /** @type {StacCollection} */
+  stacCollection = undefined;
   /** @type {string[]} */
   datetimes = undefined;
   /** @type {Animation} */
@@ -93,10 +96,7 @@ export class TimelineControl {
       playPauseButton.className = 'play';
     } else {
       // preload images
-      await Promise.all(this.datetimes.map(async datetime => {
-        const stacItem = await loadStacItemByDatetime(this.config.stacCollection, datetime);
-        await loadStacItemData(stacItem);
-      }));
+      await Promise.all(this.datetimes.map(x => loadStacCollectionDataByDatetime(this.config.dataset, x)));
 
       this.animation.start();
       playPauseButton.className = 'pause';
@@ -105,24 +105,25 @@ export class TimelineControl {
 
   /**
    * @param {TimelineConfig} config
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  update(config) {
+  async update(config) {
     if (!this.container) {
       return;
     }
-    if (this.container.children.length && this.config.stacCollection === config.stacCollection) {
+    if (this.stacCollection && this.config.dataset === config.dataset) {
       return;
     }
 
     this.config = config;
     this.container.innerHTML = '';
     
-    if (!this.config.stacCollection) {
+    if (!this.config.dataset) {
       return;
     }
 
-    this.datetimes = getStacCollectionItemDatetimes(this.config.stacCollection);
+    this.stacCollection = await loadStacCollection(this.config.dataset);
+    this.datetimes = getStacCollectionItemDatetimes(this.stacCollection);
     if (this.datetimes.length < 2) {
       return;
     }
