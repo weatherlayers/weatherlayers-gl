@@ -7,7 +7,8 @@
  */
 import {CompositeLayer} from '@deck.gl/layers';
 import {ContourPathLayer} from './contour-path-layer';
-import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClosestStartDatetime} from '../../utils/datetime';
 
 const defaultProps = {
   ...ContourPathLayer.defaultProps,
@@ -34,39 +35,48 @@ export class ContourLayer extends CompositeLayer {
     ];
   }
 
-  updateState({props, oldProps, changeFlags}) {
+  async updateState({props, oldProps, changeFlags}) {
     const {dataset, datetime} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (
-      dataset !== oldProps.dataset ||
-      datetime !== oldProps.datetime
-    ) {
-      if (!dataset || !datetime) {
-        this.setState({
-          props: undefined,
-          stacCollection: undefined,
-          image: undefined,
-        });
+    if (!dataset || !datetime) {
+      this.setState({
+        props: undefined,
+        stacCollection: undefined,
+        datetimes: undefined,
+        image: undefined,
+      });
+      return;
+    }
+
+    if (!this.state.stacCollection || dataset !== oldProps.dataset) {
+      this.state.stacCollection = await loadStacCollection(dataset);
+      this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
+    }
+
+    if (dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
+      const startDatetime = getClosestStartDatetime(this.state.datetimes, datetime);
+      if (!startDatetime) {
         return;
       }
 
-      Promise.all([
-        loadStacCollection(dataset),
-        loadStacCollectionDataByDatetime(dataset, datetime),
-      ]).then(([stacCollection, image]) => {
+      if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime) {
+        const image = await loadStacCollectionDataByDatetime(dataset, startDatetime);
+
         this.setState({
-          props: this.props,
-          stacCollection,
           image,
         });
-      });
-    } else {
+      }
+
       this.setState({
-        props: this.props,
+        startDatetime,
       });
     }
+
+    this.setState({
+      props: this.props,
+    });
   }
 }
 

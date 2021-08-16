@@ -8,15 +8,14 @@
 import {CompositeLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
-import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
 
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
-  datetime2: {type: 'object', value: null},
-  datetimeWeight: {type: 'number', value: 0},
 };
 
 export class RasterLayer extends CompositeLayer {
@@ -43,56 +42,64 @@ export class RasterLayer extends CompositeLayer {
     ];
   }
 
-  updateState({props, oldProps, changeFlags}) {
+  async updateState({props, oldProps, changeFlags}) {
     const {gl} = this.context;
-    const {dataset, datetime, datetime2, datetimeWeight} = this.props;
+    const {dataset, datetime} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (
-      dataset !== oldProps.dataset ||
-      datetime !== oldProps.datetime ||
-      datetime2 !== oldProps.datetime2
-    ) {
-      if (!dataset || !datetime) {
-        this.setState({
-          props: undefined,
-          stacCollection: undefined,
-          image: undefined,
-          image2: undefined,
-          imageWeight: undefined,
-        });
+    if (!dataset || !datetime) {
+      this.setState({
+        props: undefined,
+        stacCollection: undefined,
+        datetimes: undefined,
+        image: undefined,
+        image2: undefined,
+        imageWeight: undefined,
+      });
+      return;
+    }
+
+    if (!this.state.stacCollection || dataset !== oldProps.dataset) {
+      this.state.stacCollection = await loadStacCollection(dataset);
+      this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
+    }
+
+    if (dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
+      const startDatetime = getClosestStartDatetime(this.state.datetimes, datetime);
+      const endDatetime = getClosestEndDatetime(this.state.datetimes, datetime);
+      if (!startDatetime) {
         return;
       }
 
-      Promise.all([
-        loadStacCollection(dataset),
-        loadStacCollectionDataByDatetime(dataset, datetime),
-        datetime2 && loadStacCollectionDataByDatetime(dataset, datetime2),
-      ]).then(([stacCollection, image, image2]) => {
+      const datetimeWeight = endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+
+      if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
+        let [image, image2] = await Promise.all([
+          loadStacCollectionDataByDatetime(dataset, startDatetime),
+          endDatetime && loadStacCollectionDataByDatetime(dataset, endDatetime),
+        ]);
+
         // create textures, to avoid a bug with async image props
         image = new Texture2D(gl, { data: image });
         image2 = image2 && new Texture2D(gl, { data: image2 });
-
+  
         this.setState({
-          props: this.props,
-          stacCollection,
           image,
           image2,
-          // sync imageWeight with images
-          imageWeight: datetimeWeight,
         });
-      });
-    } else if (datetimeWeight !== oldProps.datetimeWeight) {
+      }
+
       this.setState({
-        props: this.props,
+        startDatetime,
+        endDatetime,
         imageWeight: datetimeWeight,
       });
-    } else {
-      this.setState({
-        props: this.props,
-      });
     }
+    
+    this.setState({
+      props: this.props,
+    });
   }
 }
 

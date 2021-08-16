@@ -8,11 +8,10 @@
 export interface TimelineConfig {
   width: number;
   dataset: string;
+  datetime: string;
   onUpdate: (event: TimelineUpdateEvent) => void;
 }
 
 export interface TimelineUpdateEvent {
   datetime: string;
-  datetime2: string;
-  datetimeWeight: number;
 }

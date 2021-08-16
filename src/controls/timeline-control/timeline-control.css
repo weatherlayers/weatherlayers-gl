@@ -31,11 +31,23 @@
 .weatherlayers-timeline-control a.pause {
   background-image: inline('./pause.svg');
 }
-.weatherlayers-timeline-control a.loading {
-  cursor: wait;
-}
 .weatherlayers-timeline-control input {
   vertical-align: middle;
   margin-left: 10px;
   margin-right: 0;
+}
+.weatherlayers-timeline-control span {
+  display: block;
+  margin-left: 26px;
+  text-align: center;
+}
+
+.weatherlayers-timeline-control.loading * {
+  cursor: wait;
+}
+.weatherlayers-timeline-control.loading a {
+  opacity: 0.2;
+}
+.weatherlayers-timeline-control.loading span {
+  opacity: 0.5;
 }

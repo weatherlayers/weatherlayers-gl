@@ -11,8 +11,6 @@ export async function initConfig() {
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
-    datetime2: NO_DATA,
-    datetimeWeight: 0,
     rotate: false,
 
     raster: {
@@ -76,7 +74,6 @@ async function updateDataset(config) {
   if (config.dataset === NO_DATA) {
     config.datetimes = [];
     config.datetime = NO_DATA;
-    config.datetime2 = NO_DATA;
     config.raster.enabled = false;
     config.contour.enabled = false;
     config.hilo.enabled = false;
@@ -87,8 +84,7 @@ async function updateDataset(config) {
   const stacCollection = await WeatherLayers.loadStacCollection(config.dataset);
 
   config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(stacCollection);
-  config.datetime = WeatherLayers.getClosestDatetime(config.datetimes, config.datetime) || NO_DATA;
-  config.datetime2 = NO_DATA;
+  config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
 
   config.raster.enabled = !!stacCollection.summaries.raster;
 
@@ -117,16 +113,12 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   gui.add(config, 'dataset', [NO_DATA, ...config.datasets]).onChange(async () => {
     await updateDataset(config);
     updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-    updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
     gui.updateDisplay();
     update();
   });
 
   gui.add(config, 'datetime', []).onChange(update);
   updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-  gui.add(config, 'datetime2', []).onChange(update);
-  updateGuiDatetimeOptions(gui, config, 'datetime2', [NO_DATA, ...config.datetimes]);
-  gui.add(config, 'datetimeWeight', 0, 1, 0.01).onChange(update);
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);
