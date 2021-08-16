@@ -146,22 +146,15 @@
         const dataImage = stacItem && await WeatherLayers.loadStacItemData(stacItem);
         const dataImage2 = stacItem2 && await WeatherLayers.loadStacItemData(stacItem2);
 
-        // preload textures
-        const imageType = config.stacCollection ? config.stacCollection.summaries.raster.imageType : undefined;
-        const imageBounds = config.stacCollection ? [config.stacCollection.summaries.value.minimum, config.stacCollection.summaries.value.maximum] : undefined;
-        const colormapBreaks = config.stacCollection ? config.stacCollection.summaries.raster.colormapBreaks : undefined;
-
         deckLayer.deck.set({
           layers: [
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
+              stacCollection: config.stacCollection,
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageType: imageType,
-              imageBounds: imageBounds,
-              colormapBreaks: colormapBreaks,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -176,10 +169,10 @@
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
+              stacCollection: config.stacCollection,
               image: dataImage,
               image2: dataImage2,
               imageWeight: config.datetimeWeight,
-              imageBounds: imageBounds,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,

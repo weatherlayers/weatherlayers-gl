@@ -17,8 +17,8 @@ import { loadData } from './data';
 
 /** @type {ClientConfig} */
 const DEFAULT_CLIENT_CONFIG = {
-  url: 'https://api.weatherlayers.com/catalog',
-  // url: 'http://localhost:8080/catalog',
+  // url: 'https://api.weatherlayers.com/catalog',
+  url: 'http://localhost:8080/catalog',
   format: 'byte.png',
 };
 

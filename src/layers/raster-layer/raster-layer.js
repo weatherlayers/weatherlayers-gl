@@ -12,12 +12,16 @@ import {RasterBitmapLayer} from './raster-bitmap-layer';
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
 
-  rasterOpacity: undefined,
+  stacCollection: { type: 'object', value: null, required: true },
 };
 
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
-    const {opacity} = this.props;
+    const {stacCollection, opacity} = this.props;
+
+    if (!stacCollection) {
+      return [];
+    }
 
     // apply gamma to opacity to make it visually "linear"
     const rasterOpacity = Math.pow(opacity, 1 / 2.2);
@@ -25,6 +29,9 @@ export class RasterLayer extends CompositeLayer {
     return [
       new RasterBitmapLayer(this.props, {
         id: 'raster-bitmap',
+        imageType: stacCollection.summaries.raster.imageType,
+        imageBounds: stacCollection.summaries.raster.imageBounds,
+        colormapBreaks: stacCollection.summaries.raster.colormapBreaks,
         // apply opacity in RasterBitmapLayer
         opacity: 1,
         rasterOpacity,
@@ -33,14 +40,15 @@ export class RasterLayer extends CompositeLayer {
   }
 
   isRasterVector() {
-    return this.props.imageType === ImageType.VECTOR;
+    const {stacCollection} = this.props;
+    const imageType = stacCollection.summaries.raster.imageType;
+    return imageType === ImageType.VECTOR;
   }
 
   getRasterValue(color) {
-    const {colormapBreaks} = this.props;
-
+    const {stacCollection} = this.props;
+    const colormapBreaks = stacCollection.summaries.raster.colormapBreaks;
     const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-
     return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
   }
 

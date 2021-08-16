@@ -10,13 +10,22 @@ import {ParticleLineLayer} from './particle-line-layer';
 
 const defaultProps = {
   ...ParticleLineLayer.defaultProps,
+
+  stacCollection: { type: 'object', value: null, required: true },
 };
 
 export class ParticleLayer extends CompositeLayer {
   renderLayers() {
+    const {stacCollection} = this.props;
+
+    if (!stacCollection) {
+      return [];
+    }
+
     return [
       new ParticleLineLayer(this.props, {
         id: `${this.id}-line`,
+        imageBounds: stacCollection.summaries.particle.imageBounds,
       }),
     ];
   }

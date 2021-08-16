@@ -60,10 +60,12 @@ export enum StacCollectionRasterImageType {
 
 export interface StacCollectionRasterConfig {
   imageType: StacCollectionRasterImageType;
+  imageBounds: [number, number];
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
 export interface StacCollectionParticleConfig {
+  imageBounds: [number, number];
   maxAge: number;
   speedFactor: number;
   width: number;
@@ -84,7 +86,6 @@ export interface StacCollection {
     };
   };
   summaries: {
-    value: { minimum: number, maximum: number }; // custom
     unit: { name: string, offset?: number, scale?: number, decimals?: number }[]; // custom
     raster?: StacCollectionRasterConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
