@@ -67,6 +67,7 @@ export class ParticleLayer extends CompositeLayer {
         loadStacCollectionDataByDatetime(dataset, datetime),
         datetime2 && loadStacCollectionDataByDatetime(dataset, datetime2),
       ]).then(([stacCollection, image, image2]) => {
+        // create textures, to avoid a bug with async image props
         image = new Texture2D(gl, { data: image });
         image2 = image2 && new Texture2D(gl, { data: image2 });
 
@@ -74,10 +75,11 @@ export class ParticleLayer extends CompositeLayer {
           stacCollection,
           image,
           image2,
+          // sync imageWeight with images
           imageWeight: datetimeWeight,
         });
       });
-    } else {
+    } else if (datetimeWeight !== oldProps.datetimeWeight) {
       this.setState({
         imageWeight: datetimeWeight,
       });
