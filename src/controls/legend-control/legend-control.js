@@ -6,9 +6,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
-import { loadStacCollection } from '../../utils/client';
-import { linearColormap, colorRampUrl } from '../../utils/colormap';
-import { formatValue, formatUnit } from '../../utils/value';
+import {loadStacCollection} from '../../utils/client';
+import {linearColormap, colorRampUrl} from '../../utils/colormap';
+import {formatValue, formatUnit} from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */

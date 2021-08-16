@@ -13,10 +13,10 @@ import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
 
-  dataset: { type: 'object', value: null, required: true },
-  datetime: { type: 'object', value: null, required: true },
-  datetime2: { type: 'object', value: null },
-  datetimeWeight: { type: 'number', value: 0 },
+  dataset: {type: 'object', value: null, required: true},
+  datetime: {type: 'object', value: null, required: true},
+  datetime2: {type: 'object', value: null},
+  datetimeWeight: {type: 'number', value: 0},
 };
 
 export class RasterLayer extends CompositeLayer {

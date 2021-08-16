@@ -6,8 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './tooltip-control.css';
-import { loadStacCollection } from '../../utils/client';
-import { formatValue, formatUnit, formatDirection } from '../../utils/value';
+import {loadStacCollection} from '../../utils/client';
+import {formatValue, formatUnit, formatDirection} from '../../utils/value';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */

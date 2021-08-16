@@ -10,7 +10,7 @@ import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 
-import { distance } from './geodesy';
+import {distance} from './geodesy';
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
 
 const DEFAULT_TEXTURE_PARAMETERS = {

@@ -5,8 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { Animation } from '../../utils/animation';
-import { loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime } from '../../utils/client';
+import {Animation} from '../../utils/animation';
+import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
