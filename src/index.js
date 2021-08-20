@@ -7,7 +7,7 @@
  */
 export * from './layers/raster-layer/raster-layer';
 export * from './layers/particle-layer/particle-layer';
-export * from './layers/isoline-layer/isoline-layer';
+export * from './layers/contour-layer/contour-layer';
 
 export * from './controls/legend-control/legend-control';
 export * from './controls/tooltip-control/tooltip-control';

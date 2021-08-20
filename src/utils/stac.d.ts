@@ -50,7 +50,7 @@ export interface StacCollectionRasterConfig {
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
-export interface StacCollectionIsolineConfig {
+export interface StacCollectionContourConfig {
   step: number;
 }
 
@@ -84,7 +84,7 @@ export interface StacCollection {
     imageBounds: [number, number]; // custom
     unit: { name: string, offset?: number, scale?: number, decimals?: number }[]; // custom
     raster?: StacCollectionRasterConfig; // custom
-    isoline?: StacCollectionIsolineConfig; // custom
+    contour?: StacCollectionContourConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];

@@ -20,7 +20,7 @@ export async function initConfig() {
       opacity: 0.2,
       colormap: DEFAULT_COLORMAP,
     },
-    isoline: {
+    contour: {
       enabled: false,
       color: [255, 255, 255],
       width: 1,
@@ -71,7 +71,7 @@ async function updateDataset(config) {
     config.datetime = NO_DATA;
     config.datetime2 = NO_DATA;
     config.raster.enabled = false;
-    config.isoline.enabled = false;
+    config.contour.enabled = false;
     config.particle.enabled = false;
     return;
   }
@@ -84,7 +84,7 @@ async function updateDataset(config) {
 
   config.raster.enabled = !!stacCollection.summaries.raster;
 
-  config.isoline.enabled = !!stacCollection.summaries.isoline;
+  config.contour.enabled = !!stacCollection.summaries.contour;
 
   config.particle.enabled = !!stacCollection.summaries.particle;
   if (stacCollection.summaries.particle) {
@@ -124,13 +124,13 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
-  const isoline = gui.addFolder('Isoline layer');
-  isoline.add(config.isoline, 'enabled').onChange(update);
-  isoline.addColor(config.isoline, 'color').onChange(update);
-  isoline.add(config.isoline, 'width', 0.5, 10, 0.5).onChange(update);
-  isoline.add(config.isoline, 'opacity', 0, 1, 0.01).onChange(update);
-  isoline.add(config.isoline, 'hiloEnabled').onChange(update);
-  isoline.open();
+  const contour = gui.addFolder('Contour layer');
+  contour.add(config.contour, 'enabled').onChange(update);
+  contour.addColor(config.contour, 'color').onChange(update);
+  contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
+  contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
+  contour.add(config.contour, 'hiloEnabled').onChange(update);
+  contour.open();
 
   const particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'enabled').onChange(update);

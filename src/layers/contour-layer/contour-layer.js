@@ -54,7 +54,7 @@ function unscaleImageData(imageData, imageBounds) {
   return { width, height, data: unscaledData };
 }
 
-export class IsolineLayer extends CompositeLayer {
+export class ContourLayer extends CompositeLayer {
   renderLayers() {
     const {color, width, hiloEnabled} = this.props;
     const {contours, extremities} = this.state;
@@ -138,12 +138,12 @@ export class IsolineLayer extends CompositeLayer {
   updateContoursAndExtremities() {
     const {stacCollection, image} = this.state;
 
-    if (!stacCollection || !stacCollection.summaries.isoline || !image) {
+    if (!this.visible || !stacCollection || !stacCollection.summaries.contour || !image) {
       return;
     }
 
     const imageBounds = stacCollection.summaries.imageBounds;
-    const step = stacCollection.summaries.isoline.step;
+    const step = stacCollection.summaries.contour.step;
 
     let imageData;
     if (image instanceof ImageBitmap || image instanceof HTMLImageElement) {
@@ -162,5 +162,5 @@ export class IsolineLayer extends CompositeLayer {
   }
 }
 
-IsolineLayer.layerName = 'IsolineLayer';
-IsolineLayer.defaultProps = defaultProps;
+ContourLayer.layerName = 'ContourLayer';
+ContourLayer.defaultProps = defaultProps;
