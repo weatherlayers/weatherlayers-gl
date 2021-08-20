@@ -201,7 +201,7 @@
         legendControl.update({ ...legendControl.config, dataset });
         timelineControl.update({ ...timelineControl.config, dataset });
         tooltipControl.update({ ...tooltipControl.config, dataset });
-        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && config.dataset });
+        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
       gui = initGui(config, update, { deckgl: particleDeckgl });
