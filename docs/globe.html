@@ -162,7 +162,7 @@
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
-              visible: config.contour.enabled,
+              visible: config.contour.enabled && !timelineControl.animation.running,
               dataset,
               datetime,
               color: config.contour.color,

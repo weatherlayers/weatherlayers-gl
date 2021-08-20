@@ -101,6 +101,8 @@ export class TimelineControl {
       this.animation.start();
       playPauseButton.className = 'pause';
     }
+
+    this.updateProgress();
   }
 
   /**

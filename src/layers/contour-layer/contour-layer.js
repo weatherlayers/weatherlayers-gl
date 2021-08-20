@@ -56,10 +56,14 @@ function unscaleImageData(imageData, imageBounds) {
 
 export class ContourLayer extends CompositeLayer {
   renderLayers() {
-    const {color, width, hiloEnabled} = this.props;
-    const {contours, extremities} = this.state;
+    if (this.props.visible && (this.props.dataset !== this.state.dataset || this.props.datetime !== this.state.datetime)) {
+      this.updateContoursAndExtremities();
+    }
 
-    if (!contours || !extremities) {
+    const {color, width, hiloEnabled} = this.props;
+    const {stacCollection, contours, extremities} = this.state;
+
+    if (!stacCollection || !stacCollection.summaries.contour || !contours || !extremities) {
       return [];
     }
 
@@ -129,16 +133,15 @@ export class ContourLayer extends CompositeLayer {
           stacCollection,
           image,
         });
-
-        this.updateContoursAndExtremities();
       });
     }
   }
 
   updateContoursAndExtremities() {
+    const {dataset, datetime} = this.props;
     const {stacCollection, image} = this.state;
 
-    if (!this.visible || !stacCollection || !stacCollection.summaries.contour || !image) {
+    if (!stacCollection || !stacCollection.summaries.contour || !image) {
       return;
     }
 
@@ -156,6 +159,8 @@ export class ContourLayer extends CompositeLayer {
     const {contours, extremities} = getContoursAndExtremities(imageData, true, step);
 
     this.setState({
+      dataset,
+      datetime,
       contours,
       extremities,
     });
