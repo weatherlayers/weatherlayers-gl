@@ -5,9 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-export * from './layers/raster-layer/image-type';
 export * from './layers/raster-layer/raster-layer';
 export * from './layers/particle-layer/particle-layer';
+export * from './layers/isoline-layer/isoline-layer';
 
 export * from './controls/legend-control/legend-control';
 export * from './controls/tooltip-control/tooltip-control';

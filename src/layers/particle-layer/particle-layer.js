@@ -34,7 +34,7 @@ export class ParticleLayer extends CompositeLayer {
         image,
         image2,
         imageWeight,
-        imageBounds: stacCollection.summaries.particle.imageBounds,
+        imageBounds: stacCollection.summaries.imageBounds,
         maxAge: maxAge || stacCollection.summaries.particle.maxAge,
         speedFactor: speedFactor || stacCollection.summaries.particle.speedFactor,
         width: width || stacCollection.summaries.particle.width,

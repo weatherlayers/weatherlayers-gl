@@ -37,8 +37,8 @@ export class RasterLayer extends CompositeLayer {
         image,
         image2,
         imageWeight,
-        imageType: stacCollection.summaries.raster.imageType,
-        imageBounds: stacCollection.summaries.raster.imageBounds,
+        imageType: stacCollection.summaries.imageType,
+        imageBounds: stacCollection.summaries.imageBounds,
         colormapBreaks: stacCollection.summaries.raster.colormapBreaks,
         // apply opacity in RasterBitmapLayer
         opacity: 1,

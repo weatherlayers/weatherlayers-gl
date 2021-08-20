@@ -174,6 +174,17 @@
               clipBounds: [-360, -85.051129, 360, 85.051129],
               pickable: true,
             }),
+            new WeatherLayers.IsolineLayer({
+              id: 'isoline',
+              visible: config.isoline.enabled,
+              dataset,
+              datetime,
+              color: config.isoline.color,
+              width: config.isoline.width,
+              opacity: config.isoline.opacity,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-360, -85.051129, 360, 85.051129],
+            }),
           ],
         });
         deckgl.setProps({

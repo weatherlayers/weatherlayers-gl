@@ -20,6 +20,12 @@ export async function initConfig() {
       opacity: 0.2,
       colormap: DEFAULT_COLORMAP,
     },
+    isoline: {
+      enabled: false,
+      color: [255, 255, 255],
+      width: 1,
+      opacity: 0.01,
+    },
     particle: {
       enabled: false,
       numParticles: 5000,
@@ -64,6 +70,7 @@ async function updateDataset(config) {
     config.datetime = NO_DATA;
     config.datetime2 = NO_DATA;
     config.raster.enabled = false;
+    config.isoline.enabled = false;
     config.particle.enabled = false;
     return;
   }
@@ -75,6 +82,8 @@ async function updateDataset(config) {
   config.datetime2 = NO_DATA;
 
   config.raster.enabled = !!stacCollection.summaries.raster;
+
+  config.isoline.enabled = !!stacCollection.summaries.isoline;
 
   config.particle.enabled = !!stacCollection.summaries.particle;
   if (stacCollection.summaries.particle) {
@@ -113,6 +122,13 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   raster.add(config.raster, 'colormap', [DEFAULT_COLORMAP]); // dummy
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
+
+  const isoline = gui.addFolder('Isoline layer');
+  isoline.add(config.isoline, 'enabled').onChange(update);
+  isoline.addColor(config.isoline, 'color').onChange(update);
+  isoline.add(config.isoline, 'width', 0.5, 10, 0.5).onChange(update);
+  isoline.add(config.isoline, 'opacity', 0, 1, 0.01).onChange(update);
+  isoline.open();
 
   const particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'enabled').onChange(update);

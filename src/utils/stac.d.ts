@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2021 WeatherLayers.com
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
 export enum StacProviderRole {
   LICENSOR = 'licensor',
   PRODUCER = 'producer',
@@ -53,22 +46,23 @@ export interface StacCatalog {
   links: StacLink[];
 }
 
-export enum StacCollectionRasterImageType {
-  SCALAR = 0,
-  VECTOR = 1,
-}
-
 export interface StacCollectionRasterConfig {
-  imageType: StacCollectionRasterImageType;
-  imageBounds: [number, number];
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
+export interface StacCollectionIsolineConfig {
+  step: number;
+}
+
 export interface StacCollectionParticleConfig {
-  imageBounds: [number, number];
   maxAge: number;
   speedFactor: number;
   width: number;
+}
+
+export enum StacCollectionImageType {
+  SCALAR = 0,
+  VECTOR = 1,
 }
 
 export interface StacCollection {
@@ -86,8 +80,11 @@ export interface StacCollection {
     };
   };
   summaries: {
+    imageType: StacCollectionImageType; // custom
+    imageBounds: [number, number]; // custom
     unit: { name: string, offset?: number, scale?: number, decimals?: number }[]; // custom
     raster?: StacCollectionRasterConfig; // custom
+    isoline?: StacCollectionIsolineConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];

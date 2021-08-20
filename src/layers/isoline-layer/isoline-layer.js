@@ -1,0 +1,136 @@
+/*
+ * Copyright (c) 2021 WeatherLayers.com
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+import {CompositeLayer, PathLayer} from '@deck.gl/layers';
+import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getContoursAndExtremities} from '../../utils/contour';
+
+const DEFAULT_COLOR = [255, 255, 255, 255];
+
+const defaultProps = {
+  ...PathLayer.defaultProps,
+
+  dataset: {type: 'object', value: null, required: true},
+  datetime: {type: 'object', value: null, required: true},
+
+  color: {type: 'color', value: DEFAULT_COLOR},
+  width: {type: 'number', value: 1},
+};
+
+/**
+ * @param {ImageBitmap | HTMLImageElement} image
+ * @returns {ImageData}
+ */
+function loadImageData(image) {
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
+  context.drawImage(image, 0, 0);
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  return imageData;
+}
+
+/**
+ * unscale 8bit grayscale image back to original data
+ * @param {ImageData} imageData
+ * @param {[number, number]} imageBounds
+ * @returns {{ width: number, height: number, data: Float32Array }}
+ */
+function unscaleImageData(imageData, imageBounds) {
+  const {width, height, data} = imageData;
+
+  const unscaledData = new Float32Array(
+    Array.from(data)
+      .filter((_, i) => i % 4 === 0)
+      .map(x => x / 255 * (imageBounds[1] - imageBounds[0]) + imageBounds[0])
+  );
+
+  return { width, height, data: unscaledData };
+}
+
+export class IsolineLayer extends CompositeLayer {
+  renderLayers() {
+    const {color, width} = this.props;
+    const {contours} = this.state;
+
+    if (!contours) {
+      return [];
+    }
+
+    return [
+      new PathLayer(this.props, this.getSubLayerProps({
+        id: 'path',
+        data: contours,
+        widthUnits: 'pixels',
+        getPath: d => d.coordinates,
+        getColor: color,
+        getWidth: width,
+      })),
+    ];
+  }
+
+  updateState({props, oldProps, changeFlags}) {
+    const {dataset, datetime} = this.props;
+
+    super.updateState({props, oldProps, changeFlags});
+
+    if (
+      dataset !== oldProps.dataset ||
+      datetime !== oldProps.datetime
+    ) {
+      if (!dataset || !datetime) {
+        this.setState({
+          stacCollection: undefined,
+          image: undefined,
+        });
+        return;
+      }
+
+      Promise.all([
+        loadStacCollection(dataset),
+        loadStacCollectionDataByDatetime(dataset, datetime),
+      ]).then(([stacCollection, image]) => {
+        this.setState({
+          stacCollection,
+          image,
+        });
+
+        this.updateContoursAndExtremities();
+      });
+    }
+  }
+
+  updateContoursAndExtremities() {
+    const {stacCollection, image} = this.state;
+
+    if (!stacCollection || !stacCollection.summaries.isoline || !image) {
+      return;
+    }
+
+    const imageBounds = stacCollection.summaries.imageBounds;
+    const step = stacCollection.summaries.isoline.step;
+
+    let imageData;
+    if (image instanceof ImageBitmap || image instanceof HTMLImageElement) {
+      imageData = loadImageData(image);
+      imageData = unscaleImageData(imageData, imageBounds);
+    } else {
+      imageData = image;
+    }
+
+    const {contours, extremities} = getContoursAndExtremities(imageData, true, step);
+
+    this.setState({
+      contours,
+      extremities,
+    });
+  }
+}
+
+IsolineLayer.layerName = 'IsolineLayer';
+IsolineLayer.defaultProps = defaultProps;

@@ -14,7 +14,9 @@
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "private": true,
   "dependencies": {
-    "color-rgba": "^2.2.3"
+    "color-rgba": "^2.2.3",
+    "d3-contour": "^3.0.1",
+    "lineclip": "^1.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -31,6 +33,7 @@
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
     "@types/color-rgba": "^2.1.0",
+    "@types/geojson": "^7946.0.8",
     "autoprefixer": "^10.2.6",
     "geotiff": "^1.0.4",
     "postcss-assets": "^6.0.0",

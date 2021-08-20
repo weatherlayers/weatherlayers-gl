@@ -184,6 +184,19 @@
                 depthTest: false,
               },
             }),
+            new WeatherLayers.IsolineLayer({
+              id: 'isoline',
+              visible: config.isoline.enabled,
+              dataset,
+              datetime,
+              color: config.isoline.color,
+              width: config.isoline.width,
+              opacity: config.isoline.opacity,
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
           ],
         });
         deckgl.setProps({
