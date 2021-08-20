@@ -25,6 +25,7 @@ export async function initConfig() {
       color: [255, 255, 255],
       width: 1,
       opacity: 0.01,
+      hiloEnabled: false,
     },
     particle: {
       enabled: false,
@@ -128,6 +129,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   isoline.addColor(config.isoline, 'color').onChange(update);
   isoline.add(config.isoline, 'width', 0.5, 10, 0.5).onChange(update);
   isoline.add(config.isoline, 'opacity', 0, 1, 0.01).onChange(update);
+  isoline.add(config.isoline, 'hiloEnabled').onChange(update);
   isoline.open();
 
   const particle = gui.addFolder('Particle layer');

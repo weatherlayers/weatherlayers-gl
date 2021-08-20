@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {CompositeLayer, PathLayer} from '@deck.gl/layers';
+import {CompositeLayer, PathLayer, TextLayer} from '@deck.gl/layers';
 import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getContoursAndExtremities} from '../../utils/contour';
 
@@ -19,6 +19,7 @@ const defaultProps = {
 
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
+  hiloEnabled: {type: 'boolean', value: false},
 };
 
 /**
@@ -55,10 +56,10 @@ function unscaleImageData(imageData, imageBounds) {
 
 export class IsolineLayer extends CompositeLayer {
   renderLayers() {
-    const {color, width} = this.props;
-    const {contours} = this.state;
+    const {color, width, hiloEnabled} = this.props;
+    const {contours, extremities} = this.state;
 
-    if (!contours) {
+    if (!contours || !extremities) {
       return [];
     }
 
@@ -70,6 +71,35 @@ export class IsolineLayer extends CompositeLayer {
         getPath: d => d.coordinates,
         getColor: color,
         getWidth: width,
+      })),
+      new TextLayer(this.props, this.getSubLayerProps({
+        id: 'hilo-type',
+        visible: hiloEnabled,
+        data: extremities,
+        getPosition: d => d.coordinates,
+        getText: d => d.properties.type,
+        getSize: 12,
+        getColor: [0, 0, 0],
+        outlineColor: [192, 192, 192],
+        outlineWidth: 1,
+        fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+        fontSettings: { sdf: true },
+        opacity: 1,
+      })),
+      new TextLayer(this.props, this.getSubLayerProps({
+        id: 'hilo-value',
+        visible: hiloEnabled,
+        data: extremities,
+        getPosition: d => d.coordinates,
+        getText: d => d.properties.valueFormatted,
+        getSize: 10,
+        getColor: [0, 0, 0],
+        getPixelOffset: [0, 14],
+        outlineColor: [192, 192, 192],
+        outlineWidth: 1,
+        fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+        fontSettings: { sdf: true },
+        opacity: 1,
       })),
     ];
   }
