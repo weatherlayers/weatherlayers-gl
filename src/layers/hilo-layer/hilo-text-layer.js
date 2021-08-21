@@ -50,7 +50,6 @@ const defaultProps = {
   imageBounds: {type: 'array', value: null, required: true},
 
   radius: {type: 'number', value: null, required: true},
-  delta: {type: 'number', value: null, required: true},
 
   color: {type: 'color', value: DEFAULT_COLOR},
   outlineColor: {type: 'color', value: DEFAULT_OUTLINE_COLOR},
@@ -59,7 +58,7 @@ const defaultProps = {
 
 export class HiloTextLayer extends CompositeLayer {
   renderLayers() {
-    if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius || this.props.delta !== this.state.delta)) {
+    if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius)) {
       this.updateHighsLows();
     }
 
@@ -102,7 +101,7 @@ export class HiloTextLayer extends CompositeLayer {
   }
 
   updateHighsLows() {
-    const {image, imageBounds, radius, delta} = this.props;
+    const {image, imageBounds, radius} = this.props;
 
     if (!image) {
       return;
@@ -116,12 +115,11 @@ export class HiloTextLayer extends CompositeLayer {
       imageData = image;
     }
 
-    const highsLows = getHighsLows(imageData, radius, delta);
+    const highsLows = getHighsLows(imageData, radius);
 
     this.setState({
       image,
       radius,
-      delta,
       highsLows,
     });
   }

@@ -63,7 +63,6 @@ export interface StacCollectionIsolineConfig {
 
 export interface StacCollectionHiloConfig {
   radius: number;
-  contour: number;
 }
 
 export interface StacCollectionParticleConfig {

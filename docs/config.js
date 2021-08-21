@@ -30,7 +30,6 @@ export async function initConfig() {
     hilo: {
       enabled: false,
       radius: 0,
-      delta: 0,
       color: [107, 107, 107],
       outlineColor: [13, 13, 13],
       opacity: 1,
@@ -101,7 +100,6 @@ async function updateDataset(config) {
   config.hilo.enabled = !!stacCollection.summaries.hilo;
   if (stacCollection.summaries.hilo) {
     config.hilo.radius = stacCollection.summaries.hilo.radius;
-    config.hilo.delta = stacCollection.summaries.hilo.delta;
   }
 
   config.particle.enabled = !!stacCollection.summaries.particle;
@@ -153,7 +151,6 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   const hilo = gui.addFolder('Hilo layer');
   hilo.add(config.hilo, 'enabled').onChange(update);
   hilo.add(config.hilo, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
-  hilo.add(config.hilo, 'delta', 0, 1000, 1).onFinishChange(update);
   hilo.addColor(config.hilo, 'color').onChange(update);
   hilo.addColor(config.hilo, 'outlineColor').onChange(update);
   hilo.add(config.hilo, 'opacity', 0, 1, 0.01).onChange(update);

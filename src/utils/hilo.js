@@ -41,10 +41,9 @@ function blur(data, width, height) {
 /**
  * @param {{ width: number, height: number, data: Float32Array }} imageData
  * @param {number} radius
- * @param {number} delta
  * @returns {HiloPoint[]}
  */
-export function getHighsLows(imageData, radius, delta) {
+export function getHighsLows(imageData, radius) {
   let { width, height, data } = imageData;
   const unproject = getUnprojectFunction(width, height);
   const radiusKm = radius * 1000;
@@ -100,7 +99,7 @@ export function getHighsLows(imageData, radius, delta) {
     if (high) {
       for (let j = i + 1; j < highs.length; j++) {
         const high2 = highs[j];
-        if (high2 && distance(high.position, high2.position) < radiusKm && Math.abs(high.value - high2.value) < delta) {
+        if (high2 && distance(high.position, high2.position) < radiusKm) {
           highs[j] = undefined;
         }
       }
@@ -114,7 +113,7 @@ export function getHighsLows(imageData, radius, delta) {
     if (low) {
       for (let j = i + 1; j < lows.length; j++) {
         const low2 = lows[j];
-        if (low2 && distance(low.position, low2.position) < radiusKm && Math.abs(low.value - low2.value) < delta) {
+        if (low2 && distance(low.position, low2.position) < radiusKm) {
           lows[j] = undefined;
         }
       }
