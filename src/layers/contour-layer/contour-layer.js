@@ -18,19 +18,18 @@ const defaultProps = {
 
 export class ContourLayer extends CompositeLayer {
   renderLayers() {
-    const {step} = this.props;
-    const {stacCollection, image} = this.state;
+    const {props, stacCollection, image} = this.state;
 
-    if (!stacCollection || !stacCollection.summaries.contour || !image) {
+    if (!props || !stacCollection || !stacCollection.summaries.contour || !image) {
       return [];
     }
 
     return [
-      new ContourCompositeLayer(this.props, this.getSubLayerProps({
+      new ContourCompositeLayer(props, this.getSubLayerProps({
         id: 'composite',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
-        step: step || stacCollection.summaries.contour.step,
+        step: props.step || stacCollection.summaries.contour.step,
       })),
     ];
   }
@@ -46,6 +45,7 @@ export class ContourLayer extends CompositeLayer {
     ) {
       if (!dataset || !datetime) {
         this.setState({
+          props: undefined,
           stacCollection: undefined,
           image: undefined,
         });
@@ -57,9 +57,14 @@ export class ContourLayer extends CompositeLayer {
         loadStacCollectionDataByDatetime(dataset, datetime),
       ]).then(([stacCollection, image]) => {
         this.setState({
+          props: this.props,
           stacCollection,
           image,
         });
+      });
+    } else {
+      this.setState({
+        props: this.props,
       });
     }
   }

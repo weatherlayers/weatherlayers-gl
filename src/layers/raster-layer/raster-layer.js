@@ -21,28 +21,24 @@ const defaultProps = {
 
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
-    const {colormapBreaks, opacity} = this.props;
-    const {stacCollection, image, image2, imageWeight} = this.state;
+    const {props, stacCollection, image, image2, imageWeight} = this.state;
 
-    if (!stacCollection || !stacCollection.summaries.raster || !image) {
+    if (!props || !stacCollection || !stacCollection.summaries.raster || !image) {
       return [];
     }
 
-    // apply gamma to opacity to make it visually "linear"
-    const rasterOpacity = Math.pow(opacity, 1 / 2.2);
-
     return [
-      new RasterBitmapLayer(this.props, this.getSubLayerProps({
+      new RasterBitmapLayer(props, this.getSubLayerProps({
         id: 'bitmap',
         image,
         image2,
         imageWeight,
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        colormapBreaks: colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
+        colormapBreaks: props.colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
         // apply opacity in RasterBitmapLayer
         opacity: 1,
-        rasterOpacity,
+        rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
       })),
     ];
   }
@@ -60,6 +56,7 @@ export class RasterLayer extends CompositeLayer {
     ) {
       if (!dataset || !datetime) {
         this.setState({
+          props: undefined,
           stacCollection: undefined,
           image: undefined,
           image2: undefined,
@@ -78,6 +75,7 @@ export class RasterLayer extends CompositeLayer {
         image2 = image2 && new Texture2D(gl, { data: image2 });
 
         this.setState({
+          props: this.props,
           stacCollection,
           image,
           image2,
@@ -87,7 +85,12 @@ export class RasterLayer extends CompositeLayer {
       });
     } else if (datetimeWeight !== oldProps.datetimeWeight) {
       this.setState({
+        props: this.props,
         imageWeight: datetimeWeight,
+      });
+    } else {
+      this.setState({
+        props: this.props,
       });
     }
   }

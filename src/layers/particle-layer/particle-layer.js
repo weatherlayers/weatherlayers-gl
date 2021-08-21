@@ -21,23 +21,22 @@ const defaultProps = {
 
 export class ParticleLayer extends CompositeLayer {
   renderLayers() {
-    const {maxAge, speedFactor, width} = this.props;
-    const {stacCollection, image, image2, imageWeight} = this.state;
+    const {props, stacCollection, image, image2, imageWeight} = this.state;
 
-    if (!stacCollection || !stacCollection.summaries.particle || !image) {
+    if (!props || !stacCollection || !stacCollection.summaries.particle || !image) {
       return [];
     }
 
     return [
-      new ParticleLineLayer(this.props, this.getSubLayerProps({
+      new ParticleLineLayer(props, this.getSubLayerProps({
         id: 'line',
         image,
         image2,
         imageWeight,
         imageBounds: stacCollection.summaries.imageBounds,
-        maxAge: maxAge || stacCollection.summaries.particle.maxAge,
-        speedFactor: speedFactor || stacCollection.summaries.particle.speedFactor,
-        width: width || stacCollection.summaries.particle.width,
+        maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
+        speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
+        width: props.width || stacCollection.summaries.particle.width,
       })),
     ];
   }
@@ -55,6 +54,7 @@ export class ParticleLayer extends CompositeLayer {
     ) {
       if (!dataset || !datetime) {
         this.setState({
+          props: undefined,
           stacCollection: undefined,
           image: undefined,
           image2: undefined,
@@ -72,6 +72,7 @@ export class ParticleLayer extends CompositeLayer {
         image2 = image2 && new Texture2D(gl, { data: image2 });
 
         this.setState({
+          props: this.props,
           stacCollection,
           image,
           image2,
@@ -81,7 +82,12 @@ export class ParticleLayer extends CompositeLayer {
       });
     } else if (datetimeWeight !== oldProps.datetimeWeight) {
       this.setState({
+        props: this.props,
         imageWeight: datetimeWeight,
+      });
+    } else {
+      this.setState({
+        props: this.props,
       });
     }
   }
