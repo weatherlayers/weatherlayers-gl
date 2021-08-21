@@ -56,7 +56,7 @@ function unscaleImageData(imageData, imageBounds) {
 
 export class ContourCompositeLayer extends CompositeLayer {
   renderLayers() {
-    if (this.props.visible && this.props.image !== this.state.image) {
+    if (this.props.visible && (this.props.image !== this.state.image || this.props.step !== this.state.step)) {
       this.updateContoursAndExtremities();
     }
 
@@ -127,6 +127,7 @@ export class ContourCompositeLayer extends CompositeLayer {
 
     this.setState({
       image,
+      step,
       contours,
       extremities,
     });

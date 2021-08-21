@@ -21,7 +21,7 @@ const defaultProps = {
 
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
-    const {opacity} = this.props;
+    const {colormapBreaks, opacity} = this.props;
     const {stacCollection, image, image2, imageWeight} = this.state;
 
     if (!stacCollection || !stacCollection.summaries.raster || !image) {
@@ -39,7 +39,7 @@ export class RasterLayer extends CompositeLayer {
         imageWeight,
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        colormapBreaks: stacCollection.summaries.raster.colormapBreaks,
+        colormapBreaks: colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
         // apply opacity in RasterBitmapLayer
         opacity: 1,
         rasterOpacity,

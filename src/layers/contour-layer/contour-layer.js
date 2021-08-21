@@ -18,6 +18,7 @@ const defaultProps = {
 
 export class ContourLayer extends CompositeLayer {
   renderLayers() {
+    const {step} = this.props;
     const {stacCollection, image} = this.state;
 
     if (!stacCollection || !stacCollection.summaries.contour || !image) {
@@ -29,7 +30,7 @@ export class ContourLayer extends CompositeLayer {
         id: 'composite',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
-        step: stacCollection.summaries.contour.step,
+        step: step || stacCollection.summaries.contour.step,
       })),
     ];
   }

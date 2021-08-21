@@ -22,6 +22,7 @@ export async function initConfig() {
     },
     contour: {
       enabled: false,
+      step: 0,
       color: [255, 255, 255],
       width: 1,
       opacity: 0.01,
@@ -85,6 +86,9 @@ async function updateDataset(config) {
   config.raster.enabled = !!stacCollection.summaries.raster;
 
   config.contour.enabled = !!stacCollection.summaries.contour;
+  if (stacCollection.summaries.contour) {
+    config.contour.step = stacCollection.summaries.contour.step;
+  }
 
   config.particle.enabled = !!stacCollection.summaries.particle;
   if (stacCollection.summaries.particle) {
@@ -126,6 +130,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   const contour = gui.addFolder('Contour layer');
   contour.add(config.contour, 'enabled').onChange(update);
+  contour.add(config.contour, 'step', 0, 1000, 1).onFinishChange(update);
   contour.addColor(config.contour, 'color').onChange(update);
   contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
   contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
