@@ -10,8 +10,8 @@ import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 
-import {distance} from './geodesy';
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
+import {distance} from '../../utils/geodesy';
 
 const DEFAULT_TEXTURE_PARAMETERS = {
   [GL.TEXTURE_WRAP_S]: GL.REPEAT,
@@ -33,6 +33,7 @@ const defaultProps = {
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 100},
   speedFactor: {type: 'number', min: 0, max: 1, value: 1},
+
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
   animate: true,
@@ -245,7 +246,7 @@ export class ParticleLineLayer extends LineLayer {
     });
   }
 
-  step() {
+  delta() {
     this._runTransformFeedback();
 
     this.setNeedsRedraw();

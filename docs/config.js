@@ -22,11 +22,16 @@ export async function initConfig() {
     },
     contour: {
       enabled: false,
-      step: 0,
+      delta: 0,
       color: [255, 255, 255],
       width: 1,
       opacity: 0.01,
-      hiloEnabled: false,
+    },
+    hilo: {
+      enabled: false,
+      radius: 0,
+      delta: 0,
+      opacity: 1,
     },
     particle: {
       enabled: false,
@@ -73,6 +78,7 @@ async function updateDataset(config) {
     config.datetime2 = NO_DATA;
     config.raster.enabled = false;
     config.contour.enabled = false;
+    config.hilo.enabled = false;
     config.particle.enabled = false;
     return;
   }
@@ -87,7 +93,13 @@ async function updateDataset(config) {
 
   config.contour.enabled = !!stacCollection.summaries.contour;
   if (stacCollection.summaries.contour) {
-    config.contour.step = stacCollection.summaries.contour.step;
+    config.contour.delta = stacCollection.summaries.contour.delta;
+  }
+
+  config.hilo.enabled = !!stacCollection.summaries.hilo;
+  if (stacCollection.summaries.hilo) {
+    config.hilo.radius = stacCollection.summaries.hilo.radius;
+    config.hilo.delta = stacCollection.summaries.hilo.delta;
   }
 
   config.particle.enabled = !!stacCollection.summaries.particle;
@@ -130,12 +142,18 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   const contour = gui.addFolder('Contour layer');
   contour.add(config.contour, 'enabled').onChange(update);
-  contour.add(config.contour, 'step', 0, 1000, 1).onFinishChange(update);
+  contour.add(config.contour, 'delta', 0, 1000, 1).onFinishChange(update);
   contour.addColor(config.contour, 'color').onChange(update);
   contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
   contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
-  contour.add(config.contour, 'hiloEnabled').onChange(update);
   contour.open();
+
+  const hilo = gui.addFolder('Hilo layer');
+  hilo.add(config.hilo, 'enabled').onChange(update);
+  hilo.add(config.hilo, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
+  hilo.add(config.hilo, 'delta', 0, 1000, 1).onFinishChange(update);
+  hilo.add(config.hilo, 'opacity', 0, 1, 0.01).onChange(update);
+  hilo.open();
 
   const particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'enabled').onChange(update);
@@ -146,7 +164,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
   particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
   particle.add(config.particle, 'animate').onChange(update);
-  particle.add({ step: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step() }, 'step');
+  particle.add({ delta: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.delta() }, 'delta');
   particle.add({ clear: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear() }, 'clear');
   particle.open();
 

@@ -149,7 +149,7 @@ export class TimelineControl {
     progressInput.type = 'range';
     progressInput.min = 0;
     progressInput.max = this.datetimes.length - 1;
-    progressInput.step = 0.05;
+    progressInput.delta = 0.05;
     progressInput.value = this.progress;
     progressInput.style.width = `${this.config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
     progressInput.addEventListener('input', () => {

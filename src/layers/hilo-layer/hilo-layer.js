@@ -6,30 +6,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer} from '@deck.gl/layers';
-import {ContourPathLayer} from './contour-path-layer';
+import {HiloTextLayer} from './hilo-text-layer';
 import {loadStacCollection, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {formatValue} from '../../utils/value';
 
 const defaultProps = {
-  ...ContourPathLayer.defaultProps,
+  ...HiloTextLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
 };
 
-export class ContourLayer extends CompositeLayer {
+export class HiloLayer extends CompositeLayer {
   renderLayers() {
     const {props, stacCollection, image} = this.state;
 
-    if (!props || !stacCollection || !stacCollection.summaries.contour || !image) {
+    if (!props || !stacCollection || !stacCollection.summaries.hilo || !image) {
       return [];
     }
 
     return [
-      new ContourPathLayer(props, this.getSubLayerProps({
+      new HiloTextLayer(props, this.getSubLayerProps({
         id: 'text',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
-        delta: props.delta || stacCollection.summaries.contour.delta,
+        radius: props.radius || stacCollection.summaries.hilo.radius,
+        contour: props.contour || stacCollection.summaries.hilo.contour,
+        formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
       })),
     ];
   }
@@ -70,5 +73,5 @@ export class ContourLayer extends CompositeLayer {
   }
 }
 
-ContourLayer.layerName = 'ContourLayer';
-ContourLayer.defaultProps = defaultProps;
+HiloLayer.layerName = 'HiloLayer';
+HiloLayer.defaultProps = defaultProps;

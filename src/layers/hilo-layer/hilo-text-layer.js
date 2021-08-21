@@ -5,22 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {CompositeLayer, PathLayer, TextLayer} from '@deck.gl/layers';
-import {getContoursAndExtremities} from '../../utils/contour';
-
-const DEFAULT_COLOR = [255, 255, 255, 255];
-
-const defaultProps = {
-  ...PathLayer.defaultProps,
-
-  image: {type: 'image', value: null, required: true},
-  imageBounds: {type: 'array', value: null, required: true},
-  step: {type: 'number', value: null, required: true},
-
-  color: {type: 'color', value: DEFAULT_COLOR},
-  width: {type: 'number', value: 1},
-  hiloEnabled: {type: 'boolean', value: false},
-};
+import {CompositeLayer, TextLayer} from '@deck.gl/layers';
+import {getHighsLows} from '../../utils/hilo';
 
 /**
  * @param {ImageBitmap | HTMLImageElement} image
@@ -54,32 +40,35 @@ function unscaleImageData(imageData, imageBounds) {
   return { width, height, data: unscaledData };
 }
 
-export class ContourCompositeLayer extends CompositeLayer {
+const defaultProps = {
+  ...TextLayer.defaultProps,
+
+  image: {type: 'image', value: null, required: true},
+  imageBounds: {type: 'array', value: null, required: true},
+
+  radius: {type: 'number', value: null, required: true},
+  delta: {type: 'number', value: null, required: true},
+
+  formatValueFunction: {type: 'function', value: x => x.toString()},
+};
+
+export class HiloTextLayer extends CompositeLayer {
   renderLayers() {
-    if (this.props.visible && (this.props.image !== this.state.image || this.props.step !== this.state.step)) {
-      this.updateContoursAndExtremities();
+    if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius || this.props.delta !== this.state.delta)) {
+      this.updateHighsLows();
     }
 
-    const {color, width, hiloEnabled} = this.props;
-    const {contours, extremities} = this.state;
+    const {formatValueFunction} = this.props;
+    const {highsLows} = this.state;
 
-    if (!contours || !extremities) {
+    if (!highsLows) {
       return [];
     }
 
     return [
-      new PathLayer(this.props, this.getSubLayerProps({
-        id: 'path',
-        data: contours,
-        widthUnits: 'pixels',
-        getPath: d => d.coordinates,
-        getColor: color,
-        getWidth: width,
-      })),
       new TextLayer(this.props, this.getSubLayerProps({
-        id: 'hilo-type',
-        visible: hiloEnabled,
-        data: extremities,
+        id: 'type',
+        data: highsLows,
         getPosition: d => d.coordinates,
         getText: d => d.properties.type,
         getSize: 12,
@@ -88,14 +77,13 @@ export class ContourCompositeLayer extends CompositeLayer {
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
         fontSettings: { sdf: true },
-        opacity: 1,
+        billboard: false,
       })),
       new TextLayer(this.props, this.getSubLayerProps({
-        id: 'hilo-value',
-        visible: hiloEnabled,
-        data: extremities,
+        id: 'value',
+        data: highsLows,
         getPosition: d => d.coordinates,
-        getText: d => d.properties.valueFormatted,
+        getText: d => formatValueFunction(d.properties.value),
         getSize: 10,
         getColor: [0, 0, 0],
         getPixelOffset: [0, 14],
@@ -103,13 +91,13 @@ export class ContourCompositeLayer extends CompositeLayer {
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
         fontSettings: { sdf: true },
-        opacity: 1,
+        billboard: false,
       })),
     ];
   }
 
-  updateContoursAndExtremities() {
-    const {image, imageBounds, step} = this.props;
+  updateHighsLows() {
+    const {image, imageBounds, radius, delta} = this.props;
 
     if (!image) {
       return;
@@ -123,16 +111,16 @@ export class ContourCompositeLayer extends CompositeLayer {
       imageData = image;
     }
 
-    const {contours, extremities} = getContoursAndExtremities(imageData, true, step);
+    const highsLows = getHighsLows(imageData, radius, delta);
 
     this.setState({
       image,
-      step,
-      contours,
-      extremities,
+      radius,
+      delta,
+      highsLows,
     });
   }
 }
 
-ContourCompositeLayer.layerName = 'ContourCompositeLayer';
-ContourCompositeLayer.defaultProps = defaultProps;
+HiloTextLayer.layerName = 'HiloTextLayer';
+HiloTextLayer.defaultProps = defaultProps;

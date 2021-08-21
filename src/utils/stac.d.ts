@@ -46,12 +46,24 @@ export interface StacCatalog {
   links: StacLink[];
 }
 
+export interface StacCollectionUnit {
+  name: string;
+  offset?: number;
+  scale?: number;
+  decimals?: number;
+}
+
 export interface StacCollectionRasterConfig {
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
-export interface StacCollectionContourConfig {
-  step: number;
+export interface StacCollectionIsolineConfig {
+  delta: number;
+}
+
+export interface StacCollectionHiloConfig {
+  radius: number;
+  contour: number;
 }
 
 export interface StacCollectionParticleConfig {
@@ -82,9 +94,10 @@ export interface StacCollection {
   summaries: {
     imageType: StacCollectionImageType; // custom
     imageBounds: [number, number]; // custom
-    unit: { name: string, offset?: number, scale?: number, decimals?: number }[]; // custom
+    unit: StacCollectionUnit[]; // custom
     raster?: StacCollectionRasterConfig; // custom
-    contour?: StacCollectionContourConfig; // custom
+    contour?: StacCollectionIsolineConfig; // custom
+    hilo?: StacCollectionHiloConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];

@@ -7,10 +7,9 @@
  */
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
+import {getUnprojectFunction} from './unproject';
 
-/** @typedef {GeoJSON.LineString & { properties: { value: number, valueFormatted: string }}} Contour */
-/** @typedef {'L' | 'H'} ExtremityType */
-/** @typedef {GeoJSON.Point & { properties: { type: ExtremityType, value: number, valueFormatted: string }}} Extremity */
+/** @typedef {GeoJSON.LineString & { properties: { value: number }}} Contour */
 
 /**
  * wrap data around the world by repeating the data in the west and east
@@ -70,71 +69,25 @@ function getLineBbox(line) {
   ];
   const northEast = [
     Math.ceil(Math.max(...line.map(x => x[0]))),
-    Math.ceil(Math.max(...line.map(x => x[1])))
+    Math.ceil(Math.max(...line.map(x => x[1]))),
   ];
   const bbox = /** @type {[number, number, number, number]} */ ([southWest[0], southWest[1], northEast[0], northEast[1]]);
   return bbox;
 }
 
 /**
- * @param {GeoJSON.Position[]} line
- * @returns {boolean}
- */
-function isClosedLine(line) {
-  const firstPoint = line[0];
-  const lastPoint = line[line.length - 1];
-  return firstPoint && lastPoint && firstPoint[0] === lastPoint[0] && firstPoint[1] === lastPoint[1];
-}
-
-/**
- * @param {GeoJSON.BBox} bbox1
- * @param {GeoJSON.BBox} bbox2
- * @returns {boolean}
- */
-function isBboxInsideBbox(bbox1, bbox2) {
-  return (
-    bbox1[0] >= bbox2[0] &&
-    bbox1[1] >= bbox2[1] &&
-    bbox1[2] <= bbox2[2] &&
-    bbox1[3] <= bbox2[3]
-  );
-}
-
-/**
- * @param {GeoJSON.Position} point
- * @param {GeoJSON.BBox} bbox
- * @returns {boolean}
- */
-function isPointInsideBbox(point, bbox) {
-  return (
-    point[0] >= bbox[0] &&
-    point[1] >= bbox[1] &&
-    point[0] <= bbox[2] &&
-    point[1] <= bbox[3]
-  );
-}
-
-/**
- * @param {number} value
- * @returns {string}
- */
-function formatValue(value) {
-  return `${Math.floor(value / 100)}`
-}
-
-/**
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
- * @param {number} step
+ * @param {number} delta
  * @returns {Contour[]}
  */
-function getContours(data, width, height, step) {
+function computeContours(data, width, height, delta) {
   const min = Array.from(data).reduce((curr, prev) => Math.min(curr, prev), Infinity);
   const max = Array.from(data).reduce((curr, prev) => Math.max(curr, prev), -Infinity);
-  const minThreshold = Math.ceil(min / step) * step;
-  const maxThreshold = Math.floor(max / step) * step;
-  const thresholds = new Array((maxThreshold - minThreshold) / step + 1).fill(() => undefined).map((_, i) => minThreshold + i * step);
+  const minThreshold = Math.ceil(min / delta) * delta;
+  const maxThreshold = Math.floor(max / delta) * delta;
+  const thresholds = new Array((maxThreshold - minThreshold) / delta + 1).fill(() => undefined).map((_, i) => minThreshold + i * delta);
 
   // compute contours
   // d3-contours returns multipolygons with holes, framed around data borders
@@ -144,8 +97,7 @@ function getContours(data, width, height, step) {
   contours = contours.map(contour => {
     const coordinates = contour.coordinates.flat();
     return coordinates.map(coordinates => {
-      const valueFormatted = formatValue(contour.value);
-      return { type: 'LineString', coordinates, properties: { value: contour.value, valueFormatted }};
+      return { type: 'LineString', coordinates, properties: { value: contour.value }};
     });
   }).flat();
 
@@ -161,9 +113,9 @@ function getContours(data, width, height, step) {
 
   // compute bbox
   contours = contours.map(contour => {
-    const bbox = getLineBbox(contour.coordinates)
-    return { type: contour.type, coordinates: contour.coordinates, bbox, properties: contour.properties }
-  })
+    const bbox = getLineBbox(contour.coordinates);
+    return { type: contour.type, coordinates: contour.coordinates, bbox, properties: contour.properties };
+  });
 
   // filter out too small contours
   const minPoints = 4; // found experimentally
@@ -176,71 +128,16 @@ function getContours(data, width, height, step) {
 }
 
 /**
- * @param {Float32Array} data
- * @param {number} width
- * @param {Contour} contour
- * @returns {Extremity}
- */
-function getExtremity(data, width, contour) {
-  const bbox = /** @type {GeoJSON.BBox} */ (contour.bbox);
-
-  // guess extremity type by comparing the count of lower/igher points outside of contour bbox
-  const outsideValues = [];
-  for (let i = bbox[0]; i <= bbox[2]; i++) { // N
-    outsideValues.push(data[i + (bbox[1] - 1) * width]);
-  }
-  for (let i = bbox[0]; i <= bbox[2]; i++) { // S
-    outsideValues.push(data[i + (bbox[3] + 1) * width]);
-  }
-  for (let j = bbox[1]; j <= bbox[3]; j++) { // W
-    outsideValues.push(data[(bbox[0] - 1) + j * width]);
-  }
-  for (let j = bbox[1]; j <= bbox[3]; j++) { // E
-    outsideValues.push(data[(bbox[2] + 1) + j * width]);
-  }
-  let low = 0;
-  let high = 0;
-  outsideValues.forEach(value => {
-    if (contour.properties.value < value) {
-      low++;
-    } else {
-      high++;
-    }
-  });
-  const type = low > high ? 'L' : 'H';
-
-  // get extremity point and value as min/max inside of contour bbox
-  let point;
-  let value = type === 'L' ? Infinity : -Infinity;
-  for (let i = bbox[0]; i <= bbox[2]; i++) {
-    for (let j = bbox[1]; j <= bbox[3]; j++) {
-      const dataPoint = [i, j];
-      const dataValue = data[i + j * width];
-      if (type === 'L' ? dataValue < value : dataValue > value) {
-        point = dataPoint;
-        value = dataValue;
-      }
-    }
-  }
-  if (!point) {
-    throw new Error('Invalid state');
-  }
-  const valueFormatted = formatValue(value);
-
-  return { type: 'Point', coordinates: point, properties: { type, value, valueFormatted }};
-}
-
-/**
  * @param {{ width: number, height: number, data: Float32Array }} imageData
- * @param {boolean} sew
- * @param {number} step
- * @returns {{ contours: Contour[], extremities: Extremity[] }}
+ * @param {number} delta
+ * @returns {Contour[]}
  */
-export function getContoursAndExtremities(imageData, sew, step) {
+export function getContours(imageData, delta) {
   const { width, height, data } = imageData;
   let contoursWidth = width;
   let contoursData = data;
 
+  const sew = true;
   let bufferWest = 0;
   let bufferEast = 0;
   if (sew) {
@@ -249,14 +146,11 @@ export function getContoursAndExtremities(imageData, sew, step) {
     // see https://github.com/d3/d3-contour/issues/25
     bufferWest = 1;
     bufferEast = 1;
-    // larger buffer allows for finding extremities from innermost closed contours near the sew
-    bufferWest = Math.floor(contoursWidth / 12);
-    bufferEast = Math.floor(contoursWidth / 12);
     contoursData = cylinder(contoursData, contoursWidth, height, bufferWest, bufferEast);
     contoursWidth += bufferWest + bufferEast;
   }
 
-  // blur the data to lower down the count of contours (and extremities) near the equator
+  // blur the data to lower down the count of contours near the equator
   // see screenshot at https://gis.stackexchange.com/questions/386050/algorithm-to-find-low-high-atmospheric-pressure-systems-in-gridded-raster-data
   // console.time('blur');
   // for (let i = 0; i < 1; i++) {
@@ -265,50 +159,15 @@ export function getContoursAndExtremities(imageData, sew, step) {
   // console.timeEnd('blur');
 
   // compute contours
-  let contours = getContours(contoursData, contoursWidth, height, step);
-
-  // find innermost closed countours for extremities
-  /** @type {Contour[]} */
-  const innermostClosedContours = [];
-  const closedContours = contours.filter(contour => isClosedLine(contour.coordinates));
-  closedContours.forEach(contour => {
-    const bbox = /** @type {GeoJSON.BBox} */ (contour.bbox);
-    for (let i = 0; i < innermostClosedContours.length; i++) {
-      const bbox2 = /** @type {GeoJSON.BBox} */ (innermostClosedContours[i].bbox);
-      if (isBboxInsideBbox(bbox, bbox2)) {
-        innermostClosedContours[i] = contour;
-        return;
-      } else if (isBboxInsideBbox(bbox2, bbox)) {
-        return;
-      }
-    }
-    innermostClosedContours.push(contour);
-  });
-
-  // find extremities
-  let extremities = innermostClosedContours.map(contour => {
-    return getExtremity(contoursData, contoursWidth, contour);
-  });
-  extremities = extremities.sort((a, b) => a.properties.value - b.properties.value);
+  let contours = computeContours(contoursData, contoursWidth, height, delta);
 
   // transform pixel coordinates to geographical coordinates
-  const origin = [-180, 90];
-  const lngResolution = 360 / width;
-  const latResolution = 180 / height;
   /** @type {(point: GeoJSON.Position) => GeoJSON.Position} */
   const removeBuffer = point => {
     point = [point[0] - bufferWest, point[1]];
     return point;
   };
-  /** @type {(point: GeoJSON.Position) => GeoJSON.Position} */
-  const unproject = point => {
-    const i = point[0];
-    const j = point[1];
-    const lng = origin[0] + i * lngResolution;
-    const lat = origin[1] + -j * latResolution;
-    point = [lng, lat];
-    return point;
-  };
+  const unproject = getUnprojectFunction(width, height);
   contours = contours.map(contour => {
     const coordinates = contour.coordinates.map(point => {
       point = removeBuffer(point);
@@ -317,12 +176,6 @@ export function getContoursAndExtremities(imageData, sew, step) {
     })
     return { type: contour.type, coordinates, properties: contour.properties };
   })
-  extremities = extremities.map(extremity => {
-    let point = extremity.coordinates;
-    point = removeBuffer(point);
-    point = unproject(point);
-    return { type: extremity.type, coordinates: point, properties: extremity.properties };
-  });
   
   if (sew) {
     const bounds = /** @type {[number, number, number, number]} */ ([-180, -90, 180, 90]);
@@ -332,10 +185,7 @@ export function getContoursAndExtremities(imageData, sew, step) {
         return { type: contour.type, coordinates: line, properties: contour.properties };
       });
     }).flat();
-    extremities = extremities.filter(extremity => {
-      return isPointInsideBbox(extremity.coordinates, bounds);
-    });
   }
 
-  return { contours, extremities };
+  return contours;
 }
