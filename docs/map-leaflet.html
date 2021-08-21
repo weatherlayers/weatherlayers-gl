@@ -49,7 +49,6 @@
       L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE').addTo(map); // WeatherLayers access token
 
       // animated Leaflet deck.gl layer
-      let lastRenderTime = 0;
       const deckLayer = new DeckGlLeaflet.LeafletLayer({
         views: [
           new deck.MapView({ id: 'map', repeat: true }),
@@ -64,21 +63,11 @@
             return !!viewport.subViewports;
           }
         },
-        _customRender: redrawReason => {
-          // limit FPS
-          const fps = 30;
-          const fpsInterval = 1000 / fps;
-          const now = Date.now();
-          const elapsed = now - lastRenderTime;
-          if (elapsed > fpsInterval) {
-            lastRenderTime = now;
-            deckLayer._deck._drawLayers(redrawReason);
-          }
-        },
       });
       map.addLayer(deckLayer);
-      const rasterDeckgl = deckLayer._deck;
-      const particleDeckgl = deckLayer._deck;
+      const deckgl = deckLayer._deck;
+      const rasterDeckgl = deckgl;
+      const particleDeckgl = deckgl;
 
       // info panels
       const infoControl = new InfoControl({ deckgl: rasterDeckgl });
@@ -167,6 +156,7 @@
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate,
+          _customRender: config.particle.enabled && config.particle.animate && (deckgl.props._customRender || WeatherLayers.throttledAnimateRender(deckgl)),
         });
 
         legendControl.update({ ...legendControl.config, dataset });

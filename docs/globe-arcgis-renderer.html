@@ -77,7 +77,6 @@
       });
 
       // animated deck.gl
-      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
@@ -86,17 +85,6 @@
           new deck._GlobeView(),
         ],
         layers: [],
-        _customRender: redrawReason => {
-          // limit FPS
-          const fps = 30;
-          const fpsInterval = 1000 / fps;
-          const now = Date.now();
-          const elapsed = now - lastRenderTime;
-          if (elapsed > fpsInterval) {
-            lastRenderTime = now;
-            deckgl._drawLayers(redrawReason);
-          }
-        },
       });
       // see https://github.com/visgl/deck.gl/blob/master/modules/arcgis/src/deck-renderer.js#L6
       function arcgisFOVToDeckAltitude(fov, aspectRatio) {
@@ -220,6 +208,7 @@
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate,
+          _customRender: config.particle.enabled && config.particle.animate && (deckgl.props._customRender || WeatherLayers.throttledAnimateRender(deckgl)),
         });
 
         rotateAnimation.toggle(config.rotate);

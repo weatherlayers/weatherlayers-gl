@@ -20,3 +20,4 @@ export * from './utils/data';
 export * from './utils/colormap';
 export * from './utils/value';
 export * from './utils/datetime';
+export * from './utils/deck';

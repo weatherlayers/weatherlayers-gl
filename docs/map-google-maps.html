@@ -57,23 +57,11 @@
       deckLayer.setMap(map);
 
       // animated deck.gl
-      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
         layers: [],
-        _customRender: redrawReason => {
-          // limit FPS
-          const fps = 30;
-          const fpsInterval = 1000 / fps;
-          const now = Date.now();
-          const elapsed = now - lastRenderTime;
-          if (elapsed > fpsInterval) {
-            lastRenderTime = now;
-            deckgl._drawLayers(redrawReason);
-          }
-        },
       });
       function updateDeckView() {
         const viewState = {
@@ -179,6 +167,7 @@
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate,
+          _customRender: config.particle.enabled && config.particle.animate && (deckgl.props._customRender || WeatherLayers.throttledAnimateRender(deckgl)),
         });
 
         legendControl.update({ ...legendControl.config, dataset });

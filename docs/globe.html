@@ -37,7 +37,6 @@
       let gui;
 
       // animated deck.gl
-      let lastRenderTime = 0;
       const deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
@@ -51,17 +50,6 @@
           new deck._GlobeView(),
         ],
         layers: [],
-        _customRender: redrawReason => {
-          // limit FPS
-          const fps = 30;
-          const fpsInterval = 1000 / fps;
-          const now = Date.now();
-          const elapsed = now - lastRenderTime;
-          if (elapsed > fpsInterval) {
-            lastRenderTime = now;
-            deckgl._drawLayers(redrawReason);
-          }
-        },
       });
       const rasterDeckgl = deckgl;
       const particleDeckgl = deckgl;
@@ -192,6 +180,7 @@
             }),
           ],
           _animate: config.particle.enabled && config.particle.animate,
+          _customRender: config.particle.enabled && config.particle.animate && (deckgl.props._customRender || WeatherLayers.throttledAnimateRender(deckgl)),
         });
 
         rotateAnimation.toggle(config.rotate);
