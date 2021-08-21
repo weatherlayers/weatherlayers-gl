@@ -14,12 +14,12 @@ import {linearColormap, colorRampImage} from '../../utils/colormap';
 const defaultProps = {
   ...BitmapLayer.defaultProps,
 
-  image: {type: 'image', value: null},
+  image: {type: 'image', value: null, required: true},
   image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
-  imageBounds: {type: 'array', value: null},
+  imageBounds: {type: 'array', value: null, required: true},
   imageType: {type: 'number', value: 0},
-  colormapBreaks: {type: 'array', value: null},
+  colormapBreaks: {type: 'array', value: null, required: true},
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
