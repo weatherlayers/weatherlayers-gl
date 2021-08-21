@@ -40,14 +40,14 @@ import {getUnprojectFunction} from './unproject';
  * @returns {Float32Array}
  */
 function blur(data, width, height) {
-  const result = new Array(data.length);
+  const result = new Float32Array(data.length);
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
       if (i >= 1 && i <= width - 2 && j >= 1 && j <= height - 2) {
         const values = [
-          data[(i - 1) + (j - 1) * width], data[(i + 0) + (j - 1) * width], data[(i + 1) + (j - 1) * width],
-          data[(i - 1) + (j + 0) * width], data[(i + 0) + (j + 0) * width], data[(i + 1) + (j + 0) * width],
-          data[(i - 1) + (j + 1) * width], data[(i + 0) + (j + 1) * width], data[(i + 1) + (j - 1) * width],
+          data[(i - 1) + (j - 1) * width], data[(i    ) + (j - 1) * width], data[(i + 1) + (j - 1) * width],
+          data[(i - 1) + (j    ) * width], data[(i    ) + (j    ) * width], data[(i + 1) + (j    ) * width],
+          data[(i - 1) + (j + 1) * width], data[(i    ) + (j + 1) * width], data[(i + 1) + (j - 1) * width],
         ];
         result[i + j * width] = values.reduce((acc, curr) => acc + curr, 0) / values.length;
       } else {
@@ -133,9 +133,8 @@ function computeContours(data, width, height, delta) {
  * @returns {Contour[]}
  */
 export function getContours(imageData, delta) {
-  const { width, height, data } = imageData;
-  let contoursWidth = width;
-  let contoursData = data;
+  let { width, height, data } = imageData;
+  const unproject = getUnprojectFunction(width, height);
 
   const sew = true;
   let bufferWest = 0;
@@ -146,20 +145,16 @@ export function getContours(imageData, delta) {
     // see https://github.com/d3/d3-contour/issues/25
     bufferWest = 1;
     bufferEast = 1;
-    contoursData = cylinder(contoursData, contoursWidth, height, bufferWest, bufferEast);
-    contoursWidth += bufferWest + bufferEast;
+    data = cylinder(data, width, height, bufferWest, bufferEast);
+    width += bufferWest + bufferEast;
   }
 
-  // blur the data to lower down the count of contours near the equator
+  // blur noisy data
   // see screenshot at https://gis.stackexchange.com/questions/386050/algorithm-to-find-low-high-atmospheric-pressure-systems-in-gridded-raster-data
-  // console.time('blur');
-  // for (let i = 0; i < 1; i++) {
-  contoursData = blur(contoursData, contoursWidth, height);
-  // }
-  // console.timeEnd('blur');
+  data = blur(data, width, height);
 
   // compute contours
-  let contours = computeContours(contoursData, contoursWidth, height, delta);
+  let contours = computeContours(data, width, height, delta);
 
   // transform pixel coordinates to geographical coordinates
   /** @type {(point: GeoJSON.Position) => GeoJSON.Position} */
@@ -167,7 +162,6 @@ export function getContours(imageData, delta) {
     point = [point[0] - bufferWest, point[1]];
     return point;
   };
-  const unproject = getUnprojectFunction(width, height);
   contours = contours.map(contour => {
     const coordinates = contour.coordinates.map(point => {
       point = removeBuffer(point);

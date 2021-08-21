@@ -40,6 +40,9 @@ function unscaleImageData(imageData, imageBounds) {
   return { width, height, data: unscaledData };
 }
 
+const DEFAULT_COLOR = [107, 107, 107, 255];
+const DEFAULT_OUTLINE_COLOR = [13, 13, 13, 255];
+
 const defaultProps = {
   ...TextLayer.defaultProps,
 
@@ -49,6 +52,8 @@ const defaultProps = {
   radius: {type: 'number', value: null, required: true},
   delta: {type: 'number', value: null, required: true},
 
+  color: {type: 'color', value: DEFAULT_COLOR},
+  outlineColor: {type: 'color', value: DEFAULT_OUTLINE_COLOR},
   formatValueFunction: {type: 'function', value: x => x.toString()},
 };
 
@@ -58,7 +63,7 @@ export class HiloTextLayer extends CompositeLayer {
       this.updateHighsLows();
     }
 
-    const {formatValueFunction} = this.props;
+    const {color, outlineColor, formatValueFunction} = this.props;
     const {highsLows} = this.state;
 
     if (!highsLows) {
@@ -72,8 +77,8 @@ export class HiloTextLayer extends CompositeLayer {
         getPosition: d => d.coordinates,
         getText: d => d.properties.type,
         getSize: 12,
-        getColor: [0, 0, 0],
-        outlineColor: [192, 192, 192],
+        getColor: color,
+        outlineColor,
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
         fontSettings: { sdf: true },
@@ -82,12 +87,12 @@ export class HiloTextLayer extends CompositeLayer {
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'value',
         data: highsLows,
+        getPixelOffset: [0, 14],
         getPosition: d => d.coordinates,
         getText: d => formatValueFunction(d.properties.value),
         getSize: 10,
-        getColor: [0, 0, 0],
-        getPixelOffset: [0, 14],
-        outlineColor: [192, 192, 192],
+        getColor: color,
+        outlineColor,
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
         fontSettings: { sdf: true },
