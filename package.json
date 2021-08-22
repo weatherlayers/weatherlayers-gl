@@ -1,7 +1,11 @@
 {
   "name": "weatherlayers-gl",
   "version": "1.0.0",
-  "description": "",
+  "description": "WeatherLayers.com visualization layers and controls",
+  "keywords": [],
+  "author": "WeatherLayers.com <info@weatherlayers.com>",
+  "license": "MPL-2.0",
+  "repository": "github:kamzek/weather-app",
   "main": "dist/weatherlayers-gl.cjs.js",
   "module": "dist/weatherlayers-gl.esm.js",
   "browser": "dist/weatherlayers-gl.umd.min.js",
@@ -11,8 +15,6 @@
     "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "WeatherLayers.com <info@weatherlayers.com>",
-  "private": true,
   "dependencies": {
     "color-rgba": "^2.2.3",
     "d3-contour": "^3.0.1",
