@@ -34,7 +34,7 @@ export class TimelineControl {
 
     this.animation = new Animation(() => {
       if (this.progress < this.datetimes.length - 1) {
-        this.progress += 0.05;
+        this.progress += 0.2;
       } else {
         this.progress = 0;
       }
