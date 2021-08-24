@@ -25,6 +25,8 @@ export class TimelineControl {
   animation = undefined;
   /** @type {number} */
   progress = 0;
+  /** @type {boolean} */
+  loading = false;
 
   /**
    * @param {TimelineConfig} config
@@ -86,20 +88,32 @@ export class TimelineControl {
    * @returns {Promise<void>}
    */
   async toggleAnimation() {
+    if (this.loading) {
+      return;
+    }
+
     const playPauseButton = this.container.querySelector('a');
     if (!playPauseButton) {
       return;
     }
 
     if (this.animation.running) {
+      playPauseButton.classList.remove('pause');
+      playPauseButton.classList.add('play');
+
       this.animation.stop();
-      playPauseButton.className = 'play';
     } else {
+      playPauseButton.classList.remove('play');
+      playPauseButton.classList.add('pause');
+
       // preload images
+      this.loading = true;
+      playPauseButton.classList.add('loading');
       await Promise.all(this.datetimes.map(x => loadStacCollectionDataByDatetime(this.config.dataset, x)));
+      playPauseButton.classList.remove('loading');
+      this.loading = false;
 
       this.animation.start();
-      playPauseButton.className = 'pause';
     }
 
     this.updateProgress();

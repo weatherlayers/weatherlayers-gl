@@ -31,6 +31,9 @@
 .weatherlayers-timeline-control a.pause {
   background-image: inline('./pause.svg');
 }
+.weatherlayers-timeline-control a.loading {
+  cursor: wait;
+}
 .weatherlayers-timeline-control input {
   vertical-align: middle;
   margin-left: 10px;
