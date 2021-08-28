@@ -62,8 +62,10 @@ export class HiloTextLayer extends CompositeLayer {
       this.updateHighsLows();
     }
 
+    const {viewport} = this.context;
     const {color, outlineColor, formatValueFunction} = this.props;
     const {highsLows} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!highsLows) {
       return [];
@@ -73,10 +75,12 @@ export class HiloTextLayer extends CompositeLayer {
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'type',
         data: highsLows,
+        getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * -7],
         getPosition: d => d.coordinates,
         getText: d => d.properties.type,
         getSize: 12,
         getColor: color,
+        getAngle: isGlobeViewport ? 180 : 0,
         outlineColor,
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
@@ -86,11 +90,12 @@ export class HiloTextLayer extends CompositeLayer {
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'value',
         data: highsLows,
-        getPixelOffset: [0, 14],
+        getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * 7],
         getPosition: d => d.coordinates,
         getText: d => formatValueFunction(d.properties.value),
         getSize: 10,
         getColor: color,
+        getAngle: isGlobeViewport ? 180 : 0,
         outlineColor,
         outlineWidth: 1,
         fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',

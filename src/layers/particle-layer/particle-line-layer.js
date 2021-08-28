@@ -161,6 +161,7 @@ export class ParticleLineLayer extends LineLayer {
     const {gl, viewport, timeline} = this.context;
     const {image, image2, imageWeight, imageBounds, bounds, numParticles, speedFactor, maxAge} = this.props;
     const {numAgedInstances, transform} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!image) {
       return;
@@ -168,7 +169,7 @@ export class ParticleLineLayer extends LineLayer {
 
     const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
-    const viewportSphere = viewport.resolution ? 1 : 0; // globe
+    const viewportSphere = isGlobeViewport ? 1 : 0;
     const viewportSphereCenter = [viewport.longitude, viewport.latitude];
     const viewportSphereRadius = Math.max(
       distance(viewportSphereCenter, viewport.unproject([0, 0])),
