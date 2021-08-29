@@ -26,7 +26,7 @@ export class ContourLayer extends CompositeLayer {
 
     return [
       new ContourPathLayer(props, this.getSubLayerProps({
-        id: 'text',
+        id: 'path',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,

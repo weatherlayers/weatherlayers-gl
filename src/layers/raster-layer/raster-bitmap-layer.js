@@ -63,7 +63,7 @@ export class RasterBitmapLayer extends BitmapLayer {
             return x == 0. ? sign(y) * RASTER_PI / 2. : atan(y, x);
           }
 
-          float raster_get_colormap_value(vec4 color) {
+          float raster_get_value(vec4 color) {
             float value;
             if (imageType > 0.5) {
               if (imageUnscale > 0.5) {
@@ -79,6 +79,10 @@ export class RasterBitmapLayer extends BitmapLayer {
               }
             }
 
+            return value;
+          }
+
+          float raster_get_colormap_value(float value) {
             return unscale(colormapBounds[0], colormapBounds[1], value);
           }
 
@@ -112,7 +116,8 @@ export class RasterBitmapLayer extends BitmapLayer {
             discard;
           }
 
-          float colormapValue = raster_get_colormap_value(bitmapColor);
+          float value = raster_get_value(bitmapColor);
+          float colormapValue = raster_get_colormap_value(value);
           vec4 rasterColor = texture2D(colormapTexture, vec2(colormapValue, 0.));
           gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
 
