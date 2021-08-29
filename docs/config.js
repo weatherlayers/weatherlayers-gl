@@ -38,7 +38,7 @@ export async function initConfig() {
       enabled: false,
       numParticles: 5000,
       maxAge: 25,
-      speedFactor: 4,
+      speedFactor: 2,
       color: [255, 255, 255],
       width: 2,
       opacity: 0.02,
