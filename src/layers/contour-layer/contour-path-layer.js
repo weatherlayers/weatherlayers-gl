@@ -57,7 +57,7 @@ const defaultProps = {
 export class ContourPathLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.delta !== this.state.delta)) {
-      this.updateContoursAndExtremities();
+      this.updateContours();
     }
 
     const {color, width} = this.props;
@@ -79,7 +79,7 @@ export class ContourPathLayer extends CompositeLayer {
     ];
   }
 
-  updateContoursAndExtremities() {
+  updateContours() {
     const {image, imageBounds, delta} = this.props;
 
     if (!image) {

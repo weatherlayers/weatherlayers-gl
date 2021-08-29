@@ -23,7 +23,7 @@ export async function initConfig() {
       delta: 200,
       color: [255, 255, 255],
       width: 1,
-      opacity: 0.01,
+      opacity: 0.01
     },
     hilo: {
       enabled: false,

@@ -79,8 +79,6 @@
         width: 250,
         onUpdate: event => {
           config.datetime = event.datetime || NO_DATA;
-          config.datetime2 = event.datetime2 || NO_DATA;
-          config.datetimeWeight = event.datetimeWeight;
           gui.updateDisplay();
           update();
         },
@@ -105,7 +103,6 @@
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const datetime2 = config.datetime2 !== NO_DATA ? config.datetime2 : undefined;
 
         deckgl.setProps({
           layers: [
@@ -142,8 +139,6 @@
               visible: config.raster.enabled,
               dataset,
               datetime,
-              datetime2,
-              datetimeWeight: config.datetimeWeight,
               opacity: config.raster.opacity,
               bounds: [-180, -90, 180, 90],
               _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
@@ -162,6 +157,8 @@
               color: config.contour.color,
               width: config.contour.width,
               opacity: config.contour.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
             }),
             new WeatherLayers.HiloLayer({
               id: 'hilo',
@@ -179,8 +176,6 @@
               visible: config.particle.enabled,
               dataset,
               datetime,
-              datetime2,
-              datetimeWeight: config.datetimeWeight,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,

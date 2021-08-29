@@ -8,7 +8,7 @@
 import {CompositeLayer} from '@deck.gl/layers';
 import {HiloTextLayer} from './hilo-text-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
-import {getClosestStartDatetime} from '../../utils/datetime';
+import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
 import {formatValue} from '../../utils/value';
 
 const defaultProps = {
@@ -39,6 +39,7 @@ export class HiloLayer extends CompositeLayer {
   }
 
   async updateState({props, oldProps, changeFlags}) {
+    const {gl} = this.context;
     const {dataset, datetime} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
@@ -49,6 +50,8 @@ export class HiloLayer extends CompositeLayer {
         stacCollection: undefined,
         datetimes: undefined,
         image: undefined,
+        image2: undefined,
+        imageWeight: undefined,
       });
       return;
     }
@@ -60,23 +63,32 @@ export class HiloLayer extends CompositeLayer {
 
     if (dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
       const startDatetime = getClosestStartDatetime(this.state.datetimes, datetime);
+      const endDatetime = getClosestEndDatetime(this.state.datetimes, datetime);
       if (!startDatetime) {
         return;
       }
 
-      if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime) {
-        const image = await loadStacCollectionDataByDatetime(dataset, startDatetime);
+      const datetimeWeight = endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
+      if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
+        let [image, image2] = await Promise.all([
+          loadStacCollectionDataByDatetime(dataset, startDatetime),
+          endDatetime && loadStacCollectionDataByDatetime(dataset, endDatetime),
+        ]);
+  
         this.setState({
           image,
+          image2,
         });
       }
 
       this.setState({
         startDatetime,
+        endDatetime,
+        imageWeight: datetimeWeight,
       });
     }
-
+    
     this.setState({
       props: this.props,
     });

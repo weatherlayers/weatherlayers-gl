@@ -144,6 +144,8 @@
               color: config.contour.color,
               width: config.contour.width,
               opacity: config.contour.opacity,
+              bounds: [-180, -90, 180, 90],
+              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
