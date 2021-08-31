@@ -10,7 +10,7 @@ export async function initConfig() {
     datasets: WeatherLayers.getStacCatalogCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
-    datetime: NO_DATA,
+    datetime: new Date().toISOString(),
     datetime2: NO_DATA,
     datetimeWeight: 0,
     rotate: false,
