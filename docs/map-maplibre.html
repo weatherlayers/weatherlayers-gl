@@ -152,10 +152,6 @@
               dataset,
               datetime,
               opacity: config.raster.opacity,
-              bounds: [-180, -90, 180, 90],
-              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
               pickable: true,
             }),
             new WeatherLayers.ContourLayer({
@@ -167,8 +163,6 @@
               color: config.contour.color,
               width: config.contour.width,
               opacity: config.contour.opacity,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
             new WeatherLayers.HiloLayer({
               id: 'hilo',
@@ -180,8 +174,6 @@
               color: config.hilo.color,
               outlineColor: config.hilo.outlineColor,
               opacity: config.hilo.opacity,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-360, -85.051129, 360, 85.051129],
             }),
           ],
         });

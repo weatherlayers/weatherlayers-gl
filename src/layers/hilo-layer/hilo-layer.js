@@ -6,6 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer} from '@deck.gl/layers';
+import {ClipExtension} from '@deck.gl/extensions';
 import {HiloTextLayer} from './hilo-text-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
@@ -20,7 +21,9 @@ const defaultProps = {
 
 export class HiloLayer extends CompositeLayer {
   renderLayers() {
+    const {viewport} = this.context;
     const {props, stacCollection, image} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !stacCollection.summaries.hilo || !image) {
       return [];
@@ -34,6 +37,9 @@ export class HiloLayer extends CompositeLayer {
         radius: props.radius || stacCollection.summaries.hilo.radius,
         contour: props.contour || stacCollection.summaries.hilo.contour,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
+
+        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
+        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })),
     ];
   }

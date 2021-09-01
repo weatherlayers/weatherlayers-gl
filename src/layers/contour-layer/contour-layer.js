@@ -5,7 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import {COORDINATE_SYSTEM} from '@deck.gl/core';
 import {CompositeLayer} from '@deck.gl/layers';
+import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {ContourPathLayer} from './contour-path-layer';
 import {ContourBitmapLayer} from './contour-bitmap-layer';
@@ -22,8 +24,10 @@ const defaultProps = {
 
 export class ContourLayer extends CompositeLayer {
   renderLayers() {
+    const {viewport} = this.context;
     const {experimental} = this.props;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !stacCollection.summaries.contour || !image) {
       return [];
@@ -35,6 +39,9 @@ export class ContourLayer extends CompositeLayer {
         image,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
+
+        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
+        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })) : null,
       experimental ? new ContourBitmapLayer(props, this.getSubLayerProps({
         id: 'bitmap',
@@ -44,9 +51,13 @@ export class ContourLayer extends CompositeLayer {
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
-        // apply opacity in ContourBitmapLayer
-        opacity: 1,
+        opacity: 1, // apply separate opacity
         rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
+
+        bounds: stacCollection.extent.spatial.bbox[0],
+        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
+        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })) : null,
     ];
   }

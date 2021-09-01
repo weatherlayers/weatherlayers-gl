@@ -140,8 +140,6 @@
               dataset,
               datetime,
               opacity: config.raster.opacity,
-              bounds: [-180, -90, 180, 90],
-              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
               pickable: true,
               parameters: {
                 cull: true,
@@ -157,8 +155,6 @@
               color: config.contour.color,
               width: config.contour.width,
               opacity: config.contour.opacity,
-              bounds: [-180, -90, 180, 90],
-              _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
             }),
             new WeatherLayers.HiloLayer({
               id: 'hilo',

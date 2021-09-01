@@ -5,7 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import {COORDINATE_SYSTEM} from '@deck.gl/core';
 import {CompositeLayer} from '@deck.gl/layers';
+import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
@@ -20,7 +22,9 @@ const defaultProps = {
 
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
+    const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !stacCollection.summaries.raster || !image) {
       return [];
@@ -35,9 +39,13 @@ export class RasterLayer extends CompositeLayer {
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         colormapBreaks: props.colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
-        // apply opacity in RasterBitmapLayer
-        opacity: 1,
+        opacity: 1, // apply separate opacity
         rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
+
+        bounds: stacCollection.extent.spatial.bbox[0],
+        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
+        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })),
     ];
   }
