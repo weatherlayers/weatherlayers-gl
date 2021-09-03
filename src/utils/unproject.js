@@ -12,7 +12,7 @@
  * @returns {(point: GeoJSON.Position) => GeoJSON.Position}
  */
 export function getUnprojectFunction(width, height, bounds) {
-  const origin = [bounds[0], bounds[1]];
+  const origin = [bounds[0], bounds[3]]; // top-left
   const lngResolution = (bounds[2] - bounds[0]) / width;
   const latResolution = (bounds[3] - bounds[1]) / height;
 
