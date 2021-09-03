@@ -32,7 +32,6 @@ const defaultProps = {
 
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
-  repeat: true,
   animate: true,
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
