@@ -8,12 +8,13 @@
 /**
  * @param {number} width
  * @param {number} height
+ * @param {[number, number, number, number]} bounds
  * @returns {(point: GeoJSON.Position) => GeoJSON.Position}
  */
-export function getUnprojectFunction(width, height) {
-  const origin = [-180, 90];
-  const lngResolution = 360 / width;
-  const latResolution = 180 / height;
+export function getUnprojectFunction(width, height, bounds) {
+  const origin = [bounds[0], bounds[1]];
+  const lngResolution = (bounds[2] - bounds[0]) / width;
+  const latResolution = (bounds[3] - bounds[1]) / height;
 
   return point => {
     const i = point[0];

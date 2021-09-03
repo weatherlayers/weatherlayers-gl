@@ -41,6 +41,7 @@ export class ContourLayer extends CompositeLayer {
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
 
+        bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
         clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })) : null,

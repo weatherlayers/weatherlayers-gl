@@ -49,9 +49,11 @@ const defaultProps = {
   imageBounds: {type: 'array', value: null, required: true},
 
   delta: {type: 'number', value: null, required: true},
-
+  
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
+
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 export class ContourPathLayer extends CompositeLayer {
@@ -80,7 +82,7 @@ export class ContourPathLayer extends CompositeLayer {
   }
 
   updateContours() {
-    const {image, imageBounds, delta} = this.props;
+    const {image, imageBounds, delta, bounds} = this.props;
 
     if (!image) {
       return;
@@ -94,7 +96,7 @@ export class ContourPathLayer extends CompositeLayer {
       imageData = image;
     }
 
-    const contours = getContours(imageData, delta);
+    const contours = getContours(imageData, delta, bounds);
 
     this.setState({
       image,

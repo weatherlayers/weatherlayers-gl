@@ -39,6 +39,7 @@ export class HiloLayer extends CompositeLayer {
         contour: props.contour || stacCollection.summaries.hilo.contour,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
+        bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
         clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
       })),

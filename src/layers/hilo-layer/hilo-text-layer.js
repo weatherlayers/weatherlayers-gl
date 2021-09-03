@@ -54,6 +54,8 @@ const defaultProps = {
   color: {type: 'color', value: DEFAULT_COLOR},
   outlineColor: {type: 'color', value: DEFAULT_OUTLINE_COLOR},
   formatValueFunction: {type: 'function', value: x => x.toString()},
+
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 export class HiloTextLayer extends CompositeLayer {
@@ -106,7 +108,7 @@ export class HiloTextLayer extends CompositeLayer {
   }
 
   updateHighsLows() {
-    const {image, imageBounds, radius} = this.props;
+    const {image, imageBounds, radius, bounds} = this.props;
 
     if (!image) {
       return;
@@ -120,7 +122,7 @@ export class HiloTextLayer extends CompositeLayer {
       imageData = image;
     }
 
-    const highsLows = getHighsLows(imageData, radius);
+    const highsLows = getHighsLows(imageData, radius, bounds);
 
     this.setState({
       image,

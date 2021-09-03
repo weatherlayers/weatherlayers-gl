@@ -35,6 +35,7 @@ uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
 
+// no coordinate conversion needed
 vec2 getUV(vec2 pos) {
   return vec2(
     (pos.x - bounds[0]) / (bounds[2] - bounds[0]),

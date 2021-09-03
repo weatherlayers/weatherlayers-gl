@@ -41,11 +41,12 @@ function blur(data, width, height) {
 /**
  * @param {{ width: number, height: number, data: Float32Array }} imageData
  * @param {number} radius
+ * @param {[number, number, number, number]} bounds
  * @returns {HiloPoint[]}
  */
-export function getHighsLows(imageData, radius) {
+export function getHighsLows(imageData, radius, bounds) {
   let { width, height, data } = imageData;
-  const unproject = getUnprojectFunction(width, height);
+  const unproject = getUnprojectFunction(width, height, bounds);
   const radiusKm = radius * 1000;
 
   // blur noisy data

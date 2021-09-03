@@ -37,6 +37,8 @@ export class ParticleLayer extends CompositeLayer {
         maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
         speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
         width: props.width || stacCollection.summaries.particle.width,
+
+        bounds: stacCollection.extent.spatial.bbox[0],
       })),
     ];
   }

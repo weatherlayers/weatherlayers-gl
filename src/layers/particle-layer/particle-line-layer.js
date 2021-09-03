@@ -5,7 +5,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {COORDINATE_SYSTEM} from '@deck.gl/core';
 import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
@@ -26,9 +25,6 @@ const defaultProps = {
   image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null, required: true},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
-  _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
-  textureParameters: DEFAULT_TEXTURE_PARAMETERS,
 
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 100},
@@ -36,7 +32,11 @@ const defaultProps = {
 
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
+  repeat: true,
   animate: true,
+
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  textureParameters: DEFAULT_TEXTURE_PARAMETERS,
 };
 
 export class ParticleLineLayer extends LineLayer {

@@ -130,16 +130,17 @@ function computeContours(data, width, height, delta) {
 /**
  * @param {{ width: number, height: number, data: Float32Array }} imageData
  * @param {number} delta
+ * @param {[number, number, number, number]} bounds
  * @returns {Contour[]}
  */
-export function getContours(imageData, delta) {
+export function getContours(imageData, delta, bounds) {
   let { width, height, data } = imageData;
-  const unproject = getUnprojectFunction(width, height);
+  const repeat = bounds[0] === -180 && bounds[2] === 180;
+  const unproject = getUnprojectFunction(width, height, bounds);
 
-  const sew = true;
   let bufferWest = 0;
   let bufferEast = 0;
-  if (sew) {
+  if (repeat) {
     // wrap data around the world by repeating the data in the west and east
     // prevents wrong points at the sew
     // see https://github.com/d3/d3-contour/issues/25
@@ -171,8 +172,7 @@ export function getContours(imageData, delta) {
     return { type: contour.type, coordinates, properties: contour.properties };
   })
   
-  if (sew) {
-    const bounds = /** @type {[number, number, number, number]} */ ([-180, -90, 180, 90]);
+  if (repeat) {
     contours = contours.map(contour => {
       const lines = lineclip.polyline(contour.coordinates, bounds);
       return lines.map(line => {
