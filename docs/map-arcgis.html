@@ -137,6 +137,7 @@
               visible: config.hilo.enabled && !timelineControl.animation.running,
               dataset,
               datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
               radius: config.hilo.radius,
               delta: config.hilo.delta,
               color: config.hilo.color,
@@ -148,6 +149,7 @@
               visible: config.contour.enabled && !timelineControl.animation.running,
               dataset,
               datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
               delta: config.contour.delta,
               color: config.contour.color,
               width: config.contour.width,
@@ -158,6 +160,7 @@
               visible: config.raster.enabled,
               dataset,
               datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
               opacity: config.raster.opacity,
               pickable: true,
             }),
@@ -170,6 +173,7 @@
               visible: config.particle.enabled,
               dataset,
               datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
@@ -185,7 +189,7 @@
         });
 
         legendControl.update({ ...legendControl.config, dataset });
-        timelineControl.update({ ...timelineControl.config, dataset, datetime });
+        timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
         tooltipControl.update({ ...tooltipControl.config, dataset });
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }

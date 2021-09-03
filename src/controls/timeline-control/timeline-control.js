@@ -13,11 +13,15 @@ import './timeline-control.css';
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
-const STEP = 0.25;
+const FPS = 15;
+const STEP = 1;
+const STEP_INTERPOLATE = 0.25;
 
 export class TimelineControl {
   /** @type {TimelineConfig} */
   config = undefined;
+  /** @type {number} */
+  step = undefined;
   /** @type {HTMLElement} */
   container = undefined;
   /** @type {StacCollection} */
@@ -34,16 +38,21 @@ export class TimelineControl {
    */
   constructor(config) {
     this.config = config;
+    this.step = config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
 
     this.animation = new Animation(() => {
       if (this.progress < this.datetimes.length - 1) {
-        this.progress += STEP;
+        this.progress += this.step;
+
+        if (Math.ceil(this.progress / this.step) !== this.progress / this.step) {
+          this.progress = Math.ceil(this.progress / this.step) * this.step;
+        }
       } else {
         this.progress = 0;
       }
 
       this.updateProgress();
-    });
+    }, FPS);
   }
 
   /**
@@ -157,9 +166,12 @@ export class TimelineControl {
     if (!this.container) {
       return;
     }
+    this.step = config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
     if (this.stacCollection && this.config.dataset === config.dataset) {
       const info = this.container.querySelector('span');
+      const progressInput = this.container.querySelector('input');
       info.innerHTML = formatDatetime(config.datetime);
+      progressInput.step = this.step;
       return;
     }
 
@@ -195,7 +207,7 @@ export class TimelineControl {
     progressInput.type = 'range';
     progressInput.min = 0;
     progressInput.max = this.datetimes.length - 1;
-    progressInput.step = STEP;
+    progressInput.step = this.step;
     progressInput.value = this.datetimes.findIndex(x => x >= this.config.datetime);
     progressInput.style.width = `${this.config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
     progressInput.addEventListener('input', () => this.updateProgress());

@@ -11,6 +11,7 @@ export async function initConfig() {
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
+    datetimeInterpolate: true,
     rotate: false,
 
     raster: {
@@ -119,6 +120,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   gui.add(config, 'datetime', []).onChange(update);
   updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
+  gui.add(config, 'datetimeInterpolate').onChange(update);
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);

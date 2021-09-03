@@ -16,6 +16,7 @@ const defaultProps = {
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
+  datetimeInterpolate: false,
 };
 
 export class ParticleLayer extends CompositeLayer {
@@ -42,7 +43,7 @@ export class ParticleLayer extends CompositeLayer {
 
   async updateState({props, oldProps, changeFlags}) {
     const {gl} = this.context;
-    const {dataset, datetime} = this.props;
+    const {dataset, datetime, datetimeInterpolate} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -70,7 +71,7 @@ export class ParticleLayer extends CompositeLayer {
         return;
       }
 
-      const datetimeWeight = endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+      const datetimeWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         let [image, image2] = await Promise.all([

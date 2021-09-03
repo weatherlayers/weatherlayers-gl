@@ -10,15 +10,15 @@ export class Animation {
   raf = null;
   lastFrameTime = 0;
 
-  constructor(update) {
+  constructor(update, fps = 30) {
     this.update = update;
+    this.fps = fps;
   }
 
   frame() {
     const now = Date.now();
     const elapsed = now - this.lastFrameTime;
-    const fps = 30;
-    const fpsInterval = 1000 / fps;
+    const fpsInterval = 1000 / this.fps;
     if (elapsed > fpsInterval) {
       this.lastFrameTime = now - (elapsed % fpsInterval);
       this.update();
