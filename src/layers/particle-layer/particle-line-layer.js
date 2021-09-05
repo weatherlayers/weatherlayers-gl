@@ -41,20 +41,27 @@ const defaultProps = {
 
 export class ParticleLineLayer extends LineLayer {
   getShaders() {
+    const parentShaders = super.getShaders();
+
     return {
-      ...super.getShaders(),
+      ...parentShaders,
       inject: {
+        ...parentShaders.inject,
         'vs:#decl': `
+          ${(parentShaders.inject || {})['vs:#decl'] || ''}
           varying float drop;
           const vec2 DROP_POSITION = vec2(0);
         `,
         'vs:#main-start': `
+          ${(parentShaders.inject || {})['vs:#main-start'] || ''}
           drop = float(instanceSourcePositions.xy == DROP_POSITION || instanceTargetPositions.xy == DROP_POSITION);
         `,
         'fs:#decl': `
+          ${(parentShaders.inject || {})['fs:#decl'] || ''}
           varying float drop;
         `,
         'fs:#main-start': `
+          ${(parentShaders.inject || {})['fs:#main-start'] || ''}
           if (drop > 0.5) discard;
         `,
       },
