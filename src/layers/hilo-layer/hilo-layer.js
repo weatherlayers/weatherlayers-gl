@@ -10,6 +10,7 @@ import {ClipExtension} from '@deck.gl/extensions';
 import {HiloTextLayer} from './hilo-text-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
+import {mercatorBounds} from '../../utils/mercator';
 import {formatValue} from '../../utils/value';
 
 const defaultProps = {
@@ -41,7 +42,7 @@ export class HiloLayer extends CompositeLayer {
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
+        clipBounds: !isGlobeViewport ? mercatorBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })),
     ];
   }

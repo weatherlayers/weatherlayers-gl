@@ -11,6 +11,7 @@ import GL from '@luma.gl/constants';
 
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
 import {distance} from '../../utils/geodesy';
+import {mercatorBounds} from '../../utils/mercator';
 
 const DEFAULT_TEXTURE_PARAMETERS = {
   [GL.TEXTURE_WRAP_S]: GL.REPEAT,
@@ -175,11 +176,7 @@ export class ParticleLineLayer extends LineLayer {
       distance(viewportSphereCenter, viewport.unproject([viewport.width / 2, 0])),
       distance(viewportSphereCenter, viewport.unproject([0, viewport.height / 2])),
     );
-    const viewportBounds = viewport.getBounds();
-    // viewportBounds[0] = Math.max(viewportBounds[0], -180);
-    viewportBounds[1] = Math.max(viewportBounds[1], -85.051129);
-    // viewportBounds[2] = Math.min(viewportBounds[2], 180);
-    viewportBounds[3] = Math.min(viewportBounds[3], 85.051129);
+    const viewportBounds = mercatorBounds(viewport.getBounds());
 
     // speed factor for current zoom level
     const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;

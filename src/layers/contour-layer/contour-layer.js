@@ -13,6 +13,7 @@ import {ContourPathLayer} from './contour-path-layer';
 import {ContourBitmapLayer} from './contour-bitmap-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
+import {mercatorBounds} from '../../utils/mercator';
 
 const defaultProps = {
   ...ContourBitmapLayer.defaultProps,
@@ -43,7 +44,7 @@ export class ContourLayer extends CompositeLayer {
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
+        clipBounds: !isGlobeViewport ? mercatorBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })) : null,
       experimental ? new ContourBitmapLayer(props, this.getSubLayerProps({
         id: 'bitmap',
@@ -59,7 +60,7 @@ export class ContourLayer extends CompositeLayer {
         bounds: stacCollection.extent.spatial.bbox[0],
         _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? [-360, -85.051129, 360, 85.051129] : undefined,
+        clipBounds: !isGlobeViewport ? mercatorBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })) : null,
     ];
   }
