@@ -250,7 +250,7 @@ export class ParticleLineLayer extends LineLayer {
     });
   }
 
-  delta() {
+  step() {
     this._runTransformFeedback();
 
     this.setNeedsRedraw();
