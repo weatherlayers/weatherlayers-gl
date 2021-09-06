@@ -90,6 +90,9 @@
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
         layers: [],
       });
       function updateDeckView() {

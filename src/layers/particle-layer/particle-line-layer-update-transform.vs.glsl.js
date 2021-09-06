@@ -100,6 +100,19 @@ vec2 getSpeed(vec4 color) {
   }
 }
 
+float wrap(float lng) {
+  float wrappedLng = mod(lng + 180., 360.) - 180.;
+  return wrappedLng;
+}
+
+float wrap(float lng, float minLng) {
+  float wrappedLng = wrap(lng);
+  if (wrappedLng < minLng) {
+    wrappedLng += 360.;
+  }
+  return wrappedLng;
+}
+
 float rand(vec2 co) {
   return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -129,9 +142,11 @@ bool isPositionVisible(vec2 position) {
   } else {
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;
+    float lng = wrap(position.x, viewportBoundsMin.x);
+    float lat = position.y;
     return (
-      viewportBoundsMin.x <= position.x && position.x <= viewportBoundsMax.x &&
-      viewportBoundsMin.y <= position.y && position.y <= viewportBoundsMax.y
+      viewportBoundsMin.x <= lng && lng <= viewportBoundsMax.x &&
+      viewportBoundsMin.y <= lat && lat <= viewportBoundsMax.y
     );
   }
 }
@@ -156,6 +171,7 @@ void main() {
     vec2 distortedSpeed = vec2(speed.x / distortion, speed.y);
     vec2 offset = distortedSpeed * viewportSpeedFactor;
     targetPosition.xy = sourcePosition.xy + offset;
+    targetPosition.x = wrap(targetPosition.x);
 
     // drop nodata
     if (!hasValues(bitmapColor)) {
@@ -179,6 +195,7 @@ void main() {
       vec2 randomSeed = vec2(particleIndex * seed / numParticles);
       vec2 randomPosition = randPosition(randomSeed);
       targetPosition.xy = randomPosition;
+      targetPosition.x = wrap(targetPosition.x);
     } else {
       targetPosition.xy = DROP_POSITION;
     }

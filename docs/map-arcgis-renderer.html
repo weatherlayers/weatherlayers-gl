@@ -70,11 +70,6 @@
         layers: [],
       });
       externalRenderers.add(view, deckRenderer);
-      deckRenderer.deckInstance.setProps({
-        views: [
-          new deck.MapView({ repeat: true }),
-        ],
-      });
 
       // animated deck.gl
       const deckgl = new deck.Deck({

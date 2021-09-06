@@ -10,7 +10,7 @@ import {ClipExtension} from '@deck.gl/extensions';
 import {HiloTextLayer} from './hilo-text-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
-import {mercatorBounds} from '../../utils/mercator';
+import {clipBounds} from '../../utils/bounds';
 import {formatValue} from '../../utils/value';
 
 const defaultProps = {
@@ -42,15 +42,19 @@ export class HiloLayer extends CompositeLayer {
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? mercatorBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
+        clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })),
     ];
   }
 
   async updateState({props, oldProps, changeFlags}) {
-    const {dataset, datetime, datetimeInterpolate} = this.props;
+    const {dataset, datetime, datetimeInterpolate, visible} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
+
+    if (!visible) {
+      return;
+    }
 
     if (!dataset || !datetime) {
       this.setState({
@@ -69,7 +73,7 @@ export class HiloLayer extends CompositeLayer {
       this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
     }
 
-    if (dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
+    if (!this.state.image || dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
       const startDatetime = getClosestStartDatetime(this.state.datetimes, datetime);
       const endDatetime = getClosestEndDatetime(this.state.datetimes, datetime);
       if (!startDatetime) {

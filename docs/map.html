@@ -52,18 +52,9 @@
           normalize: false,
         },
         views: [
-          new deck.MapView({ id: 'map', repeat: true }),
-          new deck.MapView({ id: 'map2', viewState: 'map' }),
+          new deck.MapView({ repeat: true }),
         ],
         layers: [],
-        layerFilter: ({ layer, viewport }) => {
-          // render particle layer in non-repeated MapView
-          if (layer.id == 'particle-line') {
-            return !viewport.subViewports;
-          } else {
-            return !!viewport.subViewports;
-          }
-        },
       });
       const rasterDeckgl = deckgl;
       const particleDeckgl = deckgl;

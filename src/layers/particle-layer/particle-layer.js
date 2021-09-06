@@ -6,10 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer} from '@deck.gl/layers';
+import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {ParticleLineLayer} from './particle-line-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
+import {clipBounds} from '../../utils/bounds';
 
 const defaultProps = {
   ...ParticleLineLayer.defaultProps,
@@ -21,7 +23,9 @@ const defaultProps = {
 
 export class ParticleLayer extends CompositeLayer {
   renderLayers() {
+    const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !stacCollection.summaries.particle || !image) {
       return [];
@@ -37,17 +41,24 @@ export class ParticleLayer extends CompositeLayer {
         maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
         speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
         width: props.width || stacCollection.summaries.particle.width,
+        wrapLongitude: true,
 
         bounds: stacCollection.extent.spatial.bbox[0],
+        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
+        clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })),
     ];
   }
 
   async updateState({props, oldProps, changeFlags}) {
     const {gl} = this.context;
-    const {dataset, datetime, datetimeInterpolate} = this.props;
+    const {dataset, datetime, datetimeInterpolate, visible} = this.props;
 
     super.updateState({props, oldProps, changeFlags});
+
+    if (!visible) {
+      return;
+    }
 
     if (!dataset || !datetime) {
       this.setState({
@@ -66,7 +77,7 @@ export class ParticleLayer extends CompositeLayer {
       this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
     }
 
-    if (dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
+    if (!this.state.image || dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
       const startDatetime = getClosestStartDatetime(this.state.datetimes, datetime);
       const endDatetime = getClosestEndDatetime(this.state.datetimes, datetime);
       if (!startDatetime) {

@@ -11,7 +11,7 @@ import GL from '@luma.gl/constants';
 
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
 import {distance} from '../../utils/geodesy';
-import {mercatorBounds} from '../../utils/mercator';
+import {wrapBounds} from '../../utils/bounds';
 
 const DEFAULT_TEXTURE_PARAMETERS = {
   [GL.TEXTURE_WRAP_S]: GL.REPEAT,
@@ -167,10 +167,11 @@ export class ParticleLineLayer extends LineLayer {
   _runTransformFeedback() {
     const {gl, viewport, timeline} = this.context;
     const {image, image2, imageWeight, imageBounds, bounds, numParticles, speedFactor, maxAge} = this.props;
-    const {numAgedInstances, transform} = this.state;
+    const {numAgedInstances, transform, lastRunTime} = this.state;
     const isGlobeViewport = !!viewport.resolution;
+    const time = timeline.getTime();
 
-    if (!image) {
+    if (!image || time === lastRunTime) {
       return;
     }
 
@@ -183,7 +184,7 @@ export class ParticleLineLayer extends LineLayer {
       distance(viewportSphereCenter, viewport.unproject([viewport.width / 2, 0])),
       distance(viewportSphereCenter, viewport.unproject([0, viewport.height / 2])),
     );
-    const viewportBounds = mercatorBounds(viewport.getBounds());
+    const viewportBounds = wrapBounds(viewport.getBounds());
 
     // speed factor for current zoom level
     const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
@@ -217,7 +218,7 @@ export class ParticleLineLayer extends LineLayer {
       viewportBounds,
       viewportSpeedFactor,
 
-      time: timeline.getTime(),
+      time,
       seed: Math.random(),
     };
     transform.run({uniforms});
@@ -225,6 +226,8 @@ export class ParticleLineLayer extends LineLayer {
 
     // const {sourcePositions, targetPositions} = this.state;
     // console.log(uniforms, sourcePositions.getData().slice(0, 6), targetPositions.getData().slice(0, 6));
+
+    this.state.lastRunTime = time;
   }
 
   _deleteTransformFeedback() {
