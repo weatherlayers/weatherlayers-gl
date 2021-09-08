@@ -18,6 +18,7 @@ const DEFAULT_TEXTURE_PARAMETERS = {
 };
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
+const FPS = 30;
 
 const defaultProps = {
   ...LineLayer.defaultProps,
@@ -104,6 +105,7 @@ export class ParticleLineLayer extends LineLayer {
 
     if (animate) {
       this._runTransformFeedback();
+      setTimeout(() => this.setNeedsRedraw(), 1000 / FPS);
     }
 
     model.setAttributes({

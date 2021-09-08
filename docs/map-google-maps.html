@@ -170,8 +170,6 @@
               getPolygonOffset: () => [0, -1000],
             }),
           ],
-          _animate: config.particle.enabled && config.particle.animate,
-          _customRender: config.particle.enabled && config.particle.animate && (deckgl.props._customRender || WeatherLayers.throttledAnimateRender(deckgl)),
         });
 
         legendControl.update({ ...legendControl.config, dataset });
