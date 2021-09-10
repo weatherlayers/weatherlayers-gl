@@ -182,7 +182,7 @@ export class ParticleLineLayer extends LineLayer {
 
     // speed factor for current zoom level
     const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
-    const currentSpeedFactor = speedFactor * devicePixelRatio / 2 ** viewport.zoom / 128;
+    const currentSpeedFactor = speedFactor * devicePixelRatio / 2 ** (viewport.zoom + 7);
 
     // viewport
     const viewportSphere = isGlobeViewport ? 1 : 0;
@@ -194,6 +194,7 @@ export class ParticleLineLayer extends LineLayer {
     );
     const viewportBounds = wrapBounds(viewport.getBounds());
     const viewportZoom = viewport.zoom;
+    const zoomChangeFactor = 2 ** ((previousViewportZoom - viewportZoom) * 4);
 
     // age particles
     // copy age0-age(N-2) targetPositions to age1-age(N-1) sourcePositions
@@ -222,8 +223,7 @@ export class ParticleLineLayer extends LineLayer {
       viewportSphereCenter,
       viewportSphereRadius,
       viewportBounds,
-      viewportZoom,
-      previousViewportZoom,
+      zoomChangeFactor,
 
       time,
       seed: Math.random(),

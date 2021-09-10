@@ -29,8 +29,7 @@ uniform float viewportSphere;
 uniform vec2 viewportSphereCenter;
 uniform float viewportSphereRadius;
 uniform vec4 viewportBounds;
-uniform float viewportZoom;
-uniform float previousViewportZoom;
+uniform float zoomChangeFactor;
 
 uniform float time;
 uniform float seed;
@@ -186,12 +185,8 @@ void main() {
     }
 
     // drop when zooming out
-    if (viewportZoom < previousViewportZoom) {
-      float zoomOutRate = 1. / pow(2., (previousViewportZoom - viewportZoom) * 4.);
-      float maxParticles = numParticles * zoomOutRate;
-      if (particleIndex >= maxParticles) {
-        targetPosition.xy = DROP_POSITION;
-      }
+    if (zoomChangeFactor > 1. && mod(particleIndex, zoomChangeFactor) >= 1.) {
+      targetPosition.xy = DROP_POSITION;
     }
 
     if (particleAge < 1.) {
