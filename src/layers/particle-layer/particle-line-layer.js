@@ -163,22 +163,28 @@ export class ParticleLineLayer extends LineLayer {
       colors,
       widths,
       transform,
+      previousViewportZoom: 0,
     });
   }
 
   _runTransformFeedback() {
     const {gl, viewport, timeline} = this.context;
-    const {image, image2, imageWeight, imageBounds, bounds, numParticles, speedFactor, maxAge} = this.props;
-    const {numAgedInstances, transform, lastRunTime} = this.state;
+    const {image, image2, imageWeight, imageBounds, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const isGlobeViewport = !!viewport.resolution;
     const time = timeline.getTime();
 
-    if (!image || time === lastRunTime) {
+    if (!image || time === previousTime) {
       return;
     }
 
     const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
+    // speed factor for current zoom level
+    const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
+    const currentSpeedFactor = speedFactor * devicePixelRatio / 2 ** viewport.zoom / 128;
+
+    // viewport
     const viewportSphere = isGlobeViewport ? 1 : 0;
     const viewportSphereCenter = [viewport.longitude, viewport.latitude];
     const viewportSphereRadius = Math.max(
@@ -187,10 +193,7 @@ export class ParticleLineLayer extends LineLayer {
       distance(viewportSphereCenter, viewport.unproject([0, viewport.height / 2])),
     );
     const viewportBounds = wrapBounds(viewport.getBounds());
-
-    // speed factor for current zoom level
-    const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
-    const viewportSpeedFactor = speedFactor * devicePixelRatio / 2 ** viewport.zoom / 128;
+    const viewportZoom = viewport.zoom;
 
     // age particles
     // copy age0-age(N-2) targetPositions to age1-age(N-1) sourcePositions
@@ -213,12 +216,14 @@ export class ParticleLineLayer extends LineLayer {
       bounds,
       numParticles,
       maxAge,
+      speedFactor: currentSpeedFactor,
 
       viewportSphere,
       viewportSphereCenter,
       viewportSphereRadius,
       viewportBounds,
-      viewportSpeedFactor,
+      viewportZoom,
+      previousViewportZoom,
 
       time,
       seed: Math.random(),
@@ -229,7 +234,8 @@ export class ParticleLineLayer extends LineLayer {
     // const {sourcePositions, targetPositions} = this.state;
     // console.log(uniforms, sourcePositions.getData().slice(0, 6), targetPositions.getData().slice(0, 6));
 
-    this.state.lastRunTime = time;
+    this.state.previousViewportZoom = viewportZoom;
+    this.state.previousTime = time;
   }
 
   _deleteTransformFeedback() {

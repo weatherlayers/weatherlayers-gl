@@ -23,12 +23,14 @@ uniform vec4 bounds;
 
 uniform float numParticles;
 uniform float maxAge;
+uniform float speedFactor;
 
 uniform float viewportSphere;
 uniform vec2 viewportSphereCenter;
 uniform float viewportSphereRadius;
 uniform vec4 viewportBounds;
-uniform float viewportSpeedFactor;
+uniform float viewportZoom;
+uniform float previousViewportZoom;
 
 uniform float time;
 uniform float seed;
@@ -164,12 +166,12 @@ void main() {
     }
     vec2 speed = getSpeed(bitmapColor);
 
-    // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * viewportSpeedFactor * 10000.;
+    // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * speedFactor * 10000.;
     // float bearing = degrees(-atan2(speed.y, speed.x));
     // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
     float distortion = cos(radians(sourcePosition.y)); 
     vec2 distortedSpeed = vec2(speed.x / distortion, speed.y);
-    vec2 offset = distortedSpeed * viewportSpeedFactor;
+    vec2 offset = distortedSpeed * speedFactor;
     targetPosition.xy = sourcePosition.xy + offset;
     targetPosition.x = wrap(targetPosition.x);
 
@@ -183,9 +185,18 @@ void main() {
       targetPosition.xy = DROP_POSITION;
     }
 
+    // drop when zooming out
+    if (viewportZoom < previousViewportZoom) {
+      float zoomOutRate = 1. / pow(2., (previousViewportZoom - viewportZoom) * 4.);
+      float maxParticles = numParticles * zoomOutRate;
+      if (particleIndex >= maxParticles) {
+        targetPosition.xy = DROP_POSITION;
+      }
+    }
+
     if (particleAge < 1.) {
+      // drop by maxAge, +2 because only non-randomized pairs are rendered
       if (abs(mod(particleIndex, maxAge + 2.) - mod(time, maxAge + 2.)) < 1.) {
-        // drop by maxAge, +2 because only non-randomized pairs are rendered
         targetPosition.xy = DROP_POSITION;
       }
     }
