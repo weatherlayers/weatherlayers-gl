@@ -122,9 +122,7 @@ vec2 randVec2(vec2 seed) {
   return vec2(rand(seed + 1.3), rand(seed + 2.1));
 }
 
-vec2 randPosition(vec2 seed) {
-  vec2 randomVec2 = randVec2(seed);
-  
+vec2 randPosition(vec2 randomVec2) {
   if (viewportSphere > 0.5) {
     randomVec2.x += 0.0001; // prevent generating point in the center
     float dist = sqrt(randomVec2.x) * viewportSphereRadius;
@@ -199,7 +197,8 @@ void main() {
     if (particleAge < 1.) {
       // generate random position to prevent converging particles
       vec2 randomSeed = vec2(particleIndex * seed / numParticles);
-      vec2 randomPosition = randPosition(randomSeed);
+      vec2 randomVec2 = randVec2(randomSeed);
+      vec2 randomPosition = randPosition(randomVec2);
       targetPosition.xy = randomPosition;
       targetPosition.x = wrap(targetPosition.x);
     } else {
