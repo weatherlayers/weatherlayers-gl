@@ -139,6 +139,7 @@ export class ParticleLineLayer extends LineLayer {
     }).flat()));
     const widths = new Buffer(gl, new Float32Array(new Array(numInstances).fill(width)));
 
+    // setup transform feedback for particles age0
     const transform = new Transform(gl, {
       sourceBuffers: {
         sourcePosition: sourcePositions,
@@ -166,7 +167,7 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _runTransformFeedback() {
-    const {gl, viewport, timeline} = this.context;
+    const {viewport, timeline} = this.context;
     const {image, image2, imageWeight, imageBounds, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousTime} = this.state;
     const isGlobeViewport = !!viewport.resolution;
