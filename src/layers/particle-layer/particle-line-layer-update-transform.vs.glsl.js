@@ -18,6 +18,7 @@ uniform float viewportSphere;
 uniform vec2 viewportSphereCenter;
 uniform float viewportSphereRadius;
 uniform vec4 viewportBounds;
+uniform float viewportZoomChangeFactor;
 
 uniform sampler2D bitmapTexture;
 uniform sampler2D bitmapTexture2;
@@ -169,6 +170,12 @@ void main() {
 
   if (!isPositionVisible(sourcePosition.xy)) {
     // drop out of bounds
+    targetPosition.xy = DROP_POSITION;
+    return;
+  }
+
+  if (viewportZoomChangeFactor > 1. && mod(particleIndex, viewportZoomChangeFactor) >= 1.) {
+    // drop when zooming out
     targetPosition.xy = DROP_POSITION;
     return;
   }
