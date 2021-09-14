@@ -103,11 +103,6 @@ export class ParticleLineLayer extends LineLayer {
     const {animate} = this.props;
     const {sourcePositions, targetPositions, colors, widths, model} = this.state;
 
-    if (animate) {
-      this._runTransformFeedback();
-      setTimeout(() => this.setNeedsRedraw(), 1000 / FPS);
-    }
-
     model.setAttributes({
       instanceSourcePositions: sourcePositions,
       instanceTargetPositions: targetPositions,
@@ -116,6 +111,10 @@ export class ParticleLineLayer extends LineLayer {
     });
 
     super.draw({uniforms});
+
+    if (animate) {
+      setTimeout(() => this.step(), 1000 / FPS);
+    }
   }
 
   _setupTransformFeedback() {
@@ -238,6 +237,13 @@ export class ParticleLineLayer extends LineLayer {
     this.state.previousTime = time;
   }
 
+  _resetTransformFeedback() {
+    const {numInstances, sourcePositions, targetPositions} = this.state;
+
+    sourcePositions.subData({data: new Float32Array(numInstances * 3)});
+    targetPositions.subData({data: new Float32Array(numInstances * 3)});
+  }
+
   _deleteTransformFeedback() {
     const {initialized, sourcePositions, targetPositions, colors, widths, transform} = this.state;
 
@@ -268,10 +274,7 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   clear() {
-    const {numInstances, sourcePositions, targetPositions} = this.state;
-
-    sourcePositions.subData({data: new Float32Array(numInstances * 3)});
-    targetPositions.subData({data: new Float32Array(numInstances * 3)});
+    this._resetTransformFeedback();
 
     this.setNeedsRedraw();
   }
