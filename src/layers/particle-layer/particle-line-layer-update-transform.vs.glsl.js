@@ -29,7 +29,6 @@ uniform float viewportSphere;
 uniform vec2 viewportSphereCenter;
 uniform float viewportSphereRadius;
 uniform vec4 viewportBounds;
-uniform float zoomChangeFactor;
 
 uniform float time;
 uniform float seed;
@@ -179,11 +178,6 @@ void main() {
 
     // drop out of bounds
     if (!isPositionVisible(sourcePosition.xy) || !isPositionVisible(targetPosition.xy)) {
-      targetPosition.xy = DROP_POSITION;
-    }
-
-    // drop when zooming out
-    if (zoomChangeFactor > 1. && mod(particleIndex, zoomChangeFactor) >= 1.) {
       targetPosition.xy = DROP_POSITION;
     }
 

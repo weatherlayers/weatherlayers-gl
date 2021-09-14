@@ -162,14 +162,13 @@ export class ParticleLineLayer extends LineLayer {
       colors,
       widths,
       transform,
-      previousViewportZoom: 0,
     });
   }
 
   _runTransformFeedback() {
     const {gl, viewport, timeline} = this.context;
     const {image, image2, imageWeight, imageBounds, bounds, numParticles, maxAge, speedFactor} = this.props;
-    const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
+    const {numAgedInstances, transform, previousTime} = this.state;
     const isGlobeViewport = !!viewport.resolution;
     const time = timeline.getTime();
 
@@ -192,8 +191,6 @@ export class ParticleLineLayer extends LineLayer {
       distance(viewportSphereCenter, viewport.unproject([0, viewport.height / 2])),
     );
     const viewportBounds = wrapBounds(viewport.getBounds());
-    const viewportZoom = viewport.zoom;
-    const zoomChangeFactor = 2 ** ((previousViewportZoom - viewportZoom) * 4);
 
     // age particles
     // copy age0-age(N-2) targetPositions to age1-age(N-1) sourcePositions
@@ -222,7 +219,6 @@ export class ParticleLineLayer extends LineLayer {
       viewportSphereCenter,
       viewportSphereRadius,
       viewportBounds,
-      zoomChangeFactor,
 
       time,
       seed: Math.random(),
@@ -233,7 +229,6 @@ export class ParticleLineLayer extends LineLayer {
     // const {sourcePositions, targetPositions} = this.state;
     // console.log(uniforms, sourcePositions.getData().slice(0, 6), targetPositions.getData().slice(0, 6));
 
-    this.state.previousViewportZoom = viewportZoom;
     this.state.previousTime = time;
   }
 
