@@ -154,38 +154,30 @@ void main() {
   float particleAge = floor(float(gl_VertexID) / numParticles);
 
   if (sourcePosition.xy != DROP_POSITION) {
-    // update position
-    vec2 uv = getUV(sourcePosition.xy);
-    vec4 bitmapColor = texture2D(bitmapTexture, uv);
-    if (imageWeight > 0.) {
-      bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
-    }
-    vec2 speed = getSpeed(bitmapColor);
+    if (isPositionVisible(sourcePosition.xy)) {
+      vec2 uv = getUV(sourcePosition.xy);
+      vec4 bitmapColor = texture2D(bitmapTexture, uv);
+      if (imageWeight > 0.) {
+        bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
+      }
 
-    // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * speedFactor * 10000.;
-    // float bearing = degrees(-atan2(speed.y, speed.x));
-    // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
-    float distortion = cos(radians(sourcePosition.y)); 
-    vec2 distortedSpeed = vec2(speed.x / distortion, speed.y);
-    vec2 offset = distortedSpeed * speedFactor;
-    targetPosition.xy = sourcePosition.xy + offset;
-    targetPosition.x = wrap(targetPosition.x);
-
-    // drop nodata
-    if (!hasValues(bitmapColor)) {
-      targetPosition.xy = DROP_POSITION;
-    }
-
-    // drop out of bounds
-    if (!isPositionVisible(sourcePosition.xy) || !isPositionVisible(targetPosition.xy)) {
-      targetPosition.xy = DROP_POSITION;
-    }
-
-    if (particleAge < 1.) {
-      // drop by maxAge, +2 because only non-randomized pairs are rendered
-      if (abs(mod(particleIndex, maxAge + 2.) - mod(time, maxAge + 2.)) < 1.) {
+      if (hasValues(bitmapColor)) {
+        // update position
+        vec2 speed = getSpeed(bitmapColor) * speedFactor;
+        // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
+        // float bearing = degrees(-atan2(speed.y, speed.x));
+        // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
+        float distortion = cos(radians(sourcePosition.y)); 
+        vec2 offset = vec2(speed.x / distortion, speed.y);
+        targetPosition.xy = sourcePosition.xy + offset;
+        targetPosition.x = wrap(targetPosition.x);
+      } else {
+        // drop nodata
         targetPosition.xy = DROP_POSITION;
       }
+    } else {
+      // drop out of bounds
+      targetPosition.xy = DROP_POSITION;
     }
   } else {
     if (particleAge < 1.) {
@@ -196,6 +188,14 @@ void main() {
       targetPosition.xy = randomPosition;
       targetPosition.x = wrap(targetPosition.x);
     } else {
+      // propagate drop
+      targetPosition.xy = DROP_POSITION;
+    }
+  }
+
+  if (particleAge < 1.) {
+    // drop by maxAge, +2 because only non-randomized pairs are rendered
+    if (abs(mod(particleIndex, maxAge + 2.) - mod(time, maxAge + 2.)) < 1.) {
       targetPosition.xy = DROP_POSITION;
     }
   }
