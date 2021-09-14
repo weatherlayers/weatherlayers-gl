@@ -127,8 +127,8 @@ export class ParticleLineLayer extends LineLayer {
     }
 
     // sourcePositions/targetPositions buffer layout:
-    // |          age0         |          age1         |          age2         |...|          ageN         |
-    // |pos1,pos2,pos3,...,posN|pos1,pos2,pos3,...,posN|pos1,pos2,pos3,...,posN|...|pos1,pos2,pos3,...,posN|
+    // |          age0             |          age1             |          age2             |...|          age(N-1)         |
+    // |pos0,pos1,pos2,...,pos(N-1)|pos0,pos1,pos2,...,pos(N-1)|pos0,pos1,pos2,...,pos(N-1)|...|pos0,pos1,pos2,...,pos(N-1)|
     const numInstances = numParticles * maxAge;
     const numAgedInstances = numParticles * (maxAge - 1);
     const sourcePositions = new Buffer(gl, new Float32Array(numInstances * 3));
@@ -150,7 +150,7 @@ export class ParticleLineLayer extends LineLayer {
         sourcePosition: 'targetPosition',
       },
       vs: updateTransformVs,
-      elementCount: numInstances,
+      elementCount: numParticles,
     });
 
     this.setState({
@@ -192,18 +192,7 @@ export class ParticleLineLayer extends LineLayer {
     );
     const viewportBounds = wrapBounds(viewport.getBounds());
 
-    // age particles
-    // copy age0-age(N-2) targetPositions to age1-age(N-1) sourcePositions
-    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers.sourcePosition;
-    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers.targetPosition;
-    sourcePositions.copyData({
-      sourceBuffer: targetPositions,
-      readOffset: 0,
-      writeOffset: numParticles * 4 * 3,
-      size: numAgedInstances * 4 * 3,
-    });
-
-    // update particles
+    // update particles age0
     const uniforms = {
       bitmapTexture: image,
       bitmapTexture2: image2,
@@ -224,6 +213,18 @@ export class ParticleLineLayer extends LineLayer {
       seed: Math.random(),
     };
     transform.run({uniforms});
+
+    // update particles age1-age(N-1)
+    // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
+    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers.sourcePosition;
+    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers.targetPosition;
+    targetPositions.copyData({
+      sourceBuffer: sourcePositions,
+      readOffset: 0,
+      writeOffset: numParticles * 4 * 3,
+      size: numAgedInstances * 4 * 3,
+    });
+
     transform.swap();
 
     // const {sourcePositions, targetPositions} = this.state;
