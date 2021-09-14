@@ -14,6 +14,11 @@ precision highp float;
 in vec3 sourcePosition;
 out vec3 targetPosition;
 
+uniform float viewportSphere;
+uniform vec2 viewportSphereCenter;
+uniform float viewportSphereRadius;
+uniform vec4 viewportBounds;
+
 uniform sampler2D bitmapTexture;
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
@@ -24,11 +29,6 @@ uniform vec4 bounds;
 uniform float numParticles;
 uniform float maxAge;
 uniform float speedFactor;
-
-uniform float viewportSphere;
-uniform vec2 viewportSphereCenter;
-uniform float viewportSphereRadius;
-uniform vec4 viewportBounds;
 
 uniform float time;
 uniform float seed;

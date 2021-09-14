@@ -178,10 +178,6 @@ export class ParticleLineLayer extends LineLayer {
 
     const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
-    // speed factor for current zoom level
-    const devicePixelRatio = gl.luma.canvasSizeInfo.devicePixelRatio;
-    const currentSpeedFactor = speedFactor * devicePixelRatio / 2 ** (viewport.zoom + 7);
-
     // viewport
     const viewportSphere = isGlobeViewport ? 1 : 0;
     const viewportSphereCenter = [viewport.longitude, viewport.latitude];
@@ -192,8 +188,16 @@ export class ParticleLineLayer extends LineLayer {
     );
     const viewportBounds = wrapBounds(viewport.getBounds());
 
+    // speed factor for current zoom level
+    const currentSpeedFactor = speedFactor / 2 ** (viewport.zoom + 7);
+
     // update particles age0
     const uniforms = {
+      viewportSphere,
+      viewportSphereCenter,
+      viewportSphereRadius,
+      viewportBounds,
+
       bitmapTexture: image,
       bitmapTexture2: image2,
       imageWeight: image2 ? imageWeight : 0,
@@ -203,11 +207,6 @@ export class ParticleLineLayer extends LineLayer {
       numParticles,
       maxAge,
       speedFactor: currentSpeedFactor,
-
-      viewportSphere,
-      viewportSphereCenter,
-      viewportSphereRadius,
-      viewportBounds,
 
       time,
       seed: Math.random(),
