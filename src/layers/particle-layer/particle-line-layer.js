@@ -7,6 +7,7 @@
  */
 import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
+import {isWebGL2} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
@@ -70,6 +71,11 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   initializeState() {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      throw new Error('WebGL 2 is required');
+    }
+
     super.initializeState({});
 
     this._setupTransformFeedback();
@@ -100,6 +106,11 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   draw({uniforms}) {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      return;
+    }
+
     const {animate} = this.props;
     const {sourcePositions, targetPositions, colors, widths, model} = this.state;
 
@@ -119,9 +130,12 @@ export class ParticleLineLayer extends LineLayer {
 
   _setupTransformFeedback() {
     const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      return;
+    }
+
     const {numParticles, maxAge, color, width} = this.props;
     const {initialized} = this.state;
-    
     if (initialized) {
       this._deleteTransformFeedback();
     }
@@ -168,6 +182,11 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _runTransformFeedback() {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      return;
+    }
+
     const {viewport, timeline} = this.context;
     const {image, image2, imageWeight, imageBounds, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
@@ -238,6 +257,11 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _resetTransformFeedback() {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      return;
+    }
+
     const {numInstances, sourcePositions, targetPositions} = this.state;
 
     sourcePositions.subData({data: new Float32Array(numInstances * 3)});
@@ -245,8 +269,12 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _deleteTransformFeedback() {
-    const {initialized, sourcePositions, targetPositions, colors, widths, transform} = this.state;
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      return;
+    }
 
+    const {initialized, sourcePositions, targetPositions, colors, widths, transform} = this.state;
     if (!initialized) {
       return;
     }
