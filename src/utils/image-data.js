@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 /**
- * @param {HTMLImageElement | ImageBitmap} image
+ * @param {HTMLImageElement} image
  * @returns {ImageData}
  */
 export function loadImageData(image) {
@@ -21,29 +21,16 @@ export function loadImageData(image) {
 
 /**
  * unscale 8bit grayscale image back to original data
- * @param {ImageData} imageData
+ * @param {Uint8Array | Uint8ClampedArray} data
  * @param {[number, number]} imageBounds
- * @returns {{ data: Float32Array, width: number, height: number }}
+ * @param {number} bandsCount
+ * @returns {Float32Array}
  */
-export function unscaleImageData(imageData, imageBounds) {
-  const {data, width, height} = imageData;
-
+export function unscaleImageData(data, imageBounds, bandsCount) {
   const unscaledData = new Float32Array(
     Array.from(data)
-      .filter((_, i) => i % 4 === 0)
+      .filter((_, i) => i % bandsCount === 0)
       .map(x => x / 255 * (imageBounds[1] - imageBounds[0]) + imageBounds[0])
   );
-
-  return { data: unscaledData, width, height };
-}
-
-/**
- * @param {HTMLImageElement | ImageBitmap} image
-  * @param {[number, number]} imageBounds
- * @returns {{ data: Float32Array, width: number, height: number }}
- */
-export function loadUnscaleImageData(image, imageBounds) {
-  const imageData = loadImageData(image);
-  const unscaledImageData = unscaleImageData(imageData, imageBounds);
-  return unscaledImageData;
+  return unscaledData;
 }

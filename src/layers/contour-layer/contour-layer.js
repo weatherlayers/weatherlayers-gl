@@ -107,10 +107,10 @@ export class ContourLayer extends CompositeLayer {
           endDatetime && loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
 
-        // create textures, to avoid a bug with async image props
         if (this.props.experimental) {
-          image = new Texture2D(gl, { data: image });
-          image2 = image2 && new Texture2D(gl, { data: image2 });
+          // create textures, to avoid a bug with async image props
+          image = new Texture2D(gl, image);
+          image2 = image2 && new Texture2D(gl, image2);
         }
   
         this.setState({

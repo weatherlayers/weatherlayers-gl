@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer, PathLayer} from '@deck.gl/layers';
-import {loadUnscaleImageData} from '../../utils/image-data';
+import {loadImageData, unscaleImageData} from '../../utils/image-data';
 import {getContours} from '../../utils/contour-proxy';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
@@ -58,10 +58,15 @@ export class ContourPathLayer extends CompositeLayer {
     }
 
     let imageData;
-    if (image instanceof HTMLImageElement || ('ImageBitmap' in window && image instanceof ImageBitmap)) {
-      imageData = loadUnscaleImageData(image, imageBounds);
+    if (image.data instanceof HTMLImageElement) {
+      const loadedData = loadImageData(image.data);
+      imageData = { data: unscaleImageData(loadedData.data, imageBounds, 4), width: loadedData.width, height: loadedData.height };
+    } else if (image.data instanceof Uint8Array) {
+      imageData = { data: unscaleImageData(image.data, imageBounds, 2), width: image.width, height: image.height };
+    } else if (image.data instanceof Float32Array) {
+      imageData = { data: new Float32Array(image.data), width: image.width, height: image.height };
     } else {
-      imageData = image;
+      throw new Error('Unsupported data format');
     }
 
     const {data, width, height} = imageData;

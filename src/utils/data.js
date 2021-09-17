@@ -30,7 +30,7 @@ function maskData(data, nodata = undefined) {
 
 /**
  * @param {string} url
- * @returns {Promise<ImageBitmap | HTMLImageElement>}
+ * @returns {Promise<{ data: HTMLImageElement }>}
  */
 async function loadPng(url) {
   const blob = await (await fetch(url)).blob();
@@ -39,8 +39,7 @@ async function loadPng(url) {
   image.src = URL.createObjectURL(blob);
   await image.decode();
 
-  const texture = window.createImageBitmap ? await window.createImageBitmap(image) : image;
-  return texture;
+  return { data: image };
 }
 
 /**
@@ -49,7 +48,7 @@ async function loadPng(url) {
  * @returns {number}
  */
 function getGeotiffTextureFormat(data, bandsCount) {
-  if (data.constructor === Float32Array) {
+  if (data instanceof Float32Array) {
     if (bandsCount === 2) {
       return GL.RG32F;
     } else if (bandsCount === 1) {
@@ -57,7 +56,7 @@ function getGeotiffTextureFormat(data, bandsCount) {
     } else {
       throw new Error('Unsupported data format');
     }
-  } else if (data.constructor === Uint8Array) {
+  } else if (data instanceof Uint8Array) {
     if (bandsCount === 4) {
       return GL.RGBA;
     } else if (bandsCount === 2) {
@@ -72,7 +71,7 @@ function getGeotiffTextureFormat(data, bandsCount) {
 
 /**
  * @param {string} url
- * @returns {Promise<{ width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ * @returns {Promise<{ data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
  */
 async function loadGeotiff(url) {
   const geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true });
@@ -94,7 +93,7 @@ async function loadGeotiff(url) {
 
 /**
  * @param {string} url
- * @returns {Promise<ImageBitmap | HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ * @returns {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
  */
 export function loadData(url) {
   if (url.includes('.png')) {
