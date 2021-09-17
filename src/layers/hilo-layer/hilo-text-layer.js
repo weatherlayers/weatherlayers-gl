@@ -84,7 +84,7 @@ export class HiloTextLayer extends CompositeLayer {
     }
 
     let imageData;
-    if (image instanceof ImageBitmap || image instanceof HTMLImageElement) {
+    if (image instanceof HTMLImageElement || ('ImageBitmap' in window && image instanceof ImageBitmap)) {
       imageData = loadUnscaleImageData(image, imageBounds);
     } else {
       imageData = image;

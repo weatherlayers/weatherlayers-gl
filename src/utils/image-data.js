@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 /**
- * @param {ImageBitmap | HTMLImageElement} image
+ * @param {HTMLImageElement | ImageBitmap} image
  * @returns {ImageData}
  */
 export function loadImageData(image) {
@@ -38,7 +38,7 @@ export function unscaleImageData(imageData, imageBounds) {
 }
 
 /**
- * @param {ImageBitmap | HTMLImageElement} image
+ * @param {HTMLImageElement | ImageBitmap} image
   * @param {[number, number]} imageBounds
  * @returns {{ data: Float32Array, width: number, height: number }}
  */
