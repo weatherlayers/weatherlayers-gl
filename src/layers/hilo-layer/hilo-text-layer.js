@@ -6,39 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer, TextLayer} from '@deck.gl/layers';
-import {getHighsLows} from '../../utils/hilo';
-
-/**
- * @param {ImageBitmap | HTMLImageElement} image
- * @returns {ImageData}
- */
-function loadImageData(image) {
-  const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-  const context = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
-  context.drawImage(image, 0, 0);
-  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-  return imageData;
-}
-
-/**
- * unscale 8bit grayscale image back to original data
- * @param {ImageData} imageData
- * @param {[number, number]} imageBounds
- * @returns {{ width: number, height: number, data: Float32Array }}
- */
-function unscaleImageData(imageData, imageBounds) {
-  const {width, height, data} = imageData;
-
-  const unscaledData = new Float32Array(
-    Array.from(data)
-      .filter((_, i) => i % 4 === 0)
-      .map(x => x / 255 * (imageBounds[1] - imageBounds[0]) + imageBounds[0])
-  );
-
-  return { width, height, data: unscaledData };
-}
+import {loadUnscaleImageData} from '../../utils/image-data';
+import {getHighsLows} from '../../utils/hilo-proxy';
 
 const DEFAULT_COLOR = [107, 107, 107, 255];
 const DEFAULT_OUTLINE_COLOR = [13, 13, 13, 255];
@@ -107,7 +76,7 @@ export class HiloTextLayer extends CompositeLayer {
     ];
   }
 
-  updateHighsLows() {
+  async updateHighsLows() {
     const {image, imageBounds, radius, bounds} = this.props;
 
     if (!image) {
@@ -116,13 +85,13 @@ export class HiloTextLayer extends CompositeLayer {
 
     let imageData;
     if (image instanceof ImageBitmap || image instanceof HTMLImageElement) {
-      imageData = loadImageData(image);
-      imageData = unscaleImageData(imageData, imageBounds);
+      imageData = loadUnscaleImageData(image, imageBounds);
     } else {
       imageData = image;
     }
 
-    const highsLows = getHighsLows(imageData, radius, bounds);
+    const {data, width, height} = imageData;
+    const highsLows = await getHighsLows(data, width, height, radius, bounds);
 
     this.setState({
       image,

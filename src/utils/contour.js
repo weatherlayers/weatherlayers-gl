@@ -9,8 +9,6 @@ import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
 import {getUnprojectFunction} from './unproject';
 
-/** @typedef {GeoJSON.LineString & { properties: { value: number }}} Contour */
-
 /**
  * wrap data around the world by repeating the data in the west and east
  * @param {Float32Array} data
@@ -28,7 +26,7 @@ import {getUnprojectFunction} from './unproject';
     result.push(...row);
     result.push(...row.slice(0, bufferEast));
   }
-  return result;
+  return new Float32Array(result);
 }
 
 /**
@@ -80,7 +78,7 @@ function getLineBbox(line) {
  * @param {number} width
  * @param {number} height
  * @param {number} delta
- * @returns {Contour[]}
+ * @returns {{ coordinates: GeoJSON.Position[], value: number }[]}
  */
 function computeContours(data, width, height, delta) {
   const min = Array.from(data).reduce((curr, prev) => Math.min(curr, prev), Infinity);
@@ -91,13 +89,15 @@ function computeContours(data, width, height, delta) {
 
   // compute contours
   // d3-contours returns multipolygons with holes, framed around data borders
-  let contours = d3Contours.contours().size([width, height]).thresholds(thresholds)(data);
+  const originalContours = /** @type {(GeoJSON.MultiPolygon & { value: number })[]} */ (
+    d3Contours.contours().size([width, height]).thresholds(thresholds)(data)
+  );
 
   // transform contours from multipolygons with holes to separate lines
-  contours = contours.map(contour => {
+  let contours = originalContours.map(contour => {
     const coordinates = contour.coordinates.flat();
     return coordinates.map(coordinates => {
-      return { type: 'LineString', coordinates, properties: { value: contour.value }};
+      return { coordinates, value: contour.value };
     });
   }).flat();
 
@@ -105,22 +105,18 @@ function computeContours(data, width, height, delta) {
   const epsilon = 0.000001; // anything > 0, < 1
   const unframeBounds = [epsilon, epsilon, width - epsilon, height - epsilon];
   contours = contours.map(contour => {
-    const lines = lineclip.polyline(contour.coordinates, unframeBounds);
+    const lines = /** @type {GeoJSON.Position[][]} */ (
+      lineclip.polyline(contour.coordinates, unframeBounds)
+    );
     return lines.map(line => {
-      return { type: contour.type, coordinates: line, properties: contour.properties };
+      return { coordinates: line, value: contour.value };
     });
   }).flat();
 
-  // compute bbox
-  contours = contours.map(contour => {
-    const bbox = getLineBbox(contour.coordinates);
-    return { type: contour.type, coordinates: contour.coordinates, bbox, properties: contour.properties };
-  });
-
-  // filter out too small contours
+  // compute bbox, filter out too small contours
   const minPoints = 4; // found experimentally
   contours = contours.filter(contour => {
-    const bbox = contour.bbox;
+    const bbox = getLineBbox(contour.coordinates);
     return (bbox[2] - bbox[0] + 1) >= minPoints && (bbox[3] - bbox[1] + 1) >= minPoints;
   });
 
@@ -128,13 +124,14 @@ function computeContours(data, width, height, delta) {
 }
 
 /**
- * @param {{ width: number, height: number, data: Float32Array }} imageData
+ * @param {Float32Array} data
+ * @param {number} width
+ * @param {number} height
  * @param {number} delta
  * @param {[number, number, number, number]} bounds
- * @returns {Contour[]}
+ * @returns {Float32Array}
  */
-export function getContours(imageData, delta, bounds) {
-  let { width, height, data } = imageData;
+export function getContoursData(data, width, height, delta, bounds) {
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -169,17 +166,24 @@ export function getContours(imageData, delta, bounds) {
       point = unproject(point);
       return point;
     })
-    return { type: contour.type, coordinates, properties: contour.properties };
+    return { coordinates, value: contour.value };
   })
   
   if (repeat) {
     contours = contours.map(contour => {
-      const lines = lineclip.polyline(contour.coordinates, bounds);
+      const lines = /** @type {GeoJSON.Position[][]} */ (
+        lineclip.polyline(contour.coordinates, bounds)
+      );
       return lines.map(line => {
-        return { type: contour.type, coordinates: line, properties: contour.properties };
+        return { coordinates: line, value: contour.value };
       });
     }).flat();
   }
 
-  return contours;
+  const contoursData = new Float32Array([
+    contours.length,
+    ...contours.map(x => [x.coordinates.length, ...x.coordinates.flat(), x.value]).flat(),
+  ]);
+
+  return contoursData;
 }

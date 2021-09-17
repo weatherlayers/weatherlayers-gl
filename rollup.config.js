@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
+import worker from 'rollup-plugin-worker-factory';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import assets from 'postcss-assets';
@@ -31,6 +32,7 @@ function bundle(format, filename, options = {}) {
       ...(!options.resolve ? [
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
+        'rollup-plugin-worker-factory/src/universal.js',
       ] : []),
     ],
     plugins: [
@@ -40,6 +42,7 @@ function bundle(format, filename, options = {}) {
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
       babel({ babelHelpers: 'runtime' }),
+      worker({ plugins: [resolve(), commonjs()] }),
       postcss({ plugins: [autoprefixer(), assets()] }),
       ...(options.minimize ? [terser()] : []),
       ...(options.stats ? [visualizer({

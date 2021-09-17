@@ -8,9 +8,6 @@
 import {getUnprojectFunction} from './unproject';
 import {distance} from './geodesy';
 
-/** @typedef {'L' | 'H'} HiloPointType */
-/** @typedef {GeoJSON.Point & { properties: { type: HiloPointType, value: number }}} HiloPoint */
-
 /**
  * box blur, average of 3x3 pixels
  * see https://en.wikipedia.org/wiki/Box_blur
@@ -39,13 +36,14 @@ function blur(data, width, height) {
 }
 
 /**
- * @param {{ width: number, height: number, data: Float32Array }} imageData
+ * @param {Float32Array} data
+ * @param {number} width
+ * @param {number} height
  * @param {number} radius
  * @param {[number, number, number, number]} bounds
- * @returns {HiloPoint[]}
+ * @returns {Float32Array}
  */
-export function getHighsLows(imageData, radius, bounds) {
-  let { width, height, data } = imageData;
+export function getHighsLowsData(data, width, height, radius, bounds) {
   const unproject = getUnprojectFunction(width, height, bounds);
   const radiusKm = radius * 1000;
 
@@ -122,14 +120,12 @@ export function getHighsLows(imageData, radius, bounds) {
   }
   lows = lows.filter(x => !!x);
 
-  const highsLows = [
-    ...highs.map(high => {
-      return /** @type {HiloPoint} */ ({ type: 'Point', coordinates: high.position, properties: { type: 'H', value: high.value }});
-    }),
-    ...lows.map(low => {
-      return /** @type {HiloPoint} */ ({ type: 'Point', coordinates: low.position, properties: { type: 'L', value: low.value }});
-    }),
-  ];
+  const highsLowsData = new Float32Array([
+    highs.length,
+    ...highs.map(x => [...x.position, x.value]).flat(),
+    lows.length,
+    ...lows.map(x => [...x.position, x.value]).flat(),
+  ]);
   
-  return highsLows;
+  return highsLowsData;
 }

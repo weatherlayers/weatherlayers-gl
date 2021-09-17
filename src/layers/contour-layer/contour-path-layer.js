@@ -6,39 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer, PathLayer} from '@deck.gl/layers';
-import {getContours} from '../../utils/contour';
-
-/**
- * @param {ImageBitmap | HTMLImageElement} image
- * @returns {ImageData}
- */
-function loadImageData(image) {
-  const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-  const context = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
-  context.drawImage(image, 0, 0);
-  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-  return imageData;
-}
-
-/**
- * unscale 8bit grayscale image back to original data
- * @param {ImageData} imageData
- * @param {[number, number]} imageBounds
- * @returns {{ width: number, height: number, data: Float32Array }}
- */
-function unscaleImageData(imageData, imageBounds) {
-  const {width, height, data} = imageData;
-
-  const unscaledData = new Float32Array(
-    Array.from(data)
-      .filter((_, i) => i % 4 === 0)
-      .map(x => x / 255 * (imageBounds[1] - imageBounds[0]) + imageBounds[0])
-  );
-
-  return { width, height, data: unscaledData };
-}
+import {loadUnscaleImageData} from '../../utils/image-data';
+import {getContours} from '../../utils/contour-proxy';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 
@@ -81,7 +50,7 @@ export class ContourPathLayer extends CompositeLayer {
     ];
   }
 
-  updateContours() {
+  async updateContours() {
     const {image, imageBounds, delta, bounds} = this.props;
 
     if (!image) {
@@ -90,13 +59,13 @@ export class ContourPathLayer extends CompositeLayer {
 
     let imageData;
     if (image instanceof ImageBitmap || image instanceof HTMLImageElement) {
-      imageData = loadImageData(image);
-      imageData = unscaleImageData(imageData, imageBounds);
+      imageData = loadUnscaleImageData(image, imageBounds);
     } else {
       imageData = image;
     }
 
-    const contours = getContours(imageData, delta, bounds);
+    const {data, width, height} = imageData;
+    const contours = await getContours(data, width, height, delta, bounds);
 
     this.setState({
       image,
