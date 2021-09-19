@@ -6,6 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 export const ImageType = {
-  SCALAR: 0,
-  VECTOR: 1,
+  SCALAR: 'SCALAR',
+  VECTOR: 'VECTOR',
 };

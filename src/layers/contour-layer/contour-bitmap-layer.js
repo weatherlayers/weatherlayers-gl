@@ -7,6 +7,7 @@
  */
 import {BitmapLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
+import {ImageType} from '../../utils/image-type';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 
@@ -17,7 +18,7 @@ const defaultProps = {
   image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null, required: true},
-  imageType: {type: 'number', value: 0},
+  imageType: {type: 'string', value: ImageType.SCALAR},
 
   delta: {type: 'number', required: true},
   color: {type: 'color', value: DEFAULT_COLOR},
@@ -40,7 +41,7 @@ export class ContourBitmapLayer extends BitmapLayer {
           ${(parentShaders.inject || {})['fs:#decl'] || ''}
           uniform sampler2D bitmapTexture2;
           uniform float imageWeight;
-          uniform float imageType;
+          uniform float imageScalarize;
           uniform float imageUnscale;
           uniform vec2 imageBounds;
           uniform float delta;
@@ -58,7 +59,7 @@ export class ContourBitmapLayer extends BitmapLayer {
 
           float raster_get_value(vec4 color) {
             float value;
-            if (imageType > 0.5) {
+            if (imageScalarize > 0.5) {
               if (imageUnscale > 0.5) {
                 value = length(mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy));
               } else {
@@ -109,6 +110,7 @@ export class ContourBitmapLayer extends BitmapLayer {
       return;
     }
 
+    const imageScalarize = imageType === ImageType.VECTOR;
     const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
     if (model) {
@@ -116,7 +118,7 @@ export class ContourBitmapLayer extends BitmapLayer {
         bitmapTexture: image,
         bitmapTexture2: image2,
         imageWeight: image2 ? imageWeight : 0,
-        imageType,
+        imageScalarize,
         imageUnscale,
         imageBounds,
         delta,

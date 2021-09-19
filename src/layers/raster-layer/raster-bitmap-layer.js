@@ -8,7 +8,7 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import {ImageType} from './image-type';
+import {ImageType} from '../../utils/image-type';
 import {linearColormap, colorRampImage} from '../../utils/colormap';
 
 const defaultProps = {
@@ -18,7 +18,7 @@ const defaultProps = {
   image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null, required: true},
-  imageType: {type: 'number', value: 0},
+  imageType: {type: 'string', value: ImageType.SCALAR},
 
   colormapBreaks: {type: 'array', value: null, required: true},
 
@@ -39,7 +39,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
           uniform sampler2D bitmapTexture2;
           uniform float imageWeight;
-          uniform float imageType;
+          uniform float imageScalarize;
           uniform float imageUnscale;
           uniform vec2 imageBounds;
           uniform sampler2D colormapTexture;
@@ -65,7 +65,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
           float raster_get_value(vec4 color) {
             float value;
-            if (imageType > 0.5) {
+            if (imageScalarize > 0.5) {
               if (imageUnscale > 0.5) {
                 value = length(mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy));
               } else {
@@ -87,7 +87,7 @@ export class RasterBitmapLayer extends BitmapLayer {
           }
 
           float raster_get_direction_value(vec4 color) {
-            if (imageType > 0.5) {
+            if (imageScalarize > 0.5) {
               vec2 value;
               if (imageUnscale > 0.5) {
                 value = mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
@@ -166,6 +166,7 @@ export class RasterBitmapLayer extends BitmapLayer {
       return;
     }
 
+    const imageScalarize = imageType === ImageType.VECTOR;
     const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
 
     if (model) {
@@ -173,7 +174,7 @@ export class RasterBitmapLayer extends BitmapLayer {
         bitmapTexture: image,
         bitmapTexture2: image2,
         imageWeight: image2 ? imageWeight : 0,
-        imageType,
+        imageScalarize,
         imageUnscale,
         imageBounds,
         colormapTexture,
