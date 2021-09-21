@@ -70,7 +70,7 @@ function loadJsonCached(url) {
 
 /**
  * @param {string} url
- * @return {Promise<HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ * @return {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
  */
 function loadDataCached(url) {
   const dataOrPromise = cache.get(url);
@@ -159,7 +159,7 @@ export async function loadStacItemByDatetime(dataset, datetime) {
 /**
  * @param {string} dataset
  * @param {string} datetime
- * @returns {Promise<HTMLImageElement | { width: number, height: number, data: Float32Array | Uint8Array, format: number }>}
+ * @returns {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
  */
 export async function loadStacCollectionDataByDatetime(dataset, datetime) {
   const stacItem = await loadStacItemByDatetime(dataset, datetime);

@@ -32,7 +32,7 @@ function maskData(data, nodata = undefined) {
  * @param {string} url
  * @returns {Promise<{ data: HTMLImageElement }>}
  */
-async function loadPng(url) {
+async function loadImage(url) {
   const blob = await (await fetch(url)).blob();
 
   const image = new Image();
@@ -97,7 +97,7 @@ async function loadGeotiff(url) {
  */
 export function loadData(url) {
   if (url.includes('.png')) {
-    return loadPng(url);
+    return loadImage(url);
   } else if (url.includes('.tif')) {
     return loadGeotiff(url);
   } else {
