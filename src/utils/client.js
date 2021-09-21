@@ -90,7 +90,15 @@ function loadDataCached(url) {
  * @returns {Promise<StacCatalog>}
  */
 export async function loadStacCatalog() {
-  const url = `${clientConfig.url}${clientConfig.accessToken ? `?access_token=${clientConfig.accessToken}` : ''}`;
+  const params = new URLSearchParams();
+  if (clientConfig.accessToken) {
+    params.set('access_token', clientConfig.accessToken);
+  }
+  if (clientConfig.format) {
+    params.set('format', clientConfig.format);
+  }
+  const query = params.toString();
+  const url = `${clientConfig.url}${query ? `?${query}` : ''}`;
   return loadJsonCached(url);
 }
 
@@ -155,9 +163,6 @@ export async function loadStacItemByDatetime(dataset, datetime) {
  */
 export async function loadStacCollectionDataByDatetime(dataset, datetime) {
   const stacItem = await loadStacItemByDatetime(dataset, datetime);
-  const asset = stacItem.assets[clientConfig.format];
-  if (!asset) {
-    throw new Error(`Asset ${clientConfig.format} not found`);
-  }
-  return loadDataCached(asset.href);
+  const url = stacItem.assets.data.href;
+  return loadDataCached(url);
 }
