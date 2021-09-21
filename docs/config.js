@@ -26,7 +26,7 @@ export async function initConfig() {
       width: 1,
       opacity: 0.01
     },
-    hilo: {
+    highLow: {
       enabled: false,
       radius: 2000,
       color: [153, 153, 153],
@@ -77,7 +77,7 @@ async function updateDataset(config) {
     config.datetime = NO_DATA;
     config.raster.enabled = false;
     config.contour.enabled = false;
-    config.hilo.enabled = false;
+    config.highLow.enabled = false;
     config.particle.enabled = false;
     return;
   }
@@ -94,9 +94,9 @@ async function updateDataset(config) {
     config.contour.delta = stacCollection.summaries.contour.delta;
   }
 
-  config.hilo.enabled = !!stacCollection.summaries.hilo;
-  if (stacCollection.summaries.hilo) {
-    config.hilo.radius = stacCollection.summaries.hilo.radius;
+  config.highLow.enabled = !!stacCollection.summaries.highLow;
+  if (stacCollection.summaries.highLow) {
+    config.highLow.radius = stacCollection.summaries.highLow.radius;
   }
 
   config.particle.enabled = !!stacCollection.summaries.particle;
@@ -142,13 +142,13 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
   contour.open();
 
-  const hilo = gui.addFolder('Hilo layer');
-  hilo.add(config.hilo, 'enabled').onChange(update);
-  hilo.add(config.hilo, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
-  hilo.addColor(config.hilo, 'color').onChange(update);
-  hilo.addColor(config.hilo, 'outlineColor').onChange(update);
-  hilo.add(config.hilo, 'opacity', 0, 1, 0.01).onChange(update);
-  hilo.open();
+  const highLow = gui.addFolder('HighLow layer');
+  highLow.add(config.highLow, 'enabled').onChange(update);
+  highLow.add(config.highLow, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
+  highLow.addColor(config.highLow, 'color').onChange(update);
+  highLow.addColor(config.highLow, 'outlineColor').onChange(update);
+  highLow.add(config.highLow, 'opacity', 0, 1, 0.01).onChange(update);
+  highLow.open();
 
   const particle = gui.addFolder('Particle layer');
   particle.add(config.particle, 'enabled').onChange(update);

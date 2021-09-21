@@ -7,7 +7,7 @@
  */
 import {CompositeLayer, TextLayer} from '@deck.gl/layers';
 import {loadImageData, unscaleImageData} from '../../utils/image-data';
-import {getHighsLows} from '../../utils/hilo-proxy';
+import {getHighsLows} from '../../utils/high-low-proxy';
 
 const DEFAULT_COLOR = [107, 107, 107, 255];
 const DEFAULT_OUTLINE_COLOR = [13, 13, 13, 255];
@@ -27,7 +27,7 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-export class HiloTextLayer extends CompositeLayer {
+export class HighLowTextLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius)) {
       this.updateHighsLows();
@@ -106,5 +106,5 @@ export class HiloTextLayer extends CompositeLayer {
   }
 }
 
-HiloTextLayer.layerName = 'HiloTextLayer';
-HiloTextLayer.defaultProps = defaultProps;
+HighLowTextLayer.layerName = 'HighLowTextLayer';
+HighLowTextLayer.defaultProps = defaultProps;

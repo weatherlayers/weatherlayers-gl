@@ -6,9 +6,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 export * from './layers/raster-layer/raster-layer';
-export * from './layers/particle-layer/particle-layer';
 export * from './layers/contour-layer/contour-layer';
-export * from './layers/hilo-layer/hilo-layer';
+export * from './layers/high-low-layer/high-low-layer';
+export * from './layers/particle-layer/particle-layer';
 
 export * from './controls/legend-control/legend-control';
 export * from './controls/tooltip-control/tooltip-control';

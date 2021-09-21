@@ -139,16 +139,16 @@
               width: config.contour.width,
               opacity: config.contour.opacity,
             }),
-            new WeatherLayers.HiloLayer({
-              id: 'hilo',
-              visible: config.hilo.enabled && !timelineControl.animation.running,
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              visible: config.highLow.enabled && !timelineControl.animation.running,
               dataset,
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
-              radius: config.hilo.radius,
-              color: config.hilo.color,
-              outlineColor: config.hilo.outlineColor,
-              opacity: config.hilo.opacity,
+              radius: config.highLow.radius,
+              color: config.highLow.color,
+              outlineColor: config.highLow.outlineColor,
+              opacity: config.highLow.opacity,
             }),
           ],
         });

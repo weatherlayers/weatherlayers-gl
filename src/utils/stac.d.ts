@@ -61,7 +61,7 @@ export interface StacCollectionIsolineConfig {
   delta: number;
 }
 
-export interface StacCollectionHiloConfig {
+export interface StacCollectionHighLowConfig {
   radius: number;
 }
 
@@ -96,7 +96,7 @@ export interface StacCollection {
     unit: StacCollectionUnit[]; // custom
     raster?: StacCollectionRasterConfig; // custom
     contour?: StacCollectionIsolineConfig; // custom
-    hilo?: StacCollectionHiloConfig; // custom
+    highLow?: StacCollectionHighLowConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];

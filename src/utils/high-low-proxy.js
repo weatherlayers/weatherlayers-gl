@@ -6,21 +6,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {transfer, wrap} from 'comlink';
-import hiloWorker from 'worker!./hilo-worker';
+import highLowWorker from 'worker!./high-low-worker';
 
-/** @typedef {'L' | 'H'} HiloType */
-/** @typedef {GeoJSON.Point & { properties: { type: HiloType, value: number }}} Hilo */
+/** @typedef {'L' | 'H'} HighLowType */
+/** @typedef {GeoJSON.Point & { properties: { type: HighLowType, value: number }}} HighLow */
 
-const hiloProxy = wrap(hiloWorker());
+const highLowProxy = wrap(highLowWorker());
 
 /**
  * @param {Float32Array} highsLowsData
- * @returns {Hilo[]}
+ * @returns {HighLow[]}
  */
 function getHighsLowsFromData(highsLowsData) {
   let i = 0;
 
-  const highsLows = /** @type {Hilo[]} */([]);
+  const highsLows = /** @type {HighLow[]} */([]);
   const highsCount = highsLowsData[i++];
   for (let j = 0; j < highsCount; j++) {
     const position = [highsLowsData[i++], highsLowsData[i++]];
@@ -43,11 +43,11 @@ function getHighsLowsFromData(highsLowsData) {
  * @param {number} height
  * @param {number} radius
  * @param {[number, number, number, number]} bounds
- * @returns {Promise<Hilo[]>}
+ * @returns {Promise<HighLow[]>}
  */
 export async function getHighsLows(data, width, height, radius, bounds) {
   data = transfer(data, [data.buffer]);
-  const highsLowsData = await hiloProxy.getHighsLowsData(data, width, height, radius, bounds);
+  const highsLowsData = await highLowProxy.getHighsLowsData(data, width, height, radius, bounds);
   const highsLows = getHighsLowsFromData(highsLowsData);
   return highsLows;
 }

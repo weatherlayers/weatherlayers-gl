@@ -7,37 +7,37 @@
  */
 import {CompositeLayer} from '@deck.gl/layers';
 import {ClipExtension} from '@deck.gl/extensions';
-import {HiloTextLayer} from './hilo-text-layer';
+import {HighLowTextLayer} from './high-low-text-layer';
 import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
 import {clipBounds} from '../../utils/bounds';
 import {formatValue} from '../../utils/value';
 
 const defaultProps = {
-  ...HiloTextLayer.defaultProps,
+  ...HighLowTextLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class HiloLayer extends CompositeLayer {
+export class HighLowLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
-    if (!props || !stacCollection || !stacCollection.summaries.hilo || !image) {
+    if (!props || !stacCollection || !stacCollection.summaries.highLow || !image) {
       return [];
     }
 
     return [
-      new HiloTextLayer(props, this.getSubLayerProps({
+      new HighLowTextLayer(props, this.getSubLayerProps({
         id: 'text',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
-        radius: props.radius || stacCollection.summaries.hilo.radius,
-        contour: props.contour || stacCollection.summaries.hilo.contour,
+        radius: props.radius || stacCollection.summaries.highLow.radius,
+        contour: props.contour || stacCollection.summaries.highLow.contour,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],
@@ -107,5 +107,5 @@ export class HiloLayer extends CompositeLayer {
   }
 }
 
-HiloLayer.layerName = 'HiloLayer';
-HiloLayer.defaultProps = defaultProps;
+HighLowLayer.layerName = 'HighLowLayer';
+HighLowLayer.defaultProps = defaultProps;
