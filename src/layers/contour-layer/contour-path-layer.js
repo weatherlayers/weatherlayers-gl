@@ -18,7 +18,6 @@ const defaultProps = {
   imageBounds: {type: 'array', value: null, required: true},
 
   delta: {type: 'number', value: null, required: true},
-  
   color: {type: 'color', value: DEFAULT_COLOR},
   width: {type: 'number', value: 1},
 
