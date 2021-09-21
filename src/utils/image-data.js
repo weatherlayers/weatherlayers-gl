@@ -27,10 +27,11 @@ export function loadImageData(image) {
  * @returns {Float32Array}
  */
 export function unscaleImageData(data, imageBounds, bandsCount) {
+  const delta = imageBounds[1] - imageBounds[0];
   const unscaledData = new Float32Array(
     Array.from(data)
       .filter((_, i) => i % bandsCount === 0)
-      .map(x => x / 255 * (imageBounds[1] - imageBounds[0]) + imageBounds[0])
+      .map(x => imageBounds[0] + x / 255 * delta)
   );
   return unscaledData;
 }
