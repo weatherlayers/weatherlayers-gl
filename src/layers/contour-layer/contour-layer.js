@@ -21,13 +21,13 @@ const defaultProps = {
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
-  experimental: false,
+  gpu: false,
 };
 
 export class ContourLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {experimental} = this.props;
+    const {gpu} = this.props;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
@@ -36,7 +36,7 @@ export class ContourLayer extends CompositeLayer {
     }
 
     return [
-      !experimental ? new ContourPathLayer(props, this.getSubLayerProps({
+      !gpu ? new ContourPathLayer(props, this.getSubLayerProps({
         id: 'path',
         image,
         imageBounds: stacCollection.summaries.imageBounds,
@@ -46,7 +46,7 @@ export class ContourLayer extends CompositeLayer {
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
         clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })) : null,
-      experimental ? new ContourBitmapLayer(props, this.getSubLayerProps({
+      gpu ? new ContourBitmapLayer(props, this.getSubLayerProps({
         id: 'bitmap',
         image,
         image2,
@@ -107,7 +107,7 @@ export class ContourLayer extends CompositeLayer {
           endDatetime && loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
 
-        if (this.props.experimental) {
+        if (this.props.gpu) {
           // create textures, to avoid a bug with async image props
           image = new Texture2D(gl, image);
           image2 = image2 && new Texture2D(gl, image2);
