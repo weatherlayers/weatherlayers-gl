@@ -7,11 +7,18 @@
  */
 import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
+import {ImageType} from './image-type';
+
+/** @typedef {import('./image-type').ImageType} ImageType */
+/** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
+/** @typedef {{ data: TextureDataArray, width: number, height: number, bandsCount: number, format: number }} TextureData */
+/** @typedef {Float32Array} FloatDataArray */
+/** @typedef {{ data: FloatDataArray, width: number, height: number }} FloatData */
 
 /**
- * @param {Float32Array | Uint8Array} data
+ * @param {TextureDataArray} data
  * @param {number} [nodata]
- * @returns {Float32Array | Uint8Array}
+ * @returns {TextureDataArray}
  */
 function maskData(data, nodata = undefined) {
   if (!nodata) {
@@ -29,8 +36,35 @@ function maskData(data, nodata = undefined) {
 }
 
 /**
+ * @param {TextureDataArray} data
+ * @param {number} bandsCount
+ * @returns {number}
+ */
+function getDataTextureFormat(data, bandsCount) {
+  if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
+    if (bandsCount === 4) {
+      return GL.RGBA;
+    } else if (bandsCount === 2) {
+      return GL.LUMINANCE_ALPHA;
+    } else {
+      throw new Error('Unsupported data format');
+    }
+  } else if (data instanceof Float32Array) {
+    if (bandsCount === 2) {
+      return GL.RG32F;
+    } else if (bandsCount === 1) {
+      return GL.R32F;
+    } else {
+      throw new Error('Unsupported data format');
+    }
+  } else {
+    throw new Error('Unsupported data format');
+  }
+}
+
+/**
  * @param {string} url
- * @returns {Promise<{ data: HTMLImageElement }>}
+ * @returns {Promise<TextureData>}
  */
 async function loadImage(url) {
   const blob = await (await fetch(url)).blob();
@@ -39,63 +73,48 @@ async function loadImage(url) {
   image.src = URL.createObjectURL(blob);
   await image.decode();
 
-  return { data: image };
-}
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const context = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
+  context.drawImage(image, 0, 0);
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  const { data, width, height } = imageData;
 
-/**
- * @param {Float32Array | Uint8Array} data
- * @param {number} bandsCount
- * @returns {number}
- */
-function getGeotiffTextureFormat(data, bandsCount) {
-  if (data instanceof Float32Array) {
-    if (bandsCount === 2) {
-      return GL.RG32F;
-    } else if (bandsCount === 1) {
-      return GL.R32F;
-    } else {
-      throw new Error('Unsupported data format');
-    }
-  } else if (data instanceof Uint8Array) {
-    if (bandsCount === 4) {
-      return GL.RGBA;
-    } else if (bandsCount === 2) {
-      return GL.LUMINANCE_ALPHA;
-    } else {
-      throw new Error('Unsupported data format');
-    }
-  } else {
-    throw new Error('Unsupported data format');
-  }
+  const bandsCount = 4;
+  const format = getDataTextureFormat(data, bandsCount);
+
+  const textureData = { data, width, height, bandsCount, format };
+  return textureData;
 }
 
 /**
  * @param {string} url
- * @returns {Promise<{ data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
+ * @returns {Promise<TextureData>}
  */
 async function loadGeotiff(url) {
   const geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true });
   const geotiffImage = await geotiff.getImage(0);
 
-  const width = geotiffImage.getWidth();
-  const height = geotiffImage.getHeight();
-
   const sourceData = await geotiffImage.readRasters({ interleave: true });
   const nodata = geotiffImage.getGDALNoData();
   const data = maskData(sourceData, nodata);
 
-  const bandsCount = geotiffImage.getSamplesPerPixel();
-  const format = getGeotiffTextureFormat(data, bandsCount);
+  const width = geotiffImage.getWidth();
+  const height = geotiffImage.getHeight();
 
-  const texture = { width, height, data, format };
-  return texture;
+  const bandsCount = geotiffImage.getSamplesPerPixel();
+  const format = getDataTextureFormat(data, bandsCount);
+
+  const textureData = { data, width, height, bandsCount, format };
+  return textureData;
 }
 
 /**
  * @param {string} url
- * @returns {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
+ * @returns {Promise<TextureData>}
  */
-export function loadData(url) {
+export function loadTextureData(url) {
   if (url.includes('.png')) {
     return loadImage(url);
   } else if (url.includes('.tif')) {
@@ -103,4 +122,42 @@ export function loadData(url) {
   } else {
     throw new Error('Unsupported data format');
   }
+}
+
+/**
+ * @param {TextureData} textureData
+ * @param {[number, number]} imageBounds
+ * @param {ImageType} imageType
+ * @returns {FloatData}
+ */
+export function unscaleTextureData(textureData, imageBounds, imageType) {
+  const { data, width, height, bandsCount } = textureData;
+
+  const delta = imageBounds[1] - imageBounds[0];
+  const imageScalarize = imageType === ImageType.VECTOR;
+  const imageUnscale = !(data instanceof Float32Array);
+
+  const unscaledDataLength = data.length / bandsCount;
+  const unscaledData = new Float32Array(unscaledDataLength);
+  for (let i = 0; i < unscaledDataLength; i++) {
+    const j = i * bandsCount;
+    if (imageScalarize) {
+      if (imageUnscale) {
+        unscaledData[i] = Math.hypot(
+          imageBounds[0] + (data[j] / 255) * delta,
+          imageBounds[0] + (data[j + 1] / 255) * delta
+        )
+      } else {
+        unscaledData[i] = Math.hypot(data[j], data[j + 1])
+      }
+    } else {
+      if (imageUnscale) {
+        unscaledData[i] = imageBounds[0] + (data[j] / 255) * delta;
+      } else {
+        unscaledData[i] = data[j];
+      }
+    }
+  }
+
+  return { data: unscaledData, width, height };
 }

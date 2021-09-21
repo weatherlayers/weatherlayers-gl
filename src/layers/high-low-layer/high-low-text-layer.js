@@ -6,7 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer, TextLayer} from '@deck.gl/layers';
-import {loadImageData, unscaleImageData} from '../../utils/image-data';
+import {ImageType} from '../../utils/image-type';
+import {unscaleTextureData} from '../../utils/data';
 import {getHighsLows} from '../../utils/high-low-proxy';
 
 const DEFAULT_COLOR = [107, 107, 107, 255];
@@ -17,6 +18,7 @@ const defaultProps = {
 
   image: {type: 'image', value: null, required: true},
   imageBounds: {type: 'array', value: null, required: true},
+  imageType: {type: 'string', value: ImageType.SCALAR},
 
   radius: {type: 'number', value: null, required: true},
 
@@ -77,25 +79,14 @@ export class HighLowTextLayer extends CompositeLayer {
   }
 
   async updateHighsLows() {
-    const {image, imageBounds, radius, bounds} = this.props;
+    const {image, imageBounds, imageType, radius, bounds} = this.props;
 
     if (!image) {
       return;
     }
 
-    let imageData;
-    if (image.data instanceof HTMLImageElement) {
-      const loadedData = loadImageData(image.data);
-      imageData = { data: unscaleImageData(loadedData.data, imageBounds, 4), width: loadedData.width, height: loadedData.height };
-    } else if (image.data instanceof Uint8Array) {
-      imageData = { data: unscaleImageData(image.data, imageBounds, 2), width: image.width, height: image.height };
-    } else if (image.data instanceof Float32Array) {
-      imageData = { data: new Float32Array(image.data), width: image.width, height: image.height };
-    } else {
-      throw new Error('Unsupported data format');
-    }
-
-    const {data, width, height} = imageData;
+    const unscaledTextureData = unscaleTextureData(image, imageBounds, imageType);
+    const {data, width, height} = unscaledTextureData;
     const highsLows = await getHighsLows(data, width, height, radius, bounds);
 
     this.setState({

@@ -6,7 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {CompositeLayer, PathLayer} from '@deck.gl/layers';
-import {loadImageData, unscaleImageData} from '../../utils/image-data';
+import {ImageType} from '../../utils/image-type';
+import {unscaleTextureData} from '../../utils/data';
 import {getContours} from '../../utils/contour-proxy';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
@@ -16,6 +17,7 @@ const defaultProps = {
 
   image: {type: 'image', value: null, required: true},
   imageBounds: {type: 'array', value: null, required: true},
+  imageType: {type: 'string', value: ImageType.SCALAR},
 
   delta: {type: 'number', value: null, required: true},
   color: {type: 'color', value: DEFAULT_COLOR},
@@ -50,25 +52,14 @@ export class ContourPathLayer extends CompositeLayer {
   }
 
   async updateContours() {
-    const {image, imageBounds, delta, bounds} = this.props;
+    const {image, imageBounds, imageType, delta, bounds} = this.props;
 
     if (!image) {
       return;
     }
 
-    let imageData;
-    if (image.data instanceof HTMLImageElement) {
-      const loadedData = loadImageData(image.data);
-      imageData = { data: unscaleImageData(loadedData.data, imageBounds, 4), width: loadedData.width, height: loadedData.height };
-    } else if (image.data instanceof Uint8Array) {
-      imageData = { data: unscaleImageData(image.data, imageBounds, 2), width: image.width, height: image.height };
-    } else if (image.data instanceof Float32Array) {
-      imageData = { data: new Float32Array(image.data), width: image.width, height: image.height };
-    } else {
-      throw new Error('Unsupported data format');
-    }
-
-    const {data, width, height} = imageData;
+    const unscaledTextureData = unscaleTextureData(image, imageBounds, imageType);
+    const {data, width, height} = unscaledTextureData;
     const contours = await getContours(data, width, height, delta, bounds);
 
     this.setState({

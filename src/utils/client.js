@@ -5,8 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {loadData} from './data';
+import {loadTextureData} from './data';
 
+/** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {import('./client').ClientConfig} ClientConfig */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
@@ -70,15 +71,15 @@ function loadJsonCached(url) {
 
 /**
  * @param {string} url
- * @return {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
+ * @returns {Promise<TextureData>}
  */
-function loadDataCached(url) {
+function loadTextureDataCached(url) {
   const dataOrPromise = cache.get(url);
   if (dataOrPromise) {
     return dataOrPromise;
   }
   
-  const dataPromise = loadData(url);
+  const dataPromise = loadTextureData(url);
   cache.set(url, dataPromise);
   dataPromise.then(data => {
     cache.set(url, data);
@@ -159,10 +160,10 @@ export async function loadStacItemByDatetime(dataset, datetime) {
 /**
  * @param {string} dataset
  * @param {string} datetime
- * @returns {Promise<{ data: HTMLImageElement } | { data: Float32Array | Uint8Array, width: number, height: number, format: number }>}
+ * @returns {Promise<TextureData>}
  */
 export async function loadStacCollectionDataByDatetime(dataset, datetime) {
   const stacItem = await loadStacItemByDatetime(dataset, datetime);
   const url = stacItem.assets.data.href;
-  return loadDataCached(url);
+  return loadTextureDataCached(url);
 }
