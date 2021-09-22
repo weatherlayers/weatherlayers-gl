@@ -16,6 +16,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@luma.gl/constants": "^8.5.7",
     "color-rgba": "^2.2.3",
     "comlink": "^4.3.1",
     "d3-contour": "^3.0.1",
@@ -30,7 +31,6 @@
     "@deck.gl/core": "^8.5.0",
     "@deck.gl/extensions": "^8.5.0",
     "@deck.gl/layers": "^8.5.0",
-    "@luma.gl/constants": "^8.4.5",
     "@luma.gl/core": "^8.4.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^17.1.0",
@@ -53,7 +53,6 @@
     "@deck.gl/core": "^8.5.0",
     "@deck.gl/extensions": "^8.5.0",
     "@deck.gl/layers": "^8.5.0",
-    "@luma.gl/constants": "^8.4.5",
     "@luma.gl/core": "^8.4.5",
     "geotiff": "^1.0.4"
   }

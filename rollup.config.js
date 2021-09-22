@@ -10,6 +10,24 @@ import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 
+import GL from '@luma.gl/constants';
+
+const usedGlConstantKeys = [
+  'FLOAT',
+  'RGBA',
+  'LUMINANCE_ALPHA',
+  'LINEAR',
+  'TEXTURE_MAG_FILTER',
+  'TEXTURE_MIN_FILTER',
+  'TEXTURE_WRAP_S',
+  'TEXTURE_WRAP_T',
+  'REPEAT',
+  'CLAMP_TO_EDGE',
+  'RG32F',
+  'R32F',
+];
+const glConstants = Object.fromEntries(Array.from(Object.entries(GL)).filter(([key]) => usedGlConstantKeys.includes(key)));
+
 function bundle(format, filename, options = {}) {
   return {
     input: 'src/index.js',
@@ -22,7 +40,6 @@ function bundle(format, filename, options = {}) {
         '@deck.gl/core': 'deck',
         '@deck.gl/extensions': 'deck',
         '@deck.gl/layers': 'deck',
-        '@luma.gl/constants': 'luma.GL',
         '@luma.gl/core': 'luma',
         'geotiff': 'GeoTIFF',
       },
@@ -37,6 +54,7 @@ function bundle(format, filename, options = {}) {
     ],
     plugins: [
       shim({
+        '@luma.gl/constants': `export default ${JSON.stringify(glConstants)}`,
         'color-name': 'export default {}'
       }),
       ...(options.resolve ? [resolve()] : []),
