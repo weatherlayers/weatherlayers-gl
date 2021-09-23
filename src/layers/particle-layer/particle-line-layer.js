@@ -124,7 +124,7 @@ export class ParticleLineLayer extends LineLayer {
     super.draw({uniforms});
 
     if (animate) {
-      setTimeout(() => this.step(), 1000 / FPS);
+      this.requestStep();
     }
   }
 
@@ -293,6 +293,19 @@ export class ParticleLineLayer extends LineLayer {
       widths: undefined,
       transform: undefined,
     });
+  }
+
+  requestStep() {
+    const {stepRequested} = this.state;
+    if (stepRequested) {
+      return;
+    }
+
+    this.state.stepRequested = true;
+    setTimeout(() => {
+      this.step();
+      this.state.stepRequested = false;
+    }, 1000 / FPS);
   }
 
   step() {
