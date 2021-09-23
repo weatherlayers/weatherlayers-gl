@@ -16,8 +16,8 @@ import {loadTextureData} from './data';
 
 /** @type {ClientConfig} */
 const DEFAULT_CLIENT_CONFIG = {
-  url: 'https://api.weatherlayers.com/catalog',
-  // url: 'http://localhost:8080/catalog',
+  url: 'https://catalog.weatherlayers.com',
+  // url: 'http://localhost:8080',
   format: 'byte.png',
 };
 
@@ -99,7 +99,7 @@ export async function loadStacCatalog() {
     params.set('format', clientConfig.format);
   }
   const query = params.toString();
-  const url = `${clientConfig.url}${query ? `?${query}` : ''}`;
+  const url = `${clientConfig.url}/catalog${query ? `?${query}` : ''}`;
   return loadJsonCached(url);
 }
 
