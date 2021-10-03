@@ -27,7 +27,7 @@ export class HighLowLayer extends CompositeLayer {
     const {props, stacCollection, image} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
-    if (!props || !stacCollection || !stacCollection.summaries.highLow || !image) {
+    if (!props || !stacCollection || !image) {
       return [];
     }
 
@@ -37,7 +37,6 @@ export class HighLowLayer extends CompositeLayer {
         image,
         imageBounds: stacCollection.summaries.imageBounds,
         radius: props.radius || stacCollection.summaries.highLow.radius,
-        contour: props.contour || stacCollection.summaries.highLow.contour,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],

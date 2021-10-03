@@ -81,8 +81,8 @@ function getLineBbox(line) {
  * @returns {{ coordinates: GeoJSON.Position[], value: number }[]}
  */
 function computeContours(data, width, height, delta) {
-  const min = Array.from(data).reduce((curr, prev) => Math.min(curr, prev), Infinity);
-  const max = Array.from(data).reduce((curr, prev) => Math.max(curr, prev), -Infinity);
+  const min = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.min(prev, curr) : prev, Infinity);
+  const max = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.max(prev, curr) : prev, -Infinity);
   const minThreshold = Math.ceil(min / delta) * delta;
   const maxThreshold = Math.floor(max / delta) * delta;
   const thresholds = new Array((maxThreshold - minThreshold) / delta + 1).fill(() => undefined).map((_, i) => minThreshold + i * delta);

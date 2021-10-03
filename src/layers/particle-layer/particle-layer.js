@@ -9,6 +9,7 @@ import {CompositeLayer} from '@deck.gl/layers';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {ParticleLineLayer} from './particle-line-layer';
+import {ImageType} from '../../utils/image-type';
 import {getClient} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
 import {clipBounds} from '../../utils/bounds';
@@ -27,7 +28,10 @@ export class ParticleLayer extends CompositeLayer {
     const {props, stacCollection, image, image2, imageWeight} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
-    if (!props || !stacCollection || !stacCollection.summaries.particle || !image) {
+    if (!props || !stacCollection || !image) {
+      return [];
+    }
+    if (stacCollection.summaries.imageType !== ImageType.VECTOR) {
       return [];
     }
 

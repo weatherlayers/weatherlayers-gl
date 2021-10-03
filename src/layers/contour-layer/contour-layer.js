@@ -31,7 +31,7 @@ export class ContourLayer extends CompositeLayer {
     const {props, stacCollection, image, image2, imageWeight} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
-    if (!props || !stacCollection || !stacCollection.summaries.contour || !image) {
+    if (!props || !stacCollection || !image) {
       return [];
     }
 
