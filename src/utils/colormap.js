@@ -9,6 +9,7 @@ import rgba from 'color-rgba';
 
 /** @typedef {string | [number, number, number] | [number, number, number, number]} ColorLiteral */
 /** @typedef {[number, number, number, number]} ColorValue */
+/** @typedef {[number, ColorLiteral][]} ColormapBreaks */
 
 /**
  * @param {ColorLiteral} value
@@ -76,7 +77,7 @@ function colorInterpolator(start, end) {
 }
 
 /**
- * @param {[number, ColorLiteral][]} colormapBreaks
+ * @param {ColormapBreaks} colormapBreaks
  * @return {(value: number) => ColorValue}
  */
 export function linearColormap(colormapBreaks) {
@@ -125,7 +126,7 @@ function colorRamp(colormapFunction, colormapBounds, { count = 256 } = {}) {
 export function colorRampCanvas(colormapFunction, colormapBounds, { count = 256 } = {}) {
   const colors = colorRamp(colormapFunction, colormapBounds, { count });
 
-  const canvas = /** @type HTMLCanvasElement */ (document.createElement('canvas'));
+  const canvas = document.createElement('canvas');
   canvas.width = colors.length;
   canvas.height = 1;
   canvas.style.imageRendering = '-moz-crisp-edges';

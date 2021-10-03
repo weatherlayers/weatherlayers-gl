@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.6.0-alpha.3/dist.min.js"></script>
+  <script src="https://unpkg.com/geotiff@1.0.4/dist-browser/geotiff.js"></script>
+  <script src="https://unpkg.com/@deck.gl/arcgis@8.6.0-alpha.3/dist/dist.dev.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+  <script src="../dist/weatherlayers-gl.umd.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./fps-control.css">
+</head>
+
+<body class="arcgis">
+  <div id="container">
+    <div id="arcgis"></div>
+  </div>
+  <div id="top-left"></div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
+
+  <script type="module">
+    import { NO_DATA, initConfig, initGui } from './config.js';
+    import { InfoControl } from './info-control.js';
+    import { FpsControl } from './fps-control.js';
+
+    WeatherLayers.setClientConfig({
+      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      format: 'mercator.byte.png',
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const config = await initConfig();
+      let gui;
+
+      // ArcGIS
+      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, BaseTileLayer, watchUtils] } = await deck.loadArcGISModules([
+        'esri/Map',
+        'esri/views/SceneView',
+        'esri/views/3d/externalRenderers',
+        'esri/layers/BaseTileLayer',
+        'esri/core/watchUtils',
+      ], { version: '4.21' });
+      const ArcGISWeatherLayers = WeatherLayers.initArcGISLayers(BaseTileLayer);
+      const map = new Map({
+        basemap: 'dark-gray-vector',
+        layers: [],
+      });
+      const view = new SceneView({
+        container: 'arcgis',
+        map: map,
+        camera: {
+          position: {
+            longitude: 30,
+            latitude: 10,
+            z: 25000 * 1000, // 25000 km
+          },
+        },
+        viewingMode: 'global',
+      });
+      view.ui.components = ['attribution'];
+
+      // rotate
+      const rotateAnimation = new WeatherLayers.Animation(() => {
+        const camera = view.camera.clone();
+        camera.position.longitude += 0.3;
+        view.goTo(camera, { animate: false });
+      });
+
+      // legend
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // timeline
+      const timelineControl = new WeatherLayers.TimelineControl({
+        width: 250,
+        onUpdate: event => {
+          config.datetime = event.datetime || NO_DATA;
+          gui.updateDisplay();
+          update();
+        },
+      });
+      document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+
+      // config
+      async function update() {
+        const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+
+        let rasterLayer = map.layers.find(x => x.id === 'raster');
+        if (!rasterLayer) {
+          rasterLayer = new ArcGISWeatherLayers.RasterLayer({
+            id: 'raster',
+            visible: config.raster.enabled,
+            dataset,
+            datetime,
+            opacity: config.raster.opacity,
+          });
+          map.add(rasterLayer);
+        } else {
+          rasterLayer.visible = config.raster.enabled;
+          rasterLayer.dataset = dataset;
+          rasterLayer.datetime = datetime;
+          rasterLayer.opacity = config.raster.opacity;
+          rasterLayer.refresh();
+        }
+
+        rotateAnimation.toggle(config.rotate);
+        legendControl.update({ ...legendControl.config, dataset });
+        timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
+      }
+      update();
+      gui = initGui(config, update, { globe: true });
+    });
+  </script>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-82S0Z8QP5L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-82S0Z8QP5L');
+  </script>
+</body>
+
+</html>

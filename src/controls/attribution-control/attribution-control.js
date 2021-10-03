@@ -77,6 +77,6 @@ export class AttributionControl {
       return;
     }
 
-    this.container.innerHTML = `<div>Data by <a href="${producer.url}">${producer.name}</a></div>`;
+    this.container.innerHTML = `<div><a href="${producer.url}">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers</a></div>`;
   }
 }

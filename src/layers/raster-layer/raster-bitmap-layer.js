@@ -17,8 +17,8 @@ const defaultProps = {
   image: {type: 'image', value: null, required: true},
   image2: {type: 'image', value: null},
   imageWeight: {type: 'number', value: 0},
-  imageBounds: {type: 'array', value: null, required: true},
   imageType: {type: 'string', value: ImageType.SCALAR},
+  imageBounds: {type: 'array', value: null, required: true},
 
   colormapBreaks: {type: 'array', value: null, required: true},
 

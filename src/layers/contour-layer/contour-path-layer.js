@@ -16,8 +16,8 @@ const defaultProps = {
   ...PathLayer.defaultProps,
 
   image: {type: 'image', value: null, required: true},
-  imageBounds: {type: 'array', value: null, required: true},
   imageType: {type: 'string', value: ImageType.SCALAR},
+  imageBounds: {type: 'array', value: null, required: true},
 
   delta: {type: 'number', value: null, required: true},
   color: {type: 'color', value: DEFAULT_COLOR},
@@ -52,13 +52,13 @@ export class ContourPathLayer extends CompositeLayer {
   }
 
   async updateContours() {
-    const {image, imageBounds, imageType, delta, bounds} = this.props;
+    const {image, imageType, imageBounds, delta, bounds} = this.props;
 
     if (!image) {
       return;
     }
 
-    const unscaledTextureData = unscaleTextureData(image, imageBounds, imageType);
+    const unscaledTextureData = unscaleTextureData(image, imageType, imageBounds);
     const {data, width, height} = unscaledTextureData;
     const contours = await getContours(data, width, height, delta, bounds);
 

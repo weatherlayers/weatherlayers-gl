@@ -120,7 +120,10 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   gui.add(config, 'datetime', []).onChange(update);
   updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-  gui.add(config, 'datetimeInterpolate').onChange(update);
+
+  if (deckgl) {
+    gui.add(config, 'datetimeInterpolate').onChange(update);
+  }
 
   if (globe) {
     gui.add(config, 'rotate').onChange(update);
@@ -134,34 +137,36 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
   raster.open();
 
-  const contour = gui.addFolder('Contour layer');
-  contour.add(config.contour, 'enabled').onChange(update);
-  contour.add(config.contour, 'delta', 0, 1000, 1).onFinishChange(update);
-  contour.addColor(config.contour, 'color').onChange(update);
-  contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
-  contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
-  contour.open();
+  if (deckgl) {
+    const contour = gui.addFolder('Contour layer');
+    contour.add(config.contour, 'enabled').onChange(update);
+    contour.add(config.contour, 'delta', 0, 1000, 1).onFinishChange(update);
+    contour.addColor(config.contour, 'color').onChange(update);
+    contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
+    contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
+    contour.open();
 
-  const highLow = gui.addFolder('HighLow layer');
-  highLow.add(config.highLow, 'enabled').onChange(update);
-  highLow.add(config.highLow, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
-  highLow.addColor(config.highLow, 'color').onChange(update);
-  highLow.addColor(config.highLow, 'outlineColor').onChange(update);
-  highLow.add(config.highLow, 'opacity', 0, 1, 0.01).onChange(update);
-  highLow.open();
+    const highLow = gui.addFolder('HighLow layer');
+    highLow.add(config.highLow, 'enabled').onChange(update);
+    highLow.add(config.highLow, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
+    highLow.addColor(config.highLow, 'color').onChange(update);
+    highLow.addColor(config.highLow, 'outlineColor').onChange(update);
+    highLow.add(config.highLow, 'opacity', 0, 1, 0.01).onChange(update);
+    highLow.open();
 
-  const particle = gui.addFolder('Particle layer');
-  particle.add(config.particle, 'enabled').onChange(update);
-  particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
-  particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
-  particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
-  particle.addColor(config.particle, 'color').onChange(update);
-  particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
-  particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
-  particle.add(config.particle, 'animate').onChange(update);
-  particle.add({ step: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step() }, 'step');
-  particle.add({ clear: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear() }, 'clear');
-  particle.open();
+    const particle = gui.addFolder('Particle layer');
+    particle.add(config.particle, 'enabled').onChange(update);
+    particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
+    particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
+    particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
+    particle.addColor(config.particle, 'color').onChange(update);
+    particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
+    particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
+    particle.add(config.particle, 'animate').onChange(update);
+    particle.add({ step: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step() }, 'step');
+    particle.add({ clear: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear() }, 'clear');
+    particle.open();
+  }
 
   return gui;
 }

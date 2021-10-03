@@ -8,8 +8,10 @@
 import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 import {ImageType} from './image-type';
+import {linearColormap} from './colormap';
 
 /** @typedef {import('./image-type').ImageType} ImageType */
+/** @typedef {import('./colormap').ColormapBreaks} ColormapBreaks */
 /** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
 /** @typedef {{ data: TextureDataArray, width: number, height: number, bandsCount: number, format: number }} TextureData */
 /** @typedef {Float32Array} FloatDataArray */
@@ -126,38 +128,82 @@ export function loadTextureData(url) {
 
 /**
  * @param {TextureData} textureData
- * @param {[number, number]} imageBounds
  * @param {ImageType} imageType
+ * @param {[number, number]} imageBounds
  * @returns {FloatData}
  */
-export function unscaleTextureData(textureData, imageBounds, imageType) {
+export function unscaleTextureData(textureData, imageType, imageBounds) {
   const { data, width, height, bandsCount } = textureData;
 
-  const delta = imageBounds[1] - imageBounds[0];
   const imageScalarize = imageType === ImageType.VECTOR;
   const imageUnscale = !(data instanceof Float32Array);
+  const delta = imageBounds[1] - imageBounds[0];
 
   const unscaledDataLength = data.length / bandsCount;
   const unscaledData = new Float32Array(unscaledDataLength);
-  for (let i = 0; i < unscaledDataLength; i++) {
-    const j = i * bandsCount;
-    if (imageScalarize) {
-      if (imageUnscale) {
-        unscaledData[i] = Math.hypot(
-          imageBounds[0] + (data[j] / 255) * delta,
-          imageBounds[0] + (data[j + 1] / 255) * delta
-        )
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      const i = (y * height + x) * bandsCount;
+      const j = y * height + x;
+
+      let value;
+      if (imageScalarize) {
+        if (imageUnscale) {
+          value = Math.hypot(
+            imageBounds[0] + (data[i] / 255) * delta,
+            imageBounds[0] + (data[i + 1] / 255) * delta
+          )
+        } else {
+          value = Math.hypot(data[i], data[i + 1])
+        }
       } else {
-        unscaledData[i] = Math.hypot(data[j], data[j + 1])
+        if (imageUnscale) {
+          value = imageBounds[0] + (data[i] / 255) * delta;
+        } else {
+          value = data[i];
+        }
       }
-    } else {
-      if (imageUnscale) {
-        unscaledData[i] = imageBounds[0] + (data[j] / 255) * delta;
-      } else {
-        unscaledData[i] = data[j];
-      }
+
+      unscaledData[j] = value;
     }
   }
 
   return { data: unscaledData, width, height };
+}
+
+/**
+ * @param {TextureData} textureData
+ * @param {ImageType} imageType
+ * @param {[number, number]} imageBounds
+ * @param {ColormapBreaks} colormapBreaks
+ * @returns {HTMLCanvasElement}
+ */
+export function colorTextureData(textureData, imageType, imageBounds, colormapBreaks) {
+  const floatData = unscaleTextureData(textureData, imageType, imageBounds);
+  const { data, width, height } = floatData;
+
+  const colormap = linearColormap(colormapBreaks);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
+  const imageData = context.createImageData(width, height);
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      const i = y * height + x;
+      const j = (y * height + x) * 4;
+
+      const value = data[i];
+      const color = colormap(value);
+
+      imageData.data[j] = color[0];
+      imageData.data[j + 1] = color[1];
+      imageData.data[j + 2] = color[2];
+      imageData.data[j + 3] = color[3] * 255;
+    }
+  }
+  context.putImageData(imageData, 0, 0);
+
+  return canvas;
 }

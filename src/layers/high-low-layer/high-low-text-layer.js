@@ -17,8 +17,8 @@ const defaultProps = {
   ...TextLayer.defaultProps,
 
   image: {type: 'image', value: null, required: true},
-  imageBounds: {type: 'array', value: null, required: true},
   imageType: {type: 'string', value: ImageType.SCALAR},
+  imageBounds: {type: 'array', value: null, required: true},
 
   radius: {type: 'number', value: null, required: true},
 
@@ -79,13 +79,13 @@ export class HighLowTextLayer extends CompositeLayer {
   }
 
   async updateHighsLows() {
-    const {image, imageBounds, imageType, radius, bounds} = this.props;
+    const {image, imageType, imageBounds, radius, bounds} = this.props;
 
     if (!image) {
       return;
     }
 
-    const unscaledTextureData = unscaleTextureData(image, imageBounds, imageType);
+    const unscaledTextureData = unscaleTextureData(image, imageType, imageBounds);
     const {data, width, height} = unscaledTextureData;
     const highsLows = await getHighsLows(data, width, height, radius, bounds);
 
