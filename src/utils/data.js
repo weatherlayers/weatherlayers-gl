@@ -139,8 +139,7 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
   const imageUnscale = !(data instanceof Float32Array);
   const delta = imageBounds[1] - imageBounds[0];
 
-  const unscaledDataLength = data.length / bandsCount;
-  const unscaledData = new Float32Array(unscaledDataLength);
+  const unscaledData = new Float32Array(width * height);
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
       const i = (y * height + x) * bandsCount;
