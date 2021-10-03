@@ -142,8 +142,8 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
   const unscaledData = new Float32Array(width * height);
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
-      const i = (y * height + x) * bandsCount;
-      const j = y * height + x;
+      const i = (y * width + x) * bandsCount;
+      const j = y * width + x;
 
       let value;
       if (imageScalarize) {
@@ -190,8 +190,8 @@ export function colorTextureData(textureData, imageType, imageBounds, colormapBr
   const imageData = context.createImageData(width, height);
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
-      const i = y * height + x;
-      const j = (y * height + x) * 4;
+      const i = y * width + x;
+      const j = (y * width + x) * 4;
 
       const value = data[i];
       const color = colormap(value);
