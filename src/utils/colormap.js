@@ -85,7 +85,7 @@ export function linearColormap(colormapBreaks) {
   const endColor = normalizeColor(colormapBreaks[colormapBreaks.length - 1][1]);
   const noColor = /** @type {ColorValue} */ ([0, 0, 0, 0]);
 
-  const values = colormapBreaks.map(x => x[0]);
+  const values = [...colormapBreaks.map(x => x[0]), Infinity];
   const interpolators = new Array(colormapBreaks.length - 1).fill(undefined).map((_, i) => {
     return colorInterpolator(colormapBreaks[i][1], colormapBreaks[i + 1][1]);
   });
@@ -95,7 +95,7 @@ export function linearColormap(colormapBreaks) {
       return noColor;
     }
 
-    const i = values.findIndex(x => x > value) || colormapBreaks.length;
+    const i = values.findIndex(x => x > value);
 
     if (i <= 0) {
       return startColor;
