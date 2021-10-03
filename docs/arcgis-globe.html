@@ -45,7 +45,7 @@
         'esri/layers/BaseTileLayer',
         'esri/core/watchUtils',
       ], { version: '4.21' });
-      const ArcGISWeatherLayers = WeatherLayers.initArcGISLayers(BaseTileLayer);
+      const WeatherLayersArcGISRasterLayer = WeatherLayers.initArcGISRasterLayer(BaseTileLayer);
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -97,7 +97,7 @@
 
         let rasterLayer = map.layers.find(x => x.id === 'raster');
         if (!rasterLayer) {
-          rasterLayer = new ArcGISWeatherLayers.RasterLayer({
+          rasterLayer = new WeatherLayersArcGISRasterLayer({
             id: 'raster',
             visible: config.raster.enabled,
             dataset,

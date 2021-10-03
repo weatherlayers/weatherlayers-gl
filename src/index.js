@@ -10,7 +10,7 @@ export * from './layers/contour-layer/contour-layer';
 export * from './layers/high-low-layer/high-low-layer';
 export * from './layers/particle-layer/particle-layer';
 
-export * from './layers/arcgis/arcgis';
+export * from './layers/arcgis-raster-layer/arcgis-raster-layer';
 
 export * from './controls/legend-control/legend-control';
 export * from './controls/tooltip-control/tooltip-control';

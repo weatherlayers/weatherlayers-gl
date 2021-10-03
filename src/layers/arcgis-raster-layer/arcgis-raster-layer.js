@@ -5,9 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {loadStacCollection, getStacCollectionProducer, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../../utils/client';
-import {getClosestStartDatetime} from '../../../utils/datetime';
-import {colorTextureData} from '../../../utils/data';
+import {loadStacCollection, getStacCollectionProducer, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClosestStartDatetime} from '../../utils/datetime';
+import {colorTextureData} from '../../utils/data';
 
 /** @typedef {import('@arcgis/core/layers/BaseTileLayer')} BaseTileLayer */
 
@@ -15,7 +15,7 @@ import {colorTextureData} from '../../../utils/data';
  * @param {BaseTileLayer} baseTileLayer
  * @returns {BaseTileLayer}
  */
-export function initRasterLayer(baseTileLayer) {
+export function initArcGISRasterLayer(baseTileLayer) {
   return baseTileLayer.createSubclass({
     properties: {
       dataset: null,
