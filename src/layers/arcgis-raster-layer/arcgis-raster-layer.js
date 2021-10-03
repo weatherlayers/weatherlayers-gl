@@ -19,6 +19,7 @@ export function initArcGISRasterLayer(baseTileLayer) {
   return baseTileLayer.createSubclass({
     properties: {
       dataset: null,
+      datetime: null,
       colormapBreaks: null,
     },
 
@@ -31,9 +32,10 @@ export function initArcGISRasterLayer(baseTileLayer) {
      * @param {number} level
      * @param {number} row
      * @param {number} col
+     * @param {{ signal: { aborted: boolean }}} options
      * @returns {Promise<HTMLCanvasElement>}
      */
-    async fetchTile(level, row, col) {
+    async fetchTile(level, row, col, options) {
       if (level > 0 || row > 0 || col > 0) {
         throw new Error('Invalid state');
       }
@@ -61,6 +63,10 @@ export function initArcGISRasterLayer(baseTileLayer) {
 
       this.state.loadedDataset = dataset;
       this.state.loadedDatetime = datetime;
+
+      if (options.signal.aborted) {
+        throw new Error('Aborted');
+      }
 
       const imageType = this.state.stacCollection.summaries.imageType;
       const imageBounds = this.state.stacCollection.summaries.imageBounds;
