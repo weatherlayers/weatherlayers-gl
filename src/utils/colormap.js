@@ -86,16 +86,16 @@ export function linearColormap(colormapBreaks) {
   });
 
   return value => {
-    const i = [-Infinity, ...colormapBreaks.map(x => x[0]), Infinity].findIndex(x => x > value);
+    const i = [-Infinity, ...colormapBreaks.map(x => x[0]), Infinity].findIndex(x => x > value) - 1;
 
     if (i <= 0) {
       return interpolators[0](0);
-    } else if (i >= colormapBreaks.length + 1) {
+    } else if (i >= colormapBreaks.length) {
       return interpolators[interpolators.length - 1](1);
     } else {
-      const delta = colormapBreaks[i - 1][0] - colormapBreaks[i - 2][0];
-      const ratio = delta > 0 ? (value - colormapBreaks[i - 2][0]) / delta : 0;
-      return interpolators[i - 2](ratio);
+      const delta = colormapBreaks[i][0] - colormapBreaks[i - 1][0];
+      const ratio = delta > 0 ? (value - colormapBreaks[i - 1][0]) / delta : 0;
+      return interpolators[i - 1](ratio);
     }
   };
 }
