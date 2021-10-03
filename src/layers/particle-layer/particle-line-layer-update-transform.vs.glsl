@@ -1,11 +1,8 @@
-/*
- * Copyright (c) 2021 WeatherLayers.com
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-export default `\
+// Copyright (c) 2021 WeatherLayers.com
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #version 300 es
 #define SHADER_NAME particle-layer-update-transform-vertex-shader
 
@@ -208,4 +205,3 @@ void main() {
   targetPosition.xy = sourcePosition.xy + offset;
   targetPosition.x = wrap(targetPosition.x);
 }
-`;

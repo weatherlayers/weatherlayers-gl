@@ -23,13 +23,6 @@ export function initRasterLayer(baseTileLayer) {
     },
 
     load() {
-      if (!this.dataset) {
-        throw new Error('Missing dataset');
-      }
-      if (!this.datetime) {
-        throw new Error('Missing datetime');
-      }
-
       this.tileInfo.lods = [this.tileInfo.lods[0]];
       this.state = {};
     },
@@ -53,7 +46,7 @@ export function initRasterLayer(baseTileLayer) {
 
         const producer = getStacCollectionProducer(this.state.stacCollection);
         if (producer) {
-          this.copyright = `<a href="${producer.url}" class="esri-attribution__link">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers</a>`;
+          this.copyright = `<a href="${producer.url}" class="esri-attribution__link">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers.com</a>`;
         }
       }
 

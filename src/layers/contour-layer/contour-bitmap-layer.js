@@ -7,6 +7,8 @@
  */
 import {BitmapLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
+import fsDecl from './contour-bitmap-layer-fs-decl.glsl';
+import fsMainEnd from './contour-bitmap-layer-fs-main-end.glsl';
 import {ImageType} from '../../utils/image-type';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
@@ -33,71 +35,12 @@ export class ContourBitmapLayer extends BitmapLayer {
 
     return {
       ...parentShaders,
-      vs: `#version 300 es\n${parentShaders.vs}`,
-      fs: `#version 300 es\n${parentShaders.fs}`,
+      vs: ['#version 300 es', parentShaders.vs].join('\n'),
+      fs: ['#version 300 es', parentShaders.fs].join('\n'),
       inject: {
         ...parentShaders.inject,
-        'fs:#decl': `
-          ${(parentShaders.inject || {})['fs:#decl'] || ''}
-          uniform sampler2D bitmapTexture2;
-          uniform float imageWeight;
-          uniform float imageScalarize;
-          uniform float imageUnscale;
-          uniform vec2 imageBounds;
-          uniform float delta;
-          uniform vec4 color;
-          uniform float width;
-          uniform float rasterOpacity;
-
-          bool isNan(float value) {
-            return (value <= 0.0 || 0.0 <= value) ? false : true;
-          }
-
-          bool hasValues(vec4 values) {
-            return !isNan(values.x) && values.a == 1.0;
-          }
-
-          float raster_get_value(vec4 color) {
-            float value;
-            if (imageScalarize > 0.5) {
-              if (imageUnscale > 0.5) {
-                value = length(mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy));
-              } else {
-                value = length(color.xy);
-              }
-            } else {
-              if (imageUnscale > 0.5) {
-                value = mix(imageBounds[0], imageBounds[1], color.x);
-              } else {
-                value = color.x;
-              }
-            }
-
-            return value;
-          }
-
-          vec4 raster_apply_opacity(vec3 color, float alpha) {
-            return mix(vec4(0.), vec4(color, 1.), alpha);
-          }
-        `,
-        'fs:#main-end': `
-          ${(parentShaders.inject || {})['fs:#main-end'] || ''}
-          if (imageWeight > 0.) {
-            bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
-          }
-
-          // drop nodata
-          if (!hasValues(bitmapColor)) {
-            discard;
-          }
-
-          float value = raster_get_value(bitmapColor);
-          float contourValueFract = abs(fract(value / delta) - 0.5) * 2.;
-          float contourValueFwidth = fwidth(value / delta);
-          float contourValue = 1. - smoothstep(contourValueFwidth * 1., contourValueFwidth * 2., contourValueFract);
-          vec4 rasterColor = vec4(color.rgb, contourValue);
-          gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
-        `
+        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
+        'fs:#main-end': [parentShaders.inject?.['fs:#main-end'], fsMainEnd].join('\n'),
       },
     };
   }

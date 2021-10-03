@@ -9,7 +9,10 @@ import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import {isWebGL2} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-
+import vsDecl from './particle-line-layer-vs-decl.glsl';
+import vsMainStart from './particle-line-layer-vs-main-start.glsl';
+import fsDecl from './particle-line-layer-fs-decl.glsl';
+import fsMainStart from './particle-line-layer-fs-main-start.glsl';
 import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
 import {distance} from '../../utils/geodesy';
 import {wrapBounds} from '../../utils/bounds';
@@ -49,23 +52,10 @@ export class ParticleLineLayer extends LineLayer {
       ...parentShaders,
       inject: {
         ...parentShaders.inject,
-        'vs:#decl': `
-          ${(parentShaders.inject || {})['vs:#decl'] || ''}
-          varying float drop;
-          const vec2 DROP_POSITION = vec2(0);
-        `,
-        'vs:#main-start': `
-          ${(parentShaders.inject || {})['vs:#main-start'] || ''}
-          drop = float(instanceSourcePositions.xy == DROP_POSITION || instanceTargetPositions.xy == DROP_POSITION);
-        `,
-        'fs:#decl': `
-          ${(parentShaders.inject || {})['fs:#decl'] || ''}
-          varying float drop;
-        `,
-        'fs:#main-start': `
-          ${(parentShaders.inject || {})['fs:#main-start'] || ''}
-          if (drop > 0.5) discard;
-        `,
+        'vs:#decl': [parentShaders.inject?.['vs:#decl'], vsDecl].join('\n'),
+        'vs:#main-start': [parentShaders.inject?.['vs:#main-start'], vsMainStart].join('\n'),
+        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
+        'fs:#main-start': [parentShaders.inject?.['fs:#main-start'], fsMainStart].join('\n'),
       },
     };
   }
@@ -164,7 +154,7 @@ export class ParticleLineLayer extends LineLayer {
       feedbackMap: {
         sourcePosition: 'targetPosition',
       },
-      vs: updateTransformVs,
+      vs: updateTransformVs.trim(),
       elementCount: numParticles,
     });
 
