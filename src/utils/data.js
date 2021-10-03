@@ -11,7 +11,7 @@ import {ImageType} from './image-type';
 import {linearColormap} from './colormap';
 
 /** @typedef {import('./image-type').ImageType} ImageType */
-/** @typedef {import('./colormap').ColormapBreaks} ColormapBreaks */
+/** @typedef {import('./colormap').ColormapBreak} ColormapBreak */
 /** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
 /** @typedef {{ data: TextureDataArray, width: number, height: number, bandsCount: number, format: number }} TextureData */
 /** @typedef {Float32Array} FloatDataArray */
@@ -188,7 +188,7 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
  * @param {TextureData} textureData
  * @param {ImageType} imageType
  * @param {[number, number]} imageBounds
- * @param {ColormapBreaks} colormapBreaks
+ * @param {ColormapBreak[]} colormapBreaks
  * @returns {HTMLCanvasElement}
  */
 export function colorTextureData(textureData, imageType, imageBounds, colormapBreaks) {
