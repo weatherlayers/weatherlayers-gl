@@ -8,8 +8,8 @@
 import rgba from 'color-rgba';
 
 /** @typedef {string | [number, number, number] | [number, number, number, number]} ColorLiteral */
+/** @typedef {[number, ColorLiteral]} ColormapBreak */
 /** @typedef {[number, number, number, number]} ColorValue */
-/** @typedef {[number, ColorLiteral][]} ColormapBreaks */
 
 /**
  * @param {ColorLiteral} value
@@ -77,30 +77,30 @@ function colorInterpolator(start, end) {
 }
 
 /**
- * @param {ColormapBreaks} colormapBreaks
+ * @param {ColormapBreak[]} colormapBreaks
  * @return {(value: number) => ColorValue}
  */
 export function linearColormap(colormapBreaks) {
-  const values = [...colormapBreaks.map(x => x[0]), Infinity];
+  const startColor = normalizeColor(colormapBreaks[0][1]);
+  const endColor = normalizeColor(colormapBreaks[colormapBreaks.length - 1][1]);
+  const noColor = /** @type {ColorValue} */ ([0, 0, 0, 0]);
+
+  const values = colormapBreaks.map(x => x[0]);
   const interpolators = new Array(colormapBreaks.length - 1).fill(undefined).map((_, i) => {
     return colorInterpolator(colormapBreaks[i][1], colormapBreaks[i + 1][1]);
   });
 
-  const minColor = normalizeColor(colormapBreaks[0][1]);
-  const maxColor = normalizeColor(colormapBreaks[colormapBreaks.length - 1][1]);
-  const nodataColor = /** @type {ColorValue} */ ([0, 0, 0, 0]);
-
   return value => {
     if (isNaN(value)) {
-      return nodataColor;
+      return noColor;
     }
 
-    const i = values.findIndex(x => x > value);
+    const i = values.findIndex(x => x > value) || colormapBreaks.length;
 
     if (i <= 0) {
-      return minColor;
+      return startColor;
     } else if (i >= colormapBreaks.length) {
-      return maxColor;
+      return endColor;
     } else {
       const delta = colormapBreaks[i][0] - colormapBreaks[i - 1][0];
       const ratio = delta > 0 ? (value - colormapBreaks[i - 1][0]) / delta : 0;
