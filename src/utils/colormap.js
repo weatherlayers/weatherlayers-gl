@@ -81,21 +81,26 @@ function colorInterpolator(start, end) {
  * @return {(value: number) => ColorValue}
  */
 export function linearColormap(colormapBreaks) {
+  const values = [...colormapBreaks.map(x => x[0]), Infinity];
   const interpolators = new Array(colormapBreaks.length - 1).fill(undefined).map((_, i) => {
     return colorInterpolator(colormapBreaks[i][1], colormapBreaks[i + 1][1]);
   });
 
+  const nodataColor = /** @type {ColorValue} */ ([0, 0, 0, 0]);
+  const minColor = interpolators[0](0);
+  const maxColor = interpolators[interpolators.length - 1](1);
+
   return value => {
     if (isNaN(value)) {
-      return [0, 0, 0, 0];
+      return nodataColor;
     }
 
-    const i = [-Infinity, ...colormapBreaks.map(x => x[0]), Infinity].findIndex(x => x > value) - 1;
+    const i = values.findIndex(x => x > value);
 
     if (i <= 0) {
-      return interpolators[0](0);
+      return minColor;
     } else if (i >= colormapBreaks.length) {
-      return interpolators[interpolators.length - 1](1);
+      return maxColor;
     } else {
       const delta = colormapBreaks[i][0] - colormapBreaks[i - 1][0];
       const ratio = delta > 0 ? (value - colormapBreaks[i - 1][0]) / delta : 0;
