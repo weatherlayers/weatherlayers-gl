@@ -8,11 +8,11 @@
 import {loadTextureData} from './data';
 
 /** @typedef {import('./data').TextureData} TextureData */
-/** @typedef {import('./client').ClientConfig} ClientConfig */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProvider} StacProvider */
 /** @typedef {import('./stac').StacItem} StacItem */
+/** @typedef {{ url: string, accessToken?: string, format: string }} ClientConfig */
 
 /** @type {ClientConfig} */
 const DEFAULT_CLIENT_CONFIG = {

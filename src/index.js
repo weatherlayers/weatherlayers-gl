@@ -9,7 +9,6 @@ export * from './layers/raster-layer/raster-layer';
 export * from './layers/contour-layer/contour-layer';
 export * from './layers/high-low-layer/high-low-layer';
 export * from './layers/particle-layer/particle-layer';
-
 export * from './layers/arcgis-raster-layer/arcgis-raster-layer';
 
 export * from './controls/legend-control/legend-control';
@@ -17,9 +16,5 @@ export * from './controls/tooltip-control/tooltip-control';
 export * from './controls/timeline-control/timeline-control';
 export * from './controls/attribution-control/attribution-control';
 
-export * from './utils/animation';
-export * from './utils/client';
-export * from './utils/data';
-export * from './utils/colormap';
-export * from './utils/value';
-export * from './utils/datetime';
+export {getClientConfig, setClientConfig, loadStacCatalog, getStacCatalogCollectionIds, loadStacCollection, getStacCollectionItemDatetimes} from './utils/client';
+export {formatDatetime, getClosestStartDatetime, getClosestEndDatetime} from './utils/datetime';
