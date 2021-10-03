@@ -86,9 +86,9 @@ export function linearColormap(colormapBreaks) {
     return colorInterpolator(colormapBreaks[i][1], colormapBreaks[i + 1][1]);
   });
 
+  const minColor = normalizeColor(colormapBreaks[0][1]);
+  const maxColor = normalizeColor(colormapBreaks[colormapBreaks.length - 1][1]);
   const nodataColor = /** @type {ColorValue} */ ([0, 0, 0, 0]);
-  const minColor = interpolators[0](0);
-  const maxColor = interpolators[interpolators.length - 1](1);
 
   return value => {
     if (isNaN(value)) {
