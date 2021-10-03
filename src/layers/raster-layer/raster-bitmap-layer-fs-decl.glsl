@@ -14,14 +14,6 @@ uniform sampler2D colormapTexture;
 uniform vec2 colormapBounds;
 uniform float rasterOpacity;
 
-bool isNan(float value) {
-  return (value <= 0.0 || 0.0 <= value) ? false : true;
-}
-
-bool hasValues(vec4 values) {
-  return !isNan(values.x) && values.a == 1.0;
-}
-
 float unscale(float min, float max, float value) {
   return (value - min) / (max - min);
 }
@@ -29,6 +21,18 @@ float unscale(float min, float max, float value) {
 // see https://stackoverflow.com/a/27228836/1823988
 float atan2(float y, float x) {
   return x == 0. ? sign(y) * RASTER_PI / 2. : atan(y, x);
+}
+
+bool isNaN(float value) {
+  return (value <= 0.0 || 0.0 <= value) ? false : true;
+}
+
+bool raster_has_values(vec4 values) {
+  if (imageUnscale > 0.5) {
+    return values.a == 1.0;
+  } else {
+    return !isNaN(values.x);
+  }
 }
 
 float raster_get_value(vec4 color) {

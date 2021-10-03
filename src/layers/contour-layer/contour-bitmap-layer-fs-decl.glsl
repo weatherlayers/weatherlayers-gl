@@ -13,12 +13,16 @@ uniform vec4 color;
 uniform float width;
 uniform float rasterOpacity;
 
-bool isNan(float value) {
+bool isNaN(float value) {
   return (value <= 0.0 || 0.0 <= value) ? false : true;
 }
 
-bool hasValues(vec4 values) {
-  return !isNan(values.x) && values.a == 1.0;
+bool raster_has_values(vec4 values) {
+  if (imageUnscale) {
+    return values.a == 1.0;
+  } else {
+    return !isNaN(values.x);
+  }
 }
 
 float raster_get_value(vec4 color) {

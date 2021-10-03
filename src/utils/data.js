@@ -145,6 +145,20 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
       const i = (y * width + x) * bandsCount;
       const j = y * width + x;
 
+      // raster_has_values
+      if (imageUnscale) {
+        if (data[i + bandsCount - 1] !== 255) {
+          unscaledData[j] = NaN;
+          continue;
+        }
+      } else {
+        if (isNaN(data[i])) {
+          unscaledData[j] = NaN;
+          continue;
+        }
+      }
+
+      // raster_get_value
       let value;
       if (imageScalarize) {
         if (imageUnscale) {

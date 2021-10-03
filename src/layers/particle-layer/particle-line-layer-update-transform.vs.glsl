@@ -82,22 +82,6 @@ vec2 destinationPoint(vec2 from, float dist, float bearing) {
   return vec2(lon, lat);
 }
 
-bool isNan(float value) {
-  return (value <= 0.0 || 0.0 <= value) ? false : true;
-}
-
-bool hasValues(vec4 values) {
-  return !isNan(values.x) && !isNan(values.y) && values.a == 1.0;
-}
-
-vec2 getSpeed(vec4 color) {
-  if (imageUnscale > 0.5) {
-    return mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
-  } else {
-    return color.xy;
-  }
-}
-
 float wrap(float lng) {
   float wrappedLng = mod(lng + 180., 360.) - 180.;
   return wrappedLng;
@@ -147,6 +131,26 @@ bool isPositionVisible(vec2 position) {
   }
 }
 
+bool isNaN(float value) {
+  return (value <= 0.0 || 0.0 <= value) ? false : true;
+}
+
+bool raster_has_values(vec4 values) {
+  if (imageUnscale > 0.5) {
+    return values.a == 1.0;
+  } else {
+    return !isNaN(values.x);
+  }
+}
+
+vec2 raster_get_values(vec4 color) {
+  if (imageUnscale > 0.5) {
+    return mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
+  } else {
+    return color.xy;
+  }
+}
+
 void main() {
   float particleIndex = mod(float(gl_VertexID), numParticles);
   float particleAge = floor(float(gl_VertexID) / numParticles);
@@ -189,14 +193,14 @@ void main() {
     bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
   }
 
-  if (!hasValues(bitmapColor)) {
+  if (!raster_has_values(bitmapColor)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;
     return;
   }
 
   // update position
-  vec2 speed = getSpeed(bitmapColor) * speedFactor;
+  vec2 speed = raster_get_values(bitmapColor) * speedFactor;
   // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
   // float bearing = degrees(-atan2(speed.y, speed.x));
   // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);

@@ -8,7 +8,7 @@ if (imageWeight > 0.) {
 }
 
 // drop nodata
-if (!hasValues(bitmapColor)) {
+if (!raster_has_values(bitmapColor)) {
   discard;
 }
 
