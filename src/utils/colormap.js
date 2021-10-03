@@ -86,6 +86,10 @@ export function linearColormap(colormapBreaks) {
   });
 
   return value => {
+    if (isNaN(value)) {
+      return [0, 0, 0, 0];
+    }
+
     const i = [-Infinity, ...colormapBreaks.map(x => x[0]), Infinity].findIndex(x => x > value) - 1;
 
     if (i <= 0) {
