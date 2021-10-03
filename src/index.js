@@ -16,6 +16,7 @@ export * from './controls/tooltip-control/tooltip-control';
 export * from './controls/timeline-control/timeline-control';
 export * from './controls/attribution-control/attribution-control';
 
+export * from './utils/build';
 export * from './utils/client';
 export {formatDatetime, getClosestStartDatetime, getClosestEndDatetime} from './utils/datetime';
 export * from './utils/animation';

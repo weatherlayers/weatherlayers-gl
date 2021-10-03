@@ -5,6 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import {VERSION} from './build';
 import {loadTextureData} from './data';
 
 /** @typedef {import('./data').TextureData} TextureData */
@@ -94,6 +95,7 @@ export class Client {
     if (this.config.format) {
       params.set('format', this.config.format);
     }
+    params.set('version', VERSION);
     const query = params.toString();
     const url = `${this.config.url}/catalog${query ? `?${query}` : ''}`;
     return loadJsonCached(url, this.cache);

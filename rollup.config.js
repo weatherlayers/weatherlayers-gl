@@ -1,7 +1,8 @@
 import pkg from './package.json';
-import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
 import glslify from 'rollup-plugin-glslify';
 import worker from 'rollup-plugin-worker-factory';
@@ -45,6 +46,10 @@ function bundle(format, filename, options = {}) {
       ] : []),
     ],
     plugins: [
+      replace({
+        preventAssignment: true,
+        __version__: pkg.version,
+      }),
       shim({
         '@luma.gl/constants': `export default ${JSON.stringify(GL)}`,
         'color-name': 'export default {}'
