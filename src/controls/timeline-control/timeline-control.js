@@ -6,11 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {Animation} from '../../utils/animation';
-import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClient} from '../../utils/client';
 import {formatDatetime, interpolateDatetime} from '../../utils/datetime';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
+/** @typedef {import('../../utils/client').Client} Client */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 const FPS = 15;
@@ -22,6 +23,8 @@ export class TimelineControl {
   config = undefined;
   /** @type {number} */
   step = undefined;
+  /** @type {Client} */
+  client = undefined;
   /** @type {HTMLElement} */
   container = undefined;
   /** @type {StacCollection} */
@@ -39,6 +42,7 @@ export class TimelineControl {
   constructor(config) {
     this.config = config;
     this.step = config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
+    this.client = getClient();
 
     this.animation = new Animation(() => {
       if (this.progress < this.datetimes.length - 1) {
@@ -146,7 +150,7 @@ export class TimelineControl {
       this.container.classList.add('loading');
       progressInput.disabled = true;
       info.innerHTML = 'Loading...';
-      await Promise.all(this.datetimes.map(x => loadStacCollectionDataByDatetime(this.config.dataset, x)));
+      await Promise.all(this.datetimes.map(x => this.client.loadStacCollectionDataByDatetime(this.config.dataset, x)));
       info.innerHTML = formatDatetime(this.config.datetime);
       progressInput.disabled = false;
       this.container.classList.remove('loading');
@@ -182,8 +186,8 @@ export class TimelineControl {
       return;
     }
 
-    this.stacCollection = await loadStacCollection(this.config.dataset);
-    this.datetimes = getStacCollectionItemDatetimes(this.stacCollection);
+    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
+    this.datetimes = this.client.getStacCollectionItemDatetimes(this.stacCollection);
     if (this.datetimes.length < 2) {
       return;
     }

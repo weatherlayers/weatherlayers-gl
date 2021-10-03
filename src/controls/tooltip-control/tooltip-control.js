@@ -6,15 +6,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './tooltip-control.css';
-import {loadStacCollection} from '../../utils/client';
+import {getClient} from '../../utils/client';
 import {formatValue, formatUnit, formatDirection} from '../../utils/value';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
+/** @typedef {import('../../utils/client').Client} Client */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class TooltipControl {
   /** @type {TooltipConfig} */
   config = undefined;
+  /** @type {Client} */
+  client = undefined;
   /** @type {HTMLElement} */
   container = undefined;
   /** @type {StacCollection} */
@@ -25,6 +28,7 @@ export class TooltipControl {
    */
   constructor(config) {
     this.config = config;
+    this.client = getClient();
   }
 
   /**
@@ -74,7 +78,7 @@ export class TooltipControl {
       return;
     }
 
-    this.stacCollection = await loadStacCollection(this.config.dataset);
+    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
   }
 
   /**

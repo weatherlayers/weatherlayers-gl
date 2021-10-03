@@ -6,14 +6,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './attribution-control.css';
-import {loadStacCollection, getStacCollectionProducer} from '../../utils/client';
+import {getClient} from '../../utils/client';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
+/** @typedef {import('../../utils/client').Client} Client */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class AttributionControl {
   /** @type {AttributionConfig} */
   config = undefined;
+  /** @type {Client} */
+  client = undefined;
   /** @type {HTMLElement} */
   container = undefined;
   /** @type {StacCollection} */
@@ -24,6 +27,7 @@ export class AttributionControl {
    */
   constructor(config = {}) {
     this.config = config;
+    this.client = getClient();
   }
 
   /**
@@ -70,9 +74,9 @@ export class AttributionControl {
       return;
     }
 
-    this.stacCollection = await loadStacCollection(this.config.dataset);
+    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
 
-    const producer = getStacCollectionProducer(this.stacCollection);
+    const producer = this.client.getStacCollectionProducer(this.stacCollection);
     if (!producer) {
       return;
     }

@@ -6,16 +6,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
-import {loadStacCollection} from '../../utils/client';
+import {getClient} from '../../utils/client';
 import {linearColormap, colorRampUrl} from '../../utils/colormap';
 import {formatValue, formatUnit} from '../../utils/value';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
+/** @typedef {import('../../utils/client').Client} Client */
 /** @typedef {import('../../utils/stac').StacCollection} StacCollection */
 
 export class LegendControl {
   /** @type {LegendConfig} */
   config = undefined;
+  /** @type {Client} */
+  client = undefined;
   /** @type {HTMLElement} */
   container = undefined;
   /** @type {StacCollection} */
@@ -26,6 +29,7 @@ export class LegendControl {
    */
   constructor(config) {
     this.config = config;
+    this.client = getClient();
   }
 
   /**
@@ -69,7 +73,7 @@ export class LegendControl {
       return;
     }
 
-    this.stacCollection = await loadStacCollection(this.config.dataset);
+    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
 
     const paddingY = 15;
     const unit = this.stacCollection.summaries.unit[0];

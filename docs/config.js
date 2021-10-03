@@ -4,10 +4,13 @@ const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
 export async function initConfig() {
-  const stacCatalog = await WeatherLayers.loadStacCatalog();
+  const client = WeatherLayers.getClient();
+
+  const stacCatalog = await client.loadStacCatalog();
 
   const config = {
-    datasets: WeatherLayers.getStacCatalogCollectionIds(stacCatalog),
+    client,
+    datasets: client.getStacCatalogCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
@@ -82,9 +85,10 @@ async function updateDataset(config) {
     return;
   }
 
-  const stacCollection = await WeatherLayers.loadStacCollection(config.dataset);
+  const client = config.client;
+  const stacCollection = await client.loadStacCollection(config.dataset);
 
-  config.datetimes = WeatherLayers.getStacCollectionItemDatetimes(stacCollection);
+  config.datetimes = client.getStacCollectionItemDatetimes(stacCollection);
   config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
 
   config.raster.enabled = !!stacCollection.summaries.raster;

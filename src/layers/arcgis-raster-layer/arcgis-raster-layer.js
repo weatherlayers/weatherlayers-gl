@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {loadStacCollection, getStacCollectionProducer, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClient} from '../../utils/client';
 import {getClosestStartDatetime} from '../../utils/datetime';
 import {colorTextureData} from '../../utils/data';
 
@@ -25,7 +25,10 @@ export function initArcGISRasterLayer(baseTileLayer) {
 
     load() {
       this.tileInfo.lods = [this.tileInfo.lods[0]];
-      this.state = {};
+
+      this.state = {
+        client: getClient(),
+      };
     },
 
     /**
@@ -41,12 +44,13 @@ export function initArcGISRasterLayer(baseTileLayer) {
       }
 
       const {dataset, datetime} = this;
+      const {client} = this.state;
 
       if (!this.state.stacCollection || dataset !== this.state.loadedDataset) {
-        this.state.stacCollection = await loadStacCollection(dataset);
-        this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
+        this.state.stacCollection = await client.loadStacCollection(dataset);
+        this.state.datetimes = client.getStacCollectionItemDatetimes(this.state.stacCollection);
 
-        const producer = getStacCollectionProducer(this.state.stacCollection);
+        const producer = client.getStacCollectionProducer(this.state.stacCollection);
         if (producer) {
           this.copyright = `<a href="${producer.url}" class="esri-attribution__link">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers.com</a>`;
         }
@@ -58,7 +62,7 @@ export function initArcGISRasterLayer(baseTileLayer) {
           return;
         }
 
-        this.state.image = await loadStacCollectionDataByDatetime(dataset, startDatetime);
+        this.state.image = await client.loadStacCollectionDataByDatetime(dataset, startDatetime);
       }
 
       this.state.loadedDataset = dataset;

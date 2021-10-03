@@ -10,6 +10,7 @@ import {loadTextureData} from './data';
 /** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
+/** @typedef {import('./stac').StacProviderRole} StacProviderRole */
 /** @typedef {import('./stac').StacProvider} StacProvider */
 /** @typedef {import('./stac').StacItem} StacItem */
 /** @typedef {{ url: string, accessToken?: string, format: string }} ClientConfig */
@@ -20,26 +21,6 @@ const DEFAULT_CLIENT_CONFIG = {
   // url: 'http://localhost:8080',
   format: 'byte.png',
 };
-
-/** @type {ClientConfig} */
-let clientConfig = DEFAULT_CLIENT_CONFIG;
-
-/**
- * @param {Partial<ClientConfig>} config
- */
-export function setClientConfig(config) {
-  clientConfig = { ...DEFAULT_CLIENT_CONFIG, ...config };
-}
-
-/**
- * @returns {ClientConfig}
- */
-export function getClientConfig() {
-  return clientConfig;
-}
-
-/** @type {Map<string, any>} */
-const cache = new Map();
 
 /**
  * @template T
@@ -53,9 +34,10 @@ async function loadJson(url) {
 /**
  * @template T
  * @param {string} url
+ * @param {Map<string, any>} cache
  * @return {Promise<T>}
  */
-function loadJsonCached(url) {
+function loadJsonCached(url, cache) {
   const dataOrPromise = cache.get(url);
   if (dataOrPromise) {
     return dataOrPromise;
@@ -71,9 +53,10 @@ function loadJsonCached(url) {
 
 /**
  * @param {string} url
+ * @param {Map<string, any>} cache
  * @returns {Promise<TextureData>}
  */
-function loadTextureDataCached(url) {
+function loadTextureDataCached(url, cache) {
   const dataOrPromise = cache.get(url);
   if (dataOrPromise) {
     return dataOrPromise;
@@ -87,83 +70,120 @@ function loadTextureDataCached(url) {
   return dataPromise;
 }
 
-/**
- * @returns {Promise<StacCatalog>}
- */
-export async function loadStacCatalog() {
-  const params = new URLSearchParams();
-  if (clientConfig.accessToken) {
-    params.set('access_token', clientConfig.accessToken);
+export class Client {
+  /** @type {ClientConfig} */
+  config = undefined;
+  /** @type {Map<string, any>} */
+  cache = new Map();
+
+  /**
+   * @param {Partial<ClientConfig>} config
+   */
+  constructor(config) {
+    this.config = { ...DEFAULT_CLIENT_CONFIG, ...config };
   }
-  if (clientConfig.format) {
-    params.set('format', clientConfig.format);
+
+  /**
+   * @returns {Promise<StacCatalog>}
+   */
+  async loadStacCatalog() {
+    const params = new URLSearchParams();
+    if (this.config.accessToken) {
+      params.set('access_token', this.config.accessToken);
+    }
+    if (this.config.format) {
+      params.set('format', this.config.format);
+    }
+    const query = params.toString();
+    const url = `${this.config.url}/catalog${query ? `?${query}` : ''}`;
+    return loadJsonCached(url, this.cache);
   }
-  const query = params.toString();
-  const url = `${clientConfig.url}/catalog${query ? `?${query}` : ''}`;
-  return loadJsonCached(url);
-}
 
-/**
- * @param {StacCatalog} stacCatalog
- * @returns {string[]}
- */
-export function getStacCatalogCollectionIds(stacCatalog) {
-  const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
-  return ids;
-}
-
-/**
- * @param {string} stacCollectionId
- * @returns {Promise<StacCollection>}
- */
-export async function loadStacCollection(stacCollectionId) {
-  const stacCatalog = await loadStacCatalog();
-  const link = stacCatalog.links.find(x => x.id === stacCollectionId);
-  if (!link) {
-    throw new Error(`Collection ${stacCollectionId} not found`);
+  /**
+   * @param {StacCatalog} stacCatalog
+   * @returns {string[]}
+   */
+  getStacCatalogCollectionIds(stacCatalog) {
+    const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
+    return ids;
   }
-  return loadJsonCached(link.href);
-}
 
-/**
- * @param {StacCollection} stacCollection
- * @returns {StacProvider | undefined}
- */
-export function getStacCollectionProducer(stacCollection) {
-  const producer = stacCollection.providers.find(x => x.roles.includes('producer'));
-  return producer;
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {string[]}
- */
-export function getStacCollectionItemDatetimes(stacCollection) {
-  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
-  return datetimes;
-}
-
-/**
- * @param {string} dataset
- * @param {string} datetime
- * @returns {Promise<StacItem>}
- */
-export async function loadStacItemByDatetime(dataset, datetime) {
-  const stacCollection = await loadStacCollection(dataset);
-  const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
-  if (!link) {
-    throw new Error(`Item ${datetime} not found`);
+  /**
+   * @param {string} stacCollectionId
+   * @returns {Promise<StacCollection>}
+   */
+  async loadStacCollection(stacCollectionId) {
+    const stacCatalog = await this.loadStacCatalog();
+    const link = stacCatalog.links.find(x => x.id === stacCollectionId);
+    if (!link) {
+      throw new Error(`Collection ${stacCollectionId} not found`);
+    }
+    return loadJsonCached(link.href, this.cache);
   }
-  return loadJsonCached(link.href);
+
+  /**
+   * @param {StacCollection} stacCollection
+   * @returns {StacProvider | undefined}
+   */
+  getStacCollectionProducer(stacCollection) {
+    const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
+    return producer;
+  }
+
+  /**
+   * @param {StacCollection} stacCollection
+   * @returns {string[]}
+   */
+  getStacCollectionItemDatetimes(stacCollection) {
+    const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
+    return datetimes;
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @returns {Promise<StacItem>}
+   */
+  async loadStacItemByDatetime(dataset, datetime) {
+    const stacCollection = await this.loadStacCollection(dataset);
+    const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
+    if (!link) {
+      throw new Error(`Item ${datetime} not found`);
+    }
+    return loadJsonCached(link.href, this.cache);
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @returns {Promise<TextureData>}
+   */
+  async loadStacCollectionDataByDatetime(dataset, datetime) {
+    const stacItem = await this.loadStacItemByDatetime(dataset, datetime);
+    const url = stacItem.assets.data.href;
+    return loadTextureDataCached(url, this.cache);
+  }
 }
 
+/** @type {Partial<ClientConfig>} */
+let clientConfig;
+
 /**
- * @param {string} dataset
- * @param {string} datetime
- * @returns {Promise<TextureData>}
+ * @param {Partial<ClientConfig>} config
  */
-export async function loadStacCollectionDataByDatetime(dataset, datetime) {
-  const stacItem = await loadStacItemByDatetime(dataset, datetime);
-  const url = stacItem.assets.data.href;
-  return loadTextureDataCached(url);
+export function setClientConfig(config) {
+  clientConfig = config;
+}
+
+/** @type {Client} */
+let client;
+
+/**
+ * @returns {Client}
+ */
+export function getClient() {
+  if (!client) {
+    client = new Client(clientConfig);
+  }
+  return client;
 }

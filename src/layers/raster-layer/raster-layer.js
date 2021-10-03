@@ -10,7 +10,7 @@ import {CompositeLayer} from '@deck.gl/layers';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
-import {loadStacCollection, getStacCollectionItemDatetimes, loadStacCollectionDataByDatetime} from '../../utils/client';
+import {getClient} from '../../utils/client';
 import {getClosestStartDatetime, getClosestEndDatetime, getDatetimeWeight} from '../../utils/datetime';
 import {clipBounds} from '../../utils/bounds';
 
@@ -52,9 +52,16 @@ export class RasterLayer extends CompositeLayer {
     ];
   }
 
+  initializeState() {
+    this.setState({
+      client: getClient(),
+    });
+  }
+
   async updateState({props, oldProps, changeFlags}) {
     const {gl} = this.context;
     const {dataset, datetime, datetimeInterpolate, visible} = this.props;
+    const {client} = this.state;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -75,8 +82,8 @@ export class RasterLayer extends CompositeLayer {
     }
 
     if (!this.state.stacCollection || dataset !== oldProps.dataset) {
-      this.state.stacCollection = await loadStacCollection(dataset);
-      this.state.datetimes = getStacCollectionItemDatetimes(this.state.stacCollection);
+      this.state.stacCollection = await client.loadStacCollection(dataset);
+      this.state.datetimes = client.getStacCollectionItemDatetimes(this.state.stacCollection);
     }
 
     if (!this.state.image || dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
@@ -90,8 +97,8 @@ export class RasterLayer extends CompositeLayer {
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         let [image, image2] = await Promise.all([
-          loadStacCollectionDataByDatetime(dataset, startDatetime),
-          endDatetime && loadStacCollectionDataByDatetime(dataset, endDatetime),
+          client.loadStacCollectionDataByDatetime(dataset, startDatetime),
+          endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
 
         // create textures, to avoid a bug with async image props
