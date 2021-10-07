@@ -20,7 +20,7 @@ bool isNaN(float value) {
 }
 
 bool raster_has_values(vec4 values) {
-  if (imageUnscale) {
+  if (imageUnscale > 0.5) {
     return values.a == 1.0;
   } else {
     return !isNaN(values.x);
