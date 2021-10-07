@@ -16,12 +16,12 @@ uniform float width;
 uniform float rasterOpacity;
 
 bool isNaN(float value) {
-  return (value <= 0.0 || 0.0 <= value) ? false : true;
+  return !(value <= 0. || 0. <= value);
 }
 
 bool raster_has_values(vec4 values) {
   if (imageUnscale > 0.5) {
-    return values.a == 1.0;
+    return values.a == 1.;
   } else {
     return !isNaN(values.x);
   }

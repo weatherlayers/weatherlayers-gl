@@ -35,17 +35,13 @@ uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
 
-// no coordinate conversion needed
-vec2 getUV(vec2 pos) {
-  return vec2(
-    (pos.x - bounds[0]) / (bounds[2] - bounds[0]),
-    (pos.y - bounds[3]) / (bounds[1] - bounds[3])
-  );
-}
-
 // see https://stackoverflow.com/a/27228836/1823988
 float atan2(float y, float x) {
   return x == 0. ? sign(y) * PI / 2. : atan(y, x);
+}
+
+bool isNaN(float value) {
+  return !(value <= 0. || 0. <= value);
 }
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
@@ -84,37 +80,37 @@ vec2 destinationPoint(vec2 from, float dist, float bearing) {
   return vec2(lon, lat);
 }
 
-float wrap(float lng) {
+float wrapLongitude(float lng) {
   float wrappedLng = mod(lng + 180., 360.) - 180.;
   return wrappedLng;
 }
 
-float wrap(float lng, float minLng) {
-  float wrappedLng = wrap(lng);
+float wrapLongitude(float lng, float minLng) {
+  float wrappedLng = wrapLongitude(lng);
   if (wrappedLng < minLng) {
     wrappedLng += 360.;
   }
   return wrappedLng;
 }
 
-float rand(vec2 co) {
-  return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+float randFloat(vec2 seed) {
+  return fract(sin(dot(seed.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-vec2 randVec2(vec2 seed) {
-  return vec2(rand(seed + 1.3), rand(seed + 2.1));
+vec2 randPoint(vec2 seed) {
+  return vec2(randFloat(seed + 1.3), randFloat(seed + 2.1));
 }
 
-vec2 randPosition(vec2 randomVec2) {
+vec2 pointToPosition(vec2 point) {
   if (viewportSphere > 0.5) {
-    randomVec2.x += 0.0001; // prevent generating point in the center
-    float dist = sqrt(randomVec2.x) * viewportSphereRadius;
-    float bearing = randomVec2.y * 360.;
+    point.x += 0.0001; // prevent generating point in the center
+    float dist = sqrt(point.x) * viewportSphereRadius;
+    float bearing = point.y * 360.;
     return destinationPoint(viewportSphereCenter, dist, bearing);
   } else {
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;
-    return mix(viewportBoundsMin, viewportBoundsMax, randomVec2);
+    return mix(viewportBoundsMin, viewportBoundsMax, point);
   }
 }
 
@@ -124,7 +120,7 @@ bool isPositionVisible(vec2 position) {
   } else {
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;
-    float lng = wrap(position.x, viewportBoundsMin.x);
+    float lng = wrapLongitude(position.x, viewportBoundsMin.x);
     float lat = position.y;
     return (
       viewportBoundsMin.x <= lng && lng <= viewportBoundsMax.x &&
@@ -133,13 +129,17 @@ bool isPositionVisible(vec2 position) {
   }
 }
 
-bool isNaN(float value) {
-  return (value <= 0.0 || 0.0 <= value) ? false : true;
+// no coordinate conversion needed
+vec2 getUV(vec2 pos) {
+  return vec2(
+    (pos.x - bounds[0]) / (bounds[2] - bounds[0]),
+    (pos.y - bounds[3]) / (bounds[1] - bounds[3])
+  );
 }
 
 bool raster_has_values(vec4 values) {
   if (imageUnscale > 0.5) {
-    return values.a == 1.0;
+    return values.a == 1.;
   } else {
     return !isNaN(values.x);
   }
@@ -163,11 +163,11 @@ void main() {
 
   if (sourcePosition.xy == DROP_POSITION) {
     // generate random position to prevent converging particles
-    vec2 randomSeed = vec2(particleIndex * seed / numParticles);
-    vec2 randomVec2 = randVec2(randomSeed);
-    vec2 randomPosition = randPosition(randomVec2);
-    targetPosition.xy = randomPosition;
-    targetPosition.x = wrap(targetPosition.x);
+    vec2 particleSeed = vec2(particleIndex * seed / numParticles);
+    vec2 point = randPoint(particleSeed);
+    vec2 position = pointToPosition(point);
+    targetPosition.xy = position;
+    targetPosition.x = wrapLongitude(targetPosition.x);
     return;
   }
 
@@ -209,5 +209,5 @@ void main() {
   float distortion = cos(radians(sourcePosition.y)); 
   vec2 offset = vec2(speed.x / distortion, speed.y);
   targetPosition.xy = sourcePosition.xy + offset;
-  targetPosition.x = wrap(targetPosition.x);
+  targetPosition.x = wrapLongitude(targetPosition.x);
 }
