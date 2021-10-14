@@ -37,6 +37,7 @@
     "@deck.gl/layers": "^8.6.0",
     "@luma.gl/constants": "^8.5.10",
     "@luma.gl/core": "^8.5.10",
+    "@rollup/plugin-alias": "^3.1.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",

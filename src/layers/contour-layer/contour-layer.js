@@ -5,8 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {COORDINATE_SYSTEM} from '@deck.gl/core';
-import {CompositeLayer} from '@deck.gl/layers';
+import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
 import {ContourPathLayer} from './contour-path-layer';

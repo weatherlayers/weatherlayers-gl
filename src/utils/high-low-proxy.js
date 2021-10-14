@@ -11,7 +11,7 @@ import highLowWorker from 'worker!./high-low-worker';
 /** @typedef {'L' | 'H'} HighLowType */
 /** @typedef {GeoJSON.Point & { properties: { type: HighLowType, value: number }}} HighLow */
 
-const highLowProxy = wrap(highLowWorker());
+const highLowWorkerProxy = wrap(highLowWorker());
 
 /**
  * @param {Float32Array} highsLowsData
@@ -47,7 +47,7 @@ function getHighsLowsFromData(highsLowsData) {
  */
 export async function getHighsLows(data, width, height, radius, bounds) {
   data = transfer(data, [data.buffer]);
-  const highsLowsData = await highLowProxy.getHighsLowsData(data, width, height, radius, bounds);
+  const highsLowsData = await highLowWorkerProxy.getHighsLowsData(data, width, height, radius, bounds);
   const highsLows = getHighsLowsFromData(highsLowsData);
   return highsLows;
 }

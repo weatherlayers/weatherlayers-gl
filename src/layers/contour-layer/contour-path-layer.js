@@ -5,7 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {CompositeLayer, PathLayer} from '@deck.gl/layers';
+import {CompositeLayer} from '@deck.gl/core';
+import {PathLayer} from '@deck.gl/layers';
 import {ImageType} from '../../utils/image-type';
 import {unscaleTextureData} from '../../utils/data';
 import {getContours} from '../../utils/contour-proxy';

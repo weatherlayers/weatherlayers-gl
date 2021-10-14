@@ -1,5 +1,6 @@
 import pkg from './package.json';
 import replace from '@rollup/plugin-replace';
+import alias from '@rollup/plugin-alias';
 import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -11,8 +12,6 @@ import autoprefixer from 'autoprefixer';
 import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
-
-import GL from './gl';
 
 function bundle(format, filename, options = {}) {
   return {
@@ -50,9 +49,13 @@ function bundle(format, filename, options = {}) {
         preventAssignment: true,
         __version__: pkg.version,
       }),
+      alias({
+        entries: [
+          { find: '@luma.gl/constants', replacement: __dirname + '/src/utils/gl.js' },
+        ],
+      }),
       shim({
-        '@luma.gl/constants': `export default ${JSON.stringify(GL)}`,
-        'color-name': 'export default {}'
+        'color-name': 'export default {}',
       }),
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
