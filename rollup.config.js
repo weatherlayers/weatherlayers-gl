@@ -42,6 +42,7 @@ function bundle(format, filename, options = {}) {
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
         'rollup-plugin-worker-factory/src/universal.js',
+        'geodesy-fn/src/spherical',
       ] : []),
     ],
     plugins: [
