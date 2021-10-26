@@ -8,8 +8,8 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import fsDecl from './raster-bitmap-layer-fs-decl.glsl';
-import fsMainEnd from './raster-bitmap-layer-fs-main-end.glsl';
+import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
+import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
 import {ImageType} from '../../utils/image-type';
 import {linearColormap, colorRampImage} from '../../utils/colormap';
 
@@ -83,14 +83,14 @@ export class RasterBitmapLayer extends BitmapLayer {
     if (model) {
       model.setUniforms({
         bitmapTexture: image,
-        bitmapTexture2: image2,
-        imageWeight: image2 ? imageWeight : 0,
-        imageScalarize,
-        imageUnscale,
-        imageBounds,
-        colormapTexture,
-        colormapBounds,
-        rasterOpacity,
+        [fsDeclTokens.bitmapTexture2]: image2,
+        [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
+        [fsDeclTokens.imageScalarize]: imageScalarize,
+        [fsDeclTokens.imageUnscale]: imageUnscale,
+        [fsDeclTokens.imageBounds]: imageBounds,
+        [fsDeclTokens.colormapTexture]: colormapTexture,
+        [fsDeclTokens.colormapBounds]: colormapBounds,
+        [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
       super.draw(opts);

@@ -5,6 +5,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+// references for minification:
+// uniform sampler2D bitmapTexture2;
+// uniform float imageWeight;
+// uniform float imageScalarize;
+// uniform float imageUnscale;
+// uniform vec2 imageBounds;
+// uniform sampler2D colormapTexture;
+// uniform vec2 colormapBounds;
+// uniform float rasterOpacity;
+// bool raster_has_values(vec4 values);
+// float raster_get_value(vec4 color);
+// float raster_get_colormap_value(float value);
+// float raster_get_direction_value(vec4 color);
+// vec4 raster_apply_opacity(vec3 color, float alpha);
+
 if (imageWeight > 0.) {
   bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
 }

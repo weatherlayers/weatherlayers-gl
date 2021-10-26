@@ -9,11 +9,11 @@ import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import {isWebGL2} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import vsDecl from './particle-line-layer-vs-decl.glsl';
-import vsMainStart from './particle-line-layer-vs-main-start.glsl';
-import fsDecl from './particle-line-layer-fs-decl.glsl';
-import fsMainStart from './particle-line-layer-fs-main-start.glsl';
-import updateTransformVs from './particle-line-layer-update-transform.vs.glsl';
+import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
+import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
+import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
+import {code as fsMainStart} from './particle-line-layer-fs-main-start.glsl';
+import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-line-layer-update-transform.vs.glsl';
 import {distance} from '../../utils/geodesy';
 import {wrapBounds} from '../../utils/bounds';
 
@@ -146,15 +146,15 @@ export class ParticleLineLayer extends LineLayer {
     // setup transform feedback for particles age0
     const transform = new Transform(gl, {
       sourceBuffers: {
-        sourcePosition: sourcePositions,
+        [updateTransformVsTokens.sourcePosition]: sourcePositions,
       },
       feedbackBuffers: {
-        targetPosition: targetPositions,
+        [updateTransformVsTokens.targetPosition]: targetPositions,
       },
       feedbackMap: {
-        sourcePosition: 'targetPosition',
+        [updateTransformVsTokens.sourcePosition]: updateTransformVsTokens.targetPosition,
       },
-      vs: updateTransformVs.trim(),
+      vs: updateTransformVs,
       elementCount: numParticles,
     });
 
@@ -205,31 +205,31 @@ export class ParticleLineLayer extends LineLayer {
 
     // update particles age0
     const uniforms = {
-      viewportSphere,
-      viewportSphereCenter,
-      viewportSphereRadius,
-      viewportBounds,
-      viewportZoomChangeFactor,
+      [updateTransformVsTokens.viewportSphere]: viewportSphere,
+      [updateTransformVsTokens.viewportSphereCenter]: viewportSphereCenter,
+      [updateTransformVsTokens.viewportSphereRadius]: viewportSphereRadius,
+      [updateTransformVsTokens.viewportBounds]: viewportBounds,
+      [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor,
 
-      bitmapTexture: image,
-      bitmapTexture2: image2,
-      imageWeight: image2 ? imageWeight : 0,
-      imageUnscale,
-      imageBounds,
-      bounds,
-      numParticles,
-      maxAge,
-      speedFactor: currentSpeedFactor,
+      [updateTransformVsTokens.bitmapTexture]: image,
+      [updateTransformVsTokens.bitmapTexture2]: image2,
+      [updateTransformVsTokens.imageWeight]: image2 ? imageWeight : 0,
+      [updateTransformVsTokens.imageUnscale]: imageUnscale,
+      [updateTransformVsTokens.imageBounds]: imageBounds,
+      [updateTransformVsTokens.bounds]: bounds,
+      [updateTransformVsTokens.numParticles]: numParticles,
+      [updateTransformVsTokens.maxAge]: maxAge,
+      [updateTransformVsTokens.speedFactor]: currentSpeedFactor,
 
-      time,
-      seed: Math.random(),
+      [updateTransformVsTokens.time]: time,
+      [updateTransformVsTokens.seed]: Math.random(),
     };
     transform.run({uniforms});
 
     // update particles age1-age(N-1)
     // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
-    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers.sourcePosition;
-    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers.targetPosition;
+    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers[updateTransformVsTokens.sourcePosition];
+    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers[updateTransformVsTokens.targetPosition];
     targetPositions.copyData({
       sourceBuffer: sourcePositions,
       readOffset: 0,

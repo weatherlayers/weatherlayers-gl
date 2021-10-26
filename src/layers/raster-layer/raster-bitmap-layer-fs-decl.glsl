@@ -5,8 +5,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-const float RASTER_PI = 3.1415926535;
-
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
 uniform float imageScalarize;
@@ -15,6 +13,8 @@ uniform vec2 imageBounds;
 uniform sampler2D colormapTexture;
 uniform vec2 colormapBounds;
 uniform float rasterOpacity;
+
+const float RASTER_PI = 3.1415926535;
 
 float unscale(float min, float max, float value) {
   return (value - min) / (max - min);

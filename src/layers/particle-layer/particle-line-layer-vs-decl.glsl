@@ -6,4 +6,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 varying float drop;
+
 const vec2 DROP_POSITION = vec2(0);

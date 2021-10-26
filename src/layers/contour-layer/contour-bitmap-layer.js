@@ -7,8 +7,8 @@
  */
 import {BitmapLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
-import fsDecl from './contour-bitmap-layer-fs-decl.glsl';
-import fsMainEnd from './contour-bitmap-layer-fs-main-end.glsl';
+import {code as fsDecl, tokens as fsDeclTokens} from './contour-bitmap-layer-fs-decl.glsl';
+import {code as fsMainEnd} from './contour-bitmap-layer-fs-main-end.glsl';
 import {ImageType} from '../../utils/image-type';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
@@ -59,15 +59,15 @@ export class ContourBitmapLayer extends BitmapLayer {
     if (model) {
       model.setUniforms({
         bitmapTexture: image,
-        bitmapTexture2: image2,
-        imageWeight: image2 ? imageWeight : 0,
-        imageScalarize,
-        imageUnscale,
-        imageBounds,
-        delta,
-        color: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
-        width,
-        rasterOpacity,
+        [fsDeclTokens.bitmapTexture2]: image2,
+        [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
+        [fsDeclTokens.imageScalarize]: imageScalarize,
+        [fsDeclTokens.imageUnscale]: imageUnscale,
+        [fsDeclTokens.imageBounds]: imageBounds,
+        [fsDeclTokens.delta]: delta,
+        [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+        [fsDeclTokens.width]: width,
+        [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
       super.draw(opts);
