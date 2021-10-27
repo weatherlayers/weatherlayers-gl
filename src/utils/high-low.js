@@ -60,6 +60,7 @@ export function getHighsLowsData(data, width, height, radius, bounds) {
     for (let j = 1; j < height - 1; j++) {
       const value = data[i + j * width];
       if (
+        !isNaN(value) &&
         value >= data[(i + 1) + (j    ) * width] &&
         value >= data[(i + 1) + (j + 1) * width] &&
         value >= data[(i    ) + (j + 1) * width] &&
@@ -74,6 +75,7 @@ export function getHighsLowsData(data, width, height, radius, bounds) {
         highs.push({ position, value });
       }
       if (
+        !isNaN(value) &&
         value <= data[(i + 1) + (j    ) * width] &&
         value <= data[(i + 1) + (j + 1) * width] &&
         value <= data[(i    ) + (j + 1) * width] &&
