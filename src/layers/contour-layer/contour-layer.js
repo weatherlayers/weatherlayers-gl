@@ -38,6 +38,7 @@ export class ContourLayer extends CompositeLayer {
       !gpu ? new ContourPathLayer(props, this.getSubLayerProps({
         id: 'path',
         image,
+        imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
 

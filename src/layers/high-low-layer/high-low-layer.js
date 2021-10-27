@@ -35,6 +35,7 @@ export class HighLowLayer extends CompositeLayer {
       new HighLowTextLayer(props, this.getSubLayerProps({
         id: 'text',
         image,
+        imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         radius: props.radius || stacCollection.summaries.highLow.radius,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
