@@ -56,7 +56,8 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-visualizer": "^5.5.2",
     "rollup-plugin-worker-factory": "^0.5.7",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "webpack-glsl-minify": "^1.4.2"
   },
   "peerDependencies": {
     "@deck.gl/core": "^8.6.0",

@@ -5,7 +5,7 @@ import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
-import glsl from './rollup-plugin-glsl';
+import glslMinify from './rollup-plugin-glsl-minify';
 import worker from 'rollup-plugin-worker-factory';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
@@ -61,7 +61,7 @@ function bundle(format, filename, options = {}) {
       ...(options.resolve ? [resolve()] : []),
       commonjs(),
       babel({ babelHelpers: 'runtime' }),
-      glsl({ compress: options.minimize }),
+      glslMinify({ minimize: options.minimize }),
       worker({ plugins: [resolve(), commonjs()] }),
       postcss({ plugins: [autoprefixer(), assets()], minimize: options.minimize }),
       ...(options.minimize ? [terser()] : []),
