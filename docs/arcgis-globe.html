@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.6.0/dist/dist.dev.js"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@1.0.6/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-gl.umd.min.js"></script>
+  <script src="../dist/weatherlayers-arcgis.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./fps-control.css">
 </head>
@@ -44,7 +44,7 @@
         'esri/layers/BaseTileLayer',
         'esri/core/watchUtils',
       ], { version: '4.21' });
-      const WeatherLayersArcGISRasterLayer = WeatherLayers.initArcGISRasterLayer(BaseTileLayer);
+      const WeatherLayersRasterLayer = WeatherLayers.initRasterLayer(BaseTileLayer);
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -96,7 +96,7 @@
 
         let rasterLayer = map.layers.find(x => x.id === 'raster');
         if (!rasterLayer) {
-          rasterLayer = new WeatherLayersArcGISRasterLayer({
+          rasterLayer = new WeatherLayersRasterLayer({
             id: 'raster',
             visible: config.raster.enabled,
             dataset,

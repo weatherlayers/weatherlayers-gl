@@ -88,8 +88,8 @@ async function updateDataset(config) {
   const client = config.client;
   const stacCollection = await client.loadStacCollection(config.dataset);
 
-  config.datetimes = client.getStacCollectionItemDatetimes(stacCollection);
-  config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
+  config.datetimes = client.getStacCollectionDatetimes(stacCollection);
+  config.datetime = client.getStacCollectionClosestStartDatetime(stacCollection, config.datetime) || config.datetimes[0];
 
   config.raster.enabled = !!stacCollection.summaries.raster;
 

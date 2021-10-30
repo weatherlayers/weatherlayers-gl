@@ -6,13 +6,8 @@
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "license": "MPL-2.0",
   "repository": "github:kamzek/weatherlayers-gl",
-  "main": "dist/weatherlayers-gl.cjs.min.js",
-  "module": "dist/weatherlayers-gl.esm.min.js",
-  "browser": "dist/weatherlayers-gl.umd.min.js",
   "files": [
-    "dist/weatherlayers-gl.cjs.min.js",
-    "dist/weatherlayers-gl.esm.min.js",
-    "dist/weatherlayers-gl.umd.min.js"
+    "dist/**/*.min.js"
   ],
   "scripts": {
     "build": "rimraf dist && rollup -c",

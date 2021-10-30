@@ -13,9 +13,11 @@ import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 
-function bundle(format, filename, options = {}) {
+function bundle(entrypoint, filename, format, options = {}) {
+  filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
+
   return {
-    input: 'src/index.js',
+    input: entrypoint,
     output: {
       file: filename,
       format: format,
@@ -52,7 +54,7 @@ function bundle(format, filename, options = {}) {
       }),
       alias({
         entries: [
-          { find: '@luma.gl/constants', replacement: __dirname + '/src/utils/gl.js' },
+          { find: '@luma.gl/constants', replacement: __dirname + '/src/_utils/gl.js' },
         ],
       }),
       shim({
@@ -73,10 +75,14 @@ function bundle(format, filename, options = {}) {
 }
 
 export default [
-  bundle('cjs', pkg.main.replace('.min', '')),
-  bundle('cjs', pkg.main, { minimize: true }),
-  bundle('es', pkg.module.replace('.min', '')),
-  bundle('es', pkg.module, { minimize: true }),
-  bundle('umd', pkg.browser.replace('.min', ''), { resolve: true, stats: true }),
-  bundle('umd', pkg.browser, { resolve: true, minimize: true }),
-];
+  ['src/client/index.js', 'dist/weatherlayers-client.js'],
+  ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
+  ['src/arcgis/index.js', 'dist/weatherlayers-arcgis.js'],
+].map(([entrypoint, filename]) => [
+  bundle(entrypoint, filename, 'cjs'),
+  bundle(entrypoint, filename, 'cjs', { minimize: true }),
+  bundle(entrypoint, filename, 'es'),
+  bundle(entrypoint, filename, 'es', { minimize: true }),
+  bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
+  bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
+]).flat();
