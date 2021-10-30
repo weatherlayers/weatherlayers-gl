@@ -75,12 +75,6 @@ export class AttributionControl {
     }
 
     this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
-
-    const producer = this.client.getStacCollectionProducer(this.stacCollection);
-    if (!producer) {
-      return;
-    }
-
-    this.container.innerHTML = `<div><a href="${producer.url}">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers.com</a></div>`;
+    this.container.innerHTML = `<div>${this.client.getStacCollectionAttribution(this.stacCollection)}</div>`;
   }
 }

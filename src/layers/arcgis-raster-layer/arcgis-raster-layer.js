@@ -49,11 +49,7 @@ export function initArcGISRasterLayer(baseTileLayer) {
       if (!this.state.stacCollection || dataset !== this.state.loadedDataset) {
         this.state.stacCollection = await client.loadStacCollection(dataset);
         this.state.datetimes = client.getStacCollectionItemDatetimes(this.state.stacCollection);
-
-        const producer = client.getStacCollectionProducer(this.state.stacCollection);
-        if (producer) {
-          this.copyright = `<a href="${producer.url}" class="esri-attribution__link">${producer.name}</a> via <a href="https://weatherlayers.com" class="esri-attribution__link">WeatherLayers.com</a>`;
-        }
+        this.copyright = client.getStacCollectionAttribution(this.state.stacCollection, 'esri-attribution__link');
       }
 
       if (!this.state.image || dataset !== this.state.loadedDataset || datetime !== this.state.loadedDatetime) {

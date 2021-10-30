@@ -125,11 +125,17 @@ export class Client {
 
   /**
    * @param {StacCollection} stacCollection
-   * @returns {StacProvider | undefined}
+   * @param {string} [linkClass]
+   * @returns {string}
    */
-  getStacCollectionProducer(stacCollection) {
+  getStacCollectionAttribution(stacCollection, linkClass) {
     const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
-    return producer;
+    const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
+    const attribution = [
+      ...(producer ? [`<a href="${producer.url}"${linkClass ? ` class="${linkClass}"`: ''}>${producer.name}</a>`] : []),
+      ...(processor ? [`<a href="${processor.url}"${linkClass ? ` class="${linkClass}"`: ''}>${processor.name}</a>`] : []),
+    ].join(' via ');
+    return attribution;
   }
 
   /**
