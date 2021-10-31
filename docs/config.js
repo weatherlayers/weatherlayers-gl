@@ -25,15 +25,15 @@ export async function initConfig() {
     contour: {
       enabled: false,
       delta: 200,
-      color: [255, 255, 255],
+      color: { r: 255, g: 255, b: 255 },
       width: 1,
       opacity: 0.01
     },
     highLow: {
       enabled: false,
       radius: 2000,
-      color: [153, 153, 153],
-      outlineColor: [13, 13, 13],
+      color: { r: 153, g: 153, b: 153 },
+      outlineColor: { r: 13, g: 13, b: 13 },
       opacity: 1,
     },
     particle: {
@@ -41,7 +41,7 @@ export async function initConfig() {
       numParticles: 5000,
       maxAge: 25,
       speedFactor: 2,
-      color: [255, 255, 255],
+      color: { r: 255, g: 255, b: 255 },
       width: 2,
       opacity: 0.02,
       animate: true,
@@ -53,25 +53,12 @@ export async function initConfig() {
   return config;
 }
 
+function getOptions(options) {
+  return options.map(x => ({ value: x, text: x }));
+}
+
 function getDatetimeOptions(datetimes) {
-  return datetimes.map(datetime => {
-    const formattedDatetime = WeatherLayers.formatDatetime(datetime);
-    return { value: datetime, text: formattedDatetime };
-  });
-}
-
-function updateGuiOptions(gui, object, property, options) {
-  const controller = gui.__controllers.find(x => x.object === object && x.property === property);
-  const html = options.map(option => `<option value="${option.value}">${option.text}</option>`);
-
-  controller.domElement.children[0].innerHTML = html;
-
-  gui.updateDisplay();
-}
-
-function updateGuiDatetimeOptions(gui, object, property, datetimes) {
-  const options = getDatetimeOptions(datetimes);
-  updateGuiOptions(gui, object, property, options);
+  return datetimes.map(x => ({ value: x, text: WeatherLayers.formatDatetime(x) }));
 }
 
 async function updateDataset(config) {
@@ -112,65 +99,66 @@ async function updateDataset(config) {
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {
-  const gui = new dat.GUI();
-  gui.width = 300;
+  const updateLast = event => event.last && update();
 
-  gui.add(config, 'dataset', [NO_DATA, ...config.datasets]).onChange(async () => {
+  const gui = new Tweakpane.Pane();
+
+  let datetime;
+  gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
     await updateDataset(config);
-    updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
-    gui.updateDisplay();
+    datetime.dispose();
+    datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     update();
   });
 
-  gui.add(config, 'datetime', []).onChange(update);
-  updateGuiDatetimeOptions(gui, config, 'datetime', [NO_DATA, ...config.datetimes]);
+  datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
 
   if (deckgl) {
-    gui.add(config, 'datetimeInterpolate').onChange(update);
+    gui.addInput(config, 'datetimeInterpolate').on('change', update);
   }
 
   if (globe) {
-    gui.add(config, 'rotate').onChange(update);
+    gui.addInput(config, 'rotate').on('change', update);
   }
 
-  gui.add({ 'Docs': () => location.href = 'http://docs.weatherlayers.com/' }, 'Docs');
+  gui.addButton({ title: 'Docs' }).on('click', () => location.href = 'http://docs.weatherlayers.com/');
 
-  const raster = gui.addFolder('Raster layer');
-  raster.add(config.raster, 'enabled').onChange(update);
-  raster.add(config.raster, 'colormap', [DEFAULT_COLORMAP]); // dummy
-  raster.add(config.raster, 'opacity', 0, 1, 0.01).onChange(update);
-  raster.open();
+  const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
+  raster.addInput(config.raster, 'enabled').on('change', update);
+  raster.addInput(config.raster, 'colormap', { options: getOptions([DEFAULT_COLORMAP]) }); // dummy
+  raster.addInput(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   if (deckgl) {
-    const contour = gui.addFolder('Contour layer');
-    contour.add(config.contour, 'enabled').onChange(update);
-    contour.add(config.contour, 'delta', 0, 1000, 1).onFinishChange(update);
-    contour.addColor(config.contour, 'color').onChange(update);
-    contour.add(config.contour, 'width', 0.5, 10, 0.5).onChange(update);
-    contour.add(config.contour, 'opacity', 0, 1, 0.01).onChange(update);
-    contour.open();
+    const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
+    contour.addInput(config.contour, 'enabled').on('change', update);
+    contour.addInput(config.contour, 'delta', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
+    contour.addInput(config.contour, 'color').on('change', update);
+    contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+    contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
-    const highLow = gui.addFolder('HighLow layer');
-    highLow.add(config.highLow, 'enabled').onChange(update);
-    highLow.add(config.highLow, 'radius', 0, 5 * 1000, 1).onFinishChange(update);
-    highLow.addColor(config.highLow, 'color').onChange(update);
-    highLow.addColor(config.highLow, 'outlineColor').onChange(update);
-    highLow.add(config.highLow, 'opacity', 0, 1, 0.01).onChange(update);
-    highLow.open();
+    const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
+    highLow.addInput(config.highLow, 'enabled').on('change', update);
+    highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
+    highLow.addInput(config.highLow, 'color').on('change', update);
+    highLow.addInput(config.highLow, 'outlineColor').on('change', update);
+    highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
-    const particle = gui.addFolder('Particle layer');
-    particle.add(config.particle, 'enabled').onChange(update);
-    particle.add(config.particle, 'numParticles', 0, 100000, 1).onFinishChange(update);
-    particle.add(config.particle, 'maxAge', 1, 255, 1).onFinishChange(update);
-    particle.add(config.particle, 'speedFactor', 0.1, 20, 0.1).onChange(update); // 0.05, 5, 0.01
-    particle.addColor(config.particle, 'color').onChange(update);
-    particle.add(config.particle, 'width', 0.5, 10, 0.5).onChange(update);
-    particle.add(config.particle, 'opacity', 0, 1, 0.01).onChange(update);
-    particle.add(config.particle, 'animate').onChange(update);
-    particle.add({ step: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step() }, 'step');
-    particle.add({ clear: () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear() }, 'clear');
-    particle.open();
+    const particle = gui.addFolder({ title: 'Particle layer', expanded: true });
+    particle.addInput(config.particle, 'enabled').on('change', update);
+    particle.addInput(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
+    particle.addInput(config.particle, 'maxAge', { min: 1, max: 255, step: 1 }).on('change', updateLast);
+    particle.addInput(config.particle, 'speedFactor', { min: 0.1, max: 20, step: 0.1 }).on('change', update); // 0.05, 5, 0.01
+    particle.addInput(config.particle, 'color').on('change', update);
+    particle.addInput(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+    particle.addInput(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+    particle.addInput(config.particle, 'animate').on('change', update);
+    particle.addButton({ title: 'Step' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step());
+    particle.addButton({ title: 'Clear' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear());
   }
 
   return gui;
+}
+
+export function colorToArray(color) {
+  return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [])];
 }

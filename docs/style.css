@@ -55,13 +55,20 @@ body.google-maps #bottom-left {
 body.google-maps #bottom-right {
   bottom: calc(14px + 2px);
 }
-.cr.string a {
-  color: white;
-  text-decoration: none;
+
+:root {
+  --tp-font-family: 'Lucida Grande', sans-serif;
+  --tp-base-background-color: #1a1a1a;
+  --tp-container-foreground-color: #eeeeee;
+  --tp-container-background-color: #000000;
+  --tp-container-background-color-active: #000000;
+  --tp-container-background-color-focus: #000000;
+  --tp-container-background-color-hover: #000000;
+  --tp-input-foreground-color: #eeeeee;
+  --tp-label-foreground-color: #eeeeee;
 }
-.cr.function .property-name {
-  width: auto;
-}
-.cr.function .c {
-  display: none;
+.tp-dfwv {
+  width: 300px !important;
+  max-height: 100vh;
+  overflow: auto;
 }

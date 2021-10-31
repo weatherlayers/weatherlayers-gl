@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>WeatherLayers</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?v=beta&key=AIzaSyCEpbzDGuiXiRqhgo5zv2neGu9lhF40DVM"></script><!-- WeatherLayers access token -->
   <script src="https://unpkg.com/deck.gl@8.6.0/dist.min.js"></script>
@@ -26,7 +26,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui } from './config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
     import { InfoControl } from './info-control.js';
     import { FpsControl } from './fps-control.js';
 
@@ -93,7 +93,6 @@
         width: 250,
         onUpdate: event => {
           config.datetime = event.datetime || NO_DATA;
-          gui.updateDisplay();
           update();
         },
       });
@@ -134,7 +133,7 @@
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               delta: config.contour.delta,
-              color: config.contour.color,
+              color: colorToArray(config.contour.color),
               width: config.contour.width,
               opacity: config.contour.opacity,
             }),
@@ -145,8 +144,8 @@
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               radius: config.highLow.radius,
-              color: config.highLow.color,
-              outlineColor: config.highLow.outlineColor,
+              color: colorToArray(config.highLow.color),
+              outlineColor: colorToArray(config.highLow.outlineColor),
               opacity: config.highLow.opacity,
             }),
           ],
@@ -162,7 +161,7 @@
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
-              color: config.particle.color,
+              color: colorToArray(config.particle.color),
               width: config.particle.width,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
