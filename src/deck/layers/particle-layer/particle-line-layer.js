@@ -82,7 +82,10 @@ export class ParticleLineLayer extends LineLayer {
     if (
       numParticles !== oldProps.numParticles ||
       maxAge !== oldProps.maxAge ||
-      color !== oldProps.color ||
+      color[0] !== oldProps.color[0] ||
+      color[1] !== oldProps.color[1] ||
+      color[2] !== oldProps.color[2] ||
+      color[3] !== oldProps.color[3] ||
       width !== oldProps.width
     ) {
       this._setupTransformFeedback();
