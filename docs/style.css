@@ -58,13 +58,17 @@ body.google-maps #bottom-right {
 
 :root {
   --tp-font-family: 'Lucida Grande', sans-serif;
-  --tp-base-background-color: #1a1a1a;
+  --tp-base-background-color: #111111;
   --tp-container-foreground-color: #eeeeee;
   --tp-container-background-color: #000000;
   --tp-container-background-color-active: #000000;
   --tp-container-background-color-focus: #000000;
   --tp-container-background-color-hover: #000000;
   --tp-input-foreground-color: #eeeeee;
+  --tp-input-background-color: #333333;
+  --tp-input-background-color-active: #333333;
+  --tp-input-background-color-focus: #333333;
+  --tp-input-background-color-hover: #333333;
   --tp-label-foreground-color: #eeeeee;
 }
 .tp-dfwv {
