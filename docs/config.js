@@ -108,6 +108,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     await updateDataset(config);
     datetime.dispose();
     datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
+    gui.refresh();
     update();
   });
 
