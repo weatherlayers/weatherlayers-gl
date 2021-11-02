@@ -36,6 +36,7 @@ function blur(data, width, height) {
 }
 
 /**
+ * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
@@ -91,10 +92,10 @@ export function getHighsLowsData(data, width, height, radius, bounds) {
       }
     }
   }
-
-  // remove proximate highs
   highs = highs.sort((a, b) => b.value - a.value);
   lows = lows.sort((a, b) => a.value - b.value);
+
+  // remove proximate highs
   for (let i = 0; i < highs.length; i++) {
     const high = highs[i];
     if (high) {
@@ -120,6 +121,26 @@ export function getHighsLowsData(data, width, height, radius, bounds) {
       }
     }
   }
+  lows = lows.filter(x => !!x);
+
+  // for proximate highs and lows, remove highs below average and lows above average
+  for (let i = 0; i < highs.length; i++) {
+    const high = highs[i];
+    if (high) {
+      for (let j = 0; j < lows.length; j++) {
+        const low = lows[j];
+        if (low && distance(high.position, low.position) < radiusKm) {
+          if (high.value < 100000) {
+            highs[i] = undefined;
+          }
+          if (low.value > 100000) {
+            lows[j] = undefined;
+          }
+        }
+      }
+    }
+  }
+  highs = highs.filter(x => !!x);
   lows = lows.filter(x => !!x);
 
   const highsLowsData = new Float32Array([

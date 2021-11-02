@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./info-control.css">
   <link rel="stylesheet" href="./fps-control.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
 <body class="arcgis">
@@ -194,16 +195,6 @@
       update();
       gui = initGui(config, update, { deckgl: particleDeckgl });
     });
-  </script>
-
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-82S0Z8QP5L"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-82S0Z8QP5L');
   </script>
 </body>
 
