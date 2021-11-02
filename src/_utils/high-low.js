@@ -123,26 +123,6 @@ export function getHighsLowsData(data, width, height, radius, bounds) {
   }
   lows = lows.filter(x => !!x);
 
-  // for proximate highs and lows, remove highs below average and lows above average
-  for (let i = 0; i < highs.length; i++) {
-    const high = highs[i];
-    if (high) {
-      for (let j = 0; j < lows.length; j++) {
-        const low = lows[j];
-        if (low && distance(high.position, low.position) < radiusKm) {
-          if (high.value < 100000) {
-            highs[i] = undefined;
-          }
-          if (low.value > 100000) {
-            lows[j] = undefined;
-          }
-        }
-      }
-    }
-  }
-  highs = highs.filter(x => !!x);
-  lows = lows.filter(x => !!x);
-
   const highsLowsData = new Float32Array([
     highs.length,
     ...highs.map(x => [...x.position, x.value]).flat(),
