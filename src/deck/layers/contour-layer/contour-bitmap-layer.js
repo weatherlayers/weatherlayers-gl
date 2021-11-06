@@ -9,7 +9,7 @@ import {BitmapLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
 import {code as fsDecl, tokens as fsDeclTokens} from './contour-bitmap-layer-fs-decl.glsl';
 import {code as fsMainEnd} from './contour-bitmap-layer-fs-main-end.glsl';
-import {ImageType} from '../../../client/image-type';
+import {ImageType} from '../../../_utils/image-type';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
 

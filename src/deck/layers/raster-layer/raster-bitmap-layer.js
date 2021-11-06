@@ -10,8 +10,8 @@ import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
 import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
-import {ImageType} from '../../../client/image-type';
-import {linearColormap, colorRampImage} from '../../../client/colormap';
+import {ImageType} from '../../../_utils/image-type';
+import {linearColormap, colorRampImage} from '../../../_utils/colormap';
 
 const defaultProps = {
   ...BitmapLayer.defaultProps,

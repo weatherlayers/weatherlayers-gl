@@ -6,12 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './tooltip-control.css';
-import {getClient} from '../../client/client';
+import {getClient} from '../../cloud/client/client';
 import {formatValue, formatUnit, formatDirection} from '../../_utils/format';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
-/** @typedef {import('../../client/client').Client} Client */
-/** @typedef {import('../../client/stac').StacCollection} StacCollection */
+/** @typedef {import('../../cloud/client/client').Client} Client */
+/** @typedef {import('../../cloud/client/stac').StacCollection} StacCollection */
 
 export class TooltipControl {
   /** @type {TooltipConfig} */

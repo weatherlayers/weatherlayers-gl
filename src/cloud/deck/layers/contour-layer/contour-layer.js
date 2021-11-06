@@ -8,11 +8,11 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {ContourPathLayer} from './contour-path-layer';
-import {ContourBitmapLayer} from './contour-bitmap-layer';
+import {ContourPathLayer} from '../../../../deck/layers/contour-layer/contour-path-layer';
+import {ContourBitmapLayer} from '../../../../deck/layers/contour-layer/contour-bitmap-layer';
 import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getDatetimeWeight} from '../../../../_utils/datetime';
+import {clipBounds} from '../../../../_utils/bounds';
 
 const defaultProps = {
   ...ContourBitmapLayer.defaultProps,

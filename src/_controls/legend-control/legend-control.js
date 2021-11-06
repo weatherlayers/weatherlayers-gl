@@ -6,13 +6,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './legend-control.css';
-import {getClient} from '../../client/client';
-import {linearColormap, colorRampUrl} from '../../client/colormap';
+import {getClient} from '../../cloud/client/client';
+import {linearColormap, colorRampUrl} from '../../_utils/colormap';
 import {formatValue, formatUnit} from '../../_utils/format';
 
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
-/** @typedef {import('../../client/client').Client} Client */
-/** @typedef {import('../../client/stac').StacCollection} StacCollection */
+/** @typedef {import('../../cloud/client/client').Client} Client */
+/** @typedef {import('../../cloud/client/stac').StacCollection} StacCollection */
 
 export class LegendControl {
   /** @type {LegendConfig} */

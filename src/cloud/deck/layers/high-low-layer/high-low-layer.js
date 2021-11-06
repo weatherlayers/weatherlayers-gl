@@ -7,45 +7,38 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
-import {Texture2D} from '@luma.gl/core';
-import {ParticleLineLayer} from './particle-line-layer';
-import {ImageType} from '../../../client/image-type';
+import {HighLowTextLayer} from '../../../../deck/layers/high-low-layer/high-low-text-layer';
 import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getDatetimeWeight} from '../../../../_utils/datetime';
+import {clipBounds} from '../../../../_utils/bounds';
+import {formatValue} from '../../../../_utils/format';
 
 const defaultProps = {
-  ...ParticleLineLayer.defaultProps,
+  ...HighLowTextLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class ParticleLayer extends CompositeLayer {
+export class HighLowLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const {props, stacCollection, image} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !image) {
       return [];
     }
-    if (stacCollection.summaries.imageType !== ImageType.VECTOR) {
-      return [];
-    }
 
     return [
-      new ParticleLineLayer(props, this.getSubLayerProps({
-        id: 'line',
+      new HighLowTextLayer(props, this.getSubLayerProps({
+        id: 'text',
         image,
-        image2,
-        imageWeight,
+        imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
-        speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
-        width: props.width || stacCollection.summaries.particle.width,
-        wrapLongitude: true,
+        radius: props.radius || stacCollection.summaries.highLow.radius,
+        formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
@@ -61,7 +54,6 @@ export class ParticleLayer extends CompositeLayer {
   }
 
   async updateState({props, oldProps, changeFlags}) {
-    const {gl} = this.context;
     const {dataset, datetime, datetimeInterpolate, visible} = this.props;
     const {client} = this.state;
 
@@ -100,10 +92,6 @@ export class ParticleLayer extends CompositeLayer {
           client.loadStacCollectionDataByDatetime(dataset, startDatetime),
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
-
-        // create textures, to avoid a bug with async image props
-        image = new Texture2D(gl, image);
-        image2 = image2 && new Texture2D(gl, image2);
   
         this.setState({
           image,
@@ -124,5 +112,5 @@ export class ParticleLayer extends CompositeLayer {
   }
 }
 
-ParticleLayer.layerName = 'ParticleLayer';
-ParticleLayer.defaultProps = defaultProps;
+HighLowLayer.layerName = 'HighLowLayer';
+HighLowLayer.defaultProps = defaultProps;

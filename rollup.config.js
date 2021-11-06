@@ -75,7 +75,9 @@ function bundle(entrypoint, filename, format, options = {}) {
 }
 
 export default [
-  ['src/client/index.js', 'dist/weatherlayers-client.js'],
+  ['src/cloud/client/index.js', 'dist/weatherlayers-cloud-client.js'],
+  ['src/cloud/deck/index.js', 'dist/weatherlayers-cloud-deck.js'],
+  ['src/cloud/arcgis/index.js', 'dist/weatherlayers-cloud-arcgis.js'],
   ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
   ['src/arcgis/index.js', 'dist/weatherlayers-arcgis.js'],
 ].map(([entrypoint, filename]) => [

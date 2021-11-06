@@ -7,8 +7,8 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer} from '@deck.gl/layers';
-import {ImageType} from '../../../client/image-type';
-import {unscaleTextureData} from '../../../client/data';
+import {ImageType} from '../../../_utils/image-type';
+import {unscaleTextureData} from '../../../_utils/data';
 import {getContours} from '../../../_utils/contour-proxy';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];

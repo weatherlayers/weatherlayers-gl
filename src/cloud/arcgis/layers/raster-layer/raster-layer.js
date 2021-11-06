@@ -5,8 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import {initRasterBitmapLayer} from '../../../../arcgis/layers/raster-layer/raster-bitmap-layer';
 import {getClient} from '../../../client/client';
-import {colorTextureData} from '../../../client/data';
 
 /** @typedef {import('@arcgis/core/layers/BaseTileLayer')} BaseTileLayer */
 
@@ -15,7 +15,9 @@ import {colorTextureData} from '../../../client/data';
  * @returns {BaseTileLayer}
  */
 export function initRasterLayer(baseTileLayer) {
-  return baseTileLayer.createSubclass({
+  const rasterBitmapLayer = initRasterBitmapLayer(baseTileLayer);
+
+  return rasterBitmapLayer.createSubclass({
     properties: {
       dataset: null,
       datetime: null,
@@ -66,12 +68,12 @@ export function initRasterLayer(baseTileLayer) {
         throw new Error('Aborted');
       }
 
+      const image = this.state.image;
       const imageType = this.state.stacCollection.summaries.imageType;
       const imageBounds = this.state.stacCollection.summaries.imageBounds;
       const colormapBreaks = this.colormapBreaks || this.state.stacCollection.summaries.raster.colormapBreaks;
-      const coloredImage = colorTextureData(this.state.image, imageType, imageBounds, colormapBreaks);
-
-      return coloredImage;
+      const renderedImage = this.renderImage(image, imageType, imageBounds, colormapBreaks);
+      return renderedImage;
     },
   });
 }

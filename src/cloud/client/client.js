@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {VERSION} from './build';
-import {loadTextureData} from './data';
+import {VERSION} from '../../_utils/build';
+import {loadTextureData} from '../../_utils/data';
 
-/** @typedef {import('./data').TextureData} TextureData */
+/** @typedef {import('../../_utils/data').TextureData} TextureData */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProviderRole} StacProviderRole */

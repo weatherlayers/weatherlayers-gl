@@ -8,9 +8,8 @@
 export * from '../_utils/index';
 export * from '../_controls/index';
 
-export * from '../client/index';
-
-export * from './layers/raster-layer/raster-layer';
-export * from './layers/contour-layer/contour-layer';
-export * from './layers/high-low-layer/high-low-layer';
-export * from './layers/particle-layer/particle-layer';
+export * from './layers/raster-layer/raster-bitmap-layer';
+export * from './layers/contour-layer/contour-bitmap-layer';
+export * from './layers/contour-layer/contour-path-layer';
+export * from './layers/high-low-layer/high-low-text-layer';
+export * from './layers/particle-layer/particle-line-layer';

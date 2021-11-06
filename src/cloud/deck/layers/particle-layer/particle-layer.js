@@ -5,23 +5,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
+import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {RasterBitmapLayer} from './raster-bitmap-layer';
+import {ParticleLineLayer} from '../../../../deck/layers/particle-layer/particle-line-layer';
+import {ImageType} from '../../../../_utils/image-type';
 import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getDatetimeWeight} from '../../../../_utils/datetime';
+import {clipBounds} from '../../../../_utils/bounds';
 
 const defaultProps = {
-  ...RasterBitmapLayer.defaultProps,
+  ...ParticleLineLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class RasterLayer extends CompositeLayer {
+export class ParticleLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
@@ -30,21 +31,23 @@ export class RasterLayer extends CompositeLayer {
     if (!props || !stacCollection || !image) {
       return [];
     }
+    if (stacCollection.summaries.imageType !== ImageType.VECTOR) {
+      return [];
+    }
 
     return [
-      new RasterBitmapLayer(props, this.getSubLayerProps({
-        id: 'bitmap',
+      new ParticleLineLayer(props, this.getSubLayerProps({
+        id: 'line',
         image,
         image2,
         imageWeight,
-        imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        colormapBreaks: props.colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
-        opacity: 1, // apply separate opacity
-        rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
+        maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
+        speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
+        width: props.width || stacCollection.summaries.particle.width,
+        wrapLongitude: true,
 
         bounds: stacCollection.extent.spatial.bbox[0],
-        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
         clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })),
@@ -121,5 +124,5 @@ export class RasterLayer extends CompositeLayer {
   }
 }
 
-RasterLayer.layerName = 'RasterLayer';
-RasterLayer.defaultProps = defaultProps;
+ParticleLayer.layerName = 'ParticleLayer';
+ParticleLayer.defaultProps = defaultProps;

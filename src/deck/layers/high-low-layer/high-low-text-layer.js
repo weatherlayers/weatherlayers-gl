@@ -7,8 +7,8 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import {ImageType} from '../../../client/image-type';
-import {unscaleTextureData} from '../../../client/data';
+import {ImageType} from '../../../_utils/image-type';
+import {unscaleTextureData} from '../../../_utils/data';
 import {getHighsLows} from '../../../_utils/high-low-proxy';
 
 const DEFAULT_COLOR = [107, 107, 107, 255];
