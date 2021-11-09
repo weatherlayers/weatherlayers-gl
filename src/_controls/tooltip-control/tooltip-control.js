@@ -72,13 +72,17 @@ export class TooltipControl {
     }
     
     this.config = config;
-    this.container.innerHTML = '';
     
     if (!this.config.dataset) {
+      this.container.innerHTML = '';
       return;
     }
 
     this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
+    this.container.innerHTML = '';
+
+    const div = document.createElement('div');
+    this.container.appendChild(div);
   }
 
   /**
@@ -86,10 +90,8 @@ export class TooltipControl {
    * @returns {void}
    */
   onHover(event) {
-    this.container.innerHTML = '';
-
-    const div = document.createElement('div');
-    this.container.appendChild(div);
+    const div = this.container.querySelector('div');
+    div.innerHTML = '';
     
     if (typeof event.raster !== 'undefined') {
       div.innerHTML = `${formatValue(event.raster.value, this.stacCollection.summaries.unit[0])} ${formatUnit(this.stacCollection.summaries.unit[0].name)}`;

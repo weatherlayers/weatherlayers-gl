@@ -65,12 +65,9 @@ export class AttributionControl {
     }
 
     this.config = config;
-    this.container.innerHTML = '';
 
     if (!this.config.dataset) {
-      if (this.config.attribution) {
-        this.container.innerHTML = `<div>${this.config.attribution}</div>`;
-      }
+      this.container.innerHTML = this.config.attribution ? `<div>${this.config.attribution}</div>` : '';
       return;
     }
 

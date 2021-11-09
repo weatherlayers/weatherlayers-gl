@@ -181,15 +181,16 @@ export class TimelineControl {
     }
 
     this.config = config;
-    this.container.innerHTML = '';
     
     if (!this.config.dataset) {
+      this.container.innerHTML = '';
       return;
     }
 
     this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
     this.datetimes = this.client.getStacCollectionDatetimes(this.stacCollection);
     if (this.datetimes.length < 2) {
+      this.container.innerHTML = '';
       return;
     }
 
@@ -197,6 +198,7 @@ export class TimelineControl {
     const playPauseButtonWidth = 16;
     const progressInputMarginLeft = 10;
 
+    this.container.innerHTML = '';
     this.container.style.width = `${this.config.width}px`;
 
     const div = document.createElement('div');

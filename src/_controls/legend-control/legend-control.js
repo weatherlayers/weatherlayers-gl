@@ -67,9 +67,9 @@ export class LegendControl {
     }
 
     this.config = config;
-    this.container.innerHTML = '';
 
     if (!this.config.dataset) {
+      this.container.innerHTML = '';
       return;
     }
 
@@ -82,6 +82,7 @@ export class LegendControl {
     const colormapFunction = linearColormap(colormapBreaks);
     const colormapUrl = colorRampUrl(colormapFunction, colormapBounds);
 
+    this.container.innerHTML = '';
     this.container.style.width = `${this.config.width}px`;
 
     const div = document.createElement('div');
