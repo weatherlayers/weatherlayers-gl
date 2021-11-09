@@ -25,15 +25,19 @@ export async function initConfig() {
     contour: {
       enabled: false,
       delta: 200,
-      color: { r: 255, g: 255, b: 255 },
+      color: { r: 255, g: 255, b: 255, a: 0.2 },
       width: 1,
-      opacity: 0.01
+      textColor: { r: 153, g: 153, b: 153, a: 1 },
+      textOutlineColor: { r: 13, g: 13, b: 13, a: 1 },
+      textSize: 12,
+      opacity: 1,
     },
     highLow: {
       enabled: false,
       radius: 2000,
-      color: { r: 153, g: 153, b: 153 },
-      outlineColor: { r: 13, g: 13, b: 13 },
+      textColor: { r: 153, g: 153, b: 153, a: 1 },
+      textOutlineColor: { r: 13, g: 13, b: 13, a: 1 },
+      textSize: 12,
       opacity: 1,
     },
     particle: {
@@ -41,9 +45,9 @@ export async function initConfig() {
       numParticles: 5000,
       maxAge: 25,
       speedFactor: 2,
-      color: { r: 255, g: 255, b: 255 },
+      color: { r: 255, g: 255, b: 255, a: 0.2 },
       width: 2,
-      opacity: 0.02,
+      opacity: 1,
       animate: true,
     },
   };
@@ -135,13 +139,17 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     contour.addInput(config.contour, 'delta', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
     contour.addInput(config.contour, 'color').on('change', update);
     contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+    contour.addInput(config.contour, 'textColor').on('change', update);
+    contour.addInput(config.contour, 'textOutlineColor').on('change', update);
+    contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
     contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
     const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
     highLow.addInput(config.highLow, 'enabled').on('change', update);
     highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
-    highLow.addInput(config.highLow, 'color').on('change', update);
-    highLow.addInput(config.highLow, 'outlineColor').on('change', update);
+    highLow.addInput(config.highLow, 'textColor').on('change', update);
+    highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
+    highLow.addInput(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
     highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
     const particle = gui.addFolder({ title: 'Particle layer', expanded: true });

@@ -45,6 +45,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         '@babel/runtime/helpers/defineProperty',
         'rollup-plugin-worker-factory/src/universal.js',
         'geodesy-fn/src/spherical',
+        'leaflet-polylinedecorator/src/patternUtils',
       ] : []),
     ],
     plugins: [

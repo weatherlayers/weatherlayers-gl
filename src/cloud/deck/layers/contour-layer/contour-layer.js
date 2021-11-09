@@ -12,6 +12,7 @@ import {ContourLayer as BaseContourLayer} from '../../../../deck/layers/contour-
 import {getClient} from '../../../client/client';
 import {getDatetimeWeight} from '../../../../_utils/datetime';
 import {clipBounds} from '../../../../_utils/bounds';
+import {formatValue} from '../../../../_utils/format';
 
 const defaultProps = {
   ...BaseContourLayer.defaultProps,
@@ -38,6 +39,7 @@ export class ContourLayer extends CompositeLayer {
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
+        formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],

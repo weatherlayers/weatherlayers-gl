@@ -19,6 +19,7 @@
     "comlink": "^4.3.1",
     "d3-contour": "^3.0.1",
     "geodesy-fn": "^1.0.1",
+    "leaflet-polylinedecorator": "^1.6.0",
     "lineclip": "^1.1.5"
   },
   "devDependencies": {

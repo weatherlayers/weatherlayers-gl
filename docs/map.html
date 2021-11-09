@@ -131,6 +131,9 @@
               delta: config.contour.delta,
               color: colorToArray(config.contour.color),
               width: config.contour.width,
+              textColor: colorToArray(config.contour.textColor),
+              textOutlineColor: colorToArray(config.contour.textOutlineColor),
+              textSize: config.contour.textSize,
               opacity: config.contour.opacity,
             }),
             new WeatherLayers.HighLowLayer({
@@ -140,8 +143,9 @@
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               radius: config.highLow.radius,
-              color: colorToArray(config.highLow.color),
-              outlineColor: colorToArray(config.highLow.outlineColor),
+              textColor: colorToArray(config.highLow.textColor),
+              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              textSize: config.highLow.textSize,
               opacity: config.highLow.opacity,
             }),
             new WeatherLayers.ParticleLayer({

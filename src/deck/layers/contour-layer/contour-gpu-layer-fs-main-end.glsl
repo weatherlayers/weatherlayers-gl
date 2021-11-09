@@ -18,5 +18,5 @@ float value = raster_get_value(bitmapColor);
 float contourValueFract = abs(fract(value / delta) - 0.5) * 2.;
 float contourValueFwidth = fwidth(value / delta);
 float contourValue = 1. - smoothstep(contourValueFwidth * 1., contourValueFwidth * 2., contourValueFract);
-vec4 rasterColor = vec4(color.rgb, contourValue);
+vec4 rasterColor = vec4(color.rgb, color.a * contourValue);
 gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
