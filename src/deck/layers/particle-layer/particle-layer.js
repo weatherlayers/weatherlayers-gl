@@ -9,11 +9,11 @@ import {LineLayer} from '@deck.gl/layers';
 import {Buffer, Transform} from '@luma.gl/core';
 import {isWebGL2} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
-import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
-import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
-import {code as fsMainStart} from './particle-line-layer-fs-main-start.glsl';
-import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-line-layer-update-transform.vs.glsl';
+import {code as vsDecl} from './particle-layer-vs-decl.glsl';
+import {code as vsMainStart} from './particle-layer-vs-main-start.glsl';
+import {code as fsDecl} from './particle-layer-fs-decl.glsl';
+import {code as fsMainStart} from './particle-layer-fs-main-start.glsl';
+import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-layer-update-transform.vs.glsl';
 import {distance} from '../../../_utils/geodesy';
 import {wrapBounds} from '../../../_utils/bounds';
 
@@ -44,7 +44,7 @@ const defaultProps = {
   textureParameters: DEFAULT_TEXTURE_PARAMETERS,
 };
 
-export class ParticleLineLayer extends LineLayer {
+export class ParticleLayer extends LineLayer {
   getShaders() {
     const parentShaders = super.getShaders();
 
@@ -314,5 +314,5 @@ export class ParticleLineLayer extends LineLayer {
   }
 }
 
-ParticleLineLayer.layerName = 'ParticleLineLayer';
-ParticleLineLayer.defaultProps = defaultProps;
+ParticleLayer.layerName = 'ParticleLayer';
+ParticleLayer.defaultProps = defaultProps;

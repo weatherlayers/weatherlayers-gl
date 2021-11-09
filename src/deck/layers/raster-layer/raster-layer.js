@@ -8,8 +8,8 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
+import {code as fsDecl, tokens as fsDeclTokens} from './raster-layer-fs-decl.glsl';
+import {code as fsMainEnd} from './raster-layer-fs-main-end.glsl';
 import {ImageType} from '../../../_utils/image-type';
 import {linearColormap, colorRampImage} from '../../../_utils/colormap';
 
@@ -27,7 +27,7 @@ const defaultProps = {
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 
-export class RasterBitmapLayer extends BitmapLayer {
+export class RasterLayer extends BitmapLayer {
   getShaders() {
     const parentShaders = super.getShaders();
 
@@ -127,5 +127,5 @@ export class RasterBitmapLayer extends BitmapLayer {
   }
 }
 
-RasterBitmapLayer.layerName = 'RasterBitmapLayer';
-RasterBitmapLayer.defaultProps = defaultProps;
+RasterLayer.layerName = 'RasterLayer';
+RasterLayer.defaultProps = defaultProps;

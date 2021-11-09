@@ -7,8 +7,8 @@
  */
 import {BitmapLayer} from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
-import {code as fsDecl, tokens as fsDeclTokens} from './contour-bitmap-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './contour-bitmap-layer-fs-main-end.glsl';
+import {code as fsDecl, tokens as fsDeclTokens} from './contour-gpu-layer-fs-decl.glsl';
+import {code as fsMainEnd} from './contour-gpu-layer-fs-main-end.glsl';
 import {ImageType} from '../../../_utils/image-type';
 
 const DEFAULT_COLOR = [255, 255, 255, 255];
@@ -29,7 +29,7 @@ const defaultProps = {
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 
-export class ContourBitmapLayer extends BitmapLayer {
+export class ContourGpuLayer extends BitmapLayer {
   getShaders() {
     const parentShaders = super.getShaders();
 
@@ -75,5 +75,5 @@ export class ContourBitmapLayer extends BitmapLayer {
   }
 }
 
-ContourBitmapLayer.layerName = 'ContourBitmapLayer';
-ContourBitmapLayer.defaultProps = defaultProps;
+ContourGpuLayer.layerName = 'ContourGpuLayer';
+ContourGpuLayer.defaultProps = defaultProps;

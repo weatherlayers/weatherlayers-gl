@@ -7,14 +7,14 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
-import {HighLowTextLayer} from '../../../../deck/layers/high-low-layer/high-low-text-layer';
+import {HighLowLayer as BaseHighLowLayer} from '../../../../deck/layers/high-low-layer/high-low-layer';
 import {getClient} from '../../../client/client';
 import {getDatetimeWeight} from '../../../../_utils/datetime';
 import {clipBounds} from '../../../../_utils/bounds';
 import {formatValue} from '../../../../_utils/format';
 
 const defaultProps = {
-  ...HighLowTextLayer.defaultProps,
+  ...BaseHighLowLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
@@ -32,7 +32,7 @@ export class HighLowLayer extends CompositeLayer {
     }
 
     return [
-      new HighLowTextLayer(props, this.getSubLayerProps({
+      new BaseHighLowLayer(props, this.getSubLayerProps({
         id: 'text',
         image,
         imageType: stacCollection.summaries.imageType,

@@ -8,14 +8,14 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {ParticleLineLayer} from '../../../../deck/layers/particle-layer/particle-line-layer';
+import {ParticleLayer as BaseParticleLayer} from '../../../../deck/layers/particle-layer/particle-layer';
 import {ImageType} from '../../../../_utils/image-type';
 import {getClient} from '../../../client/client';
 import {getDatetimeWeight} from '../../../../_utils/datetime';
 import {clipBounds} from '../../../../_utils/bounds';
 
 const defaultProps = {
-  ...ParticleLineLayer.defaultProps,
+  ...BaseParticleLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
@@ -36,7 +36,7 @@ export class ParticleLayer extends CompositeLayer {
     }
 
     return [
-      new ParticleLineLayer(props, this.getSubLayerProps({
+      new BaseParticleLayer(props, this.getSubLayerProps({
         id: 'line',
         image,
         image2,

@@ -27,7 +27,7 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-export class ContourPathLayer extends CompositeLayer {
+export class ContourLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.delta !== this.state.delta)) {
       this.updateContours();
@@ -71,5 +71,5 @@ export class ContourPathLayer extends CompositeLayer {
   }
 }
 
-ContourPathLayer.layerName = 'ContourPathLayer';
-ContourPathLayer.defaultProps = defaultProps;
+ContourLayer.layerName = 'ContourLayer';
+ContourLayer.defaultProps = defaultProps;

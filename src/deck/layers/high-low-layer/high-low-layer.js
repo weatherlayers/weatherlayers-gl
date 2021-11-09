@@ -30,7 +30,7 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-export class HighLowTextLayer extends CompositeLayer {
+export class HighLowLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius)) {
       this.updateHighsLows();
@@ -98,5 +98,5 @@ export class HighLowTextLayer extends CompositeLayer {
   }
 }
 
-HighLowTextLayer.layerName = 'HighLowTextLayer';
-HighLowTextLayer.defaultProps = defaultProps;
+HighLowLayer.layerName = 'HighLowLayer';
+HighLowLayer.defaultProps = defaultProps;

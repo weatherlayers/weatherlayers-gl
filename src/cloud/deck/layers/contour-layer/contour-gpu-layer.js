@@ -5,26 +5,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {CompositeLayer} from '@deck.gl/core';
+import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {ContourLayer as BaseContourLayer} from '../../../../deck/layers/contour-layer/contour-layer';
+import {ContourGpuLayer as BaseContourGpuLayer} from '../../../../deck/layers/contour-layer/contour-gpu-layer';
 import {getClient} from '../../../client/client';
 import {getDatetimeWeight} from '../../../../_utils/datetime';
 import {clipBounds} from '../../../../_utils/bounds';
 
 const defaultProps = {
-  ...BaseContourLayer.defaultProps,
+  ...BaseContourGpuLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class ContourLayer extends CompositeLayer {
+export class ContourGpuLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, stacCollection, image} = this.state;
+    const {props, stacCollection, image, image2, imageWeight} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !image) {
@@ -32,14 +32,19 @@ export class ContourLayer extends CompositeLayer {
     }
 
     return [
-      new BaseContourLayer(props, this.getSubLayerProps({
-        id: 'path',
+      new BaseContourGpuLayer(props, this.getSubLayerProps({
+        id: 'bitmap',
         image,
+        image2,
+        imageWeight,
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
         delta: props.delta || stacCollection.summaries.contour.delta,
+        opacity: 1, // apply separate opacity
+        rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
 
         bounds: stacCollection.extent.spatial.bbox[0],
+        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
         clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
       })),
@@ -93,11 +98,9 @@ export class ContourLayer extends CompositeLayer {
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
 
-        if (this.props.gpu) {
-          // create textures, to avoid a bug with async image props
-          image = new Texture2D(gl, image);
-          image2 = image2 && new Texture2D(gl, image2);
-        }
+        // create textures, to avoid a bug with async image props
+        image = new Texture2D(gl, image);
+        image2 = image2 && new Texture2D(gl, image2);
   
         this.setState({
           image,
@@ -118,5 +121,5 @@ export class ContourLayer extends CompositeLayer {
   }
 }
 
-ContourLayer.layerName = 'ContourLayer';
-ContourLayer.defaultProps = defaultProps;
+ContourGpuLayer.layerName = 'ContourGpuLayer';
+ContourGpuLayer.defaultProps = defaultProps;

@@ -16,7 +16,7 @@ import {colorTextureData} from '../../../_utils/data';
  * @param {BaseTileLayer} baseTileLayer
  * @returns {BaseTileLayer}
  */
-export function initRasterBitmapLayer(baseTileLayer) {
+export function initRasterLayer(baseTileLayer) {
   return baseTileLayer.createSubclass({
     properties: {
       image: null,

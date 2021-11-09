@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {initRasterBitmapLayer} from '../../../../arcgis/layers/raster-layer/raster-bitmap-layer';
+import {initRasterLayer as initBaseRasterLayer} from '../../../../arcgis/layers/raster-layer/raster-layer';
 import {getClient} from '../../../client/client';
 
 /** @typedef {import('@arcgis/core/layers/BaseTileLayer')} BaseTileLayer */
@@ -15,9 +15,9 @@ import {getClient} from '../../../client/client';
  * @returns {BaseTileLayer}
  */
 export function initRasterLayer(baseTileLayer) {
-  const rasterBitmapLayer = initRasterBitmapLayer(baseTileLayer);
+  const rasterLayer = initBaseRasterLayer(baseTileLayer);
 
-  return rasterBitmapLayer.createSubclass({
+  return rasterLayer.createSubclass({
     properties: {
       dataset: null,
       datetime: null,
