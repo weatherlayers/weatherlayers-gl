@@ -5,8 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {initRasterLayer as initBaseRasterLayer} from '../../../../arcgis/layers/raster-layer/raster-layer';
-import {getClient} from '../../../client/client';
+import {initRasterLayer as initBaseRasterLayer} from '../../../arcgis/layers/raster-layer/raster-layer';
+import {getClient} from '../../../cloud-client/client';
 
 /** @typedef {import('@arcgis/core/layers/BaseTileLayer')} BaseTileLayer */
 

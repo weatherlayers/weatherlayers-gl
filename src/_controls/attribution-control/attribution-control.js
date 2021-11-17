@@ -6,11 +6,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import './attribution-control.css';
-import {getClient} from '../../cloud/client/client';
+import {getClient} from '../../cloud-client/client';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
-/** @typedef {import('../../cloud/client/client').Client} Client */
-/** @typedef {import('../../cloud/client/stac').StacCollection} StacCollection */
+/** @typedef {import('../../cloud-client/client').Client} Client */
+/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
 
 export class AttributionControl {
   /** @type {AttributionConfig} */

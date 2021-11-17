@@ -8,11 +8,11 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {ParticleLayer as BaseParticleLayer} from '../../../../deck/layers/particle-layer/particle-layer';
-import {ImageType} from '../../../../_utils/image-type';
-import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../../_utils/datetime';
-import {clipBounds} from '../../../../_utils/bounds';
+import {ParticleLayer as BaseParticleLayer} from '../../../deck/layers/particle-layer/particle-layer';
+import {ImageType} from '../../../_utils/image-type';
+import {getClient} from '../../../cloud-client/client';
+import {getDatetimeWeight} from '../../../_utils/datetime';
+import {clipBounds} from '../../../_utils/bounds';
 
 const defaultProps = {
   ...BaseParticleLayer.defaultProps,

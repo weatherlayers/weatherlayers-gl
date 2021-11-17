@@ -8,20 +8,20 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {RasterLayer as BaseParticleLayer} from '../../../../deck/layers/raster-layer/raster-layer';
-import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../../_utils/datetime';
-import {clipBounds} from '../../../../_utils/bounds';
+import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-layer/contour-gpu-layer';
+import {getClient} from '../../../cloud-client/client';
+import {getDatetimeWeight} from '../../../_utils/datetime';
+import {clipBounds} from '../../../_utils/bounds';
 
 const defaultProps = {
-  ...BaseParticleLayer.defaultProps,
+  ...BaseContourGpuLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class RasterLayer extends CompositeLayer {
+export class ContourGpuLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
@@ -32,14 +32,14 @@ export class RasterLayer extends CompositeLayer {
     }
 
     return [
-      new BaseParticleLayer(props, this.getSubLayerProps({
+      new BaseContourGpuLayer(props, this.getSubLayerProps({
         id: 'bitmap',
         image,
         image2,
         imageWeight,
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        colormapBreaks: props.colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
+        delta: props.delta || stacCollection.summaries.contour.delta,
         opacity: 1, // apply separate opacity
         rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"
 
@@ -121,5 +121,5 @@ export class RasterLayer extends CompositeLayer {
   }
 }
 
-RasterLayer.layerName = 'RasterLayer';
-RasterLayer.defaultProps = defaultProps;
+ContourGpuLayer.layerName = 'ContourGpuLayer';
+ContourGpuLayer.defaultProps = defaultProps;

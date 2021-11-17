@@ -6,14 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import {Animation} from '../../_utils/animation';
-import {getClient} from '../../cloud/client/client';
+import {getClient} from '../../cloud-client/client';
 import {interpolateDatetime} from '../../_utils/datetime';
 import {formatDatetime} from '../../_utils/format';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
-/** @typedef {import('../../cloud/client/client').Client} Client */
-/** @typedef {import('../../cloud/client/stac').StacCollection} StacCollection */
+/** @typedef {import('../../cloud-client/client').Client} Client */
+/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
 
 const FPS = 15;
 const STEP = 1;

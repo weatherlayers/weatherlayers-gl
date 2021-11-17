@@ -7,22 +7,21 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
-import {Texture2D} from '@luma.gl/core';
-import {ContourLayer as BaseContourLayer} from '../../../../deck/layers/contour-layer/contour-layer';
-import {getClient} from '../../../client/client';
-import {getDatetimeWeight} from '../../../../_utils/datetime';
-import {clipBounds} from '../../../../_utils/bounds';
-import {formatValue} from '../../../../_utils/format';
+import {HighLowLayer as BaseHighLowLayer} from '../../../deck/layers/high-low-layer/high-low-layer';
+import {getClient} from '../../../cloud-client/client';
+import {getDatetimeWeight} from '../../../_utils/datetime';
+import {clipBounds} from '../../../_utils/bounds';
+import {formatValue} from '../../../_utils/format';
 
 const defaultProps = {
-  ...BaseContourLayer.defaultProps,
+  ...BaseHighLowLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class ContourLayer extends CompositeLayer {
+export class HighLowLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image} = this.state;
@@ -33,12 +32,12 @@ export class ContourLayer extends CompositeLayer {
     }
 
     return [
-      new BaseContourLayer(props, this.getSubLayerProps({
-        id: 'path',
+      new BaseHighLowLayer(props, this.getSubLayerProps({
+        id: 'text',
         image,
         imageType: stacCollection.summaries.imageType,
         imageBounds: stacCollection.summaries.imageBounds,
-        delta: props.delta || stacCollection.summaries.contour.delta,
+        radius: props.radius || stacCollection.summaries.highLow.radius,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],
@@ -55,7 +54,6 @@ export class ContourLayer extends CompositeLayer {
   }
 
   async updateState({props, oldProps, changeFlags}) {
-    const {gl} = this.context;
     const {dataset, datetime, datetimeInterpolate, visible} = this.props;
     const {client} = this.state;
 
@@ -94,12 +92,6 @@ export class ContourLayer extends CompositeLayer {
           client.loadStacCollectionDataByDatetime(dataset, startDatetime),
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
-
-        if (this.props.gpu) {
-          // create textures, to avoid a bug with async image props
-          image = new Texture2D(gl, image);
-          image2 = image2 && new Texture2D(gl, image2);
-        }
   
         this.setState({
           image,
@@ -120,5 +112,5 @@ export class ContourLayer extends CompositeLayer {
   }
 }
 
-ContourLayer.layerName = 'ContourLayer';
-ContourLayer.defaultProps = defaultProps;
+HighLowLayer.layerName = 'HighLowLayer';
+HighLowLayer.defaultProps = defaultProps;

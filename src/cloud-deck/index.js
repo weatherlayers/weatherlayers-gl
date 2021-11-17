@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-export * from '../../_utils/index';
-export * from '../../_controls/index';
+export * from '../_utils/index';
+export * from '../_controls/index';
 
-export * from '../client/index';
+export * from '../cloud-client/index';
 
 export * from './layers/raster-layer/raster-layer';
 export * from './layers/contour-layer/contour-layer';
