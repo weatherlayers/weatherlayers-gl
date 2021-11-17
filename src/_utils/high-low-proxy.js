@@ -9,7 +9,7 @@ import {transfer, wrap} from 'comlink';
 import highLowWorker from 'worker!./high-low-worker';
 
 /** @typedef {'L' | 'H'} HighLowType */
-/** @typedef {GeoJSON.Point & { properties: { type: HighLowType, value: number }}} HighLow */
+/** @typedef {GeoJSON.Feature<GeoJSON.Point, { type: HighLowType, value: number }>} HighLow */
 
 const highLowWorkerProxy = wrap(highLowWorker());
 
@@ -25,13 +25,13 @@ function getHighsLowsFromData(highsLowsData) {
   for (let j = 0; j < highsCount; j++) {
     const position = [highsLowsData[i++], highsLowsData[i++]];
     const value = highsLowsData[i++];
-    highsLows.push({ type: 'Point', coordinates: position, properties: { type: 'H', value }});
+    highsLows.push({ type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: { type: 'H', value }});
   }
   const lowsCount = highsLowsData[i++];
   for (let j = 0; j < lowsCount; j++) {
     const position = [highsLowsData[i++], highsLowsData[i++]];
     const value = highsLowsData[i++];
-    highsLows.push({ type: 'Point', coordinates: position, properties: { type: 'L', value }});
+    highsLows.push({ type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: { type: 'L', value }});
   }
 
   return highsLows;

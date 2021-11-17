@@ -8,7 +8,7 @@
 import {transfer, wrap} from 'comlink';
 import contourWorker from 'worker!./contour-worker';
 
-/** @typedef {GeoJSON.LineString & { properties: { value: number }}} Contour */
+/** @typedef {GeoJSON.Feature<GeoJSON.LineString, { value: number }>} Contour */
 
 const contourWorkerProxy = wrap(contourWorker());
 
@@ -29,7 +29,7 @@ function getContoursFromData(contoursData) {
       coordinates.push(position);
     }
     const value = contoursData[i++];
-    contours.push({ type: 'LineString', coordinates, properties: { value }});
+    contours.push({ type: 'Feature', geometry: { type: 'LineString', coordinates }, properties: { value }});
   }
 
   return contours;

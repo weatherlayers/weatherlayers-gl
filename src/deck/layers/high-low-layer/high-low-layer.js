@@ -7,6 +7,7 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
+import Supercluster from 'supercluster';
 import {ImageType} from '../../../_utils/image-type';
 import {unscaleTextureData} from '../../../_utils/data';
 import {getHighsLows} from '../../../_utils/high-low-proxy';
@@ -40,7 +41,7 @@ export class HighLowLayer extends CompositeLayer {
 
     const {viewport} = this.context;
     const {textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
-    const {highsLows} = this.state;
+    const {highsLows, visibleHighsLows} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
     if (!highsLows) {
@@ -50,9 +51,9 @@ export class HighLowLayer extends CompositeLayer {
     return [
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'type',
-        data: highsLows,
+        data: visibleHighsLows,
         getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * -7],
-        getPosition: d => d.coordinates,
+        getPosition: d => d.geometry.coordinates,
         getText: d => d.properties.type,
         getSize: 1.2 * textSize,
         getColor: textColor,
@@ -65,9 +66,9 @@ export class HighLowLayer extends CompositeLayer {
       })),
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'value',
-        data: highsLows,
+        data: visibleHighsLows,
         getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * 7],
-        getPosition: d => d.coordinates,
+        getPosition: d => d.geometry.coordinates,
         getText: d => formatValueFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
@@ -79,6 +80,18 @@ export class HighLowLayer extends CompositeLayer {
         billboard: false,
       })),
     ];
+  }
+
+  shouldUpdateState({changeFlags}) {
+    return super.shouldUpdateState({changeFlags}) || changeFlags.viewportChanged;
+  }
+
+  updateState({props, oldProps, changeFlags}) {
+    super.updateState({props, oldProps, changeFlags});
+
+    if (changeFlags.viewportChanged) {
+      this.updateVisibleHighsLows();
+    }
   }
 
   async updateHighsLows() {
@@ -96,6 +109,39 @@ export class HighLowLayer extends CompositeLayer {
       image,
       radius,
       highsLows,
+    });
+
+    this.updateHighsLowsIndex();
+  }
+
+  updateHighsLowsIndex() {
+    const {highsLows} = this.state;
+
+    const highsLowsIndex = new Supercluster({
+      radius: 40,
+      maxZoom: 16
+    });
+    highsLowsIndex.load(highsLows);
+
+    this.setState({
+      highsLowsIndex,
+    });
+
+    this.updateVisibleHighsLows();
+  }
+
+  updateVisibleHighsLows() {
+    const {viewport} = this.context;
+    const {highsLowsIndex} = this.state;
+
+    if (!highsLowsIndex) {
+      return;
+    }
+
+    const visibleHighsLows = highsLowsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
+
+    this.setState({
+      visibleHighsLows,
     });
   }
 }

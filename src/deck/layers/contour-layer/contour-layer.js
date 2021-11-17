@@ -7,6 +7,7 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
+import Supercluster from 'supercluster';
 import {ImageType} from '../../../_utils/image-type';
 import {unscaleTextureData} from '../../../_utils/data';
 import {getContours} from '../../../_utils/contour-proxy';
@@ -43,7 +44,7 @@ export class ContourLayer extends CompositeLayer {
 
     const {viewport} = this.context;
     const {color, width, textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
-    const {contours, contourLabels} = this.state;
+    const {contours, visibleContourLabels} = this.state;
     const isGlobeViewport = !!viewport.resolution;
 
     if (!contours) {
@@ -55,14 +56,14 @@ export class ContourLayer extends CompositeLayer {
         id: 'path',
         data: contours,
         widthUnits: 'pixels',
-        getPath: d => d.coordinates,
+        getPath: d => d.geometry.coordinates,
         getColor: color,
         getWidth: width,
       })),
       new TextLayer(this.props, this.getSubLayerProps({
         id: 'value',
-        data: contourLabels,
-        getPosition: d => d.coordinates,
+        data: visibleContourLabels,
+        getPosition: d => d.geometry.coordinates,
         getText: d => formatValueFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
@@ -74,6 +75,18 @@ export class ContourLayer extends CompositeLayer {
         billboard: false,
       })),
     ];
+  }
+
+  shouldUpdateState({changeFlags}) {
+    return super.shouldUpdateState({changeFlags}) || changeFlags.viewportChanged;
+  }
+
+  updateState({props, oldProps, changeFlags}) {
+    super.updateState({props, oldProps, changeFlags});
+
+    if (changeFlags.viewportChanged) {
+      this.updateVisibleContourLabels();
+    }
   }
 
   async updateContours() {
@@ -93,6 +106,39 @@ export class ContourLayer extends CompositeLayer {
       delta,
       contours,
       contourLabels,
+    });
+
+    this.updateContourLabelsIndex();
+  }
+
+  updateContourLabelsIndex() {
+    const {contourLabels} = this.state;
+
+    const contourLabelsIndex = new Supercluster({
+      radius: 40,
+      maxZoom: 16
+    });
+    contourLabelsIndex.load(contourLabels);
+
+    this.setState({
+      contourLabelsIndex,
+    });
+
+    this.updateVisibleContourLabels();
+  }
+
+  updateVisibleContourLabels() {
+    const {viewport} = this.context;
+    const {contourLabelsIndex} = this.state;
+
+    if (!contourLabelsIndex) {
+      return;
+    }
+
+    const visibleContourLabels = contourLabelsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
+
+    this.setState({
+      visibleContourLabels,
     });
   }
 }
