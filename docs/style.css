@@ -55,6 +55,9 @@ body.google-maps #bottom-left {
 body.google-maps #bottom-right {
   bottom: calc(14px + 2px);
 }
+#maptiler-logo {
+  margin: 10px;
+}
 
 :root {
   --tp-font-family: 'Lucida Grande', sans-serif;
