@@ -8,13 +8,13 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {Texture2D} from '@luma.gl/core';
-import {RasterLayer as BaseParticleLayer} from '../../../deck/layers/raster-layer/raster-layer';
+import {RasterLayer as BaseRasterLayer} from '../../../deck/layers/raster-layer/raster-layer';
 import {getClient} from '../../../cloud-client/client';
 import {getDatetimeWeight} from '../../../_utils/datetime';
 import {clipBounds} from '../../../_utils/bounds';
 
 const defaultProps = {
-  ...BaseParticleLayer.defaultProps,
+  ...BaseRasterLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
@@ -32,7 +32,7 @@ export class RasterLayer extends CompositeLayer {
     }
 
     return [
-      new BaseParticleLayer(props, this.getSubLayerProps({
+      new BaseRasterLayer(props, this.getSubLayerProps({
         id: 'bitmap',
         image,
         image2,
