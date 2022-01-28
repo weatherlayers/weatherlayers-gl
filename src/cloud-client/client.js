@@ -103,11 +103,16 @@ export class Client {
 
   /**
    * @param {StacCatalog} stacCatalog
-   * @returns {string[]}
+   * @returns {Promise<string[]>}
    */
-  getStacCatalogCollectionIds(stacCatalog) {
+  async loadStacCatalogChildCollectionIds(stacCatalog) {
     const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
-    return ids;
+    const childIds = (await Promise.all(ids.map(async id => {
+      const stacCollection = await this.loadStacCollection(id);
+      const childIds = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
+      return childIds;
+    }))).flat();
+    return childIds;
   }
 
   /**
@@ -115,12 +120,17 @@ export class Client {
    * @returns {Promise<StacCollection>}
    */
   async loadStacCollection(stacCollectionId) {
-    const stacCatalog = await this.loadStacCatalog();
-    const link = stacCatalog.links.find(x => x.id === stacCollectionId);
-    if (!link) {
-      throw new Error(`Collection ${stacCollectionId} not found`);
+    const params = new URLSearchParams();
+    if (this.config.accessToken) {
+      params.set('access_token', this.config.accessToken);
     }
-    return loadJsonCached(link.href, this.cache);
+    if (this.config.format) {
+      params.set('format', this.config.format);
+    }
+    params.set('version', VERSION);
+    const query = params.toString();
+    const url = `${this.config.url}/catalog/${stacCollectionId}${query ? `?${query}` : ''}`;
+    return loadJsonCached(url, this.cache);
   }
 
   /**

@@ -16,6 +16,7 @@ export enum StacLinkRel {
   ROOT = 'root',
   PARENT = 'parent',
   CHILD = 'child',
+  CHILD_LEAF = 'childLeaf', // custom, visible in demo, hidden in browser
   ITEM = 'item',
   LICENSE = 'license',
 }

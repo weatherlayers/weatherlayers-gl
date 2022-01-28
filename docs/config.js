@@ -10,7 +10,7 @@ export async function initConfig() {
 
   const config = {
     client,
-    datasets: client.getStacCatalogCollectionIds(stacCatalog),
+    datasets: await client.loadStacCatalogChildCollectionIds(stacCatalog),
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
