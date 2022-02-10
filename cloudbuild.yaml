@@ -1,0 +1,24 @@
+steps:
+  - name: node
+    args:
+      - install
+    entrypoint: npm
+  - name: node
+    args:
+      - run
+      - build
+    entrypoint: npm
+  - name: bash
+    args:
+      - cp
+      - '-r'
+      - dist
+      - docs
+  - name: gcr.io/cloud-builders/gsutil
+    args:
+      - '-m'
+      - rsync
+      - '-r'
+      - '-d'
+      - ./docs
+      - 'gs://$_STORAGE_BUCKET'
