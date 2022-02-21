@@ -7,7 +7,6 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
-import {Texture2D} from '@luma.gl/core';
 import {ContourLayer as BaseContourLayer} from '../../../deck/layers/contour-layer/contour-layer';
 import {getClient} from '../../../cloud-client/client';
 import {getDatetimeWeight} from '../../../_utils/datetime';
@@ -55,7 +54,6 @@ export class ContourLayer extends CompositeLayer {
   }
 
   async updateState({props, oldProps, changeFlags}) {
-    const {gl} = this.context;
     const {dataset, datetime, datetimeInterpolate, visible} = this.props;
     const {client} = this.state;
 
@@ -90,16 +88,10 @@ export class ContourLayer extends CompositeLayer {
       const datetimeWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
-        let [image, image2] = await Promise.all([
+        const [image, image2] = await Promise.all([
           client.loadStacCollectionDataByDatetime(dataset, startDatetime),
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
-
-        if (this.props.gpu) {
-          // create textures, to avoid a bug with async image props
-          image = new Texture2D(gl, image);
-          image2 = image2 && new Texture2D(gl, image2);
-        }
   
         this.setState({
           image,

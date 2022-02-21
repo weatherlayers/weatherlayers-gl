@@ -16,8 +16,8 @@ const DEFAULT_COLOR = [255, 255, 255, 255];
 const defaultProps = {
   ...BitmapLayer.defaultProps,
 
-  image: {type: 'image', value: null, required: true},
-  image2: {type: 'image', value: null},
+  image: {type: 'image', value: null, async: true, required: true},
+  image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageBounds: {type: 'array', value: null, required: true},
@@ -54,7 +54,7 @@ export class ContourGpuLayer extends BitmapLayer {
     }
 
     const imageScalarize = imageType === ImageType.VECTOR;
-    const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
+    const imageUnscale = image.type !== GL.FLOAT;
 
     if (model) {
       model.setUniforms({

@@ -21,7 +21,7 @@ const DEFAULT_TEXT_SIZE = 12;
 const defaultProps = {
   ...PathLayer.defaultProps,
 
-  image: {type: 'image', value: null, required: true},
+  image: {type: 'image', value: null, required: true}, // non-async to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageBounds: {type: 'array', value: null, required: true},
 

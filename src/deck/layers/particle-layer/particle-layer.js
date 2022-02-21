@@ -27,8 +27,8 @@ const FPS = 30;
 const defaultProps = {
   ...LineLayer.defaultProps,
 
-  image: {type: 'image', value: null, required: true},
-  image2: {type: 'image', value: null},
+  image: {type: 'image', value: null, async: true, required: true},
+  image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
   imageBounds: {type: 'array', value: null, required: true},
 
@@ -190,7 +190,7 @@ export class ParticleLayer extends LineLayer {
       return;
     }
 
-    const imageUnscale = image.type !== GL.FLOAT ? 1 : 0;
+    const imageUnscale = image.type !== GL.FLOAT;
 
     // viewport
     const viewportSphere = isGlobeViewport ? 1 : 0;
