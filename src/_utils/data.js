@@ -23,7 +23,7 @@ import {linearColormap} from './colormap';
  * @returns {TextureDataArray}
  */
 function maskData(data, nodata = undefined) {
-  if (!nodata) {
+  if (nodata == undefined) {
     return data;
   }
 
