@@ -42,6 +42,7 @@ const defaultProps = {
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
   textureParameters: DEFAULT_TEXTURE_PARAMETERS,
+  wrapLongitude: true,
 };
 
 export class ParticleLayer extends LineLayer {

@@ -44,7 +44,6 @@ export class ParticleLayer extends CompositeLayer {
         maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
         speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
         width: props.width || stacCollection.summaries.particle.width,
-        wrapLongitude: true,
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: !isGlobeViewport ? [new ClipExtension()] : [],
