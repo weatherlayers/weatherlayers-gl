@@ -3,8 +3,8 @@ import replace from '@rollup/plugin-replace';
 import alias from '@rollup/plugin-alias';
 import shim from 'rollup-plugin-shim';
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
+import commonjs from '@rollup/plugin-commonjs';
 import glslMinify from './rollup-plugin-glsl-minify';
 import worker from 'rollup-plugin-worker-factory';
 import postcss from 'rollup-plugin-postcss';
@@ -12,6 +12,7 @@ import autoprefixer from 'autoprefixer';
 import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
+import gnirts from 'gnirts';
 
 function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
@@ -31,11 +32,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         'geotiff': 'GeoTIFF',
       },
       banner: `/*!
-* Copyright (c) 2021 WeatherLayers.com
-*
-* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at http://mozilla.org/MPL/2.0/.
+* Copyright (c) 2021 WeatherLayers.com${process.env.TRIAL_UNTIL ? `\n* Trial until ${process.env.TRIAL_UNTIL}` : ''}
 */`,
     },
     external: [
@@ -52,6 +49,7 @@ function bundle(entrypoint, filename, format, options = {}) {
       replace({
         preventAssignment: true,
         __version__: pkg.version,
+        __trialUntil__: gnirts.getCode((process.env.TRIAL_UNTIL ? new Date(process.env.TRIAL_UNTIL).valueOf() : Number.MAX_SAFE_INTEGER).toString(36)),
       }),
       alias({
         entries: [
@@ -62,8 +60,8 @@ function bundle(entrypoint, filename, format, options = {}) {
         'color-name': 'export default {}',
       }),
       ...(options.resolve ? [resolve()] : []),
-      commonjs(),
       babel({ babelHelpers: 'runtime' }),
+      commonjs(),
       glslMinify({ minimize: options.minimize }),
       worker({ plugins: [resolve(), commonjs()] }),
       postcss({ plugins: [autoprefixer(), assets()], minimize: options.minimize }),

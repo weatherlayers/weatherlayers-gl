@@ -14,6 +14,7 @@ import {code as vsMainStart} from './particle-layer-vs-main-start.glsl';
 import {code as fsDecl} from './particle-layer-fs-decl.glsl';
 import {code as fsMainStart} from './particle-layer-fs-main-start.glsl';
 import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-layer-update-transform.vs.glsl';
+import {withCheckLicense} from '../../../_utils/license';
 import {distance} from '../../../_utils/geodesy';
 import {wrapBounds} from '../../../_utils/bounds';
 
@@ -45,7 +46,8 @@ const defaultProps = {
   wrapLongitude: true,
 };
 
-export class ParticleLayer extends LineLayer {
+@withCheckLicense
+class ParticleLayer extends LineLayer {
   getShaders() {
     const parentShaders = super.getShaders();
 
@@ -317,3 +319,5 @@ export class ParticleLayer extends LineLayer {
 
 ParticleLayer.layerName = 'ParticleLayer';
 ParticleLayer.defaultProps = defaultProps;
+
+export {ParticleLayer};

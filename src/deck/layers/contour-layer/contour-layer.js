@@ -8,6 +8,7 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
 import Supercluster from 'supercluster';
+import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
 import {unscaleTextureData} from '../../../_utils/data';
 import {getContours} from '../../../_utils/contour-proxy';
@@ -36,7 +37,8 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-export class ContourLayer extends CompositeLayer {
+@withCheckLicense
+class ContourLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.delta !== this.state.delta)) {
       this.updateContours();
@@ -145,3 +147,5 @@ export class ContourLayer extends CompositeLayer {
 
 ContourLayer.layerName = 'ContourLayer';
 ContourLayer.defaultProps = defaultProps;
+
+export {ContourLayer};

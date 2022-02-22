@@ -8,6 +8,7 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
 import Supercluster from 'supercluster';
+import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
 import {unscaleTextureData} from '../../../_utils/data';
 import {getHighsLows} from '../../../_utils/high-low-proxy';
@@ -33,7 +34,8 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-export class HighLowLayer extends CompositeLayer {
+@withCheckLicense
+class HighLowLayer extends CompositeLayer {
   renderLayers() {
     if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius)) {
       this.updateHighsLows();
@@ -148,3 +150,5 @@ export class HighLowLayer extends CompositeLayer {
 
 HighLowLayer.layerName = 'HighLowLayer';
 HighLowLayer.defaultProps = defaultProps;
+
+export {HighLowLayer};
