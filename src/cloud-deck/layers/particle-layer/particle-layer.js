@@ -40,7 +40,7 @@ export class ParticleLayer extends CompositeLayer {
         image,
         image2,
         imageWeight,
-        imageBounds: stacCollection.summaries.imageBounds,
+        imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
         maxAge: props.maxAge || stacCollection.summaries.particle.maxAge,
         speedFactor: props.speedFactor || stacCollection.summaries.particle.speedFactor,
         width: props.width || stacCollection.summaries.particle.width,

@@ -7,6 +7,7 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
+import GL from '@luma.gl/constants';
 import Supercluster from 'supercluster';
 import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
@@ -22,7 +23,7 @@ const defaultProps = {
 
   image: {type: 'image', value: null, required: true}, // non-async to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
-  imageBounds: {type: 'array', value: null, required: true},
+  imageUnscale: {type: 'array', value: null},
 
   radius: {type: 'number', value: null, required: true},
 
@@ -97,13 +98,16 @@ class HighLowLayer extends CompositeLayer {
   }
 
   async updateHighsLows() {
-    const {image, imageType, imageBounds, radius, bounds} = this.props;
+    const {image, imageType, imageUnscale, radius, bounds} = this.props;
 
     if (!image) {
       return;
     }
+    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
 
-    const unscaledTextureData = unscaleTextureData(image, imageType, imageBounds);
+    const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
     const {data, width, height} = unscaledTextureData;
     const highsLows = await getHighsLows(data, width, height, radius, bounds);
 

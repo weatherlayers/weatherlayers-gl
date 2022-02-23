@@ -8,8 +8,7 @@
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
 uniform float imageScalarize;
-uniform float imageUnscale;
-uniform vec2 imageBounds;
+uniform vec2 imageUnscale;
 uniform float delta;
 uniform vec4 color;
 uniform float width;
@@ -20,7 +19,7 @@ bool isNaN(float value) {
 }
 
 bool raster_has_values(vec4 values) {
-  if (imageUnscale > 0.5) {
+  if (imageUnscale[0] < imageUnscale[1]) {
     return values.a == 1.;
   } else {
     return !isNaN(values.x);
@@ -30,14 +29,14 @@ bool raster_has_values(vec4 values) {
 float raster_get_value(vec4 color) {
   float value;
   if (imageScalarize > 0.5) {
-    if (imageUnscale > 0.5) {
-      value = length(mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy));
+    if (imageUnscale[0] < imageUnscale[1]) {
+      value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy));
     } else {
       value = length(color.xy);
     }
   } else {
-    if (imageUnscale > 0.5) {
-      value = mix(imageBounds[0], imageBounds[1], color.x);
+    if (imageUnscale[0] < imageUnscale[1]) {
+      value = mix(imageUnscale[0], imageUnscale[1], color.x);
     } else {
       value = color.x;
     }

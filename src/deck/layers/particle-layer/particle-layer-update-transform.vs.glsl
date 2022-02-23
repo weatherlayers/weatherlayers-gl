@@ -22,8 +22,7 @@ uniform float viewportZoomChangeFactor;
 uniform sampler2D bitmapTexture;
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
-uniform float imageUnscale;
-uniform vec2 imageBounds;
+uniform vec2 imageUnscale;
 uniform vec4 bounds;
 
 uniform float numParticles;
@@ -138,7 +137,7 @@ vec2 getUV(vec2 pos) {
 }
 
 bool raster_has_values(vec4 values) {
-  if (imageUnscale > 0.5) {
+  if (imageUnscale[0] < imageUnscale[1]) {
     return values.a == 1.;
   } else {
     return !isNaN(values.x);
@@ -146,8 +145,8 @@ bool raster_has_values(vec4 values) {
 }
 
 vec2 raster_get_values(vec4 color) {
-  if (imageUnscale > 0.5) {
-    return mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
+  if (imageUnscale[0] < imageUnscale[1]) {
+    return mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy);
   } else {
     return color.xy;
   }

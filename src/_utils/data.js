@@ -13,7 +13,7 @@ import {linearColormap} from './colormap';
 /** @typedef {import('./image-type').ImageType} ImageType */
 /** @typedef {import('./colormap').ColormapBreak} ColormapBreak */
 /** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
-/** @typedef {{ data: TextureDataArray, width: number, height: number, bandsCount: number, format: number }} TextureData */
+/** @typedef {{ data: TextureDataArray, width: number, height: number, format: number }} TextureData */
 /** @typedef {Float32Array} FloatDataArray */
 /** @typedef {{ data: FloatDataArray, width: number, height: number }} FloatData */
 
@@ -86,7 +86,7 @@ async function loadImage(url) {
   const bandsCount = 4;
   const format = getDataTextureFormat(data, bandsCount);
 
-  const textureData = { data, width, height, bandsCount, format };
+  const textureData = { data, width, height, format };
   return textureData;
 }
 
@@ -108,7 +108,7 @@ async function loadGeotiff(url) {
   const bandsCount = geotiffImage.getSamplesPerPixel();
   const format = getDataTextureFormat(data, bandsCount);
 
-  const textureData = { data, width, height, bandsCount, format };
+  const textureData = { data, width, height, format };
   return textureData;
 }
 
@@ -129,15 +129,15 @@ export function loadTextureData(url) {
 /**
  * @param {TextureData} textureData
  * @param {ImageType} imageType
- * @param {[number, number]} imageBounds
+ * @param {[number, number] | null} imageUnscale
  * @returns {FloatData}
  */
-export function unscaleTextureData(textureData, imageType, imageBounds) {
-  const { data, width, height, bandsCount } = textureData;
+export function unscaleTextureData(textureData, imageType, imageUnscale) {
+  const { data, width, height } = textureData;
+  const bandsCount = data.length / (width * height);
 
   const imageScalarize = imageType === ImageType.VECTOR;
-  const imageUnscale = !(data instanceof Float32Array);
-  const delta = imageBounds[1] - imageBounds[0];
+  const delta = imageUnscale ? imageUnscale[1] - imageUnscale[0] : 0;
 
   const unscaledData = new Float32Array(width * height);
   for (let x = 0; x < width; x++) {
@@ -163,15 +163,15 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
       if (imageScalarize) {
         if (imageUnscale) {
           value = Math.hypot(
-            imageBounds[0] + (data[i] / 255) * delta,
-            imageBounds[0] + (data[i + 1] / 255) * delta
+            imageUnscale[0] + (data[i] / 255) * delta,
+            imageUnscale[0] + (data[i + 1] / 255) * delta
           )
         } else {
           value = Math.hypot(data[i], data[i + 1])
         }
       } else {
         if (imageUnscale) {
-          value = imageBounds[0] + (data[i] / 255) * delta;
+          value = imageUnscale[0] + (data[i] / 255) * delta;
         } else {
           value = data[i];
         }
@@ -187,12 +187,12 @@ export function unscaleTextureData(textureData, imageType, imageBounds) {
 /**
  * @param {TextureData} textureData
  * @param {ImageType} imageType
- * @param {[number, number]} imageBounds
+ * @param {[number, number] | null} imageUnscale
  * @param {ColormapBreak[]} colormapBreaks
  * @returns {HTMLCanvasElement}
  */
-export function colorTextureData(textureData, imageType, imageBounds, colormapBreaks) {
-  const floatData = unscaleTextureData(textureData, imageType, imageBounds);
+export function colorTextureData(textureData, imageType, imageUnscale, colormapBreaks) {
+  const floatData = unscaleTextureData(textureData, imageType, imageUnscale);
   const { data, width, height } = floatData;
 
   const colormap = linearColormap(colormapBreaks);

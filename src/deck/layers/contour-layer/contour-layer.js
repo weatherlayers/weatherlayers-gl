@@ -7,6 +7,7 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
+import GL from '@luma.gl/constants';
 import Supercluster from 'supercluster';
 import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
@@ -24,7 +25,7 @@ const defaultProps = {
 
   image: {type: 'image', value: null, required: true}, // non-async to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
-  imageBounds: {type: 'array', value: null, required: true},
+  imageUnscale: {type: 'array', value: null},
 
   delta: {type: 'number', value: null, required: true},
   color: {type: 'color', value: DEFAULT_COLOR},
@@ -92,13 +93,16 @@ class ContourLayer extends CompositeLayer {
   }
 
   async updateContours() {
-    const {image, imageType, imageBounds, delta, bounds} = this.props;
+    const {image, imageType, imageUnscale, delta, bounds} = this.props;
 
     if (!image) {
       return;
     }
+    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
 
-    const unscaledTextureData = unscaleTextureData(image, imageType, imageBounds);
+    const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
     const {data, width, height} = unscaledTextureData;
     const contours = await getContours(data, width, height, delta, bounds);
     const contourLabels = getContourLabels(contours);

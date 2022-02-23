@@ -37,7 +37,7 @@ export class RasterLayer extends CompositeLayer {
         image2,
         imageWeight,
         imageType: stacCollection.summaries.imageType,
-        imageBounds: stacCollection.summaries.imageBounds,
+        imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
         colormapBreaks: props.colormapBreaks || stacCollection.summaries.raster.colormapBreaks,
         opacity: 1, // apply separate opacity
         rasterOpacity: Math.pow(props.opacity, 1 / 2.2), // apply gamma to opacity to make it visually "linear"

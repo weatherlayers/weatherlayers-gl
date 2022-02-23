@@ -21,7 +21,7 @@ const defaultProps = {
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
-  imageBounds: {type: 'array', value: null, required: true},
+  imageUnscale: {type: 'array', value: null},
 
   colormapBreaks: {type: 'array', value: null, required: true},
 
@@ -72,15 +72,17 @@ class RasterLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {image, image2, imageWeight, imageType, imageBounds, rasterOpacity} = this.props;
+    const {image, image2, imageWeight, imageType, imageUnscale, rasterOpacity} = this.props;
     const {colormapTexture, colormapBounds} = this.state;
 
     if (!image || !colormapTexture) {
       return;
     }
+    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
 
     const imageScalarize = imageType === ImageType.VECTOR;
-    const imageUnscale = image.type !== GL.FLOAT;
 
     if (model) {
       model.setUniforms({
@@ -88,8 +90,7 @@ class RasterLayer extends BitmapLayer {
         [fsDeclTokens.bitmapTexture2]: image2,
         [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
         [fsDeclTokens.imageScalarize]: imageScalarize,
-        [fsDeclTokens.imageUnscale]: imageUnscale,
-        [fsDeclTokens.imageBounds]: imageBounds,
+        [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
         [fsDeclTokens.colormapTexture]: colormapTexture,
         [fsDeclTokens.colormapBounds]: colormapBounds,
         [fsDeclTokens.rasterOpacity]: rasterOpacity,

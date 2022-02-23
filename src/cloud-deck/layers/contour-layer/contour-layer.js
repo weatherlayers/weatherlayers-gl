@@ -36,7 +36,7 @@ export class ContourLayer extends CompositeLayer {
         id: 'path',
         image,
         imageType: stacCollection.summaries.imageType,
-        imageBounds: stacCollection.summaries.imageBounds,
+        imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
         delta: props.delta || stacCollection.summaries.contour.delta,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 

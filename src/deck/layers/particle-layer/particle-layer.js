@@ -31,7 +31,7 @@ const defaultProps = {
   image: {type: 'image', value: null, async: true, required: true},
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
-  imageBounds: {type: 'array', value: null, required: true},
+  imageUnscale: {type: 'array', value: null},
 
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 100},
@@ -184,7 +184,7 @@ class ParticleLayer extends LineLayer {
     }
 
     const {viewport, timeline} = this.context;
-    const {image, image2, imageWeight, imageBounds, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {image, image2, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const isGlobeViewport = !!viewport.resolution;
     const time = timeline.getTime();
@@ -192,8 +192,9 @@ class ParticleLayer extends LineLayer {
     if (!image || time === previousTime) {
       return;
     }
-
-    const imageUnscale = image.type !== GL.FLOAT;
+    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
 
     // viewport
     const viewportSphere = isGlobeViewport ? 1 : 0;
@@ -220,8 +221,7 @@ class ParticleLayer extends LineLayer {
       [updateTransformVsTokens.bitmapTexture]: image,
       [updateTransformVsTokens.bitmapTexture2]: image2,
       [updateTransformVsTokens.imageWeight]: image2 ? imageWeight : 0,
-      [updateTransformVsTokens.imageUnscale]: imageUnscale,
-      [updateTransformVsTokens.imageBounds]: imageBounds,
+      [updateTransformVsTokens.imageUnscale]: imageUnscale || [0, 0],
       [updateTransformVsTokens.bounds]: bounds,
       [updateTransformVsTokens.numParticles]: numParticles,
       [updateTransformVsTokens.maxAge]: maxAge,

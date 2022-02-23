@@ -21,7 +21,7 @@ const defaultProps = {
   image2: {type: 'image', value: null, async: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
-  imageBounds: {type: 'array', value: null, required: true},
+  imageUnscale: {type: 'array', value: null},
 
   delta: {type: 'number', required: true},
   color: {type: 'color', value: DEFAULT_COLOR},
@@ -49,14 +49,16 @@ class ContourGpuLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {image, image2, imageWeight, imageType, imageBounds, delta, color, width, rasterOpacity} = this.props;
+    const {image, image2, imageWeight, imageType, imageUnscale, delta, color, width, rasterOpacity} = this.props;
 
     if (!image) {
       return;
     }
+    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
 
     const imageScalarize = imageType === ImageType.VECTOR;
-    const imageUnscale = image.type !== GL.FLOAT;
 
     if (model) {
       model.setUniforms({
@@ -64,8 +66,7 @@ class ContourGpuLayer extends BitmapLayer {
         [fsDeclTokens.bitmapTexture2]: image2,
         [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
         [fsDeclTokens.imageScalarize]: imageScalarize,
-        [fsDeclTokens.imageUnscale]: imageUnscale,
-        [fsDeclTokens.imageBounds]: imageBounds,
+        [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
         [fsDeclTokens.delta]: delta,
         [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsDeclTokens.width]: width,

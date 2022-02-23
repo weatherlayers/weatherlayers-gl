@@ -8,8 +8,7 @@
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
 uniform float imageScalarize;
-uniform float imageUnscale;
-uniform vec2 imageBounds;
+uniform vec2 imageUnscale;
 uniform sampler2D colormapTexture;
 uniform vec2 colormapBounds;
 uniform float rasterOpacity;
@@ -30,7 +29,7 @@ bool isNaN(float value) {
 }
 
 bool raster_has_values(vec4 values) {
-  if (imageUnscale > 0.5) {
+  if (imageUnscale[0] < imageUnscale[1]) {
     return values.a == 1.;
   } else {
     return !isNaN(values.x);
@@ -40,14 +39,14 @@ bool raster_has_values(vec4 values) {
 float raster_get_value(vec4 color) {
   float value;
   if (imageScalarize > 0.5) {
-    if (imageUnscale > 0.5) {
-      value = length(mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy));
+    if (imageUnscale[0] < imageUnscale[1]) {
+      value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy));
     } else {
       value = length(color.xy);
     }
   } else {
-    if (imageUnscale > 0.5) {
-      value = mix(imageBounds[0], imageBounds[1], color.x);
+    if (imageUnscale[0] < imageUnscale[1]) {
+      value = mix(imageUnscale[0], imageUnscale[1], color.x);
     } else {
       value = color.x;
     }
@@ -63,8 +62,8 @@ float raster_get_colormap_value(float value) {
 float raster_get_direction_value(vec4 color) {
   if (imageScalarize > 0.5) {
     vec2 value;
-    if (imageUnscale > 0.5) {
-      value = mix(vec2(imageBounds[0]), vec2(imageBounds[1]), color.xy);
+    if (imageUnscale[0] < imageUnscale[1]) {
+      value = mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy);
     } else {
       value = color.xy;
     }

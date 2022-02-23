@@ -36,7 +36,7 @@ export class HighLowLayer extends CompositeLayer {
         id: 'text',
         image,
         imageType: stacCollection.summaries.imageType,
-        imageBounds: stacCollection.summaries.imageBounds,
+        imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
         radius: props.radius || stacCollection.summaries.highLow.radius,
         formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
 
