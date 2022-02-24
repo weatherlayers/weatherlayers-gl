@@ -80,10 +80,10 @@ export default [
   ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
   ['src/arcgis/index.js', 'dist/weatherlayers-arcgis.js'],
 ].map(([entrypoint, filename]) => [
-  bundle(entrypoint, filename, 'cjs'),
-  bundle(entrypoint, filename, 'cjs', { minimize: true }),
-  bundle(entrypoint, filename, 'es'),
-  bundle(entrypoint, filename, 'es', { minimize: true }),
+  bundle(entrypoint, filename, 'cjs', { resolve: true }),
+  bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
+  bundle(entrypoint, filename, 'es', { resolve: true }),
+  bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
   bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
   bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
 ]).flat();
