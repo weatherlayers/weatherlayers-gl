@@ -7,7 +7,7 @@
  */
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
-uniform float imageScalarize;
+uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
 uniform float delta;
 uniform vec4 color;
@@ -28,7 +28,7 @@ bool raster_has_values(vec4 values) {
 
 float raster_get_value(vec4 color) {
   float value;
-  if (imageScalarize > 0.5) {
+  if (imageTypeVector) {
     if (imageUnscale[0] < imageUnscale[1]) {
       value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy));
     } else {

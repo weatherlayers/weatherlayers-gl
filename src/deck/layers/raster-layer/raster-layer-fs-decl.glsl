@@ -7,7 +7,7 @@
  */
 uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
-uniform float imageScalarize;
+uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
 uniform sampler2D colormapTexture;
 uniform vec2 colormapBounds;
@@ -38,7 +38,7 @@ bool raster_has_values(vec4 values) {
 
 float raster_get_value(vec4 color) {
   float value;
-  if (imageScalarize > 0.5) {
+  if (imageTypeVector) {
     if (imageUnscale[0] < imageUnscale[1]) {
       value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy));
     } else {
@@ -60,7 +60,7 @@ float raster_get_colormap_value(float value) {
 }
 
 float raster_get_direction_value(vec4 color) {
-  if (imageScalarize > 0.5) {
+  if (imageTypeVector) {
     vec2 value;
     if (imageUnscale[0] < imageUnscale[1]) {
       value = mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy);

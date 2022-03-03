@@ -136,8 +136,8 @@ export function unscaleTextureData(textureData, imageType, imageUnscale) {
   const { data, width, height } = textureData;
   const bandsCount = data.length / (width * height);
 
-  const imageScalarize = imageType === ImageType.VECTOR;
-  const delta = imageUnscale ? imageUnscale[1] - imageUnscale[0] : 0;
+  const imageTypeVector = imageType === ImageType.VECTOR;
+  const imageUnscaleDelta = imageUnscale ? imageUnscale[1] - imageUnscale[0] : 0;
 
   const unscaledData = new Float32Array(width * height);
   for (let x = 0; x < width; x++) {
@@ -160,18 +160,18 @@ export function unscaleTextureData(textureData, imageType, imageUnscale) {
 
       // raster_get_value
       let value;
-      if (imageScalarize) {
+      if (imageTypeVector) {
         if (imageUnscale) {
           value = Math.hypot(
-            imageUnscale[0] + (data[i] / 255) * delta,
-            imageUnscale[0] + (data[i + 1] / 255) * delta
+            imageUnscale[0] + (data[i] / 255) * imageUnscaleDelta,
+            imageUnscale[0] + (data[i + 1] / 255) * imageUnscaleDelta
           )
         } else {
           value = Math.hypot(data[i], data[i + 1])
         }
       } else {
         if (imageUnscale) {
-          value = imageUnscale[0] + (data[i] / 255) * delta;
+          value = imageUnscale[0] + (data[i] / 255) * imageUnscaleDelta;
         } else {
           value = data[i];
         }

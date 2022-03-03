@@ -58,14 +58,12 @@ class ContourGpuLayer extends BitmapLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    const imageScalarize = imageType === ImageType.VECTOR;
-
     if (model) {
       model.setUniforms({
         bitmapTexture: image,
         [fsDeclTokens.bitmapTexture2]: image2,
         [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
-        [fsDeclTokens.imageScalarize]: imageScalarize,
+        [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
         [fsDeclTokens.delta]: delta,
         [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
