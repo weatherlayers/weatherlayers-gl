@@ -32,7 +32,7 @@ export class ContourGpuLayer extends CompositeLayer {
 
     return [
       new BaseContourGpuLayer(props, this.getSubLayerProps({
-        id: 'bitmap',
+        id: 'base',
         image,
         image2,
         imageWeight,
@@ -51,9 +51,8 @@ export class ContourGpuLayer extends CompositeLayer {
   }
 
   initializeState() {
-    this.setState({
-      client: getClient(),
-    });
+    const client = getClient();
+    this.setState({ client });
   }
 
   async updateState({props, oldProps, changeFlags}) {
@@ -88,7 +87,7 @@ export class ContourGpuLayer extends CompositeLayer {
         return;
       }
 
-      const datetimeWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+      const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         const [image, image2] = await Promise.all([
@@ -96,22 +95,13 @@ export class ContourGpuLayer extends CompositeLayer {
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
   
-        this.setState({
-          image,
-          image2,
-        });
+        this.setState({ image, image2 });
       }
 
-      this.setState({
-        startDatetime,
-        endDatetime,
-        imageWeight: datetimeWeight,
-      });
+      this.setState({ startDatetime, endDatetime, imageWeight });
     }
     
-    this.setState({
-      props: this.props,
-    });
+    this.setState({ props: this.props });
   }
 }
 

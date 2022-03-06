@@ -7,7 +7,6 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
-import GL from '@luma.gl/constants';
 import Supercluster from 'supercluster';
 import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
@@ -23,7 +22,7 @@ const DEFAULT_TEXT_SIZE = 12;
 const defaultProps = {
   ...PathLayer.defaultProps,
 
-  image: {type: 'image', value: null, required: true}, // non-async to allow reading raw data
+  image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
@@ -41,10 +40,6 @@ const defaultProps = {
 @withCheckLicense
 class ContourLayer extends CompositeLayer {
   renderLayers() {
-    if (this.props.visible && (this.props.image !== this.state.image || this.props.delta !== this.state.delta)) {
-      this.updateContours();
-    }
-
     const {viewport} = this.context;
     const {color, width, textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
     const {contours, visibleContourLabels} = this.state;
@@ -85,7 +80,17 @@ class ContourLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
+    const {image, imageUnscale, delta} = props;
+
     super.updateState({props, oldProps, changeFlags});
+
+    if (imageUnscale && !(image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
+
+    if (image !== oldProps.image || delta !== oldProps.delta) {
+      this.updateContours();
+    }
 
     if (changeFlags.viewportChanged) {
       this.updateVisibleContourLabels();
@@ -94,12 +99,8 @@ class ContourLayer extends CompositeLayer {
 
   async updateContours() {
     const {image, imageType, imageUnscale, delta, bounds} = this.props;
-
     if (!image) {
       return;
-    }
-    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
-      throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
     const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
@@ -107,12 +108,7 @@ class ContourLayer extends CompositeLayer {
     const contours = await getContours(data, width, height, delta, bounds);
     const contourLabels = getContourLabels(contours);
 
-    this.setState({
-      image,
-      delta,
-      contours,
-      contourLabels,
-    });
+    this.setState({ image, delta, contours, contourLabels });
 
     this.updateContourLabelsIndex();
   }
@@ -126,9 +122,7 @@ class ContourLayer extends CompositeLayer {
     });
     contourLabelsIndex.load(contourLabels);
 
-    this.setState({
-      contourLabelsIndex,
-    });
+    this.setState({ contourLabelsIndex });
 
     this.updateVisibleContourLabels();
   }
@@ -143,9 +137,7 @@ class ContourLayer extends CompositeLayer {
 
     const visibleContourLabels = contourLabelsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
 
-    this.setState({
-      visibleContourLabels,
-    });
+    this.setState({ visibleContourLabels });
   }
 }
 

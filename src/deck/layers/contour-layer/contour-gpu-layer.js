@@ -5,74 +5,56 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {BitmapLayer} from '@deck.gl/layers';
-import GL from '@luma.gl/constants';
-import {code as fsDecl, tokens as fsDeclTokens} from './contour-gpu-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './contour-gpu-layer-fs-main-end.glsl';
+import {CompositeLayer} from '@deck.gl/core';
+import {Texture2D} from '@luma.gl/core';
 import {withCheckLicense} from '../../../_utils/license';
-import {ImageType} from '../../../_utils/image-type';
-
-const DEFAULT_COLOR = [255, 255, 255, 255];
+import {ContourGpuBitmapLayer} from './contour-gpu-bitmap-layer';
 
 const defaultProps = {
-  ...BitmapLayer.defaultProps,
+  ...ContourGpuBitmapLayer.defaultProps,
 
-  image: {type: 'image', value: null, async: true, required: true},
-  image2: {type: 'image', value: null, async: true},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'string', value: ImageType.SCALAR},
-  imageUnscale: {type: 'array', value: null},
-
-  delta: {type: 'number', required: true},
-  color: {type: 'color', value: DEFAULT_COLOR},
-  width: {type: 'number', value: 1},
-
-  rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
+  imageTexture: undefined,
+  imageTexture2: undefined,
+  image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
+  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
 @withCheckLicense
-class ContourGpuLayer extends BitmapLayer {
-  getShaders() {
-    const parentShaders = super.getShaders();
+class ContourGpuLayer extends CompositeLayer {
+  renderLayers() {
+    const {imageTexture, imageTexture2} = this.state;
 
-    return {
-      ...parentShaders,
-      vs: ['#version 300 es', parentShaders.vs].join('\n'),
-      fs: ['#version 300 es', parentShaders.fs].join('\n'),
-      inject: {
-        ...parentShaders.inject,
-        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
-        'fs:#main-end': [parentShaders.inject?.['fs:#main-end'], fsMainEnd].join('\n'),
-      },
-    };
+    return [
+      new ContourGpuBitmapLayer(this.props, this.getSubLayerProps({
+        id: 'bitmap',
+        imageTexture,
+        imageTexture2,
+      })),
+    ];
   }
 
-  draw(opts) {
-    const {model} = this.state;
-    const {image, image2, imageWeight, imageType, imageUnscale, delta, color, width, rasterOpacity} = this.props;
+  updateState({props, oldProps, changeFlags}) {
+    const {image, image2, imageUnscale} = props;
 
-    if (!image) {
-      return;
-    }
-    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
+    super.updateState({props, oldProps, changeFlags});
+
+    if (imageUnscale && !(image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray)) {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (model) {
-      model.setUniforms({
-        bitmapTexture: image,
-        [fsDeclTokens.bitmapTexture2]: image2,
-        [fsDeclTokens.imageWeight]: image2 ? imageWeight : 0,
-        [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-        [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.delta]: delta,
-        [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
-        [fsDeclTokens.width]: width,
-        [fsDeclTokens.rasterOpacity]: rasterOpacity,
-      });
-
-      super.draw(opts);
+    if (image !== oldProps.image || image2 !== oldProps.image2) {
+      this.updateTexture();
     }
+  }
+
+  updateTexture() {
+    const {gl} = this.context;
+    const {image, image2} = this.props;
+
+    const imageTexture = image ? new Texture2D(gl, image) : null;
+    const imageTexture2 = image2 ? new Texture2D(gl, image2) : null;
+
+    this.setState({ imageTexture, imageTexture2 });
   }
 }
 

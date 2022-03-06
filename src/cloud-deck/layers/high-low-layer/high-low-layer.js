@@ -33,7 +33,7 @@ export class HighLowLayer extends CompositeLayer {
 
     return [
       new BaseHighLowLayer(props, this.getSubLayerProps({
-        id: 'text',
+        id: 'base',
         image,
         imageType: stacCollection.summaries.imageType,
         imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
@@ -48,9 +48,8 @@ export class HighLowLayer extends CompositeLayer {
   }
 
   initializeState() {
-    this.setState({
-      client: getClient(),
-    });
+    const client = getClient();
+    this.setState({ client });
   }
 
   async updateState({props, oldProps, changeFlags}) {
@@ -85,7 +84,7 @@ export class HighLowLayer extends CompositeLayer {
         return;
       }
 
-      const datetimeWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+      const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         let [image, image2] = await Promise.all([
@@ -93,22 +92,13 @@ export class HighLowLayer extends CompositeLayer {
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
   
-        this.setState({
-          image,
-          image2,
-        });
+        this.setState({ image, image2 });
       }
 
-      this.setState({
-        startDatetime,
-        endDatetime,
-        imageWeight: datetimeWeight,
-      });
+      this.setState({ startDatetime, endDatetime, imageWeight });
     }
     
-    this.setState({
-      props: this.props,
-    });
+    this.setState({ props: this.props });
   }
 }
 

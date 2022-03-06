@@ -7,7 +7,6 @@
  */
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import GL from '@luma.gl/constants';
 import Supercluster from 'supercluster';
 import {withCheckLicense} from '../../../_utils/license';
 import {ImageType} from '../../../_utils/image-type';
@@ -21,7 +20,7 @@ const DEFAULT_TEXT_SIZE = 12;
 const defaultProps = {
   ...TextLayer.defaultProps,
 
-  image: {type: 'image', value: null, required: true}, // non-async to allow reading raw data
+  image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
@@ -38,10 +37,6 @@ const defaultProps = {
 @withCheckLicense
 class HighLowLayer extends CompositeLayer {
   renderLayers() {
-    if (this.props.visible && (this.props.image !== this.state.image || this.props.radius !== this.state.radius)) {
-      this.updateHighsLows();
-    }
-
     const {viewport} = this.context;
     const {textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
     const {highsLows, visibleHighsLows} = this.state;
@@ -90,7 +85,17 @@ class HighLowLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
+    const {image, imageUnscale, radius} = props;
+
     super.updateState({props, oldProps, changeFlags});
+
+    if (imageUnscale && !(image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray)) {
+      throw new Error('imageUnscale can be applied to Uint8 data only');
+    }
+
+    if (image !== oldProps.image || radius !== oldProps.radius) {
+      this.updateHighsLows();
+    }
 
     if (changeFlags.viewportChanged) {
       this.updateVisibleHighsLows();
@@ -99,23 +104,15 @@ class HighLowLayer extends CompositeLayer {
 
   async updateHighsLows() {
     const {image, imageType, imageUnscale, radius, bounds} = this.props;
-
     if (!image) {
       return;
-    }
-    if (imageUnscale && !(image.format === GL.RGBA || image.format === GL.LUMINANCE_ALPHA)) {
-      throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
     const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
     const {data, width, height} = unscaledTextureData;
     const highsLows = await getHighsLows(data, width, height, radius, bounds);
 
-    this.setState({
-      image,
-      radius,
-      highsLows,
-    });
+    this.setState({ image, radius, highsLows });
 
     this.updateHighsLowsIndex();
   }
@@ -129,9 +126,7 @@ class HighLowLayer extends CompositeLayer {
     });
     highsLowsIndex.load(highsLows);
 
-    this.setState({
-      highsLowsIndex,
-    });
+    this.setState({ highsLowsIndex });
 
     this.updateVisibleHighsLows();
   }
@@ -146,9 +141,7 @@ class HighLowLayer extends CompositeLayer {
 
     const visibleHighsLows = highsLowsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
 
-    this.setState({
-      visibleHighsLows,
-    });
+    this.setState({ visibleHighsLows });
   }
 }
 
