@@ -1,5 +1,5 @@
 import {LineLayer} from '@deck.gl/layers';
-import {isWebGL2, Buffer, Texture2D, Transform} from '@luma.gl/core';
+import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
 import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
@@ -19,8 +19,8 @@ const FPS = 30;
 const defaultProps = {
   ...LineLayer.defaultProps,
 
-  image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
-  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageTexture: {type: 'object', value: null, required: true},
+  imageTexture2: {type: 'object', value: null},
   imageWeight: {type: 'number', value: 0},
   imageUnscale: {type: 'array', value: null},
 
@@ -68,25 +68,9 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {gl} = this.context;
     const {numParticles, maxAge, color, width} = props;
-    const {image, image2, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
-
-    if (imageUnscale && !(image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray)) {
-      throw new Error('imageUnscale can be applied to Uint8 data only');
-    }
-
-    if (image !== oldProps.image) {
-      const imageTexture = image ? new Texture2D(gl, image) : null;
-      this.setState({ imageTexture });
-    }
-
-    if (image2 !== oldProps.image2) {
-      const imageTexture2 = image2 ? new Texture2D(gl, image2) : null;
-      this.setState({ imageTexture2 });
-    }
 
     if (
       numParticles !== oldProps.numParticles ||

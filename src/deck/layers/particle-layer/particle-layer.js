@@ -1,7 +1,7 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {Texture2D} from '@luma.gl/core';
-import {withCheckLicense} from '../../../_utils/license';
 import {ParticleLineLayer} from './particle-line-layer';
+import {withCheckLicense} from '../../../_utils/license';
+import {createTextureCached} from '../../../_utils/texture';
 
 const defaultProps = {
   ...ParticleLineLayer.defaultProps,
@@ -44,8 +44,8 @@ class ParticleLayer extends CompositeLayer {
     const {gl} = this.context;
     const {image, image2} = this.props;
 
-    const imageTexture = image ? new Texture2D(gl, image) : null;
-    const imageTexture2 = image2 ? new Texture2D(gl, image2) : null;
+    const imageTexture = image ? createTextureCached(gl, image) : null;
+    const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
 
     this.setState({ imageTexture, imageTexture2 });
   }

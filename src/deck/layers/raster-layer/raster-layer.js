@@ -1,9 +1,7 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {Texture2D} from '@luma.gl/core';
-import GL from '@luma.gl/constants';
-import {withCheckLicense} from '../../../_utils/license';
-import {linearColormap, colorRampImage} from '../../../_utils/colormap';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
+import {withCheckLicense} from '../../../_utils/license';
+import {createTextureCached} from '../../../_utils/texture';
 
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,
@@ -12,30 +10,24 @@ const defaultProps = {
   imageTexture2: undefined,
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-
-  colormapTexture: undefined,
-  colormapBounds: undefined,
-  colormapBreaks: {type: 'array', value: null, required: true},
 };
 
 @withCheckLicense
 class RasterLayer extends CompositeLayer {
   renderLayers() {
-    const {imageTexture, imageTexture2, colormapTexture, colormapBounds} = this.state;
+    const {imageTexture, imageTexture2} = this.state;
 
     return [
       new RasterBitmapLayer(this.props, this.getSubLayerProps({
         id: 'bitmap',
         imageTexture,
         imageTexture2,
-        colormapTexture,
-        colormapBounds,
       })),
     ];
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageUnscale, colormapBreaks} = props;
+    const {image, image2, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -46,40 +38,16 @@ class RasterLayer extends CompositeLayer {
     if (image !== oldProps.image || image2 !== oldProps.image2) {
       this.updateTexture();
     }
-
-    if (colormapBreaks !== oldProps.colormapBreaks) {
-      this.updateColormapTexture();
-    }
   }
 
   updateTexture() {
     const {gl} = this.context;
     const {image, image2} = this.props;
 
-    const imageTexture = image ? new Texture2D(gl, image) : null;
-    const imageTexture2 = image2 ? new Texture2D(gl, image2) : null;
+    const imageTexture = image ? createTextureCached(gl, image) : null;
+    const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
 
     this.setState({ imageTexture, imageTexture2 });
-  }
-
-  updateColormapTexture() {
-    const {gl} = this.context;
-    const {colormapBreaks} = this.props;
-
-    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-    const colormapFunction = linearColormap(colormapBreaks);
-    const colormapImage = colorRampImage(colormapFunction, colormapBounds);
-    const colormapTexture = new Texture2D(gl, {
-      data: colormapImage,
-      parameters: {
-        [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
-        [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
-      },
-    });
-
-    this.setState({ colormapTexture, colormapBounds });
   }
 }
 
