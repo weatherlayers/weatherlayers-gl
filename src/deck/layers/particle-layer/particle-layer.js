@@ -1,6 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {Texture2D} from '@luma.gl/core';
-import GL from '@luma.gl/constants';
 import {withCheckLicense} from '../../../_utils/license';
 import {ParticleLineLayer} from './particle-line-layer';
 
