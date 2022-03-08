@@ -171,3 +171,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 export function colorToArray(color) {
   return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [])];
 }
+
+export function isIOS15() {
+  return navigator.maxTouchPoints && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome');
+}

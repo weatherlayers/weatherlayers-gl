@@ -27,7 +27,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from './config.js';
     import { InfoControl } from './info-control.js';
     import { FpsControl } from './fps-control.js';
 
@@ -167,7 +167,7 @@
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               opacity: config.raster.opacity,
-              pickable: true,
+              pickable: !isIOS15(),
             }),
           ],
         });
