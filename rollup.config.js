@@ -32,7 +32,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         'geotiff': 'GeoTIFF',
       },
       banner: `/*!
-* Copyright (c) 2021 WeatherLayers.com${process.env.TRIAL_UNTIL ? `\n* Trial until ${process.env.TRIAL_UNTIL}` : ''}
+* Copyright (c) 2022 WeatherLayers.com${process.env.TRIAL_UNTIL ? `\n* Trial until ${process.env.TRIAL_UNTIL}` : ''}
 */`,
     },
     external: [
