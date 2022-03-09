@@ -15,10 +15,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@mapbox/sphericalmercator": "^1.2.0",
     "color-rgba": "^2.3.0",
     "comlink": "^4.3.1",
     "d3-contour": "^3.0.1",
     "geodesy-fn": "^1.0.1",
+    "geokdbush": "^1.1.0",
+    "icomesh": "^1.1.0",
+    "kdbush": "^3.0.0",
     "leaflet-polylinedecorator": "^1.6.0",
     "lineclip": "^1.1.5",
     "supercluster": "^7.1.4"
@@ -38,6 +42,8 @@
     "@rollup/plugin-alias": "^3.1.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-image": "^2.1.1",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-replace": "^3.0.0",
     "@types/color-rgba": "^2.1.0",

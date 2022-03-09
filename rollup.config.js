@@ -2,6 +2,8 @@ import pkg from './package.json';
 import replace from '@rollup/plugin-replace';
 import alias from '@rollup/plugin-alias';
 import shim from 'rollup-plugin-shim';
+import json from '@rollup/plugin-json';
+import image from '@rollup/plugin-image';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -59,6 +61,8 @@ function bundle(entrypoint, filename, format, options = {}) {
       shim({
         'color-name': 'export default {}',
       }),
+      json(),
+      image(),
       ...(options.resolve ? [resolve()] : []),
       babel({ babelHelpers: 'runtime' }),
       commonjs(),

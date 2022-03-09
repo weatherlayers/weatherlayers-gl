@@ -4,3 +4,4 @@ export * from '../_controls/index';
 export * from '../cloud-client/index';
 
 export * from './layers/raster-layer/raster-layer';
+export * from '../deck/props';

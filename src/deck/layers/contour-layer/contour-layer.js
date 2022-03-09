@@ -1,31 +1,30 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
 import Supercluster from 'supercluster';
-import {withCheckLicense} from '../../../_utils/license';
+import KDBush from 'kdbush';
+import geokdbush from 'geokdbush';
 import {ImageType} from '../../../_utils/image-type';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom, getViewportAngle} from '../../../_utils/viewport';
 import {unscaleTextureData} from '../../../_utils/data';
-import {getContours} from '../../../_utils/contour-proxy';
-import {getContourLabels} from '../../../_utils/contour-label';
-
-const DEFAULT_COLOR = [255, 255, 255, 255];
-const DEFAULT_TEXT_COLOR = [107, 107, 107, 255];
-const DEFAULT_TEXT_OUTLINE_COLOR = [13, 13, 13, 255];
-const DEFAULT_TEXT_SIZE = 12;
+import {withCheckLicense} from '../../license';
+import {DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
+import {getContourLines} from './contour-line';
+import {getContourLabels} from './contour-label';
 
 const defaultProps = {
-  ...PathLayer.defaultProps,
-
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
   delta: {type: 'number', value: null, required: true},
-  color: {type: 'color', value: DEFAULT_COLOR},
+  color: {type: 'color', value: DEFAULT_LINE_COLOR},
   width: {type: 'number', value: 1},
-  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
-  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
+  textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
+  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
-  formatValueFunction: {type: 'function', value: x => x.toString()},
+  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
+  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
+  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
@@ -34,34 +33,33 @@ const defaultProps = {
 class ContourLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {color, width, textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
-    const {contours, visibleContourLabels} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
+    const {color, width, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = this.props;
+    const {contourLines, visibleContourLabels} = this.state;
 
-    if (!contours) {
+    if (!contourLines) {
       return [];
     }
 
     return [
-      new PathLayer(this.props, this.getSubLayerProps({
+      new PathLayer(this.getSubLayerProps({
         id: 'path',
-        data: contours,
+        data: contourLines,
         widthUnits: 'pixels',
         getPath: d => d.geometry.coordinates,
         getColor: color,
         getWidth: width,
       })),
-      new TextLayer(this.props, this.getSubLayerProps({
+      new TextLayer(this.getSubLayerProps({
         id: 'value',
         data: visibleContourLabels,
         getPosition: d => d.geometry.coordinates,
-        getText: d => formatValueFunction(d.properties.value),
+        getText: d => textFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
-        getAngle: d => d.properties.angle + (isGlobeViewport ? 180 : 0),
+        getAngle: d => getViewportAngle(viewport, d.properties.angle),
+        outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
-        outlineWidth: 1,
-        fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+        fontFamily: textFontFamily,
         fontSettings: { sdf: true },
         billboard: false,
       })),
@@ -82,7 +80,7 @@ class ContourLayer extends CompositeLayer {
     }
 
     if (image !== oldProps.image || delta !== oldProps.delta) {
-      this.updateContours();
+      this.updateContourLines();
     }
 
     if (changeFlags.viewportChanged) {
@@ -90,45 +88,57 @@ class ContourLayer extends CompositeLayer {
     }
   }
 
-  async updateContours() {
+  async updateContourLines() {
     const {image, imageType, imageUnscale, delta, bounds} = this.props;
     if (!image) {
       return;
     }
 
-    const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
-    const {data, width, height} = unscaledTextureData;
-    const contours = await getContours(data, width, height, delta, bounds);
-    const contourLabels = getContourLabels(contours);
+    const unscaledData = unscaleTextureData(image, imageUnscale);
+    const contourLines = await getContourLines(unscaledData, imageType, delta, bounds);
+    const contourLabels = getContourLabels(contourLines);
 
-    this.setState({ image, delta, contours, contourLabels });
+    this.setState({ image, delta, contourLines, contourLabels });
 
-    this.updateContourLabelsIndex();
+    this.updateContourLabelIndex();
   }
 
-  updateContourLabelsIndex() {
+  updateContourLabelIndex() {
     const {contourLabels} = this.state;
 
-    const contourLabelsIndex = new Supercluster({
+    const contourLabelIndex = new Supercluster({
       radius: 40,
       maxZoom: 16
     });
-    contourLabelsIndex.load(contourLabels);
+    contourLabelIndex.load(contourLabels);
 
-    this.setState({ contourLabelsIndex });
+    this.setState({ contourLabelIndex });
 
     this.updateVisibleContourLabels();
   }
 
   updateVisibleContourLabels() {
     const {viewport} = this.context;
-    const {contourLabelsIndex} = this.state;
-
-    if (!contourLabelsIndex) {
+    const {contourLabelIndex} = this.state;
+    if (!contourLabelIndex) {
       return;
     }
 
-    const visibleContourLabels = contourLabelsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
+    // viewport
+    const viewportGlobeCenter = getViewportGlobeCenter(viewport);
+    const viewportGlobeRadius = getViewportGlobeRadius(viewport);
+    const viewportBounds = getViewportBounds(viewport);
+    const zoom = Math.floor(getViewportZoom(viewport));
+    let visibleContourLabels;
+    // TODO: filter instead of clustering in supercluster
+    if (isViewportGlobe(viewport)) {
+      // TODO: fix cluster density near the poles, use geokdbush in supercluster
+      visibleContourLabels = contourLabelIndex.getClusters([-180, -90, 180, 90], zoom).filter(x => !x.properties.cluster);
+      const kdbushIndex = new KDBush(visibleContourLabels, x => x.geometry.coordinates[0], x => x.geometry.coordinates[1], undefined, Float32Array);
+      visibleContourLabels = geokdbush.around(kdbushIndex, viewportGlobeCenter[0], viewportGlobeCenter[1], undefined, viewportGlobeRadius / 1000);
+    } else {
+      visibleContourLabels = contourLabelIndex.getClusters(viewportBounds, zoom).filter(x => !x.properties.cluster);
+    }
 
     this.setState({ visibleContourLabels });
   }

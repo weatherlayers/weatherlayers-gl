@@ -1,10 +1,9 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {ClipExtension} from '@deck.gl/extensions';
-import {ParticleLayer as BaseParticleLayer} from '../../../deck/layers/particle-layer/particle-layer';
 import {ImageType} from '../../../_utils/image-type';
-import {getClient} from '../../../cloud-client/client';
 import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
+import {getClient} from '../../../cloud-client/client';
+import {ParticleLayer as BaseParticleLayer} from '../../../deck/layers/particle-layer/particle-layer';
 
 const defaultProps = {
   ...BaseParticleLayer.defaultProps,
@@ -18,7 +17,6 @@ export class ParticleLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !image) {
       return [];
@@ -39,8 +37,8 @@ export class ParticleLayer extends CompositeLayer {
         width: props.width || stacCollection.summaries.particle.width,
 
         bounds: stacCollection.extent.spatial.bbox[0],
-        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
+        extensions: getViewportClipExtensions(viewport),
+        clipBounds: getViewportClipBounds(viewport, stacCollection.extent.spatial.bbox[0]),
       })),
     ];
   }

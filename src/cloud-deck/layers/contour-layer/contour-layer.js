@@ -1,10 +1,9 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {ClipExtension} from '@deck.gl/extensions';
-import {ContourLayer as BaseContourLayer} from '../../../deck/layers/contour-layer/contour-layer';
-import {getClient} from '../../../cloud-client/client';
 import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
 import {formatValue} from '../../../_utils/format';
+import {getClient} from '../../../cloud-client/client';
+import {ContourLayer as BaseContourLayer} from '../../../deck/layers/contour-layer/contour-layer';
 
 const defaultProps = {
   ...BaseContourLayer.defaultProps,
@@ -18,7 +17,6 @@ export class ContourLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !image) {
       return [];
@@ -31,11 +29,11 @@ export class ContourLayer extends CompositeLayer {
         imageType: stacCollection.summaries.imageType,
         imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
         delta: props.delta || stacCollection.summaries.contour.delta,
-        formatValueFunction: x => formatValue(x, stacCollection.summaries.unit[0]).toString(),
+        textFunction: (/** @type {number} */ value) => formatValue(value, stacCollection.summaries.unit[0]).toString(),
 
         bounds: stacCollection.extent.spatial.bbox[0],
-        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
+        extensions: getViewportClipExtensions(viewport),
+        clipBounds: getViewportClipBounds(viewport, stacCollection.extent.spatial.bbox[0]),
       })),
     ];
   }

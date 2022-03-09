@@ -2,7 +2,7 @@ import rgba from 'color-rgba';
 
 /** @typedef {string | [number, number, number, number?]} ColorLiteral */
 /** @typedef {[number, ColorLiteral]} ColormapBreak */
-/** @typedef {[number, number, number, number]} ColorValue */
+/** @typedef {GeoJSON.BBox} ColorValue */
 
 /**
  * @param {ColorLiteral} value

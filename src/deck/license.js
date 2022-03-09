@@ -1,7 +1,9 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import {randomString} from './random-string';
-import {clipBounds} from './bounds';
+import {randomString} from '../_utils/random-string';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom, getViewportAngle} from '../_utils/viewport';
+import {generateGlobeGrid, generateGrid} from '../_utils/grid';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from './props';
 
 // https://anseki.github.io/gnirts/
 const DATE = (20).toString(36).toLowerCase().split('').map(function(v){return String.fromCharCode(v.charCodeAt()+(-39))}).join('')+(10).toString(36).toLowerCase()+(function(){var X=Array.prototype.slice.call(arguments),d=X.shift();return X.reverse().map(function(W,j){return String.fromCharCode(W-d-58-j)}).join('')})(56,216,230);
@@ -12,12 +14,12 @@ const MAX_SAFE_INTEGER = (function(){var p=Array.prototype.slice.call(arguments)
 const TRIAL_UNTIL = __trialUntil__;
 const WEATHER_LAYERS = (13).toString(36).toLowerCase().split('').map(function(S){return String.fromCharCode(S.charCodeAt()+(-13))}).join('')+(514).toString(36).toLowerCase()+(function(){var C=Array.prototype.slice.call(arguments),H=C.shift();return C.reverse().map(function(O,p){return String.fromCharCode(O-H-59-p)}).join('')})(41,216)+(17).toString(36).toLowerCase()+(function(){var w=Array.prototype.slice.call(arguments),s=w.shift();return w.reverse().map(function(o,k){return String.fromCharCode(o-s-24-k)}).join('')})(32,171,157)+(28).toString(36).toLowerCase().split('').map(function(F){return String.fromCharCode(F.charCodeAt()+(-39))}).join('')+(function(){var p=Array.prototype.slice.call(arguments),c=p.shift();return p.reverse().map(function(s,F){return String.fromCharCode(s-c-15-F)}).join('')})(10,144,142,128,147,122);
 
-const BASE_LAYER_ENABLED = new window[DATE]()[VALUE_OF]() <= window[PARSE_INT](TRIAL_UNTIL, 36);
-const WATERMARK_LAYER_ENABLED = window[PARSE_INT](TRIAL_UNTIL, 36) < window[NUMBER][MAX_SAFE_INTEGER];
-
 export function withCheckLicense(value, context) {
   const {kind} = context;
   if (kind === "class") {
+    const baseLayerEnabled = new window[DATE]()[VALUE_OF]() <= window[PARSE_INT](TRIAL_UNTIL, 36);
+    const watermarkLayerEnabled = window[PARSE_INT](TRIAL_UNTIL, 36) < window[NUMBER][MAX_SAFE_INTEGER];
+    
     return class extends CompositeLayer {
       constructor(...args) {
         super(...args);
@@ -28,46 +30,67 @@ export function withCheckLicense(value, context) {
 
       renderLayers() {
         const {viewport} = this.context;
-        const isGlobeViewport = !!viewport.resolution;
+        const {positions} = this.state;
 
         let baseLayer;
-        if (BASE_LAYER_ENABLED) {
+        if (baseLayerEnabled) {
           // create base layer without calling this.getSubLayerProps, so that base layer id uses original id from this.props.id
           baseLayer = new value(this.props);
         }
 
         let watermarkLayer;
-        if (WATERMARK_LAYER_ENABLED) {
-          const bounds = clipBounds(this.props.bounds);
-          const positions = [];
-          const positionsCount = isGlobeViewport ? 6 : 3;
-          for (let i = 0; i < positionsCount; i++) {
-            for (let j = 0; j < positionsCount; j++) {
-              const lng = bounds[0] + (bounds[2] - bounds[0]) / positionsCount * (i + 0.5);
-              const lat = bounds[1] + (bounds[3] - bounds[1]) / positionsCount * (j + 0.5);
-              positions.push([lng, lat]);
-            }
-          } 
-
+        if (watermarkLayerEnabled) {
           // create watermark layer without calling this.getSubLayerProps, so that watermark layer id is random
           watermarkLayer = new TextLayer({
             id: randomString(),
             data: positions,
             getPosition: d => d,
             getText: () => WEATHER_LAYERS,
-            getSize: 16,
-            getColor: [153, 153, 153, 25],
-            getAngle: isGlobeViewport ? 180 : 0,
-            outlineColor: [13, 13, 13, 25],
-            outlineWidth: 1,
-            fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+            getSize: DEFAULT_TEXT_SIZE * 1.333,
+            getColor: DEFAULT_TEXT_COLOR,
+            getAngle: getViewportAngle(viewport, 0),
+            outlineWidth: DEFAULT_TEXT_OUTLINE_WIDTH,
+            outlineColor: DEFAULT_TEXT_OUTLINE_COLOR,
+            fontFamily: DEFAULT_TEXT_FONT_FAMILY,
             fontWeight: 'bold',
             fontSettings: { sdf: true },
             billboard: false,
+            opacity: 0.01,
           });
         }
 
         return [baseLayer, watermarkLayer];
+      }
+
+      shouldUpdateState({changeFlags}) {
+        return super.shouldUpdateState({changeFlags}) || changeFlags.viewportChanged;
+      }
+    
+      initializeState() {
+        if (watermarkLayerEnabled) {
+          this.updatePositions();
+        }
+      }
+
+      updateState({props, oldProps, changeFlags}) {
+        super.updateState({props, oldProps, changeFlags});
+    
+        if (watermarkLayerEnabled && changeFlags.viewportChanged) {
+          this.updatePositions();
+        }
+      }
+
+      updatePositions() {
+        const {viewport} = this.context;
+    
+        // viewport
+        const viewportGlobeCenter = getViewportGlobeCenter(viewport);
+        const viewportGlobeRadius = getViewportGlobeRadius(viewport);
+        const viewportBounds = getViewportBounds(viewport);
+        const zoom = Math.floor(getViewportZoom(viewport) + 1);
+        const positions = isViewportGlobe(viewport) ? generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom) : generateGrid(viewportBounds, zoom);
+    
+        this.setState({ positions });
       }
     }
   }

@@ -1,0 +1,23 @@
+[
+  {"x": 0, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 170, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 340, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 510, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 680, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 850, "y": 0, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 0, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 170, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 340, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 510, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 680, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 850, "y": 170, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 0, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 170, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 340, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 510, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 680, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 850, "y": 340, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 0, "y": 510, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 170, "y": 510, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true},
+  {"x": 340, "y": 510, "width": 170, "height": 170, "anchorX": 85, "anchorY": 133, "mask": true}
+]

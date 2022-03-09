@@ -1,28 +1,28 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
 import Supercluster from 'supercluster';
-import {withCheckLicense} from '../../../_utils/license';
+import KDBush from 'kdbush';
+import geokdbush from 'geokdbush';
 import {ImageType} from '../../../_utils/image-type';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom, getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport';
 import {unscaleTextureData} from '../../../_utils/data';
-import {getHighsLows} from '../../../_utils/high-low-proxy';
-
-const DEFAULT_TEXT_COLOR = [107, 107, 107, 255];
-const DEFAULT_TEXT_OUTLINE_COLOR = [13, 13, 13, 255];
-const DEFAULT_TEXT_SIZE = 12;
+import {withCheckLicense} from '../../license';
+import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
+import {getHighLowPoints} from './high-low-point';
 
 const defaultProps = {
-  ...TextLayer.defaultProps,
-
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
   radius: {type: 'number', value: null, required: true},
 
-  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
-  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
+  textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
+  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
-  formatValueFunction: {type: 'function', value: x => x.toString()},
+  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
+  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
+  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
@@ -31,42 +31,41 @@ const defaultProps = {
 class HighLowLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {textColor, textOutlineColor, textSize, formatValueFunction} = this.props;
-    const {highsLows, visibleHighsLows} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
+    const {textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = this.props;
+    const {highLowPoints, visibleHighLowPoints} = this.state;
 
-    if (!highsLows) {
+    if (!highLowPoints) {
       return [];
     }
 
     return [
-      new TextLayer(this.props, this.getSubLayerProps({
+      new TextLayer(this.getSubLayerProps({
         id: 'type',
-        data: visibleHighsLows,
-        getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * -7],
+        data: visibleHighLowPoints,
+        getPixelOffset: [0, -getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
         getText: d => d.properties.type,
-        getSize: 1.2 * textSize,
+        getSize: textSize * 1.2,
         getColor: textColor,
-        getAngle: isGlobeViewport ? 180 : 0,
+        getAngle: getViewportAngle(viewport, 0),
+        outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
-        outlineWidth: 1,
-        fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+        fontFamily: textFontFamily,
         fontSettings: { sdf: true },
         billboard: false,
       })),
-      new TextLayer(this.props, this.getSubLayerProps({
+      new TextLayer(this.getSubLayerProps({
         id: 'value',
-        data: visibleHighsLows,
-        getPixelOffset: [0, (isGlobeViewport ? -1 : 1) * 7],
+        data: visibleHighLowPoints,
+        getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
-        getText: d => formatValueFunction(d.properties.value),
+        getText: d => textFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
-        getAngle: isGlobeViewport ? 180 : 0,
+        getAngle: getViewportAngle(viewport, 0),
+        outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
-        outlineWidth: 1,
-        fontFamily: '"Helvetica Neue", Arial, Helvetica, sans-serif',
+        fontFamily: textFontFamily,
         fontSettings: { sdf: true },
         billboard: false,
       })),
@@ -87,54 +86,66 @@ class HighLowLayer extends CompositeLayer {
     }
 
     if (image !== oldProps.image || radius !== oldProps.radius) {
-      this.updateHighsLows();
+      this.updateHighLowPoints();
     }
 
     if (changeFlags.viewportChanged) {
-      this.updateVisibleHighsLows();
+      this.updateVisibleHighLowPoints();
     }
   }
 
-  async updateHighsLows() {
+  async updateHighLowPoints() {
     const {image, imageType, imageUnscale, radius, bounds} = this.props;
     if (!image) {
       return;
     }
 
-    const unscaledTextureData = unscaleTextureData(image, imageType, imageUnscale);
-    const {data, width, height} = unscaledTextureData;
-    const highsLows = await getHighsLows(data, width, height, radius, bounds);
+    const unscaledData = unscaleTextureData(image, imageUnscale);
+    const highLowPoints = await getHighLowPoints(unscaledData, imageType, radius, bounds);
 
-    this.setState({ image, radius, highsLows });
+    this.setState({ image, radius, highLowPoints });
 
-    this.updateHighsLowsIndex();
+    this.updateHighLowPointIndex();
   }
 
-  updateHighsLowsIndex() {
-    const {highsLows} = this.state;
+  updateHighLowPointIndex() {
+    const {highLowPoints} = this.state;
 
-    const highsLowsIndex = new Supercluster({
+    const highLowPointIndex = new Supercluster({
       radius: 40,
       maxZoom: 16
     });
-    highsLowsIndex.load(highsLows);
+    highLowPointIndex.load(highLowPoints);
 
-    this.setState({ highsLowsIndex });
+    this.setState({ highLowPointIndex });
 
-    this.updateVisibleHighsLows();
+    this.updateVisibleHighLowPoints();
   }
 
-  updateVisibleHighsLows() {
+  updateVisibleHighLowPoints() {
     const {viewport} = this.context;
-    const {highsLowsIndex} = this.state;
-
-    if (!highsLowsIndex) {
+    const {highLowPointIndex} = this.state;
+    if (!highLowPointIndex) {
       return;
     }
 
-    const visibleHighsLows = highsLowsIndex.getClusters([-180, -90, 180, 90], Math.floor(viewport.zoom)).filter(x => !x.properties.cluster);
+    // viewport
+    const viewportGlobeCenter = getViewportGlobeCenter(viewport);
+    const viewportGlobeRadius = getViewportGlobeRadius(viewport);
+    const viewportBounds = getViewportBounds(viewport);
+    const zoom = Math.floor(getViewportZoom(viewport));
+    let visibleHighLowPoints;
+    // TODO: filter instead of clustering in supercluster
+    if (isViewportGlobe(viewport)) {
+      // TODO: fix cluster density near the poles, use geokdbush in supercluster
+      visibleHighLowPoints = highLowPointIndex.getClusters([-180, -90, 180, 90], zoom).filter(x => !x.properties.cluster);
+      const kdbushIndex = new KDBush(visibleHighLowPoints, x => x.geometry.coordinates[0], x => x.geometry.coordinates[1], undefined, Float32Array);
+      visibleHighLowPoints = geokdbush.around(kdbushIndex, viewportGlobeCenter[0], viewportGlobeCenter[1], undefined, viewportGlobeRadius / 1000);
+    } else {
+      visibleHighLowPoints = highLowPointIndex.getClusters(viewportBounds, zoom).filter(x => !x.properties.cluster);
+    }
 
-    this.setState({ visibleHighsLows });
+    this.setState({ visibleHighLowPoints });
   }
 }
 

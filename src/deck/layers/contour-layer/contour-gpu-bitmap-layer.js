@@ -2,12 +2,9 @@ import {BitmapLayer} from '@deck.gl/layers';
 import {code as fsDecl, tokens as fsDeclTokens} from './contour-gpu-bitmap-layer-fs-decl.glsl';
 import {code as fsMainEnd} from './contour-gpu-bitmap-layer-fs-main-end.glsl';
 import {ImageType} from '../../../_utils/image-type';
-
-const DEFAULT_COLOR = [255, 255, 255, 255];
+import {DEFAULT_LINE_COLOR} from '../../props';
 
 const defaultProps = {
-  ...BitmapLayer.defaultProps,
-
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
   imageWeight: {type: 'number', value: 0},
@@ -15,7 +12,7 @@ const defaultProps = {
   imageUnscale: {type: 'array', value: null},
 
   delta: {type: 'number', required: true},
-  color: {type: 'color', value: DEFAULT_COLOR},
+  color: {type: 'color', value: DEFAULT_LINE_COLOR},
   width: {type: 'number', value: 1},
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},

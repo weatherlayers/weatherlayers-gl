@@ -1,7 +1,7 @@
 /**
  * @param {number} width
  * @param {number} height
- * @param {[number, number, number, number]} bounds
+ * @param {GeoJSON.BBox} bounds
  * @returns {(point: GeoJSON.Position) => GeoJSON.Position}
  */
 export function getUnprojectFunction(width, height, bounds) {
@@ -14,7 +14,7 @@ export function getUnprojectFunction(width, height, bounds) {
     const j = point[1];
     const lng = origin[0] + i * lngResolution;
     const lat = origin[1] + -j * latResolution;
-    point = [lng, lat];
-    return point;
+    const position = [lng, lat];
+    return position;
   };
-};
+}

@@ -1,14 +1,12 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
 import {ImageType} from '../../../_utils/image-type';
 import {linearColormap, colorRampImage} from '../../../_utils/colormap';
+import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
+import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
 
 const defaultProps = {
-  ...BitmapLayer.defaultProps,
-
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
   imageWeight: {type: 'number', value: 0},

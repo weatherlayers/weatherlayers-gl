@@ -1,7 +1,7 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {ContourGpuBitmapLayer} from './contour-gpu-bitmap-layer';
-import {withCheckLicense} from '../../../_utils/license';
 import {createTextureCached} from '../../../_utils/texture';
+import {withCheckLicense} from '../../license';
+import {ContourGpuBitmapLayer} from './contour-gpu-bitmap-layer';
 
 const defaultProps = {
   ...ContourGpuBitmapLayer.defaultProps,

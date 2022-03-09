@@ -13,7 +13,7 @@ function mod(x, y) {
  * @param {number} [minLng]
  * @returns {number}
  */
-function wrap(lng, minLng = undefined) {
+export function wrapLongitude(lng, minLng = undefined) {
   let wrappedLng = mod(lng + 180, 360) - 180;
   if (typeof minLng === 'number' && wrappedLng < minLng) {
     wrappedLng += 360;
@@ -22,24 +22,24 @@ function wrap(lng, minLng = undefined) {
 }
 
 /**
- * @param {[number, number, number, number]} bounds
- * @returns {[number, number, number, number]}
+ * @param {GeoJSON.BBox} bounds
+ * @returns {GeoJSON.BBox}
  */
 export function wrapBounds(bounds) {
   // wrap longitude
-  const minLng = bounds[2] - bounds[0] < 360 ? wrap(bounds[0]) : -180;
-  const maxLng = bounds[2] - bounds[0] < 360 ? wrap(bounds[2], minLng) : 180;
+  const minLng = bounds[2] - bounds[0] < 360 ? wrapLongitude(bounds[0]) : -180;
+  const maxLng = bounds[2] - bounds[0] < 360 ? wrapLongitude(bounds[2], minLng) : 180;
   // clip latitude
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const mercatorBounds = /** @type {[number, number, number, number]} */ ([minLng, minLat, maxLng, maxLat]);
+  const mercatorBounds = /** @type {GeoJSON.BBox} */ ([minLng, minLat, maxLng, maxLat]);
   return mercatorBounds;
 }
 
 /**
- * @param {[number, number, number, number]} bounds
- * @returns {[number, number, number, number]}
+ * @param {GeoJSON.BBox} bounds
+ * @returns {GeoJSON.BBox}
  */
 export function clipBounds(bounds) {
   // fill longitude gap between repeats
@@ -49,6 +49,6 @@ export function clipBounds(bounds) {
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const clipBounds = /** @type {[number, number, number, number]} */ ([minLng, minLat, maxLng, maxLat]);
+  const clipBounds = /** @type {GeoJSON.BBox} */ ([minLng, minLat, maxLng, maxLat]);
   return clipBounds;
 }

@@ -1,6 +1,7 @@
 import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 import {ImageType} from './image-type';
+import {mix} from './mix';
 import {linearColormap} from './colormap';
 
 /** @typedef {import('./image-type').ImageType} ImageType */
@@ -121,60 +122,176 @@ export function loadTextureData(url) {
 
 /**
  * @param {TextureData} textureData
- * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @returns {FloatData}
  */
-export function unscaleTextureData(textureData, imageType, imageUnscale) {
+export function unscaleTextureData(textureData, imageUnscale) {
   const { data, width, height } = textureData;
   const bandsCount = data.length / (width * height);
 
-  const imageTypeVector = imageType === ImageType.VECTOR;
   const imageUnscaleDelta = imageUnscale ? imageUnscale[1] - imageUnscale[0] : 0;
+  const newBandsCount = imageUnscale ? bandsCount - 1 : bandsCount;
 
-  const unscaledData = new Float32Array(width * height);
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      const i = (y * width + x) * bandsCount;
-      const j = y * width + x;
+  const unscaledData = new Float32Array(width * height * newBandsCount);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const a = (x + y * width) * bandsCount + bandsCount - 1;
 
-      // raster_has_values
-      if (imageUnscale) {
-        if (data[i + bandsCount - 1] !== 255) {
-          unscaledData[j] = NaN;
-          continue;
-        }
-      } else {
-        if (isNaN(data[i])) {
-          unscaledData[j] = NaN;
-          continue;
-        }
-      }
-
-      // raster_get_value
-      let value;
-      if (imageTypeVector) {
+      for (let band = 0; band < newBandsCount; band++) {
+        const i = (x + y * width) * bandsCount + band;
+        const j = (x + y * width) * newBandsCount + band;
+  
+        // raster_has_value
         if (imageUnscale) {
-          value = Math.hypot(
-            imageUnscale[0] + (data[i] / 255) * imageUnscaleDelta,
-            imageUnscale[0] + (data[i + 1] / 255) * imageUnscaleDelta
-          )
+          if (data[a] !== 255) {
+            unscaledData[j] = NaN;
+            continue;
+          }
         } else {
-          value = Math.hypot(data[i], data[i + 1])
+          if (isNaN(data[i])) {
+            unscaledData[j] = NaN;
+            continue;
+          }
         }
-      } else {
+
+        // raster_get_value
+        let value;
         if (imageUnscale) {
           value = imageUnscale[0] + (data[i] / 255) * imageUnscaleDelta;
         } else {
           value = data[i];
         }
-      }
 
-      unscaledData[j] = value;
+        unscaledData[j] = value;
+      }
     }
   }
 
   return { data: unscaledData, width, height };
+}
+
+/**
+ * @param {FloatData} image
+ * @param {FloatData} image2
+ * @param {number} imageWeight
+ * @returns {FloatData}
+ */
+export function interpolateTextureData(image, image2, imageWeight) {
+  const { data, width, height } = image;
+  const { data: data2 } = image2;
+  const bandsCount = data.length / (width * height);
+
+  const interpolatedData = new Float32Array(width * height * bandsCount);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      for (let band = 0; band < bandsCount; band++) {
+        const i = (x + y * width) * bandsCount + band;
+
+        let value = data[i];
+        if (imageWeight > 0) {
+          value = mix(value, data2[i], imageWeight);
+        }
+
+        interpolatedData[i] = value;
+      }
+    }
+  }
+
+  return { data: interpolatedData, width, height };
+}
+
+/**
+ * @param {number} pixel1
+ * @param {number} pixel2
+ * @param {boolean} imageTypeVector
+ * @returns {number}
+ */
+export function getValue(pixel1, pixel2, imageTypeVector) {
+  if (imageTypeVector) {
+    return Math.hypot(pixel1, pixel2);
+  } else {
+    return pixel1;
+  }
+}
+
+/**
+ * @param {FloatData} image
+ * @param {ImageType} imageType
+ * @returns {FloatData}
+ */
+export function getValueData(image, imageType) {
+  const { data, width, height } = image;
+  const bandsCount = data.length / (width * height);
+
+  const imageTypeVector = imageType === ImageType.VECTOR;
+
+  const magnitudeData = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (x + y * width) * bandsCount;
+      const j = x + y * width;
+
+      // raster_has_value
+      if (isNaN(data[i])) {
+        magnitudeData[j] = NaN;
+        continue;
+      }
+
+      // raster_get_value
+      const value = getValue(data[i], data[i + 1], imageTypeVector);
+
+      magnitudeData[j] = value;
+    }
+  }
+
+  return { data: magnitudeData, width, height };
+}
+
+/**
+ * @param {number} pixel1
+ * @param {number} pixel2
+ * @param {boolean} imageTypeVector
+ * @returns {number}
+ */
+export function getDirection(pixel1, pixel2, imageTypeVector) {
+  if (imageTypeVector) {
+    return Math.atan2(pixel2, pixel1) / Math.PI * 180;
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * @param {FloatData} image
+ * @param {ImageType} imageType
+ * @returns {FloatData}
+ */
+export function getDirectionData(image, imageType) {
+  const { data, width, height } = image;
+  const bandsCount = data.length / (width * height);
+
+  const imageTypeVector = imageType === ImageType.VECTOR;
+
+  const directionData = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (x + y * width) * bandsCount;
+      const j = x + y * width;
+
+      // raster_has_value
+      if (isNaN(data[i])) {
+        directionData[j] = NaN;
+        continue;
+      }
+
+      // raster_get_direction_value
+      const value = getDirection(data[i], data[i + 1], imageTypeVector);
+
+      directionData[j] = value;
+    }
+  }
+
+  return { data: directionData, width, height };
 }
 
 /**
@@ -185,8 +302,9 @@ export function unscaleTextureData(textureData, imageType, imageUnscale) {
  * @returns {HTMLCanvasElement}
  */
 export function colorTextureData(textureData, imageType, imageUnscale, colormapBreaks) {
-  const floatData = unscaleTextureData(textureData, imageType, imageUnscale);
-  const { data, width, height } = floatData;
+  const unscaledData = unscaleTextureData(textureData, imageUnscale);
+  const valueData = getValueData(unscaledData, imageType);
+  const { data, width, height } = valueData;
 
   const colormap = linearColormap(colormapBreaks);
 
@@ -195,10 +313,10 @@ export function colorTextureData(textureData, imageType, imageUnscale, colormapB
   canvas.height = height;
   const context = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
   const imageData = context.createImageData(width, height);
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      const i = y * width + x;
-      const j = (y * width + x) * 4;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = x + y * width;
+      const j = (x + y * width) * 4;
 
       const value = data[i];
       const color = colormap(value);

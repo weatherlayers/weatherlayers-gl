@@ -1,7 +1,7 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {ParticleLineLayer} from './particle-line-layer';
-import {withCheckLicense} from '../../../_utils/license';
 import {createTextureCached} from '../../../_utils/texture';
+import {withCheckLicense} from '../../license';
+import {ParticleLineLayer} from './particle-line-layer';
 
 const defaultProps = {
   ...ParticleLineLayer.defaultProps,

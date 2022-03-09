@@ -1,9 +1,8 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
-import {ClipExtension} from '@deck.gl/extensions';
-import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-layer/contour-gpu-layer';
-import {getClient} from '../../../cloud-client/client';
 import {getDatetimeWeight} from '../../../_utils/datetime';
-import {clipBounds} from '../../../_utils/bounds';
+import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
+import {getClient} from '../../../cloud-client/client';
+import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-layer/contour-gpu-layer';
 
 const defaultProps = {
   ...BaseContourGpuLayer.defaultProps,
@@ -17,7 +16,6 @@ export class ContourGpuLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, stacCollection, image, image2, imageWeight} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
 
     if (!props || !stacCollection || !image) {
       return [];
@@ -37,8 +35,8 @@ export class ContourGpuLayer extends CompositeLayer {
 
         bounds: stacCollection.extent.spatial.bbox[0],
         _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
-        extensions: !isGlobeViewport ? [new ClipExtension()] : [],
-        clipBounds: !isGlobeViewport ? clipBounds(stacCollection.extent.spatial.bbox[0]) : undefined,
+        extensions: getViewportClipExtensions(viewport),
+        clipBounds: getViewportClipBounds(viewport, stacCollection.extent.spatial.bbox[0]),
       })),
     ];
   }

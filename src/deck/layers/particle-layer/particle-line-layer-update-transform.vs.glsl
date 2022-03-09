@@ -6,9 +6,9 @@ precision highp float;
 in vec3 sourcePosition;
 out vec3 targetPosition;
 
-uniform float viewportSphere;
-uniform vec2 viewportSphereCenter;
-uniform float viewportSphereRadius;
+uniform bool viewportGlobe;
+uniform vec2 viewportGlobeCenter;
+uniform float viewportGlobeRadius;
 uniform vec4 viewportBounds;
 uniform float viewportZoomChangeFactor;
 
@@ -94,11 +94,11 @@ vec2 randPoint(vec2 seed) {
 }
 
 vec2 pointToPosition(vec2 point) {
-  if (viewportSphere > 0.5) {
+  if (viewportGlobe) {
     point.x += 0.0001; // prevent generating point in the center
-    float dist = sqrt(point.x) * viewportSphereRadius;
+    float dist = sqrt(point.x) * viewportGlobeRadius;
     float bearing = point.y * 360.;
-    return destinationPoint(viewportSphereCenter, dist, bearing);
+    return destinationPoint(viewportGlobeCenter, dist, bearing);
   } else {
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;
@@ -107,8 +107,8 @@ vec2 pointToPosition(vec2 point) {
 }
 
 bool isPositionVisible(vec2 position) {
-  if (viewportSphere > 0.5) {
-    return distanceTo(viewportSphereCenter, position) <= viewportSphereRadius;
+  if (viewportGlobe) {
+    return distanceTo(viewportGlobeCenter, position) <= viewportGlobeRadius;
   } else {
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;

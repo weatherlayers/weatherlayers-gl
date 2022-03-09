@@ -19,33 +19,49 @@ export async function initConfig() {
 
     raster: {
       enabled: false,
-      opacity: 0.2,
       colormap: DEFAULT_COLORMAP,
+      opacity: 0.2,
     },
     contour: {
       enabled: false,
       delta: 200,
-      color: { r: 255, g: 255, b: 255, a: 0.2 },
+      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
       width: 1,
-      textColor: { r: 153, g: 153, b: 153, a: 1 },
-      textOutlineColor: { r: 13, g: 13, b: 13, a: 1 },
-      textSize: 12,
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
     },
     highLow: {
       enabled: false,
       radius: 2000,
-      textColor: { r: 153, g: 153, b: 153, a: 1 },
-      textOutlineColor: { r: 13, g: 13, b: 13, a: 1 },
-      textSize: 12,
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
+    },
+    grid: {
+      enabled: false,
+      style: WeatherLayers.GridStyle.WIND_BARB,
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
+      iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
+      opacity: 0.2,
     },
     particle: {
       enabled: false,
       numParticles: 5000,
       maxAge: 25,
       speedFactor: 2,
-      color: { r: 255, g: 255, b: 255, a: 0.2 },
+      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
       width: 2,
       opacity: 1,
       animate: true,
@@ -72,6 +88,7 @@ async function updateDataset(config) {
     config.raster.enabled = false;
     config.contour.enabled = false;
     config.highLow.enabled = false;
+    config.grid.enabled = false;
     config.particle.enabled = false;
     return;
   }
@@ -92,6 +109,11 @@ async function updateDataset(config) {
   config.highLow.enabled = !!stacCollection.summaries.highLow;
   if (stacCollection.summaries.highLow) {
     config.highLow.radius = stacCollection.summaries.highLow.radius;
+  }
+
+  config.grid.enabled = !!stacCollection.summaries.grid;
+  if (stacCollection.summaries.grid) {
+    config.grid.style = stacCollection.summaries.grid.style;
   }
 
   config.particle.enabled = !!stacCollection.summaries.particle;
@@ -139,18 +161,35 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     contour.addInput(config.contour, 'delta', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
     contour.addInput(config.contour, 'color').on('change', update);
     contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
-    contour.addInput(config.contour, 'textColor').on('change', update);
-    contour.addInput(config.contour, 'textOutlineColor').on('change', update);
     contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+    contour.addInput(config.contour, 'textColor').on('change', update);
+    contour.addInput(config.contour, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+    contour.addInput(config.contour, 'textOutlineColor').on('change', update);
     contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
     const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
     highLow.addInput(config.highLow, 'enabled').on('change', update);
     highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
-    highLow.addInput(config.highLow, 'textColor').on('change', update);
-    highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
     highLow.addInput(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+    highLow.addInput(config.highLow, 'textColor').on('change', update);
+    highLow.addInput(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+    highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
     highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+
+    const grid = gui.addFolder({ title: 'Grid layer', expanded: true });
+    grid.addInput(config.grid, 'enabled').on('change', update);
+    grid.addInput(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', () => {
+      config.grid.opacity = config.grid.style === WeatherLayers.GridStyle.VALUE ? 1 : 0.2;
+      gui.refresh();
+      update();
+    });
+    grid.addInput(config.grid, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+    grid.addInput(config.grid, 'textColor').on('change', update);
+    grid.addInput(config.grid, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+    grid.addInput(config.grid, 'textOutlineColor').on('change', update);
+    grid.addInput(config.grid, 'iconSize', { min: 0, max: 100, step: 1 }).on('change', update);
+    grid.addInput(config.grid, 'iconColor').on('change', update);
+    grid.addInput(config.grid, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
     const particle = gui.addFolder({ title: 'Particle layer', expanded: true });
     particle.addInput(config.particle, 'enabled').on('change', update);
@@ -168,8 +207,12 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   return gui;
 }
 
+export function arrayToColor(color) {
+  return { r: color[0], g: color[1], b: color[2], a: typeof color[3] === 'number' ? color[3] / 255 : 1 };
+}
+
 export function colorToArray(color) {
-  return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [])];
+  return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [255])];
 }
 
 export function isIOS15() {

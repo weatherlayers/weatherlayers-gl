@@ -1,16 +1,16 @@
 import {projectPatternOnPointPath} from 'leaflet-polylinedecorator/src/patternUtils';
 
-/** @typedef {import('./contour-proxy').Contour} Contour */
+/** @typedef {import('./contour-line').ContourLine} ContourLine */
 /** @typedef {GeoJSON.Feature<GeoJSON.Point, { value: number, angle: number }>} ContourLabel */
 
 /**
  * see L.PolylineDecorator._getDirectionPoints
  * https://github.com/bbecquet/Leaflet.PolylineDecorator/blob/master/src/L.PolylineDecorator.js#L129
- * @param {Contour[]} contours
+ * @param {ContourLine[]} contourLines
  * @returns {ContourLabel[]}
  */
-export function getContourLabels(contours) {
-  const contourLabels = contours.map(contour => {
+export function getContourLabels(contourLines) {
+  const contourLabels = contourLines.map(contour => {
     const points = contour.geometry.coordinates.map(coordinate => {
       return { x: coordinate[0], y: coordinate[1] };
     });

@@ -1,24 +1,21 @@
 import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
+import {DEFAULT_LINE_COLOR} from '../../props';
 import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
 import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
 import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
 import {code as fsMainStart} from './particle-line-layer-fs-main-start.glsl';
 import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-line-layer-update-transform.vs.glsl';
-import {distance} from '../../../_utils/geodesy';
-import {wrapBounds} from '../../../_utils/bounds';
 
 const DEFAULT_TEXTURE_PARAMETERS = {
   [GL.TEXTURE_WRAP_S]: GL.REPEAT,
 };
 
-const DEFAULT_COLOR = [255, 255, 255, 255];
 const FPS = 30;
 
 const defaultProps = {
-  ...LineLayer.defaultProps,
-
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
   imageWeight: {type: 'number', value: 0},
@@ -28,7 +25,7 @@ const defaultProps = {
   maxAge: {type: 'number', min: 1, max: 255, value: 100},
   speedFactor: {type: 'number', min: 0, max: 1, value: 1},
 
-  color: {type: 'color', value: DEFAULT_COLOR},
+  color: {type: 'color', value: DEFAULT_LINE_COLOR},
   width: {type: 'number', value: 1},
   animate: true,
 
@@ -176,7 +173,6 @@ export class ParticleLineLayer extends LineLayer {
     const {viewport, timeline} = this.context;
     const {imageTexture, imageTexture2, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
-    const isGlobeViewport = !!viewport.resolution;
     const time = timeline.getTime();
 
     if (!imageTexture || time === previousTime) {
@@ -184,14 +180,10 @@ export class ParticleLineLayer extends LineLayer {
     }
 
     // viewport
-    const viewportSphere = isGlobeViewport ? 1 : 0;
-    const viewportSphereCenter = [viewport.longitude, viewport.latitude];
-    const viewportSphereRadius = Math.max(
-      distance(viewportSphereCenter, viewport.unproject([0, 0])),
-      distance(viewportSphereCenter, viewport.unproject([viewport.width / 2, 0])),
-      distance(viewportSphereCenter, viewport.unproject([0, viewport.height / 2])),
-    );
-    const viewportBounds = wrapBounds(viewport.getBounds());
+    const viewportGlobe = isViewportGlobe(viewport);
+    const viewportGlobeCenter = getViewportGlobeCenter(viewport);
+    const viewportGlobeRadius = getViewportGlobeRadius(viewport);
+    const viewportBounds = getViewportBounds(viewport);
     const viewportZoomChangeFactor = 2 ** ((previousViewportZoom - viewport.zoom) * 4);
 
     // speed factor for current zoom level
@@ -199,9 +191,9 @@ export class ParticleLineLayer extends LineLayer {
 
     // update particles age0
     const uniforms = {
-      [updateTransformVsTokens.viewportSphere]: viewportSphere,
-      [updateTransformVsTokens.viewportSphereCenter]: viewportSphereCenter,
-      [updateTransformVsTokens.viewportSphereRadius]: viewportSphereRadius,
+      [updateTransformVsTokens.viewportGlobe]: viewportGlobe,
+      [updateTransformVsTokens.viewportGlobeCenter]: viewportGlobeCenter,
+      [updateTransformVsTokens.viewportGlobeRadius]: viewportGlobeRadius,
       [updateTransformVsTokens.viewportBounds]: viewportBounds,
       [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor,
 

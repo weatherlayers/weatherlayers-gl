@@ -1,37 +1,40 @@
-import {CompositeLayer} from '@deck.gl/core';
+import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {getDatetimeWeight} from '../../../_utils/datetime';
 import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
 import {formatValue} from '../../../_utils/format';
 import {getClient} from '../../../cloud-client/client';
-import {HighLowLayer as BaseHighLowLayer} from '../../../deck/layers/high-low-layer/high-low-layer';
+import {GridLayer as BaseGridLayer} from '../../../deck/layers/grid-layer/grid-layer';
 
 const defaultProps = {
-  ...BaseHighLowLayer.defaultProps,
+  ...BaseGridLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class HighLowLayer extends CompositeLayer {
+export class GridLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, stacCollection, image} = this.state;
+    const {props, stacCollection, image, image2, imageWeight} = this.state;
 
     if (!props || !stacCollection || !image) {
       return [];
     }
 
     return [
-      new BaseHighLowLayer(props, this.getSubLayerProps({
+      new BaseGridLayer(props, this.getSubLayerProps({
         id: 'base',
         image,
+        image2,
+        imageWeight,
         imageType: stacCollection.summaries.imageType,
         imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
-        radius: props.radius || stacCollection.summaries.highLow.radius,
         textFunction: (/** @type {number} */ value) => formatValue(value, stacCollection.summaries.unit[0]).toString(),
+        iconBounds: props.iconBounds || stacCollection.summaries.grid.iconBounds,
 
         bounds: stacCollection.extent.spatial.bbox[0],
+        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         extensions: getViewportClipExtensions(viewport),
         clipBounds: getViewportClipBounds(viewport, stacCollection.extent.spatial.bbox[0]),
       })),
@@ -78,7 +81,7 @@ export class HighLowLayer extends CompositeLayer {
       const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
-        let [image, image2] = await Promise.all([
+        const [image, image2] = await Promise.all([
           client.loadStacCollectionDataByDatetime(dataset, startDatetime),
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
@@ -93,5 +96,7 @@ export class HighLowLayer extends CompositeLayer {
   }
 }
 
-HighLowLayer.layerName = 'HighLowLayer';
-HighLowLayer.defaultProps = defaultProps;
+GridLayer.layerName = 'GridLayer';
+GridLayer.defaultProps = defaultProps;
+
+export {GridStyle} from '../../../deck/layers/grid-layer/grid-layer';

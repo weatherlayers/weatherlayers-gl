@@ -1,6 +1,8 @@
+import {expose, transfer} from 'comlink';
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
-import {getUnprojectFunction} from './unproject';
+import {blur} from '../../../_utils/blur';
+import {getUnprojectFunction} from '../../../_utils/unproject';
 
 /**
  * wrap data around the world by repeating the data in the west and east
@@ -11,7 +13,7 @@ import {getUnprojectFunction} from './unproject';
  * @param {number} bufferEast
  * @returns {Float32Array}
  */
- function cylinder(data, width, height, bufferWest, bufferEast) {
+function cylinder(data, width, height, bufferWest, bufferEast) {
   const result = [];
   for (let i = 0; i < height; i++) {
     const row = data.slice(i * width, (i + 1) * width);
@@ -20,33 +22,6 @@ import {getUnprojectFunction} from './unproject';
     result.push(...row.slice(0, bufferEast));
   }
   return new Float32Array(result);
-}
-
-/**
- * box blur, average of 3x3 pixels
- * see https://en.wikipedia.org/wiki/Box_blur
- * @param {Float32Array} data
- * @param {number} width
- * @param {number} height
- * @returns {Float32Array}
- */
-function blur(data, width, height) {
-  const result = new Float32Array(data.length);
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      if (i >= 1 && i <= width - 2 && j >= 1 && j <= height - 2) {
-        const values = [
-          data[(i - 1) + (j - 1) * width], data[(i    ) + (j - 1) * width], data[(i + 1) + (j - 1) * width],
-          data[(i - 1) + (j    ) * width], data[(i    ) + (j    ) * width], data[(i + 1) + (j    ) * width],
-          data[(i - 1) + (j + 1) * width], data[(i    ) + (j + 1) * width], data[(i + 1) + (j - 1) * width],
-        ];
-        result[i + j * width] = values.reduce((acc, curr) => acc + curr, 0) / values.length;
-      } else {
-        result[i + j * width] = data[i + j * width];
-      }
-    }
-  }
-  return result;
 }
 
 /**
@@ -62,7 +37,7 @@ function getLineBbox(line) {
     Math.ceil(Math.max(...line.map(x => x[0]))),
     Math.ceil(Math.max(...line.map(x => x[1]))),
   ];
-  const bbox = /** @type {[number, number, number, number]} */ ([southWest[0], southWest[1], northEast[0], northEast[1]]);
+  const bbox = /** @type {GeoJSON.BBox} */ ([southWest[0], southWest[1], northEast[0], northEast[1]]);
   return bbox;
 }
 
@@ -121,10 +96,10 @@ function computeContours(data, width, height, delta) {
  * @param {number} width
  * @param {number} height
  * @param {number} delta
- * @param {[number, number, number, number]} bounds
+ * @param {GeoJSON.BBox} bounds
  * @returns {Float32Array}
  */
-export function getContoursData(data, width, height, delta, bounds) {
+function getContourLineData(data, width, height, delta, bounds) {
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -141,7 +116,6 @@ export function getContoursData(data, width, height, delta, bounds) {
   }
 
   // blur noisy data
-  // see screenshot at https://gis.stackexchange.com/questions/386050/algorithm-to-find-low-high-atmospheric-pressure-systems-in-gridded-raster-data
   data = blur(data, width, height);
 
   // compute contours
@@ -173,10 +147,25 @@ export function getContoursData(data, width, height, delta, bounds) {
     }).flat();
   }
 
-  const contoursData = new Float32Array([
+  const contourLineData = new Float32Array([
     contours.length,
     ...contours.map(x => [x.coordinates.length, ...x.coordinates.flat(), x.value]).flat(),
   ]);
 
-  return contoursData;
+  return contourLineData;
 }
+
+expose({
+  /**
+   * @param {Float32Array} data
+   * @param {number} width
+   * @param {number} height
+   * @param {number} delta
+   * @param {GeoJSON.BBox} bounds
+   * @returns {Float32Array}
+   */
+  getContourLineData(data, width, height, delta, bounds) {
+    const contourLineData = getContourLineData(data, width, height, delta, bounds);
+    return transfer(contourLineData, [contourLineData.buffer]);
+  },
+});
