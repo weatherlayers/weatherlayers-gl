@@ -48,8 +48,8 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
     if (model) {
       model.setUniforms({
         bitmapTexture: imageTexture,
-        [fsDeclTokens.bitmapTexture2]: imageTexture2,
-        [fsDeclTokens.imageWeight]: imageTexture2 ? imageWeight : 0,
+        [fsDeclTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
         [fsDeclTokens.delta]: delta,

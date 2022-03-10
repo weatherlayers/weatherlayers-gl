@@ -206,8 +206,8 @@ export class ParticleLineLayer extends LineLayer {
       [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor,
 
       [updateTransformVsTokens.bitmapTexture]: imageTexture,
-      [updateTransformVsTokens.bitmapTexture2]: imageTexture2,
-      [updateTransformVsTokens.imageWeight]: imageTexture2 ? imageWeight : 0,
+      [updateTransformVsTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+      [updateTransformVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateTransformVsTokens.imageUnscale]: imageUnscale || [0, 0],
       [updateTransformVsTokens.bounds]: bounds,
       [updateTransformVsTokens.numParticles]: numParticles,

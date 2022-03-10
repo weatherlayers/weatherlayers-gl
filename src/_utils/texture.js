@@ -2,7 +2,7 @@ import {Texture2D} from '@luma.gl/core';
 
 /** @typedef {import('./data').TextureData} TextureData */
 
-/** @type {WeakMap<TextureData, Texture2D>} */
+/** @type {WeakMap<WebGL2RenderingContext, WeakMap<TextureData, Texture2D>>} */
 const cache = new WeakMap();
 
 /**
@@ -11,12 +11,17 @@ const cache = new WeakMap();
  * @returns {Texture2D}
  */
 export function createTextureCached(gl, image) {
-  const cachedTexture = cache.get(image);
+  if (!cache.has(gl)) {
+    cache.set(gl, new WeakMap());
+  }
+
+  const glCache = /** @type {WeakMap<TextureData, Texture2D>} */ (cache.get(gl));
+  const cachedTexture = glCache.get(image);
   if (cachedTexture) {
     return cachedTexture;
   }
 
   const texture = new Texture2D(gl, image);
-  cache.set(image, texture);
+  glCache.set(image, texture);
   return texture;
 }
