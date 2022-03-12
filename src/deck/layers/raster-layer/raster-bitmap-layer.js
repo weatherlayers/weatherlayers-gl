@@ -88,6 +88,35 @@ export class RasterBitmapLayer extends BitmapLayer {
 
     this.setState({ colormapTexture, colormapBounds });
   }
+
+  getRasterValue(color) {
+    const {colormapBreaks} = this.props;
+    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
+    return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
+  }
+
+  getRasterDirection(color) {
+    const {imageType} = this.props;
+    if (imageType === ImageType.VECTOR) {
+      return (color[1] / 255 - 0.5) * 2 * Math.PI;
+    }
+  }
+
+  getPickingInfo({info}) {
+    if (!info.color) {
+      return info;
+    }
+
+    const value = this.getRasterValue(info.color);
+    const direction = this.getRasterDirection(info.color);
+
+    info.raster = {
+      value,
+      direction,
+    };
+
+    return info;
+  }
 }
 
 RasterBitmapLayer.layerName = 'RasterBitmapLayer';
