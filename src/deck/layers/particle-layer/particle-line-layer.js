@@ -192,9 +192,9 @@ export class ParticleLineLayer extends LineLayer {
     // update particles age0
     const uniforms = {
       [updateTransformVsTokens.viewportGlobe]: viewportGlobe,
-      [updateTransformVsTokens.viewportGlobeCenter]: viewportGlobeCenter,
-      [updateTransformVsTokens.viewportGlobeRadius]: viewportGlobeRadius,
-      [updateTransformVsTokens.viewportBounds]: viewportBounds,
+      [updateTransformVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
+      [updateTransformVsTokens.viewportGlobeRadius]: viewportGlobeRadius || 0,
+      [updateTransformVsTokens.viewportBounds]: viewportBounds || [0, 0, 0, 0],
       [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor,
 
       [updateTransformVsTokens.bitmapTexture]: imageTexture,

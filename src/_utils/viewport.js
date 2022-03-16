@@ -14,31 +14,53 @@ export function isViewportGlobe(viewport) {
 
 /**
  * @param {Viewport} viewport 
- * @returns {GeoJSON.Position}
+ * @returns {GeoJSON.Position | null}
  */
 export function getViewportGlobeCenter(viewport) {
+  if (!isViewportGlobe(viewport)) {
+    return null;
+  }
+
   return [viewport.longitude, viewport.latitude];
 }
 
 /**
  * @param {Viewport} viewport 
- * @returns {number}
+ * @returns {number | null}
  */
 export function getViewportGlobeRadius(viewport) {
-  const viewportGlobeCenter = getViewportGlobeCenter(viewport);
+  if (!isViewportGlobe(viewport)) {
+    return null;
+  }
+
+  const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
   const viewportGlobeRadius = Math.max(
-    distance(viewportGlobeCenter, viewport.unproject([0, 0])),
     distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2, 0])),
     distance(viewportGlobeCenter, viewport.unproject([0, viewport.height / 2])),
+    ...(viewport.width > viewport.height ? [
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2 - viewport.height / 4 * 1, viewport.height / 2])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2 - viewport.height / 2 * 1, viewport.height / 2])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2 - viewport.height / 4 * 3, viewport.height / 2])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2 - viewport.height, viewport.height / 2])),
+    ] : [
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2, viewport.height / 2 - viewport.width / 4 * 1])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2, viewport.height / 2 - viewport.width / 2 * 1])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2, viewport.height / 2 - viewport.width / 4 * 3])),
+      distance(viewportGlobeCenter, viewport.unproject([viewport.width / 2, viewport.height / 2 - viewport.width])),
+    ])
   );
   return viewportGlobeRadius;
 }
 
 /**
  * @param {Viewport} viewport 
- * @returns {GeoJSON.BBox}
+ * @returns {GeoJSON.BBox | null}
  */
 export function getViewportBounds(viewport) {
+  if (isViewportGlobe(viewport)) {
+    return null;
+  }
+
   return wrapBounds(viewport.getBounds());
 }
 
@@ -79,8 +101,8 @@ export function getViewportClipExtensions(viewport) {
 /**
  * @param {Viewport} viewport 
  * @param {GeoJSON.BBox} bounds
- * @returns {GeoJSON.BBox | undefined}
+ * @returns {GeoJSON.BBox | null}
  */
 export function getViewportClipBounds(viewport, bounds) {
-  return !isViewportGlobe(viewport) ? clipBounds(bounds) : undefined
+  return !isViewportGlobe(viewport) ? clipBounds(bounds) : null;
 }
