@@ -66,6 +66,10 @@ export interface StacCollectionHighLowConfig {
   radius: number;
 }
 
+export interface StacCollectionGridConfig {
+  iconBounds: [number, number];
+}
+
 export interface StacCollectionParticleConfig {
   maxAge: number;
   speedFactor: number;
@@ -98,6 +102,7 @@ export interface StacCollection {
     raster?: StacCollectionRasterConfig; // custom
     contour?: StacCollectionIsolineConfig; // custom
     highLow?: StacCollectionHighLowConfig; // custom
+    grid?: StacCollectionGridConfig; // custom
     particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];
