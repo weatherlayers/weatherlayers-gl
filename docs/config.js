@@ -3,7 +3,7 @@ export const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
-export async function initConfig() {
+export async function initConfig({ deckgl, globe } = {}) {
   const client = WeatherLayers.getClient();
 
   const stacCatalog = await client.loadStacCatalog();
@@ -14,61 +14,67 @@ export async function initConfig() {
     dataset: DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
-    datetimeInterpolate: true,
-    rotate: false,
+    ...(deckgl ? {
+      datetimeInterpolate: true,
+    } : {}),
+    ...(globe ? {
+      rotate: false,
+    } : {}),
 
     raster: {
       enabled: false,
       colormap: DEFAULT_COLORMAP,
       opacity: 0.2,
     },
-    contour: {
-      enabled: false,
-      delta: 200,
-      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
-      width: 1,
-      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-      opacity: 1,
-    },
-    highLow: {
-      enabled: false,
-      radius: 2000,
-      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-      opacity: 1,
-    },
-    grid: {
-      enabled: false,
-      style: WeatherLayers.GridStyle.WIND_BARB,
-      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-      iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
-      iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
-      opacity: 0.2,
-    },
-    particle: {
-      enabled: false,
-      numParticles: 5000,
-      maxAge: 25,
-      speedFactor: 2,
-      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
-      width: 2,
-      opacity: 1,
-      animate: true,
-    },
+    ...(deckgl ? {
+      contour: {
+        enabled: false,
+        delta: 200,
+        color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+        width: 1,
+        textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+        textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+        textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+        opacity: 1,
+      },
+      highLow: {
+        enabled: false,
+        radius: 2000,
+        textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+        textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+        textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+        opacity: 1,
+      },
+      grid: {
+        enabled: false,
+        style: WeatherLayers.GridStyle.WIND_BARB,
+        textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+        textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+        textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+        iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
+        iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
+        opacity: 0.2,
+      },
+      particle: {
+        enabled: false,
+        numParticles: 5000,
+        maxAge: 25,
+        speedFactor: 2,
+        color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+        width: 2,
+        opacity: 1,
+        animate: true,
+      },
+    } : {}),
   };
 
-  await updateDataset(config);
+  await updateDataset(config, { deckgl, globe });
 
   return config;
 }
@@ -81,15 +87,17 @@ function getDatetimeOptions(datetimes) {
   return datetimes.map(x => ({ value: x, text: WeatherLayers.formatDatetime(x) }));
 }
 
-async function updateDataset(config) {
+async function updateDataset(config, { deckgl, globe } = {}) {
   if (config.dataset === NO_DATA) {
     config.datetimes = [];
     config.datetime = NO_DATA;
     config.raster.enabled = false;
-    config.contour.enabled = false;
-    config.highLow.enabled = false;
-    config.grid.enabled = false;
-    config.particle.enabled = false;
+    if (deckgl) {
+      config.contour.enabled = false;
+      config.highLow.enabled = false;
+      config.grid.enabled = false;
+      config.particle.enabled = false;
+    }
     return;
   }
 
@@ -101,26 +109,28 @@ async function updateDataset(config) {
 
   config.raster.enabled = !!stacCollection.summaries.raster;
 
-  config.contour.enabled = !!stacCollection.summaries.contour;
-  if (stacCollection.summaries.contour) {
-    config.contour.delta = stacCollection.summaries.contour.delta;
-  }
+  if (deckgl) {
+    config.contour.enabled = !!stacCollection.summaries.contour;
+    if (stacCollection.summaries.contour) {
+      config.contour.delta = stacCollection.summaries.contour.delta;
+    }
 
-  config.highLow.enabled = !!stacCollection.summaries.highLow;
-  if (stacCollection.summaries.highLow) {
-    config.highLow.radius = stacCollection.summaries.highLow.radius;
-  }
+    config.highLow.enabled = !!stacCollection.summaries.highLow;
+    if (stacCollection.summaries.highLow) {
+      config.highLow.radius = stacCollection.summaries.highLow.radius;
+    }
 
-  config.grid.enabled = !!stacCollection.summaries.grid;
-  if (stacCollection.summaries.grid) {
-    config.grid.style = stacCollection.summaries.grid.style;
-  }
+    config.grid.enabled = !!stacCollection.summaries.grid;
+    if (stacCollection.summaries.grid) {
+      config.grid.style = stacCollection.summaries.grid.style;
+    }
 
-  config.particle.enabled = !!stacCollection.summaries.particle;
-  if (stacCollection.summaries.particle) {
-    config.particle.maxAge = stacCollection.summaries.particle.maxAge;
-    config.particle.speedFactor = stacCollection.summaries.particle.speedFactor;
-    config.particle.width = stacCollection.summaries.particle.width;
+    config.particle.enabled = !!stacCollection.summaries.particle;
+    if (stacCollection.summaries.particle) {
+      config.particle.maxAge = stacCollection.summaries.particle.maxAge;
+      config.particle.speedFactor = stacCollection.summaries.particle.speedFactor;
+      config.particle.width = stacCollection.summaries.particle.width;
+    }
   }
 }
 
@@ -131,7 +141,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   let datetime;
   gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
-    await updateDataset(config);
+    await updateDataset(config, { deckgl, globe });
     datetime.dispose();
     datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     gui.refresh();

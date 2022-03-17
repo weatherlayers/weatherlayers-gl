@@ -36,7 +36,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig();
+      const config = await initConfig({ deckgl: true });
       let gui;
 
       // Google Maps

@@ -7,7 +7,7 @@
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.7.0/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.0/dist/dist.dev.js"></script>
+  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.0/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.21/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@1.0.8/dist-browser/geotiff.js"></script>
   <script src="../dist/weatherlayers-cloud-arcgis.umd.min.js"></script>
@@ -34,7 +34,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig();
+      const config = await initConfig({ globe: true });
       let gui;
 
       // ArcGIS
@@ -55,8 +55,8 @@
         map: map,
         camera: {
           position: {
-            longitude: 30,
-            latitude: 10,
+            longitude: 10,
+            latitude: 40,
             z: 25000 * 1000, // 25000 km
           },
         },
@@ -74,16 +74,6 @@
       // legend
       const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
-
-      // timeline
-      const timelineControl = new WeatherLayers.TimelineControl({
-        width: 250,
-        onUpdate: event => {
-          config.datetime = event.datetime || NO_DATA;
-          update();
-        },
-      });
-      document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // FPS meter
       const fpsControl = new FpsControl();
@@ -114,7 +104,6 @@
 
         rotateAnimation.toggle(config.rotate);
         legendControl.update({ ...legendControl.config, dataset });
-        timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
       }
       update();
       gui = initGui(config, update, { globe: true });

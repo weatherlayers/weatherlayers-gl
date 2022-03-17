@@ -11,7 +11,7 @@ body {
   position: relative;
   z-index: 0;
 }
-#arcgis, #leaflet, #google-maps, #mapbox, #maplibre, #deck {
+#arcgis, #cesium, #leaflet, #google-maps, #mapbox, #maplibre, #deck {
   position: absolute;
   top: 0;
   right: 0;
@@ -43,6 +43,9 @@ body.arcgis #deck, body.google-maps #deck, body.mapbox #deck, body.maplibre #dec
 body.arcgis #bottom-left, body.arcgis #bottom-right {
   bottom: calc(16px + 2px);
 }
+body.cesium #bottom-left {
+  bottom: calc(28px + 2px);
+}
 body.mapbox #bottom-left {
   bottom: calc(29px + 2px);
 }
@@ -54,6 +57,9 @@ body.google-maps #bottom-left {
 }
 body.google-maps #bottom-right {
   bottom: calc(14px + 2px);
+}
+.cesium-viewer-toolbar {
+  right: calc(300px + 5px + 5px);
 }
 #maptiler-logo {
   margin: 10px;

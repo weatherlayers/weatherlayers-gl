@@ -14,7 +14,7 @@ export function initRasterLayer(baseTileLayer) {
     properties: {
       image: null,
       imageType: null,
-      imageBounds: null,
+      imageUnscale: null,
       colormapBreaks: null,
     },
 
@@ -40,21 +40,21 @@ export function initRasterLayer(baseTileLayer) {
 
       const image = this.image;
       const imageType = this.imageType;
-      const imageBounds = this.imageBounds;
+      const imageUnscale = this.imageUnscale;
       const colormapBreaks = this.colormapBreaks;
-      const renderedImage = this.renderImage(image, imageType, imageBounds, colormapBreaks);
+      const renderedImage = this.renderImage(image, imageType, imageUnscale, colormapBreaks);
       return renderedImage;
     },
 
     /**
      * @param {TextureData} image
      * @param {ImageType} imageType
-     * @param {[number, number]} imageBounds
+     * @param {[number, number]} imageUnscale
      * @param {ColormapBreak[]} colormapBreaks
      * @returns {HTMLCanvasElement}
      */
-    renderImage(image, imageType, imageBounds, colormapBreaks) {
-      const coloredImage = colorTextureData(image, imageType, imageBounds, colormapBreaks);
+    renderImage(image, imageType, imageUnscale, colormapBreaks) {
+      const coloredImage = colorTextureData(image, imageType, imageUnscale, colormapBreaks);
       return coloredImage;
     },
   });

@@ -63,9 +63,9 @@ export function initRasterLayer(baseTileLayer) {
 
       const image = this.state.image;
       const imageType = this.state.stacCollection.summaries.imageType;
-      const imageBounds = this.state.stacCollection.summaries.imageBounds;
+      const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? this.state.stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
       const colormapBreaks = this.colormapBreaks || this.state.stacCollection.summaries.raster.colormapBreaks;
-      const renderedImage = this.renderImage(image, imageType, imageBounds, colormapBreaks);
+      const renderedImage = this.renderImage(image, imageType, imageUnscale, colormapBreaks);
       return renderedImage;
     },
   });

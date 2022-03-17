@@ -36,7 +36,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig();
+      const config = await initConfig({ deckgl: true, globe: true });
       let gui;
 
       // ArcGIS
@@ -55,8 +55,8 @@
         map: map,
         camera: {
           position: {
-            longitude: 30,
-            latitude: 10,
+            longitude: 10,
+            latitude: 40,
             z: 25000 * 1000, // 25000 km
           },
         },

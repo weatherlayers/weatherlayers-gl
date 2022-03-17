@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Cesium.js"></script>
+  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Widgets/widgets.css">
+  <script src="https://unpkg.com/geotiff@1.0.8/dist-browser/geotiff.js"></script>
+  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./fps-control.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
+</head>
+
+<body class="cesium">
+  <div id="container">
+    <div id="cesium"></div>
+  </div>
+  <div id="top-left"></div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
+
+  <script type="module">
+    import { NO_DATA, initConfig, initGui } from './config.js';
+    import { FpsControl } from './fps-control.js';
+
+    WeatherLayers.setClientConfig({
+      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const config = await initConfig({ globe: true });
+      let gui;
+
+      // Cesium
+      Cesium.Camera.DEFAULT_VIEW_FACTOR = 2;
+      Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(10, 40, 10, 40);
+      const viewer = new Cesium.Viewer('cesium', {
+        imageryProvider: new Cesium.UrlTemplateImageryProvider({
+          url: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE', // WeatherLayers access token
+          credit: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maximumLevel: 22,
+        }),
+        geocoder: false,
+        homeButton: false,
+        baseLayerPicker: false,
+        navigationHelpButton: false,
+        animation: false,
+        timeline: false,
+      });
+
+      // rotate
+      const rotateAnimation = new WeatherLayers.Animation(() => {
+        viewer.camera.rotateRight(0.3 / 180 * Math.PI);
+      });
+
+      // legend
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+
+      // config
+      async function update() {
+        const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+
+        let rasterLayer = viewer.imageryLayers._layers.find(x => x.name === 'raster');
+        if (rasterLayer && rasterLayer.imageryProvider.name !== `${dataset}/${datetime}`) {
+          viewer.imageryLayers.remove(rasterLayer);
+          rasterLayer = undefined;
+        }
+        if (!rasterLayer) {
+          const client = WeatherLayers.getClient();
+          const stacCollection = await client.loadStacCollection(dataset);
+          const image = await client.loadStacCollectionDataByDatetime(dataset, datetime);
+          const imageType = stacCollection.summaries.imageType;
+          const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+          const colormapBreaks = stacCollection.summaries.raster.colormapBreaks;
+          const canvas = WeatherLayers.colorTextureData(image, imageType, imageUnscale, colormapBreaks);
+          const dataUrl = canvas.toDataURL();
+
+          const rasterImageryProvider = new Cesium.SingleTileImageryProvider({
+            url: dataUrl,
+            rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
+            credit: client.getStacCollectionAttribution(stacCollection),
+          });
+          rasterImageryProvider.name = `${dataset}/${datetime}`;
+          const rasterLayer = viewer.imageryLayers.addImageryProvider(rasterImageryProvider);
+          rasterLayer.name = 'raster';
+          rasterLayer.show = config.raster.enabled;
+          rasterLayer.alpha = config.raster.opacity;
+          Cesium.knockout.track(rasterLayer, ['show', 'alpha']);
+        } else {
+          rasterLayer.show = config.raster.enabled;
+          rasterLayer.alpha = config.raster.opacity;
+        }
+
+        rotateAnimation.toggle(config.rotate);
+        legendControl.update({ ...legendControl.config, dataset });
+      }
+      update();
+      gui = initGui(config, update, { globe: true });
+    });
+  </script>
+</body>
+
+</html>
