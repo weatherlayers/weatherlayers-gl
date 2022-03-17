@@ -65,6 +65,6 @@ export class AttributionControl {
     }
 
     this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
-    this.container.innerHTML = `<div>${this.client.getStacCollectionAttribution(this.stacCollection)}</div>`;
+    this.container.innerHTML = `<div>${await this.client.getStacCollectionAttribution(this.config.dataset)}</div>`;
   }
 }

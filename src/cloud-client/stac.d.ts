@@ -55,7 +55,7 @@ export interface StacCollectionUnit {
 }
 
 export interface StacCollectionRasterConfig {
-  colormapBreaks: [number, string | [number, number, number] | GeoJSON.BBox][];
+  colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
 export interface StacCollectionIsolineConfig {
@@ -85,7 +85,7 @@ export interface StacCollection {
   providers: StacProvider[];
   extent: {
     spatial: {
-      bbox: GeoJSON.BBox;
+      bbox: [number, number, number, number];
     };
     temporal: {
       interval: [[string, string]];
@@ -111,7 +111,7 @@ export interface StacItem {
     type: 'Polygon',
     coordinates: [[[number, number], [number, number], [number, number], [number, number], [number, number]]];
   };
-  bbox: GeoJSON.BBox;
+  bbox: [number, number, number, number];
   properties: {
     datetime: string;
   };

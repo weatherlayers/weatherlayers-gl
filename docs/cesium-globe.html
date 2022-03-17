@@ -71,28 +71,23 @@
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
         let rasterLayer = viewer.imageryLayers._layers.find(x => x.name === 'raster');
-        if (rasterLayer && rasterLayer.imageryProvider.name !== `${dataset}/${datetime}`) {
-          viewer.imageryLayers.remove(rasterLayer);
-          rasterLayer = undefined;
-        }
-        if (!rasterLayer) {
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
           const client = WeatherLayers.getClient();
-          const stacCollection = await client.loadStacCollection(dataset);
-          const image = await client.loadStacCollectionDataByDatetime(dataset, datetime);
-          const imageType = stacCollection.summaries.imageType;
-          const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-          const colormapBreaks = stacCollection.summaries.raster.colormapBreaks;
-          const canvas = WeatherLayers.colorTextureData(image, imageType, imageUnscale, colormapBreaks);
-          const dataUrl = canvas.toDataURL();
-
+          const canvas = await client.loadStacCollectionColorDataByDatetime(dataset, datetime);
           const rasterImageryProvider = new Cesium.SingleTileImageryProvider({
-            url: dataUrl,
+            url: canvas.toDataURL(),
             rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-            credit: client.getStacCollectionAttribution(stacCollection),
+            credit: await client.getStacCollectionAttribution(dataset),
           });
-          rasterImageryProvider.name = `${dataset}/${datetime}`;
-          const rasterLayer = viewer.imageryLayers.addImageryProvider(rasterImageryProvider);
+
+          if (rasterLayer) {
+            viewer.imageryLayers.remove(rasterLayer);
+          }
+
+          rasterLayer = viewer.imageryLayers.addImageryProvider(rasterImageryProvider);
           rasterLayer.name = 'raster';
+          rasterLayer.dataset = dataset;
+          rasterLayer.datetime = datetime;
           rasterLayer.show = config.raster.enabled;
           rasterLayer.alpha = config.raster.opacity;
           Cesium.knockout.track(rasterLayer, ['show', 'alpha']);

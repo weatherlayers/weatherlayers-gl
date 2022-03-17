@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.7.0/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.21/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@1.0.8/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-arcgis.umd.min.js"></script>
+  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -45,7 +45,25 @@
         'esri/layers/BaseTileLayer',
         'esri/core/watchUtils',
       ], { version: '4.21' });
-      const WeatherLayersRasterLayer = WeatherLayers.initRasterLayer(BaseTileLayer);
+
+      const RasterLayer = BaseTileLayer.createSubclass({
+        properties: {
+          canvas: null,
+        },
+        load() {
+          this.tileInfo.lods = [this.tileInfo.lods[0]];
+        },
+        async fetchTile(level, row, col, options) {
+          if (level > 0 || row > 0 || col > 0) {
+            throw new Error('Invalid state');
+          }
+          if (options.signal.aborted) {
+            throw new Error('Aborted');
+          }
+          return this.canvas;
+        },
+      });
+
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -85,21 +103,27 @@
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
         let rasterLayer = map.layers.find(x => x.id === 'raster');
-        if (!rasterLayer) {
-          rasterLayer = new WeatherLayersRasterLayer({
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
+          const client = WeatherLayers.getClient();
+          const canvas = await client.loadStacCollectionColorDataByDatetime(dataset, datetime);
+
+          if (rasterLayer) {
+            map.remove(rasterLayer);
+          }
+
+          rasterLayer = new RasterLayer({
             id: 'raster',
-            visible: config.raster.enabled,
             dataset,
             datetime,
+            canvas,
+            copyright: await client.getStacCollectionAttribution(dataset, 'esri-attribution__link'),
+            visible: config.raster.enabled,
             opacity: config.raster.opacity,
           });
           map.add(rasterLayer);
         } else {
           rasterLayer.visible = config.raster.enabled;
-          rasterLayer.dataset = dataset;
-          rasterLayer.datetime = datetime;
           rasterLayer.opacity = config.raster.opacity;
-          rasterLayer.refresh();
         }
 
         rotateAnimation.toggle(config.rotate);

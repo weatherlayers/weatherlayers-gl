@@ -1,7 +1,8 @@
 import {VERSION} from '../_utils/build';
-import {loadTextureData} from '../_utils/data';
+import {loadTextureData, colorTextureData} from '../_utils/data';
 
 /** @typedef {import('../_utils/data').TextureData} TextureData */
+/** @typedef {import('../_utils/data').ColormapBreak} ColormapBreak */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProviderRole} StacProviderRole */
@@ -127,11 +128,12 @@ export class Client {
   }
 
   /**
-   * @param {StacCollection} stacCollection
+   * @param {string} dataset
    * @param {string} [linkClass]
-   * @returns {string}
+   * @returns {Promise<string>}
    */
-  getStacCollectionAttribution(stacCollection, linkClass) {
+  async getStacCollectionAttribution(dataset, linkClass) {
+    const stacCollection = await client.loadStacCollection(dataset);
     const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
     const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
     const attribution = [
@@ -195,6 +197,22 @@ export class Client {
     const stacItem = await this.loadStacItemByDatetime(dataset, datetime);
     const url = stacItem.assets.data.href;
     return loadTextureDataCached(url, this.cache);
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @param {ColormapBreak[]} [colormapBreaks]
+   * @returns {Promise<HTMLCanvasElement>}
+   */
+  async loadStacCollectionColorDataByDatetime(dataset, datetime, colormapBreaks) {
+    const stacCollection = await client.loadStacCollection(dataset);
+    const image = await client.loadStacCollectionDataByDatetime(dataset, datetime);
+    const imageType = stacCollection.summaries.imageType;
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    colormapBreaks = colormapBreaks || stacCollection.summaries.raster.colormapBreaks;
+    const canvas = colorTextureData(image, imageType, imageUnscale, colormapBreaks);
+    return canvas;
   }
 }
 
