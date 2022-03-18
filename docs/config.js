@@ -123,6 +123,8 @@ async function updateDataset(config, { deckgl, globe } = {}) {
     config.grid.enabled = !!stacCollection.summaries.grid;
     if (stacCollection.summaries.grid) {
       config.grid.style = stacCollection.summaries.grid.style;
+    } else {
+      config.grid.style = WeatherLayers.GridStyle.VALUE;
     }
 
     config.particle.enabled = !!stacCollection.summaries.particle;

@@ -16,7 +16,7 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  style: {type: 'object', value: GridStyle.WIND_BARB},
+  style: {type: 'object', value: GridStyle.VALUE},
   textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
