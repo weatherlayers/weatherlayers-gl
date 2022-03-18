@@ -29,7 +29,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     ...(deckgl ? {
       contour: {
         enabled: false,
-        delta: 200,
+        delta: 0,
         color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
         width: 1,
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
@@ -41,7 +41,7 @@ export async function initConfig({ deckgl, globe } = {}) {
       },
       highLow: {
         enabled: false,
-        radius: 2000,
+        radius: 0,
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
         textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
         textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
@@ -59,15 +59,15 @@ export async function initConfig({ deckgl, globe } = {}) {
         textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
         iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
         iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
-        opacity: 0.2,
+        opacity: 1,
       },
       particle: {
         enabled: false,
         numParticles: 5000,
-        maxAge: 25,
-        speedFactor: 2,
+        maxAge: 0,
+        speedFactor: 0,
         color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
-        width: 2,
+        width: 0,
         opacity: 1,
         animate: true,
       },
@@ -87,7 +87,7 @@ function getDatetimeOptions(datetimes) {
   return datetimes.map(x => ({ value: x, text: WeatherLayers.formatDatetime(x) }));
 }
 
-async function updateDataset(config, { deckgl, globe } = {}) {
+async function updateDataset(config, { deckgl } = {}) {
   if (config.dataset === NO_DATA) {
     config.datetimes = [];
     config.datetime = NO_DATA;
@@ -111,28 +111,18 @@ async function updateDataset(config, { deckgl, globe } = {}) {
 
   if (deckgl) {
     config.contour.enabled = !!stacCollection.summaries.contour;
-    if (stacCollection.summaries.contour) {
-      config.contour.delta = stacCollection.summaries.contour.delta;
-    }
+    config.contour.delta = stacCollection.summaries.contour?.delta || 0;
 
     config.highLow.enabled = !!stacCollection.summaries.highLow;
-    if (stacCollection.summaries.highLow) {
-      config.highLow.radius = stacCollection.summaries.highLow.radius;
-    }
+    config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
 
     config.grid.enabled = !!stacCollection.summaries.grid;
-    if (stacCollection.summaries.grid) {
-      config.grid.style = stacCollection.summaries.grid.style;
-    } else {
-      config.grid.style = WeatherLayers.GridStyle.VALUE;
-    }
+    config.grid.style = stacCollection.summaries.grid?.style || WeatherLayers.GridStyle.VALUE;
 
     config.particle.enabled = !!stacCollection.summaries.particle;
-    if (stacCollection.summaries.particle) {
-      config.particle.maxAge = stacCollection.summaries.particle.maxAge;
-      config.particle.speedFactor = stacCollection.summaries.particle.speedFactor;
-      config.particle.width = stacCollection.summaries.particle.width;
-    }
+    config.particle.maxAge = stacCollection.summaries.particle?.maxAge || 0;
+    config.particle.speedFactor = stacCollection.summaries.particle?.speedFactor || 0;
+    config.particle.width = stacCollection.summaries.particle?.width || 0;
   }
 }
 
@@ -191,11 +181,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
     const grid = gui.addFolder({ title: 'Grid layer', expanded: true });
     grid.addInput(config.grid, 'enabled').on('change', update);
-    grid.addInput(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', () => {
-      config.grid.opacity = config.grid.style === WeatherLayers.GridStyle.VALUE ? 1 : 0.2;
-      gui.refresh();
-      update();
-    });
+    grid.addInput(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', update);
     grid.addInput(config.grid, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
     grid.addInput(config.grid, 'textColor').on('change', update);
     grid.addInput(config.grid, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
@@ -207,8 +193,8 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     const particle = gui.addFolder({ title: 'Particle layer', expanded: true });
     particle.addInput(config.particle, 'enabled').on('change', update);
     particle.addInput(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
-    particle.addInput(config.particle, 'maxAge', { min: 1, max: 255, step: 1 }).on('change', updateLast);
-    particle.addInput(config.particle, 'speedFactor', { min: 0.1, max: 20, step: 0.1 }).on('change', update); // 0.05, 5, 0.01
+    particle.addInput(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
+    particle.addInput(config.particle, 'speedFactor', { min: 0, max: 20, step: 0.1 }).on('change', update);
     particle.addInput(config.particle, 'color').on('change', update);
     particle.addInput(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
     particle.addInput(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);

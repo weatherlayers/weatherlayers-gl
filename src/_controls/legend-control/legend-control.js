@@ -70,7 +70,7 @@ export class LegendControl {
 
     const paddingY = 15;
     const unit = this.stacCollection.summaries.unit[0];
-    const colormapBreaks = this.stacCollection.summaries.raster.colormapBreaks;
+    const colormapBreaks = this.config.colormapBounds || this.stacCollection.summaries.raster?.colormapBreaks;
     const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
     const colormapFunction = linearColormap(colormapBreaks);
     const colormapUrl = colorRampUrl(colormapFunction, colormapBounds);

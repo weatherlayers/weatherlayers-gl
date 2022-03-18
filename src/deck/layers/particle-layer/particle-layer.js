@@ -12,10 +12,14 @@ const defaultProps = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
-@withCheckLicense
+@withCheckLicense(defaultProps)
 class ParticleLayer extends CompositeLayer {
   renderLayers() {
-    const {imageTexture, imageTexture2} = this.state;
+    const {props, imageTexture, imageTexture2} = this.state;
+
+    if (!props || !imageTexture) {
+      return [];
+    }
 
     return [
       new ParticleLineLayer(this.props, this.getSubLayerProps({
@@ -38,6 +42,8 @@ class ParticleLayer extends CompositeLayer {
     if (image !== oldProps.image || image2 !== oldProps.image2) {
       this.updateTexture();
     }
+
+    this.setState({ props });
   }
 
   updateTexture() {

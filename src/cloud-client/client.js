@@ -210,7 +210,7 @@ export class Client {
     const image = await client.loadStacCollectionDataByDatetime(dataset, datetime);
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    colormapBreaks = colormapBreaks || stacCollection.summaries.raster.colormapBreaks;
+    colormapBreaks = colormapBreaks || stacCollection.summaries.raster?.colormapBreaks;
     const canvas = colorTextureData(image, imageType, imageUnscale, colormapBreaks);
     return canvas;
   }

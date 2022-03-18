@@ -31,17 +31,19 @@ const defaultProps = {
 };
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
-@withCheckLicense
+@withCheckLicense(defaultProps)
 class GridLayer extends CompositeLayer {
+  static defaultProps = defaultProps;
+
   renderLayers() {
     const {viewport} = this.context;
-    const {style, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconBounds, iconSize, iconColor} = this.props;
-    const {gridPoints} = this.state;
+    const {props, gridPoints} = this.state;
 
-    if (!gridPoints) {
+    if (!props || !gridPoints) {
       return [];
     }
 
+    const {style, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconBounds, iconSize, iconColor} = props;
     const {iconAtlas, iconMapping} = GRID_ICON_STYLES.get(style) || {};
     const iconStyle = !!(iconBounds && iconAtlas && iconMapping);
 
@@ -90,7 +92,7 @@ class GridLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageWeight, imageUnscale, type} = props;
+    const {image, image2, imageWeight, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -106,9 +108,11 @@ class GridLayer extends CompositeLayer {
       this.updateGridPoints();
     }
 
-    if (type !== oldProps.type || changeFlags.viewportChanged) {
+    if (changeFlags.viewportChanged) {
       this.updatePositions();
     }
+
+    this.setState({ props });
   }
 
   updateData() {

@@ -27,16 +27,19 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-@withCheckLicense
+@withCheckLicense(defaultProps)
 class HighLowLayer extends CompositeLayer {
+  static defaultProps = defaultProps;
+
   renderLayers() {
     const {viewport} = this.context;
-    const {textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = this.props;
-    const {highLowPoints, visibleHighLowPoints} = this.state;
+    const {props, highLowPoints, visibleHighLowPoints} = this.state;
 
-    if (!highLowPoints) {
+    if (!props || !highLowPoints) {
       return [];
     }
+
+    const {textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -85,6 +88,15 @@ class HighLowLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
+    if (!radius) {
+      this.setState({
+        highLowPoints: undefined,
+        highLowPointIndex: undefined,
+        visibleHighLowPoints: undefined,
+      });
+      return;
+    }
+
     if (image !== oldProps.image || radius !== oldProps.radius) {
       this.updateHighLowPoints();
     }
@@ -92,6 +104,8 @@ class HighLowLayer extends CompositeLayer {
     if (changeFlags.viewportChanged) {
       this.updateVisibleHighLowPoints();
     }
+
+    this.setState({ props });
   }
 
   async updateHighLowPoints() {

@@ -29,16 +29,19 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-@withCheckLicense
+@withCheckLicense(defaultProps)
 class ContourLayer extends CompositeLayer {
+  static defaultProps = defaultProps;
+
   renderLayers() {
     const {viewport} = this.context;
-    const {color, width, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = this.props;
-    const {contourLines, visibleContourLabels} = this.state;
+    const {props, contourLines, visibleContourLabels} = this.state;
 
-    if (!contourLines) {
+    if (!props || !contourLines) {
       return [];
     }
+
+    const {color, width, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new PathLayer(this.getSubLayerProps({
@@ -79,6 +82,15 @@ class ContourLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
+    if (!delta) {
+      this.setState({
+        highLowPoints: undefined,
+        highLowPointIndex: undefined,
+        visibleHighLowPoints: undefined,
+      });
+      return;
+    }
+
     if (image !== oldProps.image || delta !== oldProps.delta) {
       this.updateContourLines();
     }
@@ -86,6 +98,8 @@ class ContourLayer extends CompositeLayer {
     if (changeFlags.viewportChanged) {
       this.updateVisibleContourLabels();
     }
+
+    this.setState({ props });
   }
 
   async updateContourLines() {

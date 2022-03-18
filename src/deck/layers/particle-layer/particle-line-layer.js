@@ -1,6 +1,7 @@
 import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
+import {ImageType} from '../../../_utils/image-type';
 import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
 import {DEFAULT_LINE_COLOR} from '../../props';
 import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
@@ -19,6 +20,7 @@ const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
   imageWeight: {type: 'number', value: 0},
+  imageType: {type: 'string', value: ImageType.VECTOR},
   imageUnscale: {type: 'array', value: null},
 
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
@@ -65,11 +67,17 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {numParticles, maxAge, color, width} = props;
+    const {imageType, numParticles, maxAge, color, width} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
+    if (imageType !== ImageType.VECTOR || !numParticles || !maxAge || !width) {
+      this._deleteTransformFeedback();
+      return;
+    }
+
     if (
+      imageType !== oldProps.imageType ||
       numParticles !== oldProps.numParticles ||
       maxAge !== oldProps.maxAge ||
       color[0] !== oldProps.color[0] ||
@@ -91,6 +99,11 @@ export class ParticleLineLayer extends LineLayer {
   draw({uniforms}) {
     const {gl} = this.context;
     if (!isWebGL2(gl)) {
+      return;
+    }
+
+    const {initialized} = this.state;
+    if (!initialized) {
       return;
     }
 
@@ -117,11 +130,12 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
-    const {numParticles, maxAge, color, width} = this.props;
     const {initialized} = this.state;
     if (initialized) {
       this._deleteTransformFeedback();
     }
+
+    const {numParticles, maxAge, color, width} = this.props;
 
     // sourcePositions/targetPositions buffer layout:
     // |          age0             |          age1             |          age2             |...|          age(N-1)         |
@@ -170,11 +184,15 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
+    const {initialized} = this.state;
+    if (!initialized) {
+      return;
+    }
+
     const {viewport, timeline} = this.context;
     const {imageTexture, imageTexture2, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
-
     if (!imageTexture || time === previousTime) {
       return;
     }
@@ -237,6 +255,11 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
+    const {initialized} = this.state;
+    if (!initialized) {
+      return;
+    }
+
     const {numInstances, sourcePositions, targetPositions} = this.state;
 
     sourcePositions.subData({data: new Float32Array(numInstances * 3)});
@@ -249,10 +272,12 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
-    const {initialized, sourcePositions, targetPositions, colors, widths, transform} = this.state;
+    const {initialized} = this.state;
     if (!initialized) {
       return;
     }
+
+    const {sourcePositions, targetPositions, colors, widths, transform} = this.state;
 
     sourcePositions.delete();
     targetPositions.delete();

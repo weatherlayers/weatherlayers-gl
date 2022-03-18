@@ -22,36 +22,36 @@ export class ContourLayer extends CompositeLayer {
       return [];
     }
 
+    const imageType = stacCollection.summaries.imageType;
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const delta = props.delta || stacCollection.summaries.contour?.delta;
+
     return [
       new BaseContourLayer(props, this.getSubLayerProps({
         id: 'base',
+
+        dataset: undefined,
+        datetime: undefined,
+        datetimeInterpolate: undefined,
+
         image,
-        imageType: stacCollection.summaries.imageType,
-        imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null, // TODO: rename to imageUnscale in catalog
-        delta: props.delta || stacCollection.summaries.contour.delta,
-        textFunction: (/** @type {number} */ value) => formatValue(value, stacCollection.summaries.unit[0]).toString(),
+        imageType,
+        imageUnscale,
+        delta,
+        textFunction: this.state.textFunction,
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: getViewportClipExtensions(viewport),
-        clipBounds: getViewportClipBounds(viewport, stacCollection.extent.spatial.bbox[0]),
+        clipBounds: this.state.clipBounds,
       })),
     ];
   }
 
-  initializeState() {
-    const client = getClient();
-    this.setState({ client });
-  }
-
   async updateState({props, oldProps, changeFlags}) {
-    const {dataset, datetime, datetimeInterpolate, visible} = this.props;
-    const {client} = this.state;
+    const {viewport} = this.context;
+    const {dataset, datetime, datetimeInterpolate} = props;
 
     super.updateState({props, oldProps, changeFlags});
-
-    if (!visible) {
-      return;
-    }
 
     if (!dataset || !datetime) {
       this.setState({
@@ -64,22 +64,25 @@ export class ContourLayer extends CompositeLayer {
       return;
     }
 
+    const client = getClient();
+
     if (!this.state.stacCollection || dataset !== oldProps.dataset) {
       this.state.stacCollection = await client.loadStacCollection(dataset);
+
+      // avoid props change in renderLayers
+      this.state.textFunction = (/** @type {number} */ value) => formatValue(value, this.state.stacCollection.summaries.unit[0]).toString();
+      this.state.clipBounds = getViewportClipBounds(viewport, this.state.stacCollection.extent.spatial.bbox[0]);
     }
 
     if (!this.state.image || dataset !== oldProps.dataset || datetime !== oldProps.datetime) {
       const startDatetime = client.getStacCollectionClosestStartDatetime(this.state.stacCollection, datetime);
       const endDatetime = client.getStacCollectionClosestEndDatetime(this.state.stacCollection, datetime);
-      if (!startDatetime) {
-        return;
-      }
 
-      const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+      const imageWeight = datetimeInterpolate && startDatetime && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         const [image, image2] = await Promise.all([
-          client.loadStacCollectionDataByDatetime(dataset, startDatetime),
+          startDatetime && client.loadStacCollectionDataByDatetime(dataset, startDatetime),
           endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
         ]);
   
@@ -89,7 +92,7 @@ export class ContourLayer extends CompositeLayer {
       this.setState({ startDatetime, endDatetime, imageWeight });
     }
     
-    this.setState({ props: this.props });
+    this.setState({ props });
   }
 }
 

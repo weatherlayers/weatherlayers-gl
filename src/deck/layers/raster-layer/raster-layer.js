@@ -12,10 +12,16 @@ const defaultProps = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
-@withCheckLicense
+@withCheckLicense(defaultProps)
 class RasterLayer extends CompositeLayer {
+  static defaultProps = defaultProps;
+
   renderLayers() {
-    const {imageTexture, imageTexture2} = this.state;
+    const {props, imageTexture, imageTexture2} = this.state;
+
+    if (!props || !imageTexture) {
+      return [];
+    }
 
     return [
       new RasterBitmapLayer(this.props, this.getSubLayerProps({
@@ -38,6 +44,8 @@ class RasterLayer extends CompositeLayer {
     if (image !== oldProps.image || image2 !== oldProps.image2) {
       this.updateTexture();
     }
+
+    this.setState({ props });
   }
 
   updateTexture() {
