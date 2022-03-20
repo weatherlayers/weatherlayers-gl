@@ -132,12 +132,18 @@ class GridLayer extends CompositeLayer {
   updatePositions() {
     const {viewport} = this.context;
 
-    // viewport
-    const viewportGlobeCenter = getViewportGlobeCenter(viewport);
-    const viewportGlobeRadius = getViewportGlobeRadius(viewport);
-    const viewportBounds = getViewportBounds(viewport);
+    // generate grid
     const zoom = Math.floor(getViewportZoom(viewport) + 3);
-    const positions = isViewportGlobe(viewport) ? generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom) : generateGrid(viewportBounds, zoom);
+    /** @type {GeoJSON.Position[]} */
+    let positions;
+    if (isViewportGlobe(viewport)) {
+      const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
+      const viewportGlobeRadius = /** @type {number} */ (getViewportGlobeRadius(viewport));
+      positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom);
+    } else {
+      const viewportBounds = /** @type {GeoJSON.BBox} */ (getViewportBounds(viewport));
+      positions = generateGrid(viewportBounds, zoom);
+    }
 
     this.setState({ positions });
 

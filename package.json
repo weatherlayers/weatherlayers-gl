@@ -24,8 +24,7 @@
     "icomesh": "^1.1.0",
     "kdbush": "^3.0.0",
     "leaflet-polylinedecorator": "^1.6.0",
-    "lineclip": "^1.1.5",
-    "supercluster": "^7.1.4"
+    "lineclip": "^1.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
