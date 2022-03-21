@@ -2,12 +2,34 @@ import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import geokdbush from 'geokdbush';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport';
 import {wrapLongitude} from './bounds';
 
+/** @typedef {import('./viewport').Viewport} Viewport */
 /** @typedef {any} KDBush */
 
 /** @type {Map<number, KDBush>} */
-const kdbushIndexCache = new Map();
+const ICOMESH_INDEX_AT_ZOOM_CACHE = new Map();
+
+/**
+ * @param {Viewport} viewport
+ * @param {number} [zoomOffset]
+ * @return {GeoJSON.Position[]}
+ */
+export function getViewportVisibleGrid(viewport, zoomOffset = 0) {
+  const zoom = Math.floor(viewport.zoom + (isViewportGlobe(viewport) ? 1 : 0) + zoomOffset);
+  /** @type {GeoJSON.Position[]} */
+  let positions;
+  if (isViewportGlobe(viewport)) {
+    const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
+    const viewportGlobeRadius = /** @type {number} */ (getViewportGlobeRadius(viewport));
+    positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom);
+  } else {
+    const viewportBounds = /** @type {GeoJSON.BBox} */ (getViewportBounds(viewport));
+    positions = generateGrid(viewportBounds, zoom);
+  }
+  return positions;
+}
 
 /**
  * @param {GeoJSON.Position} center
@@ -15,9 +37,8 @@ const kdbushIndexCache = new Map();
  * @param {number} zoom
  * @return {GeoJSON.Position[]}
  */
-export function generateGlobeGrid(center, radius, zoom) {
-  if (!kdbushIndexCache.has(zoom)) {
-    // TODO: worker
+function generateGlobeGrid(center, radius, zoom) {
+  if (!ICOMESH_INDEX_AT_ZOOM_CACHE.has(zoom)) {
     const {uv} = icomesh(zoom - 2, true);
 
     let i = 0;
@@ -31,7 +52,7 @@ export function generateGlobeGrid(center, radius, zoom) {
       }
       // avoid invalid grid points at the poles
       // TODO: keep one point, fix grid point direction at the poles
-      if (point[1] === 0 || point[1] === 1) {
+      if (point[1] <= 0 || point[1] >= 1) {
         continue;
       }
 
@@ -40,12 +61,13 @@ export function generateGlobeGrid(center, radius, zoom) {
       positions.push(position);
     }
 
-    const kdbushIndex = new KDBush(positions, undefined, undefined, undefined, Float32Array);
-    kdbushIndexCache.set(zoom, kdbushIndex);
+    const globalIndex = new KDBush(positions, undefined, undefined, undefined, Float32Array);
+    ICOMESH_INDEX_AT_ZOOM_CACHE.set(zoom, globalIndex);
   }
 
-  const kdbushIndex = /** @type {KDBush} */ (kdbushIndexCache.get(zoom));
-  const positions = geokdbush.around(kdbushIndex, center[0], center[1], undefined, radius / 1000);
+  // TODO: generate local globe grid
+  const globalIndex = /** @type {KDBush} */ (ICOMESH_INDEX_AT_ZOOM_CACHE.get(zoom));
+  const positions = geokdbush.around(globalIndex, center[0], center[1], undefined, radius / 1000);
 
   return positions;
 }
@@ -55,7 +77,7 @@ export function generateGlobeGrid(center, radius, zoom) {
  * @param {number} zoom
  * @return {GeoJSON.Position[]}
  */
-export function generateGrid(bounds, zoom) {
+function generateGrid(bounds, zoom) {
   const mercator = new SphericalMercator({ size: 1, antimeridian: true });
 
   const gridBounds = [...mercator.px([bounds[0], bounds[1]], zoom), ...mercator.px([bounds[2], bounds[3]], zoom)];
@@ -69,7 +91,7 @@ export function generateGrid(bounds, zoom) {
   for (let y = 0; y < latCount; y++) {
     for (let x = 0; x < lngCount; x++) {
       const i = gridBounds[0] + x;
-      const j = gridBounds[1] + y + (i % 2 === 1 ? 0.5 : 0);
+      const j = gridBounds[1] + y + (i % 2 === 1 ? 0.5 : 0); // triangle grid
       const point = [i, j];
 
       // avoid duplicate grid points at the antimeridian
@@ -77,7 +99,7 @@ export function generateGrid(bounds, zoom) {
         continue;
       }
       // avoid invalid grid points at the poles
-      if (point[1] === 0 || point[1] === size) {
+      if (point[1] <= 0 || point[1] >= size) {
         continue;
       }
 

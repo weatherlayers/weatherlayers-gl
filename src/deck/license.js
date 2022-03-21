@@ -1,8 +1,8 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
 import {randomString} from '../_utils/random-string';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom, getViewportAngle} from '../_utils/viewport';
-import {generateGlobeGrid, generateGrid} from '../_utils/grid';
+import {getViewportAngle} from '../_utils/viewport';
+import {getViewportVisibleGrid} from '../_utils/viewport-grid';
 import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from './props';
 
 // https://anseki.github.io/gnirts/
@@ -84,18 +84,7 @@ export function withCheckLicense(defaultProps) {
         updatePositions() {
           const {viewport} = this.context;
       
-          // generate grid
-          const zoom = Math.floor(getViewportZoom(viewport) + 3);
-          /** @type {GeoJSON.Position[]} */
-          let positions;
-          if (isViewportGlobe(viewport)) {
-            const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
-            const viewportGlobeRadius = /** @type {number} */ (getViewportGlobeRadius(viewport));
-            positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom);
-          } else {
-            const viewportBounds = /** @type {GeoJSON.BBox} */ (getViewportBounds(viewport));
-            positions = generateGrid(viewportBounds, zoom);
-          }
+          const positions = getViewportVisibleGrid(viewport, 1);
       
           this.setState({ positions });
         }

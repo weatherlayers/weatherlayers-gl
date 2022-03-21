@@ -1,8 +1,8 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer, IconLayer} from '@deck.gl/layers';
 import {ImageType} from '../../../_utils/image-type';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom, getViewportAngle} from '../../../_utils/viewport';
-import {generateGlobeGrid, generateGrid} from '../../../_utils/grid';
+import {getViewportAngle} from '../../../_utils/viewport';
+import {getViewportVisibleGrid} from '../../../_utils/viewport-grid';
 import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
 import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../props';
@@ -132,18 +132,7 @@ class GridLayer extends CompositeLayer {
   updatePositions() {
     const {viewport} = this.context;
 
-    // generate grid
-    const zoom = Math.floor(getViewportZoom(viewport) + 3);
-    /** @type {GeoJSON.Position[]} */
-    let positions;
-    if (isViewportGlobe(viewport)) {
-      const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
-      const viewportGlobeRadius = /** @type {number} */ (getViewportGlobeRadius(viewport));
-      positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom);
-    } else {
-      const viewportBounds = /** @type {GeoJSON.BBox} */ (getViewportBounds(viewport));
-      positions = generateGrid(viewportBounds, zoom);
-    }
+    const positions = getViewportVisibleGrid(viewport, 3);
 
     this.setState({ positions });
 

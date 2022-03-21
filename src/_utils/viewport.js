@@ -57,19 +57,7 @@ export function getViewportGlobeRadius(viewport) {
  * @returns {GeoJSON.BBox | null}
  */
 export function getViewportBounds(viewport) {
-  if (isViewportGlobe(viewport)) {
-    return null;
-  }
-
-  return wrapBounds(viewport.getBounds());
-}
-
-/**
- * @param {Viewport} viewport 
- * @returns {number}
- */
-export function getViewportZoom(viewport) {
-  return viewport.zoom + (isViewportGlobe(viewport) ? 1 : 0);
+  return !isViewportGlobe(viewport) ? wrapBounds(viewport.getBounds()) : null;
 }
 
 /**
@@ -78,7 +66,7 @@ export function getViewportZoom(viewport) {
  * @returns {number}
  */
 export function getViewportPixelOffset(viewport, offset) {
-  return offset * (isViewportGlobe(viewport) ? -1 : 1);
+  return offset * (isViewportGlobe(viewport) ? -1 : 1); // TODO: report globe bug
 }
 
 /**
@@ -87,7 +75,7 @@ export function getViewportPixelOffset(viewport, offset) {
  * @returns {number}
  */
 export function getViewportAngle(viewport, angle) {
-  return angle + (isViewportGlobe(viewport) ? 180 : 0);
+  return angle + (isViewportGlobe(viewport) ? 180 : 0); // TODO: report globe bug
 }
 
 /**

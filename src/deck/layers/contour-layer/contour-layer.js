@@ -1,18 +1,13 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
-import KDBush from 'kdbush';
-import geokdbush from 'geokdbush';
 import {ImageType} from '../../../_utils/image-type';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportAngle} from '../../../_utils/viewport';
+import {getViewportAngle} from '../../../_utils/viewport';
+import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
 import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
 import {DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
 import {getContourLines} from './contour-line';
 import {getContourLabels} from './contour-label';
-
-/** @typedef {import('./contour-label').ContourLabel} ContourLabel */
-
-const CLUSTER_RADIUS = 40;
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
@@ -126,41 +121,7 @@ class ContourLayer extends CompositeLayer {
       return;
     }
 
-    // find visible points
-    const globalIndex = new KDBush(contourLabels, x => x.geometry.coordinates[0], x => x.geometry.coordinates[1], undefined, Float32Array);
-    /** @type {ContourLabel[]} */
-    let viewportContourLabels;
-    if (isViewportGlobe(viewport)) {
-      const viewportGlobeCenter = /** @type {GeoJSON.Position} */ (getViewportGlobeCenter(viewport));
-      const viewportGlobeRadius = /** @type {number} */ (getViewportGlobeRadius(viewport));
-      viewportContourLabels = geokdbush.around(globalIndex, viewportGlobeCenter[0], viewportGlobeCenter[1], undefined, viewportGlobeRadius / 1000);
-    } else {
-      const viewportBounds = /** @type {GeoJSON.BBox} */ (getViewportBounds(viewport));
-      viewportContourLabels = [
-        ...globalIndex.range(viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]).map(i => contourLabels[i]),
-        ...globalIndex.range(viewportBounds[0] - 360, viewportBounds[1], viewportBounds[2] - 360, viewportBounds[3]).map(i => contourLabels[i]),
-      ];
-    }
-    /** @type {ContourLabel[]} */
-    let visibleContourLabels = contourLabels.map(x => viewportContourLabels.includes(x) ? x : undefined);
-
-    // remove proximate points
-    const localIndexViewport = new viewport.constructor({ ...viewport, zoom: Math.floor(viewport.zoom) });
-    const localIndex = new KDBush(viewportContourLabels.map(x => localIndexViewport.project(x.geometry.coordinates)), undefined, undefined, undefined, Float32Array);
-    for (let i = 0; i < visibleContourLabels.length; i++) {
-      const contourLabel = visibleContourLabels[i];
-      if (contourLabel) {
-        const point = localIndexViewport.project(contourLabel.geometry.coordinates);
-        const closeContourLabels = localIndex.within(point[0], point[1], CLUSTER_RADIUS).map(i => viewportContourLabels[i]);
-        for (let j = i + 1; j < visibleContourLabels.length; j++) {
-          const contourLabel2 = visibleContourLabels[j];
-          if (contourLabel2 && closeContourLabels.includes(contourLabel2)) {
-            visibleContourLabels[j] = undefined;
-          }
-        }
-      }
-    }
-    visibleContourLabels = visibleContourLabels.filter(x => !!x);
+    const visibleContourLabels = getViewportVisiblePoints(viewport, contourLabels);
 
     this.setState({ visibleContourLabels });
   }
