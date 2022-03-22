@@ -38,8 +38,24 @@ export function getViewportVisibleGrid(viewport, zoomOffset = 0) {
  * @return {GeoJSON.Position[]}
  */
 function generateGlobeGrid(center, radius, zoom) {
+  // icomesh performance
+  // order 0 - 0.03 ms
+  // order 1 - 0.40 ms
+  // order 2 - 0.16 ms
+  // order 3 - 0.59 ms
+  // order 4 - 2.35 ms
+  // order 5 - 7.27 ms
+  // order 6 - 29.68 ms
+  // order 7 - 66.05 ms
+  // order 8 - 127.02 ms
+  // order 9 - 555.85 ms
+  // order 10 - 2460.47 ms
+  // TODO: generate local icomesh
+  const MAX_ICOMESH_ZOOM = 7;
+  zoom = Math.min(Math.max(zoom - 2, 0), MAX_ICOMESH_ZOOM);
+
   if (!ICOMESH_INDEX_AT_ZOOM_CACHE.has(zoom)) {
-    const {uv} = icomesh(zoom - 2, true);
+    const {uv} = icomesh(zoom, true);
 
     let i = 0;
     const positions = [];
@@ -65,7 +81,6 @@ function generateGlobeGrid(center, radius, zoom) {
     ICOMESH_INDEX_AT_ZOOM_CACHE.set(zoom, globalIndex);
   }
 
-  // TODO: generate local globe grid
   const globalIndex = /** @type {KDBush} */ (ICOMESH_INDEX_AT_ZOOM_CACHE.get(zoom));
   const positions = geokdbush.around(globalIndex, center[0], center[1], undefined, radius / 1000);
 
