@@ -61,7 +61,7 @@ float raster_get_direction_value(vec4 color) {
       value = color.xy;
     }
 
-    return atan2(value.y, value.x) / RASTER_PI / 2. + 0.5;
+    return mod((360. - (atan2(value.y, value.x) / RASTER_PI * 180. + 180.)) - 270., 360.) / 360.;
   } else {
     return 0.;
   }

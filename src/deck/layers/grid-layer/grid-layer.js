@@ -57,7 +57,7 @@ class GridLayer extends CompositeLayer {
           getIcon: d => Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), iconMapping.length - 1),
           getSize: iconSize,
           getColor: iconColor,
-          getAngle: d => getViewportAngle(viewport, d.properties.direction + 90),
+          getAngle: d => getViewportAngle(viewport, 360 - d.properties.direction),
           iconAtlas,
           iconMapping,
           billboard: false,

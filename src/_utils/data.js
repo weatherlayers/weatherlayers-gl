@@ -255,7 +255,8 @@ export function getValueData(image, imageType) {
  */
 export function getDirection(pixel1, pixel2, imageTypeVector) {
   if (imageTypeVector) {
-    return Math.atan2(pixel2, pixel1) / Math.PI * 180;
+    return ((360 - (Math.atan2(pixel2, pixel1) / Math.PI * 180 + 180)) - 270) % 360;
+    // return Math.atan2(pixel2, pixel1) / Math.PI * 180;
   } else {
     return NaN;
   }

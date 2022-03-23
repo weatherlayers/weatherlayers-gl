@@ -96,22 +96,25 @@ export class RasterBitmapLayer extends BitmapLayer {
   getRasterDirection(color) {
     const {imageType} = this.props;
     if (imageType === ImageType.VECTOR) {
-      return (color[1] / 255 - 0.5) * 2 * Math.PI;
+      return color[1] / 255 * 360;
+    } else {
+      return NaN;
     }
   }
 
   getPickingInfo({info}) {
+    const {imageType} = this.props;
     if (!info.color) {
       return info;
     }
 
     const value = this.getRasterValue(info.color);
-    const direction = this.getRasterDirection(info.color);
-
-    info.raster = {
-      value,
-      direction,
-    };
+    if (imageType === ImageType.VECTOR) {
+      const direction = this.getRasterDirection(info.color);
+      info.raster = { value, direction };
+    } else {
+      info.raster = { value };
+    }
 
     return info;
   }
