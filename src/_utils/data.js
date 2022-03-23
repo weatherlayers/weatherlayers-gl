@@ -225,7 +225,7 @@ export function getValueData(image, imageType) {
 
   const imageTypeVector = imageType === ImageType.VECTOR;
 
-  const magnitudeData = new Float32Array(width * height);
+  const valueData = new Float32Array(width * height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (x + y * width) * bandsCount;
@@ -233,18 +233,18 @@ export function getValueData(image, imageType) {
 
       // raster_has_value
       if (isNaN(data[i])) {
-        magnitudeData[j] = NaN;
+        valueData[j] = NaN;
         continue;
       }
 
       // raster_get_value
       const value = getValue(data[i], data[i + 1], imageTypeVector);
 
-      magnitudeData[j] = value;
+      valueData[j] = value;
     }
   }
 
-  return { data: magnitudeData, width, height };
+  return { data: valueData, width, height };
 }
 
 /**
@@ -256,7 +256,6 @@ export function getValueData(image, imageType) {
 export function getDirection(pixel1, pixel2, imageTypeVector) {
   if (imageTypeVector) {
     return ((360 - (Math.atan2(pixel2, pixel1) / Math.PI * 180 + 180)) - 270) % 360;
-    // return Math.atan2(pixel2, pixel1) / Math.PI * 180;
   } else {
     return NaN;
   }
