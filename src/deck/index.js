@@ -1,3 +1,5 @@
+export * from '../_utils/index';
+
 export * from './layers/raster-layer/raster-layer';
 export * from './layers/contour-layer/contour-layer';
 // export * from './layers/contour-layer/contour-gpu-layer';
