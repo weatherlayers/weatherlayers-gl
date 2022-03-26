@@ -63,7 +63,9 @@ export class RasterBitmapLayer extends BitmapLayer {
         [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
+      this.props.image = imageTexture;
       super.draw(opts);
+      this.props.image = undefined;
     }
   }
 

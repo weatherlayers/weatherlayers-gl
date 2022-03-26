@@ -1,4 +1,5 @@
 import {Texture2D} from '@luma.gl/core';
+import {getTextureDataFormat} from './data';
 
 /** @typedef {import('./data').TextureData} TextureData */
 
@@ -21,7 +22,9 @@ export function createTextureCached(gl, image) {
     return cachedTexture;
   }
 
-  const texture = new Texture2D(gl, image);
+  const format = getTextureDataFormat(image);
+
+  const texture = new Texture2D(gl, { ...image, format });
   glCache.set(image, texture);
   return texture;
 }

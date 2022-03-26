@@ -26,6 +26,8 @@ class ContourGpuLayer extends CompositeLayer {
     return [
       new ContourGpuBitmapLayer(this.props, this.getSubLayerProps({
         id: 'bitmap',
+        image: undefined,
+        image2: undefined,
         imageTexture,
         imageTexture2,
       })),

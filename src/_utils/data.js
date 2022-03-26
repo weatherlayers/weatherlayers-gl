@@ -7,7 +7,7 @@ import {linearColormap} from './colormap';
 /** @typedef {import('./image-type').ImageType} ImageType */
 /** @typedef {import('./colormap').ColormapBreak} ColormapBreak */
 /** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
-/** @typedef {{ data: TextureDataArray, width: number, height: number, format: number }} TextureData */
+/** @typedef {{ data: TextureDataArray, width: number, height: number }} TextureData */
 /** @typedef {Float32Array} FloatDataArray */
 /** @typedef {{ data: FloatDataArray, width: number, height: number }} FloatData */
 
@@ -32,11 +32,13 @@ function maskData(data, nodata = undefined) {
 }
 
 /**
- * @param {TextureDataArray} data
- * @param {number} bandsCount
+ * @param {TextureData} textureData
  * @returns {number}
  */
-function getDataTextureFormat(data, bandsCount) {
+export function getTextureDataFormat(textureData) {
+  const { data, width, height } = textureData;
+  const bandsCount = data.length / (width * height);
+
   if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
     if (bandsCount === 4) {
       return GL.RGBA;
@@ -77,10 +79,7 @@ async function loadImage(url) {
   const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
   const { data, width, height } = imageData;
 
-  const bandsCount = 4;
-  const format = getDataTextureFormat(data, bandsCount);
-
-  const textureData = { data, width, height, format };
+  const textureData = { data, width, height };
   return textureData;
 }
 
@@ -99,10 +98,7 @@ async function loadGeotiff(url) {
   const width = geotiffImage.getWidth();
   const height = geotiffImage.getHeight();
 
-  const bandsCount = geotiffImage.getSamplesPerPixel();
-  const format = getDataTextureFormat(data, bandsCount);
-
-  const textureData = { data, width, height, format };
+  const textureData = { data, width, height };
   return textureData;
 }
 

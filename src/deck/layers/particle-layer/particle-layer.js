@@ -24,6 +24,8 @@ class ParticleLayer extends CompositeLayer {
     return [
       new ParticleLineLayer(this.props, this.getSubLayerProps({
         id: 'line',
+        image: undefined,
+        image2: undefined,
         imageTexture,
         imageTexture2,
       })),
