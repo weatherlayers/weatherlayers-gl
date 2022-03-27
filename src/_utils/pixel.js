@@ -24,6 +24,10 @@ function getPixelFunction(image) {
  * @return {number}
  */
 export function getPixel(image, imageInterpolate, x, y, band) {
+  // offset point to match GPU layers
+  x -= 0.5;
+  y -= 0.5;
+
   const getPixel = getPixelFunction(image);
 
   if (imageInterpolate) {
