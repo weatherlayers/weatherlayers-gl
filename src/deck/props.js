@@ -1,3 +1,4 @@
+export const DEFAULT_LINE_WIDTH = 1;
 export const DEFAULT_LINE_COLOR = [255, 255, 255, 51];
 export const DEFAULT_TEXT_FONT_FAMILY = '"Helvetica Neue", Arial, Helvetica, sans-serif';
 export const DEFAULT_TEXT_SIZE = 12;

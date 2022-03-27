@@ -2,7 +2,7 @@ import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import {ImageType} from '../../../_utils/image-type';
 import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
-import {DEFAULT_LINE_COLOR} from '../../props';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../props';
 import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
 import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
 import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
@@ -22,8 +22,8 @@ const defaultProps = {
   maxAge: {type: 'number', min: 1, max: 255, value: 100},
   speedFactor: {type: 'number', min: 0, max: 1, value: 1},
 
+  width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
-  width: {type: 'number', value: 1},
   animate: true,
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},

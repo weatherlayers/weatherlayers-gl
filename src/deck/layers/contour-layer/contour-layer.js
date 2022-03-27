@@ -5,7 +5,7 @@ import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
 import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
-import {DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
 import {getContourLines} from './contour-line';
 import {getContourLabels} from './contour-label';
 
@@ -15,8 +15,8 @@ const defaultProps = {
   imageUnscale: {type: 'array', value: null},
 
   delta: {type: 'number', value: null, required: true},
+  width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
-  width: {type: 'number', value: 1},
   textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
