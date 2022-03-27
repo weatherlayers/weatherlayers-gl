@@ -30,7 +30,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     ...(deckgl ? {
       contour: {
         enabled: false,
-        delta: 0,
+        step: 0,
         width: WeatherLayers.DEFAULT_LINE_WIDTH,
         color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
@@ -112,7 +112,7 @@ async function updateDataset(config, { deckgl } = {}) {
 
   if (deckgl) {
     config.contour.enabled = !!stacCollection.summaries.contour;
-    config.contour.delta = stacCollection.summaries.contour?.delta || 0;
+    config.contour.step = stacCollection.summaries.contour?.delta || 0; // TODO: rename to step in catalog
 
     config.highLow.enabled = !!stacCollection.summaries.highLow;
     config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
@@ -163,7 +163,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   if (deckgl) {
     const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
     contour.addInput(config.contour, 'enabled').on('change', update);
-    contour.addInput(config.contour, 'delta', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
+    contour.addInput(config.contour, 'step', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
     contour.addInput(config.contour, 'color').on('change', update);
     contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
     contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);

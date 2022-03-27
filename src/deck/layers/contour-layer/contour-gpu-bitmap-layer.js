@@ -11,7 +11,7 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  delta: {type: 'number', required: true},
+  step: {type: 'number', required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
 
@@ -36,7 +36,7 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, delta, color, width, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, step, color, width, rasterOpacity} = this.props;
 
     if (!imageTexture) {
       return;
@@ -49,7 +49,7 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
         [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.delta]: delta,
+        [fsDeclTokens.step]: step,
         [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsDeclTokens.width]: width,
         [fsDeclTokens.rasterOpacity]: rasterOpacity,

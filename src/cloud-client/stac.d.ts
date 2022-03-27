@@ -57,7 +57,7 @@ export interface StacCollectionRasterConfig {
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
-export interface StacCollectionIsolineConfig {
+export interface StacCollectionContourConfig {
   delta: number;
 }
 
@@ -99,7 +99,7 @@ export interface StacCollection {
     imageBounds: [number, number]; // custom
     unit: StacCollectionUnit[]; // custom
     raster?: StacCollectionRasterConfig; // custom
-    contour?: StacCollectionIsolineConfig; // custom
+    contour?: StacCollectionContourConfig; // custom
     highLow?: StacCollectionHighLowConfig; // custom
     grid?: StacCollectionGridConfig; // custom
     particle?: StacCollectionParticleConfig; // custom

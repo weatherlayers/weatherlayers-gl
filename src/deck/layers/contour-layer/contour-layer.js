@@ -14,7 +14,7 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  delta: {type: 'number', value: null, required: true},
+  step: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
   textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
@@ -72,7 +72,7 @@ class ContourLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, imageUnscale, delta} = props;
+    const {image, imageUnscale, step} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -80,7 +80,7 @@ class ContourLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (!delta) {
+    if (!step) {
       this.setState({
         contourLabels: undefined,
         visibleContourLabels: undefined,
@@ -88,7 +88,7 @@ class ContourLayer extends CompositeLayer {
       return;
     }
 
-    if (image !== oldProps.image || delta !== oldProps.delta) {
+    if (image !== oldProps.image || step !== oldProps.step) {
       this.updateContourLines();
     }
 
@@ -100,16 +100,16 @@ class ContourLayer extends CompositeLayer {
   }
 
   async updateContourLines() {
-    const {image, imageType, imageUnscale, delta, bounds} = this.props;
+    const {image, imageType, imageUnscale, step, bounds} = this.props;
     if (!image) {
       return;
     }
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
-    const contourLines = await getContourLines(unscaledData, imageType, delta, bounds);
+    const contourLines = await getContourLines(unscaledData, imageType, step, bounds);
     const contourLabels = getContourLabels(contourLines);
 
-    this.setState({ image, delta, contourLines, contourLabels });
+    this.setState({ image, step, contourLines, contourLabels });
 
     this.updateVisibleContourLabels();
   }

@@ -24,7 +24,7 @@ export class ContourLayer extends CompositeLayer {
 
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const delta = props.delta || stacCollection.summaries.contour?.delta;
+    const step = props.step || stacCollection.summaries.contour?.step; // TODO: rename to step in catalog
 
     return [
       new BaseContourLayer(props, this.getSubLayerProps({
@@ -38,7 +38,7 @@ export class ContourLayer extends CompositeLayer {
         imageType,
         imageUnscale,
 
-        delta,
+        step,
         textFunction: this.state.textFunction,
 
         bounds: stacCollection.extent.spatial.bbox[0],
