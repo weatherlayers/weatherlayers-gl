@@ -21,6 +21,7 @@ export class ContourGpuLayer extends CompositeLayer {
       return [];
     }
 
+    const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const delta = props.delta || stacCollection.summaries.contour?.delta;
@@ -37,9 +38,11 @@ export class ContourGpuLayer extends CompositeLayer {
 
         image,
         image2,
+        imageInterpolate,
         imageWeight,
         imageType,
         imageUnscale,
+
         delta,
         opacity,
         rasterOpacity,

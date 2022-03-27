@@ -16,6 +16,8 @@ const defaultProps = {
   colormapBreaks: {type: 'array', value: null, required: true},
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
+
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 export class RasterBitmapLayer extends BitmapLayer {

@@ -17,23 +17,32 @@ function getPixelFunction(image) {
  * manual bilinear filtering based on 4 adjacent pixels for smooth interpolation
  * see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
  * @param {FloatData} image
+ * @param {boolean} imageInterpolate
  * @param {number} x
  * @param {number} y
  * @param {number} band
  * @return {number}
  */
-export function getPixel(image, x, y, band) {
-  const floorX = Math.floor(x);
-  const floorY = Math.floor(y);
-  const fractX = x % 1;
-  const fractY = y % 1;
-
+export function getPixel(image, imageInterpolate, x, y, band) {
   const getPixel = getPixelFunction(image);
-  const topLeft = getPixel(floorX, floorY, band);
-  const topRight = getPixel(floorX + 1, floorY, band);
-  const bottomLeft = getPixel(floorX, floorY + 1, band);
-  const bottomRight = getPixel(floorX + 1, floorY + 1, band);
-  const value = mix(mix(topLeft, topRight, fractX), mix(bottomLeft, bottomRight, fractX), fractY);
 
-  return value;
+  if (imageInterpolate) {
+    const floorX = Math.floor(x);
+    const floorY = Math.floor(y);
+    const fractX = x % 1;
+    const fractY = y % 1;
+  
+    const topLeft = getPixel(floorX, floorY, band);
+    const topRight = getPixel(floorX + 1, floorY, band);
+    const bottomLeft = getPixel(floorX, floorY + 1, band);
+    const bottomRight = getPixel(floorX + 1, floorY + 1, band);
+    const value = mix(mix(topLeft, topRight, fractX), mix(bottomLeft, bottomRight, fractX), fractY);
+    return value;
+  } else {
+    const roundX = Math.round(x);
+    const roundY = Math.round(y);
+
+    const value = getPixel(roundX, roundY, band);
+    return value;
+  }
 }

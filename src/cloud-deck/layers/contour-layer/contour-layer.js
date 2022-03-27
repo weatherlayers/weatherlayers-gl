@@ -37,6 +37,7 @@ export class ContourLayer extends CompositeLayer {
         image,
         imageType,
         imageUnscale,
+
         delta,
         textFunction: this.state.textFunction,
 

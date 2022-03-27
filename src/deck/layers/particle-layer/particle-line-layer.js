@@ -1,6 +1,5 @@
 import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
-import GL from '@luma.gl/constants';
 import {ImageType} from '../../../_utils/image-type';
 import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
 import {DEFAULT_LINE_COLOR} from '../../props';
@@ -9,10 +8,6 @@ import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
 import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
 import {code as fsMainStart} from './particle-line-layer-fs-main-start.glsl';
 import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-line-layer-update-transform.vs.glsl';
-
-const DEFAULT_TEXTURE_PARAMETERS = {
-  [GL.TEXTURE_WRAP_S]: GL.REPEAT,
-};
 
 const FPS = 30;
 
@@ -32,7 +27,6 @@ const defaultProps = {
   animate: true,
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
-  textureParameters: DEFAULT_TEXTURE_PARAMETERS,
   wrapLongitude: true,
 };
 

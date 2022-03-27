@@ -21,6 +21,7 @@ export class RasterLayer extends CompositeLayer {
       return [];
     }
 
+    const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const colormapBreaks = props.colormapBreaks || stacCollection.summaries.raster?.colormapBreaks;
@@ -37,9 +38,11 @@ export class RasterLayer extends CompositeLayer {
 
         image,
         image2,
+        imageInterpolate,
         imageWeight,
         imageType,
         imageUnscale,
+
         colormapBreaks,
         opacity,
         rasterOpacity,

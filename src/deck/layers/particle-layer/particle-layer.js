@@ -10,6 +10,7 @@ const defaultProps = {
   imageTexture2: undefined,
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageInterpolate: {type: 'boolean', value: true},
 };
 
 @withCheckLicense(defaultProps)
@@ -24,16 +25,17 @@ class ParticleLayer extends CompositeLayer {
     return [
       new ParticleLineLayer(this.props, this.getSubLayerProps({
         id: 'line',
-        image: undefined,
-        image2: undefined,
         imageTexture,
         imageTexture2,
+        image: undefined,
+        image2: undefined,
+        imageInterpolate: undefined,
       })),
     ];
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageUnscale} = props;
+    const {image, image2, imageInterpolate, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -41,7 +43,7 @@ class ParticleLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (image !== oldProps.image || image2 !== oldProps.image2) {
+    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate) {
       this.updateTexture();
     }
 
@@ -50,10 +52,10 @@ class ParticleLayer extends CompositeLayer {
 
   updateTexture() {
     const {gl} = this.context;
-    const {image, image2} = this.props;
+    const {image, image2, imageInterpolate} = this.props;
 
-    const imageTexture = image ? createTextureCached(gl, image) : null;
-    const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
+    const imageTexture = image ? createTextureCached(gl, image, imageInterpolate) : null;
+    const imageTexture2 = image2 ? createTextureCached(gl, image2, imageInterpolate) : null;
 
     this.setState({ imageTexture, imageTexture2 });
   }

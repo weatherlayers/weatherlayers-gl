@@ -21,7 +21,8 @@ export class GridLayer extends CompositeLayer {
     if (!props || !stacCollection || !image) {
       return [];
     }
-
+    
+    const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const iconBounds = props.iconBounds || stacCollection.summaries.grid?.iconBounds;
@@ -36,9 +37,11 @@ export class GridLayer extends CompositeLayer {
 
         image,
         image2,
+        imageInterpolate,
         imageWeight,
         imageType,
         imageUnscale,
+
         textFunction: this.state.textFunction,
         iconBounds,
 

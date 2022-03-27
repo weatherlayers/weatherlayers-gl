@@ -16,6 +16,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     datetime: new Date().toISOString(),
     ...(deckgl ? {
       datetimeInterpolate: true,
+      imageInterpolate: true,
     } : {}),
     ...(globe ? {
       rotate: false,
@@ -144,6 +145,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   if (deckgl) {
     gui.addInput(config, 'datetimeInterpolate').on('change', update);
+    gui.addInput(config, 'imageInterpolate').on('change', update);
   }
 
   if (globe) {

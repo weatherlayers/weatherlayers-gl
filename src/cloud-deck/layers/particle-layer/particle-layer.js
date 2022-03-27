@@ -22,6 +22,7 @@ export class ParticleLayer extends CompositeLayer {
       return [];
     }
 
+    const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const maxAge = props.maxAge || stacCollection.summaries.particle?.maxAge;
@@ -35,12 +36,14 @@ export class ParticleLayer extends CompositeLayer {
         dataset: undefined,
         datetime: undefined,
         datetimeInterpolate: undefined,
-        
+
         image,
         image2,
+        imageInterpolate,
         imageType,
         imageWeight,
         imageUnscale,
+
         maxAge,
         speedFactor,
         width,

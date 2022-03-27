@@ -37,6 +37,7 @@ export class HighLowLayer extends CompositeLayer {
         image,
         imageType,
         imageUnscale,
+
         radius,
         textFunction: this.state.textFunction,
 

@@ -12,6 +12,7 @@ import {getGridPoints} from './grid-point';
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageInterpolate: {type: 'boolean', value: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
@@ -92,7 +93,7 @@ class GridLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageWeight, imageUnscale} = props;
+    const {image, image2, imageInterpolate, imageWeight, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -100,7 +101,7 @@ class GridLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (image !== oldProps.image || image2 !== oldProps.image2) {
+    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate) {
       this.updateData();
     }
 
@@ -140,13 +141,13 @@ class GridLayer extends CompositeLayer {
   }
 
   updateGridPoints() {
-    const {imageWeight, imageType, bounds} = this.props;
+    const {imageInterpolate, imageWeight, imageType, bounds} = this.props;
     const {unscaledData, unscaledData2, positions} = this.state;
     if (!unscaledData) {
       return;
     }
 
-    const gridPoints = getGridPoints(unscaledData, unscaledData2, imageWeight, imageType, positions, bounds);
+    const gridPoints = getGridPoints(unscaledData, unscaledData2, imageInterpolate, imageWeight, imageType, positions, bounds);
 
     this.setState({ gridPoints });
   }
