@@ -1,8 +1,8 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {code as fsDecl, tokens as fsDeclTokens} from './contour-gpu-bitmap-layer-fs-decl.glsl';
 import {code as fsMainEnd} from './contour-gpu-bitmap-layer-fs-main-end.glsl';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../props';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data

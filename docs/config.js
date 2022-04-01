@@ -3,6 +3,11 @@ export const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
+const CONTOUR_LAYER_DATASETS = ['gfs/pressure_mean_sea_level'];
+const HIGH_LOW_LAYER_DATASETS = ['gfs/pressure_mean_sea_level'];
+const GRID_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfs/temperature_2m_above_ground', 'gfs/apparent_temperature_2m_above_ground', 'cmems_sst/sea_surface_temperature', 'gfswave/waves', 'cmems_phy/currents'];
+const PARTICLE_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfswave/waves', 'cmems_phy/currents'];
+
 export async function initConfig({ deckgl, globe } = {}) {
   const client = WeatherLayers.getClient();
 
@@ -27,29 +32,29 @@ export async function initConfig({ deckgl, globe } = {}) {
       colormap: DEFAULT_COLORMAP,
       opacity: 0.2,
     },
+    contour: {
+      enabled: false,
+      step: 0,
+      width: WeatherLayers.DEFAULT_LINE_WIDTH,
+      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      opacity: 1,
+    },
+    highLow: {
+      enabled: false,
+      radius: 0,
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      opacity: 1,
+    },
     ...(deckgl ? {
-      contour: {
-        enabled: false,
-        step: 0,
-        width: WeatherLayers.DEFAULT_LINE_WIDTH,
-        color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
-        textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-        textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-        textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-        opacity: 1,
-      },
-      highLow: {
-        enabled: false,
-        radius: 0,
-        textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-        textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-        textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-        opacity: 1,
-      },
       grid: {
         enabled: false,
         style: WeatherLayers.GridStyle.WIND_BARB,
@@ -93,9 +98,9 @@ async function updateDataset(config, { deckgl } = {}) {
     config.datetimes = [];
     config.datetime = NO_DATA;
     config.raster.enabled = false;
+    config.contour.enabled = false;
+    config.highLow.enabled = false;
     if (deckgl) {
-      config.contour.enabled = false;
-      config.highLow.enabled = false;
       config.grid.enabled = false;
       config.particle.enabled = false;
     }
@@ -108,19 +113,19 @@ async function updateDataset(config, { deckgl } = {}) {
   config.datetimes = client.getStacCollectionDatetimes(stacCollection);
   config.datetime = client.getStacCollectionClosestStartDatetime(stacCollection, config.datetime) || config.datetimes[0];
 
-  config.raster.enabled = !!stacCollection.summaries.raster;
+  config.raster.enabled = true;
+
+  config.contour.enabled = CONTOUR_LAYER_DATASETS.includes(config.dataset);
+  config.contour.step = stacCollection.summaries.contour?.delta || 0; // TODO: rename to step in catalog
+
+  config.highLow.enabled = HIGH_LOW_LAYER_DATASETS.includes(config.dataset);
+  config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
 
   if (deckgl) {
-    config.contour.enabled = !!stacCollection.summaries.contour;
-    config.contour.step = stacCollection.summaries.contour?.delta || 0; // TODO: rename to step in catalog
-
-    config.highLow.enabled = !!stacCollection.summaries.highLow;
-    config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
-
-    config.grid.enabled = !!stacCollection.summaries.grid;
+    config.grid.enabled = GRID_LAYER_DATASETS.includes(config.dataset);
     config.grid.style = stacCollection.summaries.grid?.style || WeatherLayers.GridStyle.VALUE;
 
-    config.particle.enabled = !!stacCollection.summaries.particle;
+    config.particle.enabled = PARTICLE_LAYER_DATASETS.includes(config.dataset);
     config.particle.maxAge = stacCollection.summaries.particle?.maxAge || 0;
     config.particle.speedFactor = stacCollection.summaries.particle?.speedFactor || 0;
     config.particle.width = stacCollection.summaries.particle?.width || 0;
@@ -160,27 +165,27 @@ export function initGui(config, update, { deckgl, globe } = {}) {
   raster.addInput(config.raster, 'colormap', { options: getOptions([DEFAULT_COLORMAP]) }); // dummy
   raster.addInput(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
+  const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
+  contour.addInput(config.contour, 'enabled').on('change', update);
+  contour.addInput(config.contour, 'step', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
+  contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+  contour.addInput(config.contour, 'color').on('change', update);
+  contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+  contour.addInput(config.contour, 'textColor').on('change', update);
+  contour.addInput(config.contour, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+  contour.addInput(config.contour, 'textOutlineColor').on('change', update);
+  contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+
+  const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
+  highLow.addInput(config.highLow, 'enabled').on('change', update);
+  highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
+  highLow.addInput(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+  highLow.addInput(config.highLow, 'textColor').on('change', update);
+  highLow.addInput(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+  highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
+  highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+
   if (deckgl) {
-    const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
-    contour.addInput(config.contour, 'enabled').on('change', update);
-    contour.addInput(config.contour, 'step', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
-    contour.addInput(config.contour, 'color').on('change', update);
-    contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
-    contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
-    contour.addInput(config.contour, 'textColor').on('change', update);
-    contour.addInput(config.contour, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
-    contour.addInput(config.contour, 'textOutlineColor').on('change', update);
-    contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
-
-    const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
-    highLow.addInput(config.highLow, 'enabled').on('change', update);
-    highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
-    highLow.addInput(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
-    highLow.addInput(config.highLow, 'textColor').on('change', update);
-    highLow.addInput(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
-    highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
-    highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
-
     const grid = gui.addFolder({ title: 'Grid layer', expanded: true });
     grid.addInput(config.grid, 'enabled').on('change', update);
     grid.addInput(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', update);

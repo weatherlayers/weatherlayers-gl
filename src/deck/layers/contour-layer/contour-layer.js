@@ -1,13 +1,13 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
 import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../props';
-import {getContourLines} from './contour-line';
-import {getContourLabels} from './contour-label';
+import {getContourLines} from '../../../standalone/providers/contour-provider/contour-line';
+import {getContourLabels} from '../../../standalone/providers/contour-provider/contour-label';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data

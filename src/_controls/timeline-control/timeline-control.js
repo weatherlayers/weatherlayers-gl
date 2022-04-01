@@ -144,7 +144,7 @@ export class TimelineControl {
       this.container.classList.add('loading');
       progressInput.disabled = true;
       info.innerHTML = 'Loading...';
-      await Promise.all(this.datetimes.map(x => this.client.loadStacCollectionDataByDatetime(this.config.dataset, x)));
+      await Promise.all(this.datetimes.map(x => this.client.loadStacCollectionData(this.config.dataset, x)));
       info.innerHTML = formatDatetime(this.config.datetime);
       progressInput.disabled = false;
       this.container.classList.remove('loading');

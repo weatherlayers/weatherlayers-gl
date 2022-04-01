@@ -83,8 +83,8 @@ export class HighLowLayer extends CompositeLayer {
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         let [image, image2] = await Promise.all([
-          startDatetime && client.loadStacCollectionDataByDatetime(dataset, startDatetime),
-          endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
+          startDatetime && client.loadStacCollectionData(dataset, startDatetime),
+          endDatetime && client.loadStacCollectionData(dataset, endDatetime),
         ]);
   
         this.setState({ image, image2 });

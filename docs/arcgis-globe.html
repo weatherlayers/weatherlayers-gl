@@ -7,8 +7,8 @@
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.7.0/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.0/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.21/"></script> because of require function conflict -->
-  <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.0/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.23/"></script> because of require function conflict -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
   <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
@@ -25,26 +25,27 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui } from './config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
     import { FpsControl } from './fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
-      format: 'mercator.byte.png',
     });
+    const client = WeatherLayers.getClient();
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ globe: true });
       let gui;
 
       // ArcGIS
-      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, BaseTileLayer, watchUtils] } = await deck.loadArcGISModules([
+      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, BaseTileLayer, GeoJSONLayer, watchUtils] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
         'esri/views/3d/externalRenderers',
         'esri/layers/BaseTileLayer',
+        'esri/layers/GeoJSONLayer',
         'esri/core/watchUtils',
-      ], { version: '4.21' });
+      ], { version: '4.23' });
 
       const RasterLayer = BaseTileLayer.createSubclass({
         properties: {
@@ -78,9 +79,17 @@
             z: 25000 * 1000, // 25000 km
           },
         },
+        environment: {
+          lighting: {
+            type: 'virtual',
+          },
+        },
         viewingMode: 'global',
       });
       view.ui.components = ['attribution'];
+      let rasterLayer;
+      let contourLayer;
+      let highLowLayer;
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {
@@ -102,28 +111,114 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        let rasterLayer = map.layers.find(x => x.id === 'raster');
-        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const client = WeatherLayers.getClient();
-          const canvas = await client.loadStacCollectionColorDataByDatetime(dataset, datetime);
+        const attribution = await client.getStacCollectionAttribution(dataset, 'esri-attribution__link');
 
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, `mercator.${client.config.format}`) : undefined;
           if (rasterLayer) {
             map.remove(rasterLayer);
           }
-
-          rasterLayer = new RasterLayer({
-            id: 'raster',
-            dataset,
-            datetime,
-            canvas,
-            copyright: await client.getStacCollectionAttribution(dataset, 'esri-attribution__link'),
-            visible: config.raster.enabled,
-            opacity: config.raster.opacity,
-          });
-          map.add(rasterLayer);
-        } else {
+          if (rasterImage) {
+            rasterLayer = new RasterLayer({
+              id: 'raster',
+              dataset,
+              datetime,
+              canvas: rasterImage,
+              copyright: attribution,
+            });
+            map.add(rasterLayer);
+          }
+        }
+        if (rasterLayer) {
           rasterLayer.visible = config.raster.enabled;
           rasterLayer.opacity = config.raster.opacity;
+        }
+
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime) : undefined;
+          if (contourLayer) {
+            map.remove(contourLayer);
+          }
+          if (contourLines) {
+            contourLayer = new GeoJSONLayer({
+              id: 'contour',
+              dataset,
+              datetime,
+              url: URL.createObjectURL(new Blob([JSON.stringify(contourLines)], { type: 'application/json' })),
+              copyright: attribution,
+            });
+            map.add(contourLayer);
+          }
+        }
+        if (contourLayer) {
+          contourLayer.visible = config.contour.enabled;
+          contourLayer.renderer = {
+            type: 'simple',
+            symbol: {
+              type: 'simple-line',
+              width: `${config.contour.width}px`,
+              color: config.contour.color,
+            },
+          };
+          contourLayer.labelingInfo = [
+            {
+              labelPlacement: 'center-center',
+              labelExpressionInfo: { expression: 'Round($feature.value / 100)' },
+              symbol: {
+                type: 'text',
+                font: {
+                  size: config.contour.textSize,
+                },
+                color: config.contour.textColor,
+                haloSize: `${config.contour.textOutlineWidth}px`,
+                haloColor: config.contour.textOutlineColor,
+              },
+            },
+          ];
+          contourLayer.opacity = config.contour.opacity;
+        }
+
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
+          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime) : undefined;
+          if (highLowLayer) {
+            map.remove(highLowLayer);
+          }
+          if (highLowPoints) {
+            highLowLayer = new GeoJSONLayer({
+              id: 'highLow',
+              dataset,
+              datetime,
+              url: URL.createObjectURL(new Blob([JSON.stringify(highLowPoints)], { type: 'application/json' })),
+              copyright: attribution,
+            });
+            map.add(highLowLayer);
+          }
+        }
+        if (highLowLayer) {
+          highLowLayer.visible = config.highLow.enabled;
+          highLowLayer.renderer = {
+            type: 'simple',
+            symbol: {
+              type: 'simple-marker',
+              size: 0,
+            },
+          };
+          highLowLayer.labelingInfo = [
+            {
+              labelPlacement: 'center-center',
+              labelExpressionInfo: { expression: '$feature.type + TextFormatting.NewLine + Round($feature.value / 100)' },
+              symbol: {
+                type: 'text',
+                font: {
+                  size: config.highLow.textSize,
+                },
+                color: config.highLow.textColor,
+                haloSize: `${config.highLow.textOutlineWidth}px`,
+                haloColor: config.highLow.textOutlineColor,
+              },
+            },
+          ];
+          highLowLayer.opacity = config.highLow.opacity;
         }
 
         rotateAnimation.toggle(config.rotate);

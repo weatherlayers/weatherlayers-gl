@@ -58,7 +58,7 @@ export interface StacCollectionRasterConfig {
 }
 
 export interface StacCollectionContourConfig {
-  delta: number;
+  step: number;
 }
 
 export interface StacCollectionHighLowConfig {
@@ -88,7 +88,7 @@ export interface StacCollection {
   providers: StacProvider[];
   extent: {
     spatial: {
-      bbox: [number, number, number, number];
+      bbox: [[number, number, number, number]];
     };
     temporal: {
       interval: [[string, string]];

@@ -1,8 +1,8 @@
 import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../props';
 import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
 import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
 import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';

@@ -1,11 +1,11 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer, IconLayer} from '@deck.gl/layers';
+import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisibleGrid} from '../../../_utils/viewport-grid';
 import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
-import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../props';
 import {GridStyle, GRID_ICON_STYLES} from './grid-style';
 import {getGridPoints} from './grid-point';
 

@@ -1,8 +1,13 @@
 import {VERSION} from '../_utils/build';
-import {loadTextureData, colorTextureData} from '../_utils/data';
+import {loadTextureData, unscaleTextureData} from '../_utils/data';
+import {getRasterImage} from '../standalone/providers/raster-provider/raster-image';
+import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
+import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
 
 /** @typedef {import('../_utils/data').TextureData} TextureData */
-/** @typedef {import('../_utils/data').ColormapBreak} ColormapBreak */
+/** @typedef {import('../_utils/colormap').ColormapBreak} ColormapBreak */
+/** @typedef {import('../standalone/providers/contour-provider/contour-line').ContourLine} ContourLine */
+/** @typedef {import('../standalone/providers/high-low-provider/high-low-point').HighLowPoint} HighLowPoint */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProviderRole} StacProviderRole */
@@ -86,9 +91,6 @@ export class Client {
     if (this.config.accessToken) {
       params.set('access_token', this.config.accessToken);
     }
-    if (this.config.format) {
-      params.set('format', this.config.format);
-    }
     params.set('version', VERSION);
     const query = params.toString();
     const url = `${this.config.url}/catalog${query ? `?${query}` : ''}`;
@@ -117,9 +119,6 @@ export class Client {
     const params = new URLSearchParams();
     if (this.config.accessToken) {
       params.set('access_token', this.config.accessToken);
-    }
-    if (this.config.format) {
-      params.set('format', this.config.format);
     }
     params.set('version', VERSION);
     const query = params.toString();
@@ -179,7 +178,7 @@ export class Client {
    * @param {string} datetime
    * @returns {Promise<StacItem>}
    */
-  async loadStacItemByDatetime(dataset, datetime) {
+  async loadStacItem(dataset, datetime) {
     const stacCollection = await this.loadStacCollection(dataset);
     const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
     if (!link) {
@@ -191,28 +190,76 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
+   * @param {string} [format]
    * @returns {Promise<TextureData>}
    */
-  async loadStacCollectionDataByDatetime(dataset, datetime) {
-    const stacItem = await this.loadStacItemByDatetime(dataset, datetime);
-    const url = stacItem.assets.data.href;
+  async loadStacCollectionData(dataset, datetime, format = this.config.format) {
+    const stacItem = await this.loadStacItem(dataset, datetime);
+    const url = stacItem.assets[`data.${format}`].href;
     return loadTextureDataCached(url, this.cache);
   }
 
   /**
    * @param {string} dataset
    * @param {string} datetime
+   * @param {string} [format]
    * @param {ColormapBreak[]} [colormapBreaks]
    * @returns {Promise<HTMLCanvasElement>}
    */
-  async loadStacCollectionColorDataByDatetime(dataset, datetime, colormapBreaks) {
+  async loadStacCollectionRasterImage(dataset, datetime, format, colormapBreaks) {
     const stacCollection = await client.loadStacCollection(dataset);
-    const image = await client.loadStacCollectionDataByDatetime(dataset, datetime);
+    const image = await client.loadStacCollectionData(dataset, datetime, format);
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    colormapBreaks = colormapBreaks || stacCollection.summaries.raster?.colormapBreaks;
-    const canvas = colorTextureData(image, imageType, imageUnscale, colormapBreaks);
+
+    colormapBreaks = /** @type {ColormapBreak[]} */ (colormapBreaks || stacCollection.summaries.raster?.colormapBreaks);
+
+    const unscaledData = unscaleTextureData(image, imageUnscale);
+    const canvas = getRasterImage(unscaledData, imageType, colormapBreaks);
+
     return canvas;
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @param {number} [step]
+   * @returns {Promise<GeoJSON.FeatureCollection>}
+   */
+  async loadStacCollectionContourLines(dataset, datetime, step) {
+    const stacCollection = await client.loadStacCollection(dataset);
+    const image = await client.loadStacCollectionData(dataset, datetime);
+    const imageType = stacCollection.summaries.imageType;
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const bounds = stacCollection.extent.spatial.bbox[0];
+
+    step = /** @type {number} */ (step || stacCollection.summaries.contour?.step);
+
+    const unscaledData = unscaleTextureData(image, imageUnscale);
+    const contourLines = await getContourLines(unscaledData, imageType, step, bounds);
+
+    return { type: 'FeatureCollection', features: contourLines };
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @param {number} [radius]
+   * @returns {Promise<GeoJSON.FeatureCollection>}
+   */
+  async loadStacCollectionHighLowPoints(dataset, datetime, radius) {
+    const stacCollection = await client.loadStacCollection(dataset);
+    const image = await client.loadStacCollectionData(dataset, datetime);
+    const imageType = stacCollection.summaries.imageType;
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const bounds = stacCollection.extent.spatial.bbox[0];
+
+    radius = /** @type {number} */ (radius || stacCollection.summaries.highLow?.radius);
+
+    const unscaledData = unscaleTextureData(image, imageUnscale);
+    const highLowPoints = await getHighLowPoints(unscaledData, imageType, radius, bounds);
+
+    return { type: 'FeatureCollection', features: highLowPoints };
   }
 }
 

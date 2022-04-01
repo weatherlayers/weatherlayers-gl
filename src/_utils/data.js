@@ -2,10 +2,8 @@ import * as GeoTIFF from 'geotiff';
 import GL from '@luma.gl/constants';
 import {ImageType} from './image-type';
 import {mix} from './mix';
-import {linearColormap} from './colormap';
 
 /** @typedef {import('./image-type').ImageType} ImageType */
-/** @typedef {import('./colormap').ColormapBreak} ColormapBreak */
 /** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
 /** @typedef {{ data: TextureDataArray, width: number, height: number }} TextureData */
 /** @typedef {Float32Array} FloatDataArray */
@@ -288,42 +286,4 @@ export function getDirectionData(image, imageType) {
   }
 
   return { data: directionData, width, height };
-}
-
-/**
- * @param {TextureData} textureData
- * @param {ImageType} imageType
- * @param {[number, number] | null} imageUnscale
- * @param {ColormapBreak[]} colormapBreaks
- * @returns {HTMLCanvasElement}
- */
-export function colorTextureData(textureData, imageType, imageUnscale, colormapBreaks) {
-  const unscaledData = unscaleTextureData(textureData, imageUnscale);
-  const valueData = getValueData(unscaledData, imageType);
-  const { data, width, height } = valueData;
-
-  const colormap = linearColormap(colormapBreaks);
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const context = /** @type CanvasRenderingContext2D */ (canvas.getContext('2d'));
-  const imageData = context.createImageData(width, height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const i = x + y * width;
-      const j = (x + y * width) * 4;
-
-      const value = data[i];
-      const color = colormap(value);
-
-      imageData.data[j] = color[0];
-      imageData.data[j + 1] = color[1];
-      imageData.data[j + 2] = color[2];
-      imageData.data[j + 3] = color[3] * 255;
-    }
-  }
-  context.putImageData(imageData, 0, 0);
-
-  return canvas;
 }

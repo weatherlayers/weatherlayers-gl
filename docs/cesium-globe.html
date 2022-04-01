@@ -30,6 +30,7 @@
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
     });
+    const client = WeatherLayers.getClient();
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ globe: true });
@@ -51,6 +52,7 @@
         animation: false,
         timeline: false,
       });
+      let rasterLayer;
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {
@@ -70,28 +72,26 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        let rasterLayer = viewer.imageryLayers._layers.find(x => x.name === 'raster');
-        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const client = WeatherLayers.getClient();
-          const canvas = await client.loadStacCollectionColorDataByDatetime(dataset, datetime);
-          const rasterImageryProvider = new Cesium.SingleTileImageryProvider({
-            url: canvas.toDataURL(),
-            rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-            credit: await client.getStacCollectionAttribution(dataset),
-          });
+        const attribution = await client.getStacCollectionAttribution(dataset);
 
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime) : undefined;
           if (rasterLayer) {
             viewer.imageryLayers.remove(rasterLayer);
           }
-
-          rasterLayer = viewer.imageryLayers.addImageryProvider(rasterImageryProvider);
-          rasterLayer.name = 'raster';
-          rasterLayer.dataset = dataset;
-          rasterLayer.datetime = datetime;
-          rasterLayer.show = config.raster.enabled;
-          rasterLayer.alpha = config.raster.opacity;
-          Cesium.knockout.track(rasterLayer, ['show', 'alpha']);
-        } else {
+          if (rasterImage) {
+            rasterLayer = viewer.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+              url: rasterImage.toDataURL(),
+              rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
+              credit: attribution,
+            }));
+            rasterLayer.name = 'raster';
+            rasterLayer.dataset = dataset;
+            rasterLayer.datetime = datetime;
+            Cesium.knockout.track(rasterLayer, ['show', 'alpha']);
+          }
+        }
+        if (rasterLayer) {
           rasterLayer.show = config.raster.enabled;
           rasterLayer.alpha = config.raster.opacity;
         }

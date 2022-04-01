@@ -24,7 +24,7 @@ export class ContourLayer extends CompositeLayer {
 
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const step = props.step || stacCollection.summaries.contour?.step; // TODO: rename to step in catalog
+    const step = props.step || stacCollection.summaries.contour?.step;
 
     return [
       new BaseContourLayer(props, this.getSubLayerProps({
@@ -83,8 +83,8 @@ export class ContourLayer extends CompositeLayer {
 
       if (dataset !== oldProps.dataset || startDatetime !== this.state.startDatetime || endDatetime !== this.state.endDatetime) {
         const [image, image2] = await Promise.all([
-          startDatetime && client.loadStacCollectionDataByDatetime(dataset, startDatetime),
-          endDatetime && client.loadStacCollectionDataByDatetime(dataset, endDatetime),
+          startDatetime && client.loadStacCollectionData(dataset, startDatetime),
+          endDatetime && client.loadStacCollectionData(dataset, endDatetime),
         ]);
   
         this.setState({ image, image2 });
