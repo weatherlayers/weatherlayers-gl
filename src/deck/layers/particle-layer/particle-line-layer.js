@@ -102,11 +102,13 @@ export class ParticleLineLayer extends LineLayer {
     }
 
     const {animate} = this.props;
-    const {sourcePositions, targetPositions, colors, widths, model} = this.state;
+    const {sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, model} = this.state;
 
     model.setAttributes({
       instanceSourcePositions: sourcePositions,
       instanceTargetPositions: targetPositions,
+      instanceSourcePositions64Low: sourcePositions64Low,
+      instanceTargetPositions64Low: targetPositions64Low,
       instanceColors: colors,
       instanceWidths: widths,
     });
@@ -134,10 +136,13 @@ export class ParticleLineLayer extends LineLayer {
     // sourcePositions/targetPositions buffer layout:
     // |          age0             |          age1             |          age2             |...|          age(N-1)         |
     // |pos0,pos1,pos2,...,pos(N-1)|pos0,pos1,pos2,...,pos(N-1)|pos0,pos1,pos2,...,pos(N-1)|...|pos0,pos1,pos2,...,pos(N-1)|
+    // 64-bit low buffers are currently unused, but required for PROJECTION_MODE.WEB_MERCATOR_AUTO_OFFSET
     const numInstances = numParticles * maxAge;
     const numAgedInstances = numParticles * (maxAge - 1);
     const sourcePositions = new Buffer(gl, new Float32Array(numInstances * 3));
     const targetPositions = new Buffer(gl, new Float32Array(numInstances * 3));
+    const sourcePositions64Low = new Buffer(gl, new Float32Array(numInstances * 3));
+    const targetPositions64Low = new Buffer(gl, new Float32Array(numInstances * 3));
     const colors = new Buffer(gl, new Float32Array(new Array(numInstances).fill(undefined).map((_, i) => {
       const age = Math.floor(i / numParticles);
       return [color[0], color[1], color[2], (color[3] ?? 255) * (1 - age / maxAge)].map(d => d / 255);
@@ -165,6 +170,8 @@ export class ParticleLineLayer extends LineLayer {
       numAgedInstances,
       sourcePositions,
       targetPositions,
+      sourcePositions64Low,
+      targetPositions64Low,
       colors,
       widths,
       transform,
@@ -254,10 +261,12 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
-    const {numInstances, sourcePositions, targetPositions} = this.state;
+    const {numInstances, sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low} = this.state;
 
     sourcePositions.subData({data: new Float32Array(numInstances * 3)});
     targetPositions.subData({data: new Float32Array(numInstances * 3)});
+    sourcePositions64Low.subData({data: new Float32Array(numInstances * 3)});
+    targetPositions64Low.subData({data: new Float32Array(numInstances * 3)});
   }
 
   _deleteTransformFeedback() {
@@ -271,10 +280,12 @@ export class ParticleLineLayer extends LineLayer {
       return;
     }
 
-    const {sourcePositions, targetPositions, colors, widths, transform} = this.state;
+    const {sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, transform} = this.state;
 
     sourcePositions.delete();
     targetPositions.delete();
+    sourcePositions64Low.delete();
+    targetPositions64Low.delete();
     colors.delete();
     widths.delete();
     transform.delete();
@@ -283,6 +294,8 @@ export class ParticleLineLayer extends LineLayer {
       initialized: false,
       sourcePositions: undefined,
       targetPositions: undefined,
+      sourcePositions64Low: undefined,
+      targetPositions64Low: undefined,
       colors: undefined,
       widths: undefined,
       transform: undefined,
