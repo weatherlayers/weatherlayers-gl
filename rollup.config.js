@@ -16,6 +16,9 @@ import { terser } from 'rollup-plugin-terser';
 import visualizer from 'rollup-plugin-visualizer';
 import gnirts from 'gnirts';
 
+const LICENSE_DATE = process.env.LICENSE_DAYS ? new Date(new Date().valueOf() + parseInt(process.env.LICENSE_DAYS, 10) * 24 * 60 * 60 * 1000) : undefined;
+const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
+
 function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
 
@@ -33,9 +36,13 @@ function bundle(entrypoint, filename, format, options = {}) {
         '@luma.gl/core': 'luma',
         'geotiff': 'GeoTIFF',
       },
-      banner: `/*!
-* Copyright (c) 2022 WeatherLayers.com${process.env.TRIAL_UNTIL ? `\n* Trial until ${process.env.TRIAL_UNTIL}` : ''}
-*/`,
+      banner: [
+        '/*!',
+        ' * Copyright (c) 2022 WeatherLayers.com',
+        ...(LICENSE_DATE ? [` * Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
+        ...(LICENSE_DOMAIN ? [` * Project License, valid for ${LICENSE_DOMAIN}`] : []),
+        ' */'
+      ].join('\n'),
     },
     external: [
       ...Object.keys(pkg.peerDependencies),
@@ -50,8 +57,9 @@ function bundle(entrypoint, filename, format, options = {}) {
     plugins: [
       replace({
         preventAssignment: true,
-        __version__: pkg.version,
-        __trialUntil__: gnirts.getCode((process.env.TRIAL_UNTIL ? new Date(process.env.TRIAL_UNTIL).valueOf() : Number.MAX_SAFE_INTEGER).toString(36)),
+        __VERSION__: `"${pkg.version}"`,
+        __LICENSE_DATE__: LICENSE_DATE ? gnirts.getCode(LICENSE_DATE.valueOf().toString(36)) : '""',
+        __LICENSE_DOMAIN__: LICENSE_DOMAIN ? gnirts.getCode(LICENSE_DOMAIN) : '""',
       }),
       alias({
         entries: [
