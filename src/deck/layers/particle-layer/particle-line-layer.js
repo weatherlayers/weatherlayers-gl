@@ -213,7 +213,7 @@ export class ParticleLineLayer extends LineLayer {
       [updateTransformVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
       [updateTransformVsTokens.viewportGlobeRadius]: viewportGlobeRadius || 0,
       [updateTransformVsTokens.viewportBounds]: viewportBounds || [0, 0, 0, 0],
-      [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor,
+      [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor || 0,
 
       [updateTransformVsTokens.bitmapTexture]: imageTexture,
       [updateTransformVsTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,

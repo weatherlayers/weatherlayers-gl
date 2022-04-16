@@ -27,13 +27,13 @@ uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
 
+bool isNaN(float value) {
+  return !(value <= 0. || 0. <= value);
+}
+
 // see https://stackoverflow.com/a/27228836/1823988
 float atan2(float y, float x) {
   return x == 0. ? sign(y) * PI / 2. : atan(y, x);
-}
-
-bool isNaN(float value) {
-  return !(value <= 0. || 0. <= value);
 }
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
@@ -72,6 +72,7 @@ vec2 destinationPoint(vec2 from, float dist, float bearing) {
   return vec2(lon, lat);
 }
 
+// longitude wrapping allows rendering in a repeated MapView
 float wrapLongitude(float lng) {
   float wrappedLng = mod(lng + 180., 360.) - 180.;
   return wrappedLng;
@@ -121,6 +122,7 @@ bool isPositionVisible(vec2 position) {
   }
 }
 
+// bitmapTexture is in COORDINATE_SYSTEM.LNGLAT
 // no coordinate conversion needed
 vec2 getUV(vec2 pos) {
   return vec2(
@@ -149,6 +151,8 @@ void main() {
   float particleIndex = mod(float(gl_VertexID), numParticles);
   float particleAge = floor(float(gl_VertexID) / numParticles);
 
+  // update particles age0
+  // older particles age1-age(N-1) are copied with buffer.copyData
   if (particleAge > 0.) {
     return;
   }
