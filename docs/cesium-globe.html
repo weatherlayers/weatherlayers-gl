@@ -24,7 +24,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui } from './config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
     import { FpsControl } from './fps-control.js';
 
     WeatherLayers.setClientConfig({
@@ -53,6 +53,8 @@
         timeline: false,
       });
       let rasterLayer;
+      let contourLayer;
+      let highLowLayer;
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {
@@ -94,6 +96,69 @@
         if (rasterLayer) {
           rasterLayer.show = config.raster.enabled;
           rasterLayer.alpha = config.raster.opacity;
+        }
+
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime) : undefined;
+          if (contourLayer) {
+            viewer.dataSources.remove(contourLayer);
+          }
+          if (contourLines) {
+            contourLayer = new Cesium.CustomDataSource();
+            contourLayer.name = 'contour';
+            contourLayer.dataset = dataset;
+            contourLayer.datetime = datetime;
+            for (let contourLine of contourLines.features) {
+              contourLayer.entities.add({
+                polyline: {
+                  positions: Cesium.Cartesian3.fromDegreesArray(contourLine.geometry.coordinates.flat()),
+                },
+              });
+            }
+            viewer.dataSources.add(contourLayer);
+            Cesium.knockout.track(contourLayer, ['show']);
+          }
+        }
+        if (contourLayer) {
+          contourLayer.show = config.contour.enabled;
+          for (let contourLayerEntity of contourLayer.entities.values) {
+            contourLayerEntity.polyline.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromBytes.apply(null, colorToArray(config.contour.color)));
+            contourLayerEntity.polyline.width = config.contour.width;
+          }
+        }
+
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
+          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime) : undefined;
+          if (highLowLayer) {
+            viewer.dataSources.remove(highLowLayer);
+          }
+          if (highLowPoints) {
+            highLowLayer = new Cesium.CustomDataSource();
+            highLowLayer.name = 'highLow';
+            highLowLayer.dataset = dataset;
+            highLowLayer.datetime = datetime;
+            for (let highLowPoint of highLowPoints.features) {
+              highLowLayer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees.apply(null, highLowPoint.geometry.coordinates),
+                label: {
+                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                  text: `${highLowPoint.properties.type}\n${Math.round(highLowPoint.properties.value / 100)}`,
+                },
+              });
+            }
+            viewer.dataSources.add(highLowLayer);
+            Cesium.knockout.track(highLowLayer, ['show']);
+          }
+        }
+        if (highLowLayer) {
+          highLowLayer.show = config.contour.enabled;
+          for (let highLowLayerEntity of highLowLayer.entities.values) {
+            highLowLayerEntity.label.font = `${config.highLow.textSize}px ${WeatherLayers.DEFAULT_TEXT_FONT_FAMILY}`;
+            highLowLayerEntity.label.fillColor = Cesium.Color.fromBytes.apply(null, colorToArray(config.highLow.textColor));
+            highLowLayerEntity.label.outlineColor = Cesium.Color.fromBytes.apply(null, colorToArray(config.highLow.textOutlineColor));
+            highLowLayerEntity.label.outlineWidth = config.highLow.textOutlineWidth;
+          }
         }
 
         rotateAnimation.toggle(config.rotate);

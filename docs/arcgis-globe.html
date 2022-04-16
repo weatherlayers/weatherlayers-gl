@@ -160,21 +160,21 @@
               color: config.contour.color,
             },
           };
-          contourLayer.labelingInfo = [
-            {
-              labelPlacement: 'center-center',
-              labelExpressionInfo: { expression: 'Round($feature.value / 100)' },
-              symbol: {
-                type: 'text',
-                font: {
-                  size: config.contour.textSize,
-                },
-                color: config.contour.textColor,
-                haloSize: `${config.contour.textOutlineWidth}px`,
-                haloColor: config.contour.textOutlineColor,
-              },
-            },
-          ];
+          // contourLayer.labelingInfo = [
+          //   {
+          //     labelPlacement: 'center-center',
+          //     labelExpressionInfo: { expression: 'Round($feature.value / 100)' },
+          //     symbol: {
+          //       type: 'text',
+          //       font: {
+          //         size: config.contour.textSize,
+          //       },
+          //       color: config.contour.textColor,
+          //       haloSize: `${config.contour.textOutlineWidth}px`,
+          //       haloColor: config.contour.textOutlineColor,
+          //     },
+          //   },
+          // ];
           contourLayer.opacity = config.contour.opacity;
         }
 
