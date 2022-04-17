@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.0-alpha.4/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.0-alpha.4/mapbox-gl.css" rel="stylesheet">
+  <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
+  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./info-control.css">
+  <link rel="stylesheet" href="./fps-control.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
+</head>
+
+<body class="mapbox">
+  <div id="container">
+    <div id="mapbox"></div>
+    <div id="deck"></div>
+  </div>
+  <div id="top-left"></div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
+
+  <script type="module">
+    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from './config.js';
+    import { InfoControl } from './info-control.js';
+    import { FpsControl } from './fps-control.js';
+
+    WeatherLayers.setClientConfig({
+      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+    });
+    const client = WeatherLayers.getClient();
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const config = await initConfig({ globe: true });
+      let gui;
+
+      // Mapbox
+      const map = new mapboxgl.Map({
+        container: 'mapbox',
+        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ', // WeatherLayers access token
+        style: 'mapbox://styles/mapbox/dark-v10',
+        center: [30, 10],
+        zoom: 3,
+        projection: 'globe',
+      });
+      let rasterLayer;
+      let contourLayer;
+      let highLowLayer;
+
+      // rotate
+      const rotateAnimation = new WeatherLayers.Animation(() => {
+        const center = map.getCenter();
+        map.setCenter({ lng: center.lng + 0.3, lat: center.lat });
+      });
+
+      // legend
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // attribution
+      const attributionControl = new WeatherLayers.AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+
+      // config
+      async function update() {
+        const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, `mercator.${client.config.format}`) : undefined;
+          if (rasterLayer) {
+            map.removeLayer('raster');
+            map.removeSource('raster');
+          }
+          if (rasterImage) {
+            map.addSource('raster', {
+              'type': 'image',
+              'url': rasterImage.toDataURL(),
+              'coordinates': [
+                [-180, 85.051129],
+                [180, 85.051129],
+                [180, -85.051129],
+                [-180, -85.051129],
+              ],
+            });
+            rasterLayer = map.addLayer({
+              id: 'raster',
+              type: 'raster',
+              source: 'raster',
+            });
+            rasterLayer.dataset = dataset;
+            rasterLayer.datetime = datetime;
+          }
+        }
+        if (rasterLayer) {
+          map.setLayoutProperty('raster', 'visibility', config.raster.enabled ? 'visible' : 'none');
+          map.setPaintProperty('raster', 'raster-opacity', config.raster.opacity);
+        }
+
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime) : undefined;
+          if (contourLayer) {
+            map.removeLayer('contourLabel');
+            map.removeLayer('contour');
+            map.removeSource('contour');
+          }
+          if (contourLines) {
+            map.addSource('contour', {
+              type: 'geojson',
+              data: contourLines,
+            });
+            contourLayer = map.addLayer({
+              id: 'contour',
+              source: 'contour',
+              type: 'line',
+            });
+            contourLayer.dataset = dataset;
+            contourLayer.datetime = datetime;
+            map.addLayer({
+              id: 'contourLabel',
+              source: 'contour',
+              type: 'symbol',
+              layout: {
+                'symbol-placement': 'line',
+                'text-field': ['to-string', ['round', ['/', ['get', 'value'], 100]]],
+              },
+            });
+          }
+        }
+        if (contourLayer) {
+          map.setLayoutProperty('contour', 'visibility', config.contour.enabled ? 'visible' : 'none');
+          map.setPaintProperty('contour', 'line-width', config.contour.width);
+          map.setPaintProperty('contour', 'line-color', colorToCss(config.contour.color));
+          map.setPaintProperty('contour', 'line-opacity', config.contour.opacity);
+          map.setLayoutProperty('contourLabel', 'visibility', config.contour.enabled ? 'visible' : 'none');
+          map.setLayoutProperty('contourLabel', 'text-size', config.contour.textSize);
+          map.setPaintProperty('contourLabel', 'text-color', colorToCss(config.contour.textColor));
+          map.setPaintProperty('contourLabel', 'text-halo-width', config.contour.textOutlineWidth);
+          map.setPaintProperty('contourLabel', 'text-halo-color', colorToCss(config.contour.textOutlineColor));
+          map.setPaintProperty('contourLabel', 'text-opacity', config.contour.opacity);
+        }
+
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
+          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime) : undefined;
+          if (highLowLayer) {
+            map.removeLayer('highLow');
+            map.removeSource('highLow');
+          }
+          if (highLowPoints) {
+            map.addSource('highLow', {
+              type: 'geojson',
+              data: highLowPoints
+            });
+            highLowLayer = map.addLayer({
+              id: 'highLow',
+              source: 'highLow',
+              type: 'symbol',
+              layout: {
+                'text-field': ['format',
+                  ['get', 'type'], { 'font-scale': 1.2 },
+                  '\n', {},
+                  ['to-string', ['round', ['/', ['get', 'value'], 100]]], {}
+                ]
+              }
+            });
+            highLowLayer.dataset = dataset;
+            highLowLayer.datetime = datetime;
+          }
+        }
+        if (highLowLayer) {
+          map.setLayoutProperty('highLow', 'visibility', config.highLow.enabled ? 'visible' : 'none');
+          map.setLayoutProperty('highLow', 'text-size', config.highLow.textSize);
+          map.setPaintProperty('highLow', 'text-color', colorToCss(config.highLow.textColor));
+          map.setPaintProperty('highLow', 'text-halo-width', config.highLow.textOutlineWidth);
+          map.setPaintProperty('highLow', 'text-halo-color', colorToCss(config.highLow.textOutlineColor));
+          map.setPaintProperty('highLow', 'text-opacity', config.highLow.opacity);
+        }
+
+        rotateAnimation.toggle(config.rotate);
+        legendControl.update({ ...legendControl.config, dataset });
+        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
+      }
+      update();
+      gui = initGui(config, update, { globe: true });
+    });
+  </script>
+</body>
+
+</html>

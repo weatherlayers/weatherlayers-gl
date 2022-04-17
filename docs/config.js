@@ -132,7 +132,18 @@ async function updateDataset(config, { deckgl } = {}) {
   }
 }
 
+function debounce(callback, wait) {
+  let timeoutId = null;
+  return (...args) => {
+    window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => {
+      callback.apply(null, args);
+    }, wait);
+  };
+}
+
 export function initGui(config, update, { deckgl, globe } = {}) {
+  update = debounce(update, 100);
   const updateLast = event => event.last && update();
 
   const gui = new Tweakpane.Pane();
@@ -219,6 +230,10 @@ export function arrayToColor(color) {
 
 export function colorToArray(color) {
   return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [255])];
+}
+
+export function colorToCss(color) {
+  return `rgba(${color.r}, ${color.g}, ${color.b}, ${typeof color.a === 'number' ? color.a : 1 })`;
 }
 
 export function isIOS15() {

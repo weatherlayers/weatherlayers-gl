@@ -24,7 +24,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
+    import { NO_DATA, initConfig, initGui, colorToCss } from './config.js';
     import { FpsControl } from './fps-control.js';
 
     WeatherLayers.setClientConfig({
@@ -122,8 +122,8 @@
         if (contourLayer) {
           contourLayer.show = config.contour.enabled;
           for (let contourLayerEntity of contourLayer.entities.values) {
-            contourLayerEntity.polyline.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromBytes.apply(null, colorToArray(config.contour.color)));
             contourLayerEntity.polyline.width = config.contour.width;
+            contourLayerEntity.polyline.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(colorToCss(config.contour.color)));
           }
         }
 
@@ -139,7 +139,7 @@
             highLowLayer.datetime = datetime;
             for (let highLowPoint of highLowPoints.features) {
               highLowLayer.entities.add({
-                position: Cesium.Cartesian3.fromDegrees.apply(null, highLowPoint.geometry.coordinates),
+                position: Cesium.Cartesian3.fromDegrees(highLowPoint.geometry.coordinates[0], highLowPoint.geometry.coordinates[1]),
                 label: {
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
@@ -155,9 +155,9 @@
           highLowLayer.show = config.contour.enabled;
           for (let highLowLayerEntity of highLowLayer.entities.values) {
             highLowLayerEntity.label.font = `${config.highLow.textSize}px ${WeatherLayers.DEFAULT_TEXT_FONT_FAMILY}`;
-            highLowLayerEntity.label.fillColor = Cesium.Color.fromBytes.apply(null, colorToArray(config.highLow.textColor));
-            highLowLayerEntity.label.outlineColor = Cesium.Color.fromBytes.apply(null, colorToArray(config.highLow.textOutlineColor));
+            highLowLayerEntity.label.fillColor = Cesium.Color.fromCssColorString(colorToCss(config.highLow.textColor));
             highLowLayerEntity.label.outlineWidth = config.highLow.textOutlineWidth;
+            highLowLayerEntity.label.outlineColor = Cesium.Color.fromCssColorString(colorToCss(config.highLow.textOutlineColor));
           }
         }
 
