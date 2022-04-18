@@ -9,14 +9,15 @@ const GRID_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfs/temperature_2m_ab
 const PARTICLE_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfswave/waves', 'cmems_phy/currents'];
 
 export async function initConfig({ deckgl, globe } = {}) {
-  const client = WeatherLayers.getClient();
+  const urlConfig = new URLSearchParams(location.hash.substring(1));
 
+  const client = WeatherLayers.getClient();
   const stacCatalog = await client.loadStacCatalog();
 
   const config = {
     client,
     datasets: await client.loadStacCatalogChildCollectionIds(stacCatalog),
-    dataset: DEFAULT_DATASET,
+    dataset: urlConfig.get('dataset') ?? DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
     ...(deckgl ? {
@@ -94,6 +95,8 @@ function getDatetimeOptions(datetimes) {
 }
 
 async function updateDataset(config, { deckgl } = {}) {
+  const urlConfig = new URLSearchParams(location.hash.substring(1));
+
   if (config.dataset === NO_DATA) {
     config.datetimes = [];
     config.datetime = NO_DATA;
@@ -113,23 +116,46 @@ async function updateDataset(config, { deckgl } = {}) {
   config.datetimes = client.getStacCollectionDatetimes(stacCollection);
   config.datetime = client.getStacCollectionClosestStartDatetime(stacCollection, config.datetime) || config.datetimes[0];
 
-  config.raster.enabled = true;
+  config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
-  config.contour.enabled = CONTOUR_LAYER_DATASETS.includes(config.dataset);
+  config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : CONTOUR_LAYER_DATASETS.includes(config.dataset);
   config.contour.step = stacCollection.summaries.contour?.delta || 0; // TODO: rename to step in catalog
 
-  config.highLow.enabled = HIGH_LOW_LAYER_DATASETS.includes(config.dataset);
+  config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : HIGH_LOW_LAYER_DATASETS.includes(config.dataset);
   config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
 
   if (deckgl) {
-    config.grid.enabled = GRID_LAYER_DATASETS.includes(config.dataset);
+    config.grid.enabled = urlConfig.has('grid') ? urlConfig.get('grid') === 'true' : GRID_LAYER_DATASETS.includes(config.dataset);
     config.grid.style = stacCollection.summaries.grid?.style || WeatherLayers.GridStyle.VALUE;
 
-    config.particle.enabled = PARTICLE_LAYER_DATASETS.includes(config.dataset);
+    config.particle.enabled = urlConfig.has('particle') ? urlConfig.get('particle') === 'true' : PARTICLE_LAYER_DATASETS.includes(config.dataset);
     config.particle.maxAge = stacCollection.summaries.particle?.maxAge || 0;
     config.particle.speedFactor = stacCollection.summaries.particle?.speedFactor || 0;
     config.particle.width = stacCollection.summaries.particle?.width || 0;
   }
+}
+
+function updateUrlConfig(config) {
+  const urlConfig = new URLSearchParams();
+  if (config.dataset !== DEFAULT_DATASET) {
+    urlConfig.set('dataset', config.dataset);
+  }
+  if (config.raster.enabled !== true) {
+    urlConfig.set('raster', config.raster.enabled);
+  }
+  if (config.contour.enabled !== CONTOUR_LAYER_DATASETS.includes(config.dataset)) {
+    urlConfig.set('contour', config.contour.enabled);
+  }
+  if (config.highLow.enabled !== HIGH_LOW_LAYER_DATASETS.includes(config.dataset)) {
+    urlConfig.set('highLow', config.highLow.enabled);
+  }
+  if (config.grid.enabled !== GRID_LAYER_DATASETS.includes(config.dataset)) {
+    urlConfig.set('grid', config.grid.enabled);
+  }
+  if (config.particle.enabled !== PARTICLE_LAYER_DATASETS.includes(config.dataset)) {
+    urlConfig.set('particle', config.particle.enabled);
+  }
+  window.history.replaceState(null, null, '#' + urlConfig.toString());
 }
 
 function debounce(callback, wait) {
@@ -143,7 +169,8 @@ function debounce(callback, wait) {
 }
 
 export function initGui(config, update, { deckgl, globe } = {}) {
-  update = debounce(update, 100);
+  const originalUpdate = update;
+  update = debounce(() => { updateUrlConfig(config); originalUpdate() }, 100);
   const updateLast = event => event.last && update();
 
   const gui = new Tweakpane.Pane();
