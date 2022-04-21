@@ -9,6 +9,12 @@
       font-family: 'Lucida Grande', sans-serif;
       font-size: 12px;
     }
+    table th {
+      text-align: left;
+    }
+    table th, table td {
+      padding: 2px 4px;
+    }
   </style>
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
@@ -16,27 +22,181 @@
 <body>
   <h1>WeatherLayers</h2>
   <h2>deck.gl</h2>
-  <ul>
-    <li><a href="./map.html">Map</a></li>
-    <li><a href="./map-leaflet.html">Map + Leaflet</a></li>
-    <li><a href="./map-google-maps.html">Map + Google Maps</a></li>
-    <li><a href="./map-mapbox.html">Map + Mapbox</a></li>
-    <li><a href="./map-maplibre.html">Map + MapLibre</a></li>
-    <li><a href="./map-arcgis.html">Map + ArcGIS</a> <small>(in development)</small></li>
-    <li><a href="./map-arcgis-renderer.html">Map + ArcGIS renderer</a></li>
-    <li><a href="./globe.html">Globe</a></li>
-    <li><a href="./globe-arcgis-renderer.html">Globe + ArcGIS renderer</a> <small>(in development)</small></li>
-  </ul>
+  <table>
+    <tr>
+      <th width="300"></th>
+      <th width="60">Raster</th>
+      <th width="60">Contour</th>
+      <th width="60">HighLow</th>
+      <th width="60">Particle</th>
+      <th width="60">Grid</th>
+    </tr>
+    <tr>
+      <td><a href="./map.html">Map (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-leaflet.html">Map + Leaflet (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-google-maps.html">Map + Google Maps (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-mapbox.html">Map + Mapbox (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-maplibre.html">Map + MapLibre (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-arcgis.html">Map + ArcGIS (2D)</a> <small>(in development)</small></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./map-arcgis-renderer.html">Map + ArcGIS Renderer (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./globe.html">Globe (3D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+    <tr>
+      <td><a href="./globe-arcgis-renderer.html.html">Globe + ArcGIS Renderer (3D)</a> <small>(in development)</small></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+    </tr>
+  </table>
   <p>Requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15)</p>
 
   <h2>Other</h2>
-  <ul>
-    <li><a href="./mapbox.html">Mapbox</a></li>
-    <li><a href="./mapbox-globe.html">Mapbox Globe</a> <small>(in development)</small></li>
-    <li><a href="./maplibre.html">MapLibre</a></li>
-    <li><a href="./arcgis-globe.html">ArcGIS Globe</a></li>
-    <li><a href="./cesium-globe.html">Cesium Globe</a></li>
-  </ul>
+  <table>
+    <tr>
+      <th width="300"></th>
+      <th width="60">Raster</th>
+      <th width="60">Contour</th>
+      <th width="60">HighLow</th>
+      <th width="60">Particle</th>
+      <th width="60">Grid</th>
+    </tr>
+    <tr>
+      <td><a href="./mapbox.html">Mapbox (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✘</td>
+      <td>✘</td>
+    </tr>
+    <tr>
+      <td><a href="./maplibre.html">MapLibre (2D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✘</td>
+      <td>✘</td>
+    </tr>
+    <tr>
+      <td><a href="./mapbox-globe.html">Mapbox Globe (3D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✘</td>
+      <td>✘</td>
+    </tr>
+    <tr>
+      <td><a href="./arcgis-globe.html">ArcGIS Globe (3D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✘</td>
+      <td>✘</td>
+    </tr>
+    <tr>
+      <td><a href="./cesium-globe.html">Cesium Globe (3D)</a></td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✔</td>
+      <td>✘</td>
+      <td>✘</td>
+    </tr>
+  </table>
+
+  <h2>Layers and datasets</h2>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>Dataset</th>
+    </tr>
+    <tr>
+      <td>Raster</td>
+      <td>all</td>
+    </tr>
+    <tr>
+      <td>Contour</td>
+      <td>gfs/pressure_mean_sea_level</td>
+    </tr>
+    <tr>
+      <td>HighLow</td>
+      <td>gfs/pressure_mean_sea_level</td>
+    </tr>
+    <tr>
+      <td>Particle</td>
+      <td>gfs/wind_10m_above_ground, cmems_phy/currents</td>
+    </tr>
+    <tr>
+      <td>Particle (waves)</td>
+      <td>gfswave/waves</td>
+    </tr>
+    <tr>
+      <td>Grid (wind barbs)</td>
+      <td>gfs/wind_10m_above_ground</td>
+    </tr>
+    <tr>
+      <td>Grid (values)</td>
+      <td>gfs/temperature_2m_above_ground, gfs/apparent_temperature_2m_above_ground, cmems_sst/sea_surface_temperature</td>
+    </tr>
+    <tr>
+      <td>Grid (arrows)</td>
+      <td>cmems_phy/currents</td>
+    </tr>
+  </table>
 </body>
 
 </html>
