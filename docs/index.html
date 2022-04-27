@@ -14,6 +14,7 @@
     }
     table th, table td {
       padding: 2px 4px;
+      vertical-align: top;
     }
   </style>
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -106,7 +107,7 @@
   </table>
   <p>Requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15)</p>
 
-  <h2>Other</h2>
+  <h2>Standalone without deck.gl</h2>
   <table>
     <tr>
       <th width="300"></th>
@@ -133,7 +134,7 @@
       <td>✘</td>
     </tr>
     <tr>
-      <td><a href="./mapbox-globe.html">Mapbox Globe (3D)</a></td>
+      <td><a href="./mapbox-globe.html">Mapbox Globe (3D)</a> <small>(in development)</small></td>
       <td>✔</td>
       <td>✔</td>
       <td>✔</td>
@@ -158,7 +159,7 @@
     </tr>
   </table>
 
-  <h2>Layers and datasets</h2>
+  <h2>Layers and Datasets</h2>
   <table>
     <tr>
       <th>Layer</th>
@@ -185,16 +186,16 @@
       <td>gfswave/waves</td>
     </tr>
     <tr>
-      <td>Grid (wind barbs)</td>
-      <td>gfs/wind_10m_above_ground</td>
-    </tr>
-    <tr>
       <td>Grid (values)</td>
       <td>gfs/temperature_2m_above_ground, gfs/apparent_temperature_2m_above_ground, cmems_sst/sea_surface_temperature</td>
     </tr>
     <tr>
       <td>Grid (arrows)</td>
       <td>cmems_phy/currents</td>
+    </tr>
+    <tr>
+      <td>Grid (wind barbs)</td>
+      <td>gfs/wind_10m_above_ground</td>
     </tr>
   </table>
 </body>
