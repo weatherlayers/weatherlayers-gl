@@ -25,7 +25,6 @@ export class GridLayer extends CompositeLayer {
     const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const iconBounds = props.iconBounds || stacCollection.summaries.grid?.iconBounds;
 
     return [
       new BaseGridLayer(props, this.getSubLayerProps({
@@ -43,7 +42,6 @@ export class GridLayer extends CompositeLayer {
         imageUnscale,
 
         textFunction: this.state.textFunction,
-        iconBounds,
 
         bounds: stacCollection.extent.spatial.bbox[0],
         _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,

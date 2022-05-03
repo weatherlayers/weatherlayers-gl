@@ -25,9 +25,6 @@ export class ParticleLayer extends CompositeLayer {
     const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const maxAge = props.maxAge || stacCollection.summaries.particle?.maxAge;
-    const speedFactor = props.speedFactor || stacCollection.summaries.particle?.speedFactor;
-    const width = props.width || stacCollection.summaries.particle?.width;
 
     return [
       new BaseParticleLayer(props, this.getSubLayerProps({
@@ -43,10 +40,6 @@ export class ParticleLayer extends CompositeLayer {
         imageType,
         imageWeight,
         imageUnscale,
-
-        maxAge,
-        speedFactor,
-        width,
 
         bounds: stacCollection.extent.spatial.bbox[0],
         extensions: getViewportClipExtensions(viewport),

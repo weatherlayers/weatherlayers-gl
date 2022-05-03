@@ -44,11 +44,12 @@ class GridLayer extends CompositeLayer {
       return [];
     }
 
-    const {style, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconBounds, iconSize, iconColor} = props;
-    const {iconAtlas, iconMapping} = GRID_ICON_STYLES.get(style) || {};
-    const iconStyle = !!(iconBounds && iconAtlas && iconMapping);
+    const {style, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
+    const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
+      const {iconAtlas, iconMapping} = iconStyle;
+      const iconBounds = iconStyle.iconBounds || props.iconBounds;
       const delta = (iconBounds[1] - iconBounds[0]) / iconMapping.length;
       return [
         new IconLayer(this.getSubLayerProps({

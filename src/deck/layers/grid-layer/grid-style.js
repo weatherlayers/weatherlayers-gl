@@ -12,10 +12,11 @@ export const GridStyle = {
 export const GRID_ICON_STYLES = new Map([
   [GridStyle.ARROW, {
     iconAtlas: arrowIconAtlas,
-    iconMapping: arrowIconMapping
+    iconMapping: arrowIconMapping,
   }],
   [GridStyle.WIND_BARB, {
     iconAtlas: windBarbIconAtlas,
-    iconMapping: windBarbIconMapping
+    iconMapping: windBarbIconMapping,
+    iconBounds: [0, 100 * 0.51444], // 100 kts to m/s
   }],
 ]);

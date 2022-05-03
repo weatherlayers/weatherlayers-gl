@@ -3,10 +3,25 @@ export const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
-const CONTOUR_LAYER_DATASETS = ['gfs/pressure_mean_sea_level'];
-const HIGH_LOW_LAYER_DATASETS = ['gfs/pressure_mean_sea_level'];
-const GRID_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfs/temperature_2m_above_ground', 'gfs/apparent_temperature_2m_above_ground', 'cmems_sst/sea_surface_temperature', 'gfswave/waves', 'cmems_phy/currents'];
-const PARTICLE_LAYER_DATASETS = ['gfs/wind_10m_above_ground', 'gfswave/waves', 'cmems_phy/currents'];
+const CONTOUR_LAYER_DATASET_CONFIG = {
+  'gfs/pressure_mean_sea_level': { step: 200 },
+};
+const HIGH_LOW_LAYER_DATASET_CONFIG = {
+  'gfs/pressure_mean_sea_level': { radius: 2000 },
+};
+const GRID_LAYER_DATASET_CONFIG = {
+  'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB },
+  'gfs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'gfs/apparent_temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'cmems_sst/sea_surface_temperature': { style: WeatherLayers.GridStyle.VALUE },
+  'gfswave/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 30] },
+  'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
+};
+const PARTICLE_LAYER_DATASET_CONFIG = {
+  'gfs/wind_10m_above_ground': { speedFactor: 2, width: 2 },
+  'gfswave/waves': { speedFactor: 1, width: 5 },
+  'cmems_phy/currents': { speedFactor: 20, width: 2 },
+};
 
 export async function initConfig({ deckgl, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
@@ -35,7 +50,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     },
     contour: {
       enabled: false,
-      step: 0,
+      step: undefined, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
@@ -47,7 +62,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     },
     highLow: {
       enabled: false,
-      radius: 0,
+      radius: 0, // dataset-specific
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
       textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
       textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
@@ -58,12 +73,13 @@ export async function initConfig({ deckgl, globe } = {}) {
     ...(deckgl ? {
       grid: {
         enabled: false,
-        style: WeatherLayers.GridStyle.WIND_BARB,
+        style: WeatherLayers.GridStyle.VALUE, // dataset-specific
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
         textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
         textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
         textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
         textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+        iconBounds: null, // dataset-specific
         iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
         iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
         opacity: 1,
@@ -71,9 +87,9 @@ export async function initConfig({ deckgl, globe } = {}) {
       particle: {
         enabled: false,
         numParticles: 5000,
-        maxAge: 0,
-        speedFactor: 0,
-        width: WeatherLayers.DEFAULT_LINE_WIDTH,
+        maxAge: 25,
+        speedFactor: 0, // dataset-specific
+        width: 0, // dataset-specific
         color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
         opacity: 1,
         animate: true,
@@ -118,20 +134,20 @@ async function updateDataset(config, { deckgl } = {}) {
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
-  config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : CONTOUR_LAYER_DATASETS.includes(config.dataset);
-  config.contour.step = stacCollection.summaries.contour?.delta || 0; // TODO: rename to step in catalog
+  config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : !!CONTOUR_LAYER_DATASET_CONFIG[config.dataset];
+  config.contour.step = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.step || 0;
 
-  config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : HIGH_LOW_LAYER_DATASETS.includes(config.dataset);
-  config.highLow.radius = stacCollection.summaries.highLow?.radius || 0;
+  config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset];
+  config.highLow.radius = HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]?.radius || 0;
 
   if (deckgl) {
-    config.grid.enabled = urlConfig.has('grid') ? urlConfig.get('grid') === 'true' : GRID_LAYER_DATASETS.includes(config.dataset);
-    config.grid.style = stacCollection.summaries.grid?.style || WeatherLayers.GridStyle.VALUE;
+    config.grid.enabled = urlConfig.has('grid') ? urlConfig.get('grid') === 'true' : !!GRID_LAYER_DATASET_CONFIG[config.dataset];
+    config.grid.style = GRID_LAYER_DATASET_CONFIG[config.dataset]?.style || WeatherLayers.GridStyle.VALUE;
+    config.grid.iconBounds = GRID_LAYER_DATASET_CONFIG[config.dataset]?.iconBounds || null;
 
-    config.particle.enabled = urlConfig.has('particle') ? urlConfig.get('particle') === 'true' : PARTICLE_LAYER_DATASETS.includes(config.dataset);
-    config.particle.maxAge = stacCollection.summaries.particle?.maxAge || 0;
-    config.particle.speedFactor = stacCollection.summaries.particle?.speedFactor || 0;
-    config.particle.width = stacCollection.summaries.particle?.width || 0;
+    config.particle.enabled = urlConfig.has('particle') ? urlConfig.get('particle') === 'true' : !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset];
+    config.particle.speedFactor = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.speedFactor || 0;
+    config.particle.width = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.width || 0;
   }
 }
 
@@ -143,16 +159,16 @@ function updateUrlConfig(config) {
   if (config.raster.enabled !== true) {
     urlConfig.set('raster', config.raster.enabled);
   }
-  if (config.contour.enabled !== CONTOUR_LAYER_DATASETS.includes(config.dataset)) {
+  if (config.contour.enabled !== !!CONTOUR_LAYER_DATASET_CONFIG[config.dataset]) {
     urlConfig.set('contour', config.contour.enabled);
   }
-  if (config.highLow.enabled !== HIGH_LOW_LAYER_DATASETS.includes(config.dataset)) {
+  if (config.highLow.enabled !== !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]) {
     urlConfig.set('highLow', config.highLow.enabled);
   }
-  if (config.grid.enabled !== GRID_LAYER_DATASETS.includes(config.dataset)) {
+  if (config.grid.enabled !== !!GRID_LAYER_DATASET_CONFIG[config.dataset]) {
     urlConfig.set('grid', config.grid.enabled);
   }
-  if (config.particle.enabled !== PARTICLE_LAYER_DATASETS.includes(config.dataset)) {
+  if (config.particle.enabled !== !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset]) {
     urlConfig.set('particle', config.particle.enabled);
   }
   window.history.replaceState(null, null, '#' + urlConfig.toString());

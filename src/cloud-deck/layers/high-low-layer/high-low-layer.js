@@ -24,7 +24,6 @@ export class HighLowLayer extends CompositeLayer {
 
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const radius = props.radius || stacCollection.summaries.highLow?.radius;
 
     return [
       new BaseHighLowLayer(props, this.getSubLayerProps({
@@ -38,7 +37,6 @@ export class HighLowLayer extends CompositeLayer {
         imageType,
         imageUnscale,
 
-        radius,
         textFunction: this.state.textFunction,
 
         bounds: stacCollection.extent.spatial.bbox[0],

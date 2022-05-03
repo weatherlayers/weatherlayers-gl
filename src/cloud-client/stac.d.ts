@@ -57,24 +57,6 @@ export interface StacCollectionRasterConfig {
   colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
 }
 
-export interface StacCollectionContourConfig {
-  step: number;
-}
-
-export interface StacCollectionHighLowConfig {
-  radius: number;
-}
-
-export interface StacCollectionGridConfig {
-  iconBounds: [number, number];
-}
-
-export interface StacCollectionParticleConfig {
-  maxAge: number;
-  speedFactor: number;
-  width: number;
-}
-
 export enum StacCollectionImageType {
   SCALAR = 0,
   VECTOR = 1,
@@ -99,10 +81,6 @@ export interface StacCollection {
     imageBounds: [number, number]; // custom
     unit: StacCollectionUnit[]; // custom
     raster?: StacCollectionRasterConfig; // custom
-    contour?: StacCollectionContourConfig; // custom
-    highLow?: StacCollectionHighLowConfig; // custom
-    grid?: StacCollectionGridConfig; // custom
-    particle?: StacCollectionParticleConfig; // custom
   },
   links: StacLink[];
 }
