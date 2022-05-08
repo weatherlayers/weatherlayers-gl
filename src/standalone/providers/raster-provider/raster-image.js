@@ -1,21 +1,21 @@
+import {parsePalette} from 'cpt2js';
 import {getValueData} from '../../../_utils/data';
-import {linearColormap} from '../../../_utils/colormap';
 
+/** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').FloatData} FloatData */
-/** @typedef {import('../../../_utils/colormap').ColormapBreak} ColormapBreak */
 
 /**
  * @param {FloatData} image
  * @param {ImageType} imageType
- * @param {ColormapBreak[]} colormapBreaks
+ * @param {Palette} palette
  * @returns {Promise<HTMLCanvasElement>}
  */
-export async function getRasterImage(image, imageType, colormapBreaks) {
+export async function getRasterImage(image, imageType, palette) {
   const valueData = getValueData(image, imageType);
   const {data, width, height} = valueData;
 
-  const colormap = linearColormap(colormapBreaks);
+  const paletteScale = parsePalette(palette);
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -28,7 +28,7 @@ export async function getRasterImage(image, imageType, colormapBreaks) {
       const j = (x + y * width) * 4;
 
       const value = data[i];
-      const color = colormap(value);
+      const color = paletteScale(value).rgba();
 
       imageData.data[j] = color[0];
       imageData.data[j + 1] = color[1];

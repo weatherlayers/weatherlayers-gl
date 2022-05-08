@@ -2,8 +2,8 @@ uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
-uniform sampler2D colormapTexture;
-uniform vec2 colormapBounds;
+uniform sampler2D paletteTexture;
+uniform vec2 paletteBounds;
 uniform float rasterOpacity;
 
 const float RASTER_PI = 3.1415926535;
@@ -48,8 +48,8 @@ float raster_get_value(vec4 color) {
   return value;
 }
 
-float raster_get_colormap_value(float value) {
-  return unscale(colormapBounds[0], colormapBounds[1], value);
+float raster_get_palette_value(float value) {
+  return unscale(paletteBounds[0], paletteBounds[1], value);
 }
 
 float raster_get_direction_value(vec4 color) {

@@ -4,14 +4,15 @@ import {getRasterImage} from '../standalone/providers/raster-provider/raster-ima
 import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
 import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
 
+/** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../_utils/data').TextureData} TextureData */
-/** @typedef {import('../_utils/colormap').ColormapBreak} ColormapBreak */
 /** @typedef {import('../standalone/providers/contour-provider/contour-line').ContourLine} ContourLine */
 /** @typedef {import('../standalone/providers/high-low-provider/high-low-point').HighLowPoint} HighLowPoint */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProviderRole} StacProviderRole */
 /** @typedef {import('./stac').StacProvider} StacProvider */
+/** @typedef {import('./stac').StacAssetRole} StacAssetRole */
 /** @typedef {import('./stac').StacItem} StacItem */
 /** @typedef {{ url: string, accessToken?: string, format: string }} ClientConfig */
 
@@ -23,12 +24,39 @@ const DEFAULT_CLIENT_CONFIG = {
 };
 
 /**
+ * @param {string} url
+ * @return {Promise<string>}
+ */
+async function loadText(url) {
+  return (await fetch(url)).text();
+}
+
+/**
  * @template T
  * @param {string} url
  * @return {Promise<T>}
  */
 async function loadJson(url) {
   return (await fetch(url)).json();
+}
+
+/**
+ * @param {string} url
+ * @param {Map<string, any>} cache
+ * @return {Promise<string>}
+ */
+function loadTextCached(url, cache) {
+  const dataOrPromise = cache.get(url);
+  if (dataOrPromise) {
+    return dataOrPromise;
+  }
+  
+  const dataPromise = loadText(url);
+  cache.set(url, dataPromise);
+  dataPromise.then(data => {
+    cache.set(url, data);
+  });
+  return dataPromise;
 }
 
 /**
@@ -127,6 +155,20 @@ export class Client {
   }
 
   /**
+   * @param {string} stacCollectionId
+   * @returns {Promise<Palette>}
+   */
+  async loadStacCollectionPalette(stacCollectionId) {
+    const stacCollection = await this.loadStacCollection(stacCollectionId);
+    const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(/** @type {StacAssetRole} */('palette')) && x.type === 'text/plain');
+    if (!asset) {
+      throw new Error(`Palette asset not found`);
+    }
+    const url = asset.href;
+    return loadTextCached(url, this.cache);
+  }
+
+  /**
    * @param {string} dataset
    * @param {string} [linkClass]
    * @returns {Promise<string>}
@@ -203,19 +245,20 @@ export class Client {
    * @param {string} dataset
    * @param {string} datetime
    * @param {string} [format]
-   * @param {ColormapBreak[]} [colormapBreaks]
+   * @param {Palette} [palette]
    * @returns {Promise<HTMLCanvasElement>}
    */
-  async loadStacCollectionRasterImage(dataset, datetime, format, colormapBreaks) {
+  async loadStacCollectionRasterImage(dataset, datetime, format, palette) {
     const stacCollection = await client.loadStacCollection(dataset);
+    const stacCollectionPalette = await client.loadStacCollectionPalette(dataset)
+    palette = palette || stacCollectionPalette;
+
     const image = await client.loadStacCollectionData(dataset, datetime, format);
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
 
-    colormapBreaks = /** @type {ColormapBreak[]} */ (colormapBreaks || stacCollection.summaries.raster?.colormapBreaks);
-
     const unscaledData = unscaleTextureData(image, imageUnscale);
-    const canvas = getRasterImage(unscaledData, imageType, colormapBreaks);
+    const canvas = getRasterImage(unscaledData, imageType, palette);
 
     return canvas;
   }

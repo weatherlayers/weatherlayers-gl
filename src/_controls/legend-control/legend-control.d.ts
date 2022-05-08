@@ -1,8 +1,8 @@
-import { ColormapBreak } from "../../_utils/colormap";
+import { Palette } from 'cpt2js';
 
 export interface LegendConfig {
   width: number;
   ticksCount: number;
-  colormapBounds?: ColormapBreak[];
+  palette?: Palette;
   dataset: string;
 }

@@ -1,8 +1,8 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
+import {parsePalette, colorRampCanvas} from 'cpt2js';
 import {ImageType} from '../../../_utils/image-type';
-import {linearColormap, colorRampImage} from '../../../_utils/colormap';
 import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
 import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
 
@@ -13,7 +13,8 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  colormapBreaks: {type: 'array', value: null, required: true},
+  palette: {type: 'object', value: null}, // TODO: make required after colormapBreaks is removed
+  colormapBreaks: {type: 'array', value: null}, // deprecated in 2022.5.0, use palette instead
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 
@@ -35,21 +36,21 @@ export class RasterBitmapLayer extends BitmapLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {colormapBreaks} = props;
+    const {palette, colormapBreaks} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (colormapBreaks !== oldProps.colormapBreaks) {
-      this.updateColormapTexture();
+    if (palette !== oldProps.palette || colormapBreaks !== oldProps.colormapBreaks) {
+      this.updatePaletteTexture();
     }
   }
 
   draw(opts) {
     const {model} = this.state;
     const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, rasterOpacity} = this.props;
-    const {colormapTexture, colormapBounds} = this.state;
+    const {paletteTexture, paletteBounds} = this.state;
 
-    if (!imageTexture || !colormapTexture) {
+    if (!imageTexture || !paletteTexture) {
       return;
     }
 
@@ -60,8 +61,8 @@ export class RasterBitmapLayer extends BitmapLayer {
         [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.colormapTexture]: colormapTexture,
-        [fsDeclTokens.colormapBounds]: colormapBounds,
+        [fsDeclTokens.paletteTexture]: paletteTexture,
+        [fsDeclTokens.paletteBounds]: paletteBounds,
         [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
@@ -71,15 +72,16 @@ export class RasterBitmapLayer extends BitmapLayer {
     }
   }
 
-  updateColormapTexture() {
+  updatePaletteTexture() {
     const {gl} = this.context;
-    const {colormapBreaks} = this.props;
+    const palette = this.props.palette || this.props.colormapBreaks;
 
-    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-    const colormapFunction = linearColormap(colormapBreaks);
-    const colormapImage = colorRampImage(colormapFunction, colormapBounds);
-    const colormapTexture = new Texture2D(gl, {
-      data: colormapImage,
+    const paletteScale = parsePalette(palette);
+    const paletteDomain = paletteScale.domain();
+    const paletteBounds = /** @type {[number, number]} */ ([paletteDomain[0], paletteDomain[paletteDomain.length - 1]]);
+    const paletteCanvas = colorRampCanvas(paletteScale);
+    const paletteTexture = new Texture2D(gl, {
+      data: paletteCanvas,
       parameters: {
         [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
         [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
@@ -88,13 +90,13 @@ export class RasterBitmapLayer extends BitmapLayer {
       },
     });
 
-    this.setState({ colormapTexture, colormapBounds });
+    this.setState({ paletteTexture, paletteBounds });
   }
 
   getRasterValue(color) {
-    const {colormapBreaks} = this.props;
-    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-    return colormapBounds[0] + color[0] / 255 * (colormapBounds[1] - colormapBounds[0]);
+    const {paletteBounds} = this.state;
+
+    return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
   getRasterDirection(color) {

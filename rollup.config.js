@@ -1,7 +1,6 @@
 import pkg from './package.json';
 import replace from '@rollup/plugin-replace';
 import alias from '@rollup/plugin-alias';
-import shim from 'rollup-plugin-shim';
 import json from '@rollup/plugin-json';
 import image from '@rollup/plugin-image';
 import resolve from '@rollup/plugin-node-resolve';
@@ -65,9 +64,6 @@ function bundle(entrypoint, filename, format, options = {}) {
         entries: [
           { find: '@luma.gl/constants', replacement: __dirname + '/src/_utils/gl.js' },
         ],
-      }),
-      shim({
-        'color-name': 'export default {}',
       }),
       json(),
       image(),

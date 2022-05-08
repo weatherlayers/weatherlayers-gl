@@ -1,8 +1,9 @@
+import {parsePalette, colorRampCanvas} from 'cpt2js';
 import './legend-control.css';
 import {getClient} from '../../cloud-client/client';
-import {linearColormap, colorRampUrl} from '../../_utils/colormap';
 import {formatValue, formatUnit} from '../../_utils/format';
 
+/** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 /** @typedef {import('../../cloud-client/client').Client} Client */
 /** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
@@ -16,6 +17,8 @@ export class LegendControl {
   container = undefined;
   /** @type {StacCollection} */
   stacCollection = undefined;
+  /** @type {Palette} */
+  stacCollectionPalette = undefined;
 
   /**
    * @param {LegendConfig} config
@@ -67,13 +70,16 @@ export class LegendControl {
     }
 
     this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
+    this.stacCollectionPalette = await this.client.loadStacCollectionPalette(this.config.dataset);
+    const palette = this.config.palette || this.stacCollectionPalette;
+    const paletteScale = parsePalette(palette);
+    const paletteDomain = paletteScale.domain();
+    const paletteBounds = /** @type {[number, number]} */ ([paletteDomain[0], paletteDomain[paletteDomain.length - 1]]);
+    const paletteCanvas = colorRampCanvas(paletteScale);
+    const paletteCanvasDataUrl = paletteCanvas.toDataURL();
 
     const paddingY = 15;
     const unit = this.stacCollection.summaries.unit[0];
-    const colormapBreaks = this.config.colormapBounds || this.stacCollection.summaries.raster?.colormapBreaks;
-    const colormapBounds = /** @type {[number, number]} */ ([colormapBreaks[0][0], colormapBreaks[colormapBreaks.length - 1][0]]);
-    const colormapFunction = linearColormap(colormapBreaks);
-    const colormapUrl = colorRampUrl(colormapFunction, colormapBounds);
 
     this.container.innerHTML = '';
     this.container.style.width = `${this.config.width}px`;
@@ -94,28 +100,28 @@ export class LegendControl {
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);
 
-    const scale = document.createElementNS(xmlns, 'g');
-    scale.style.transform = `translate(${paddingY}px, 22px)`;
-    svg.appendChild(scale);
+    const g = document.createElementNS(xmlns, 'g');
+    g.style.transform = `translate(${paddingY}px, 22px)`;
+    svg.appendChild(g);
 
     const image = document.createElementNS(xmlns, 'image');
-    image.setAttribute('href', colormapUrl);
+    image.setAttribute('href', paletteCanvasDataUrl);
     image.setAttribute('width', `${this.config.width - 2 * paddingY}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
-    scale.appendChild(image);
+    g.appendChild(image);
 
     const ticks = document.createElementNS(xmlns, 'g');
     ticks.style.textAnchor = 'middle';
-    scale.appendChild(ticks);
+    g.appendChild(ticks);
 
-    const delta = (colormapBounds[1] - colormapBounds[0]) / (this.config.ticksCount - 1);
+    const delta = (paletteBounds[1] - paletteBounds[0]) / (this.config.ticksCount - 1);
     for (let i = 0; i < this.config.ticksCount; i++) {
-      const value = colormapBounds[0] + i * delta;
+      const value = paletteBounds[0] + i * delta;
       const formattedValue = formatValue(value, unit);
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - colormapBounds[0]) / (colormapBounds[1] - colormapBounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
+      tick.style.transform = `translate(${(value - paletteBounds[0]) / (paletteBounds[1] - paletteBounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

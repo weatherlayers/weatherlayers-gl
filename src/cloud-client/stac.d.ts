@@ -30,6 +30,8 @@ export interface StacLink {
 
 export enum StacAssetRole {
   DATA = 'data',
+  OVERVIEW = 'overview',
+  PALETTE = 'palette',
 }
 
 export interface StacAsset {
@@ -53,10 +55,6 @@ export interface StacCollectionUnit {
   decimals?: number;
 }
 
-export interface StacCollectionRasterConfig {
-  colormapBreaks: [number, string | [number, number, number] | [number, number, number, number]][];
-}
-
 export enum StacCollectionImageType {
   SCALAR = 0,
   VECTOR = 1,
@@ -78,11 +76,11 @@ export interface StacCollection {
   };
   summaries: {
     imageType: StacCollectionImageType; // custom
-    imageBounds: [number, number]; // custom
+    imageBounds: [number, number]; // custom, TODO: rename to imageUnscale, move elsewhere
     unit: StacCollectionUnit[]; // custom
-    raster?: StacCollectionRasterConfig; // custom
   },
   links: StacLink[];
+  assets: { [key: string]: StacAsset };
 }
 
 export interface StacItem {

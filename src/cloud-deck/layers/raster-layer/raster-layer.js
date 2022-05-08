@@ -15,7 +15,7 @@ const defaultProps = {
 export class RasterLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const {props, stacCollection, stacCollectionPalette, image, image2, imageWeight} = this.state;
 
     if (!props || !stacCollection || !image) {
       return [];
@@ -24,7 +24,7 @@ export class RasterLayer extends CompositeLayer {
     const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
-    const colormapBreaks = props.colormapBreaks || stacCollection.summaries.raster?.colormapBreaks;
+    const palette = props.palette || props.colormapBreaks || stacCollectionPalette;
     const opacity = 1; // apply separate opacity
     const rasterOpacity = Math.pow(props.opacity, 1 / 2.2); // apply gamma to opacity to make it visually "linear"
 
@@ -43,7 +43,7 @@ export class RasterLayer extends CompositeLayer {
         imageType,
         imageUnscale,
 
-        colormapBreaks,
+        palette,
         opacity,
         rasterOpacity,
 
@@ -65,6 +65,7 @@ export class RasterLayer extends CompositeLayer {
       this.setState({
         props: undefined,
         stacCollection: undefined,
+        stacCollectionPalette: undefined,
         image: undefined,
         image2: undefined,
         imageWeight: undefined,
@@ -76,6 +77,7 @@ export class RasterLayer extends CompositeLayer {
 
     if (!this.state.stacCollection || dataset !== oldProps.dataset) {
       this.state.stacCollection = await client.loadStacCollection(dataset);
+      this.state.stacCollectionPalette = await client.loadStacCollectionPalette(dataset);
 
       // avoid props change in renderLayers
       this.state.clipBounds = getViewportClipBounds(viewport, this.state.stacCollection.extent.spatial.bbox[0]);
