@@ -5,8 +5,9 @@ import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisibleGrid} from '../../../_utils/viewport-grid';
 import {unscaleTextureData} from '../../../_utils/data';
+import {GridStyle} from '../../../_utils';
 import {withCheckLicense} from '../../license';
-import {GridStyle, GRID_ICON_STYLES} from './grid-style';
+import {GRID_ICON_STYLES} from './grid-style';
 import {getGridPoints} from './grid-point';
 
 const defaultProps = {
@@ -158,4 +159,3 @@ GridLayer.layerName = 'GridLayer';
 GridLayer.defaultProps = defaultProps;
 
 export {GridLayer};
-export {GridStyle} from './grid-style';

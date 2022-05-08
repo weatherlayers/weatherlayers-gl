@@ -102,5 +102,3 @@ export class GridLayer extends CompositeLayer {
 
 GridLayer.layerName = 'GridLayer';
 GridLayer.defaultProps = defaultProps;
-
-export {GridStyle} from '../../../deck/layers/grid-layer/grid-layer';
