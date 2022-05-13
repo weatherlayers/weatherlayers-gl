@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
   <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
@@ -100,7 +100,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime) : undefined;
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.step) : undefined;
           if (contourLayer) {
             map.removeLayer('contourLabel');
             map.removeLayer('contour');
@@ -143,7 +143,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime) : undefined;
+          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime, config.highLow.radius) : undefined;
           if (highLowLayer) {
             map.removeLayer('highLow');
             map.removeSource('highLow');

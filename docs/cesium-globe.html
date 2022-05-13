@@ -99,7 +99,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime) : undefined;
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.step) : undefined;
           if (contourLayer) {
             viewer.dataSources.remove(contourLayer);
           }
@@ -128,7 +128,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime) : undefined;
+          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime, config.highLow.radius) : undefined;
           if (highLowLayer) {
             viewer.dataSources.remove(highLowLayer);
           }

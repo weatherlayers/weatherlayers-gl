@@ -266,7 +266,7 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {number} [step]
+   * @param {number} step
    * @returns {Promise<GeoJSON.FeatureCollection>}
    */
   async loadStacCollectionContourLines(dataset, datetime, step) {
@@ -275,8 +275,6 @@ export class Client {
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const bounds = stacCollection.extent.spatial.bbox[0];
-
-    step = /** @type {number} */ (step || stacCollection.summaries.contour?.step);
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
     const contourLines = await getContourLines(unscaledData, imageType, step, bounds);
@@ -287,7 +285,7 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {number} [radius]
+   * @param {number} radius
    * @returns {Promise<GeoJSON.FeatureCollection>}
    */
   async loadStacCollectionHighLowPoints(dataset, datetime, radius) {
@@ -296,8 +294,6 @@ export class Client {
     const imageType = stacCollection.summaries.imageType;
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
     const bounds = stacCollection.extent.spatial.bbox[0];
-
-    radius = /** @type {number} */ (radius || stacCollection.summaries.highLow?.radius);
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
     const highLowPoints = await getHighLowPoints(unscaledData, imageType, radius, bounds);

@@ -151,7 +151,7 @@ async function updateDataset(config, { deckgl } = {}) {
   }
 }
 
-function updateUrlConfig(config) {
+function updateUrlConfig(config, { deckgl } = {}) {
   const urlConfig = new URLSearchParams();
   if (config.dataset !== DEFAULT_DATASET) {
     urlConfig.set('dataset', config.dataset);
@@ -165,11 +165,13 @@ function updateUrlConfig(config) {
   if (config.highLow.enabled !== !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]) {
     urlConfig.set('highLow', config.highLow.enabled);
   }
-  if (config.grid.enabled !== !!GRID_LAYER_DATASET_CONFIG[config.dataset]) {
-    urlConfig.set('grid', config.grid.enabled);
-  }
-  if (config.particle.enabled !== !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset]) {
-    urlConfig.set('particle', config.particle.enabled);
+  if (deckgl) {
+    if (config.grid.enabled !== !!GRID_LAYER_DATASET_CONFIG[config.dataset]) {
+      urlConfig.set('grid', config.grid.enabled);
+    }
+    if (config.particle.enabled !== !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset]) {
+      urlConfig.set('particle', config.particle.enabled);
+    }
   }
   window.history.replaceState(null, null, '#' + urlConfig.toString());
 }
@@ -186,7 +188,7 @@ function debounce(callback, wait) {
 
 export function initGui(config, update, { deckgl, globe } = {}) {
   const originalUpdate = update;
-  update = debounce(() => { updateUrlConfig(config); originalUpdate() }, 100);
+  update = debounce(() => { updateUrlConfig(config, { deckgl }); originalUpdate() }, 100);
   const updateLast = event => event.last && update();
 
   const gui = new Tweakpane.Pane();
