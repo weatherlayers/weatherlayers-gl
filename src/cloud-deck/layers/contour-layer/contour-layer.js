@@ -22,8 +22,8 @@ export class ContourLayer extends CompositeLayer {
       return [];
     }
 
-    const imageType = stacCollection.summaries.imageType;
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const imageType = stacCollection['weatherLayers:imageType'];
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
 
     return [
       new BaseContourLayer(props, this.getSubLayerProps({
@@ -69,7 +69,7 @@ export class ContourLayer extends CompositeLayer {
       this.state.stacCollection = await client.loadStacCollection(dataset);
 
       // avoid props change in renderLayers
-      this.state.textFunction = (/** @type {number} */ value) => formatValue(value, this.state.stacCollection.summaries.unit[0]).toString();
+      this.state.textFunction = (/** @type {number} */ value) => formatValue(value, this.state.stacCollection['weatherLayers:units'][0]).toString();
       this.state.clipBounds = getViewportClipBounds(viewport, this.state.stacCollection.extent.spatial.bbox[0]);
     }
 

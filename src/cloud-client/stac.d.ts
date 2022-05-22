@@ -28,6 +28,20 @@ export interface StacLink {
   datetime?: string; // custom
 }
 
+export interface StacRasterUnit {
+  unit: string;
+  scale?: number;
+  offset?: number;
+  decimals?: number;
+}
+
+export interface StacRasterBand {
+  data_type: string;
+  unit: string;
+  scale?: number;
+  offset?: number;
+}
+
 export enum StacAssetRole {
   DATA = 'data',
   OVERVIEW = 'overview',
@@ -38,21 +52,17 @@ export interface StacAsset {
   href: string;
   type: string;
   roles: StacAssetRole[];
+  'proj:epsg'?: number;
+  'raster:bands'?: StacRasterBand[];
 }
 
 export interface StacCatalog {
   type: 'Catalog';
   stac_version: '1.0.0';
+  stac_extensions?: string[];
   id: string;
   title: string;
   links: StacLink[];
-}
-
-export interface StacCollectionUnit {
-  name: string;
-  offset?: number;
-  scale?: number;
-  decimals?: number;
 }
 
 export enum StacCollectionImageType {
@@ -63,6 +73,7 @@ export enum StacCollectionImageType {
 export interface StacCollection {
   type: 'Collection';
   stac_version: '1.0.0';
+  stac_extensions?: string[];
   id: string;
   title: string;
   providers: StacProvider[];
@@ -74,18 +85,17 @@ export interface StacCollection {
       interval: [[string, string]];
     };
   };
-  summaries: {
-    imageType: StacCollectionImageType; // custom
-    imageBounds: [number, number]; // custom, TODO: rename to imageUnscale, move elsewhere
-    unit: StacCollectionUnit[]; // custom
-  },
   links: StacLink[];
   assets: { [key: string]: StacAsset };
+  'weatherLayers:imageType': StacCollectionImageType; // custom
+  'weatherLayers:imageUnscale': [number, number]; // custom
+  'weatherLayers:units': StacRasterUnit[]; // custom
 }
 
 export interface StacItem {
   type: 'Feature';
   stac_version: '1.0.0';
+  stac_extensions?: string[];
   id: string;
   geometry: {
     type: 'Polygon',

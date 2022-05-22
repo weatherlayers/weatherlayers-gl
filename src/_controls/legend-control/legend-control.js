@@ -79,7 +79,7 @@ export class LegendControl {
     const paletteCanvasDataUrl = paletteCanvas.toDataURL();
 
     const paddingY = 15;
-    const unit = this.stacCollection.summaries.unit[0];
+    const unit = this.stacCollection['weatherLayers:units'][0];
 
     this.container.innerHTML = '';
     this.container.style.width = `${this.config.width}px`;
@@ -95,7 +95,7 @@ export class LegendControl {
     div.appendChild(svg);
 
     const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = `${this.stacCollection.title} [${formatUnit(unit.name)}]`;
+    title.innerHTML = `${this.stacCollection.title} [${formatUnit(unit)}]`;
     title.style.fontWeight = 'bold';
     title.style.transform = `translate(${paddingY}px, 15px)`;
     svg.appendChild(title);

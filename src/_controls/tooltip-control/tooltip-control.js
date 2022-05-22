@@ -1,6 +1,6 @@
 import './tooltip-control.css';
 import {getClient} from '../../cloud-client/client';
-import {formatValue, formatUnit, formatDirection} from '../../_utils/format';
+import {formatValueWithUnit, formatDirection} from '../../_utils/format';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
 /** @typedef {import('../../cloud-client/client').Client} Client */
@@ -87,7 +87,7 @@ export class TooltipControl {
     div.innerHTML = '';
     
     if (typeof event.raster !== 'undefined') {
-      div.innerHTML = `${formatValue(event.raster.value, this.stacCollection.summaries.unit[0])} ${formatUnit(this.stacCollection.summaries.unit[0].name)}`;
+      div.innerHTML = formatValueWithUnit(event.raster.value, this.stacCollection['weatherLayers:units'][0]);
       
       if (typeof event.raster.direction !== 'undefined') {
         div.innerHTML += `, ${formatDirection(event.raster.direction)}`

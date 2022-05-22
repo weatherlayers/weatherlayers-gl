@@ -23,8 +23,8 @@ export class ParticleLayer extends CompositeLayer {
     }
 
     const imageInterpolate = props.imageInterpolate;
-    const imageType = stacCollection.summaries.imageType;
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const imageType = stacCollection['weatherLayers:imageType'];
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
 
     return [
       new BaseParticleLayer(props, this.getSubLayerProps({

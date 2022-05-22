@@ -254,8 +254,8 @@ export class Client {
     palette = palette || stacCollectionPalette;
 
     const image = await client.loadStacCollectionData(dataset, datetime, format);
-    const imageType = stacCollection.summaries.imageType;
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const imageType = stacCollection['weatherLayers:imageType'];
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
     const canvas = getRasterImage(unscaledData, imageType, palette);
@@ -272,8 +272,8 @@ export class Client {
   async loadStacCollectionContourLines(dataset, datetime, step) {
     const stacCollection = await client.loadStacCollection(dataset);
     const image = await client.loadStacCollectionData(dataset, datetime);
-    const imageType = stacCollection.summaries.imageType;
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const imageType = stacCollection['weatherLayers:imageType'];
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
     const bounds = stacCollection.extent.spatial.bbox[0];
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
@@ -291,8 +291,8 @@ export class Client {
   async loadStacCollectionHighLowPoints(dataset, datetime, radius) {
     const stacCollection = await client.loadStacCollection(dataset);
     const image = await client.loadStacCollectionData(dataset, datetime);
-    const imageType = stacCollection.summaries.imageType;
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection.summaries.imageBounds : null; // TODO: rename to imageUnscale in catalog
+    const imageType = stacCollection['weatherLayers:imageType'];
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
     const bounds = stacCollection.extent.spatial.bbox[0];
 
     const unscaledData = unscaleTextureData(image, imageUnscale);

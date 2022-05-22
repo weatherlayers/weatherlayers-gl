@@ -18,7 +18,7 @@ const GRID_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
-  'gfs/wind_10m_above_ground': { speedFactor: 2, width: 2 },
+  'gfs/wind_10m_above_ground': { speedFactor: 1, width: 2 },
   'gfswave/waves': { speedFactor: 1, width: 5 },
   'cmems_phy/currents': { speedFactor: 20, width: 2 },
 };
@@ -87,7 +87,7 @@ export async function initConfig({ deckgl, globe } = {}) {
       particle: {
         enabled: false,
         numParticles: 5000,
-        maxAge: 25,
+        maxAge: 10,
         speedFactor: 0, // dataset-specific
         width: 0, // dataset-specific
         color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
