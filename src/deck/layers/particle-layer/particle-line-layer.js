@@ -26,7 +26,6 @@ const defaultProps = {
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
   animate: true,
 
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
   wrapLongitude: true,
 };
 

@@ -17,8 +17,6 @@ const defaultProps = {
   colormapBreaks: {type: 'array', value: null}, // deprecated in 2022.5.0, use palette instead
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
-
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 export class RasterBitmapLayer extends BitmapLayer {
