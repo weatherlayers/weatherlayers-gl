@@ -14,7 +14,8 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  step: {type: 'number', value: null, required: true},
+  interval: {type: 'number', value: null}, // TODO: make required after step is removed
+  step: {type: 'number', value: null}, // deprecated in 2022.6.0, use interval instead, TODO: remove
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
   textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
@@ -72,7 +73,8 @@ class ContourLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, imageUnscale, step} = props;
+    const {image, imageUnscale, interval} = props;
+    const {step} = props; // TODO: remove after step is removed
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -80,7 +82,10 @@ class ContourLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (!step) {
+    if (
+      !interval &&
+      !step // TODO: remove after step is removed
+    ) {
       this.setState({
         contourLabels: undefined,
         visibleContourLabels: undefined,
@@ -88,7 +93,11 @@ class ContourLayer extends CompositeLayer {
       return;
     }
 
-    if (image !== oldProps.image || step !== oldProps.step) {
+    if (
+      image !== oldProps.image ||
+      interval !== oldProps.interval ||
+      step !== oldProps.step // TODO: remove after step is removed
+    ) {
       this.updateContourLines();
     }
 
@@ -100,16 +109,17 @@ class ContourLayer extends CompositeLayer {
   }
 
   async updateContourLines() {
-    const {image, imageType, imageUnscale, step, bounds} = this.props;
+    const {image, imageType, imageUnscale, bounds} = this.props;
+    const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
     if (!image) {
       return;
     }
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
-    const contourLines = await getContourLines(unscaledData, imageType, step, bounds);
+    const contourLines = await getContourLines(unscaledData, imageType, interval, bounds);
     const contourLabels = getContourLabels(contourLines);
 
-    this.setState({ image, step, contourLines, contourLabels });
+    this.setState({ image, interval, contourLines, contourLabels });
 
     this.updateVisibleContourLabels();
   }

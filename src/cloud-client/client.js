@@ -266,10 +266,10 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {number} step
+   * @param {number} interval
    * @returns {Promise<GeoJSON.FeatureCollection>}
    */
-  async loadStacCollectionContourLines(dataset, datetime, step) {
+  async loadStacCollectionContourLines(dataset, datetime, interval) {
     const stacCollection = await client.loadStacCollection(dataset);
     const image = await client.loadStacCollectionData(dataset, datetime);
     const imageType = stacCollection['weatherLayers:imageType'];
@@ -277,7 +277,7 @@ export class Client {
     const bounds = stacCollection.extent.spatial.bbox[0];
 
     const unscaledData = unscaleTextureData(image, imageUnscale);
-    const contourLines = await getContourLines(unscaledData, imageType, step, bounds);
+    const contourLines = await getContourLines(unscaledData, imageType, interval, bounds);
 
     return { type: 'FeatureCollection', features: contourLines };
   }

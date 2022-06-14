@@ -4,7 +4,7 @@ const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
 const CONTOUR_LAYER_DATASET_CONFIG = {
-  'gfs/pressure_mean_sea_level': { step: 200 },
+  'gfs/pressure_mean_sea_level': { interval: 200 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'gfs/pressure_mean_sea_level': { radius: 2000 },
@@ -50,7 +50,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     },
     contour: {
       enabled: false,
-      step: undefined, // dataset-specific
+      interval: undefined, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
@@ -135,7 +135,7 @@ async function updateDataset(config, { deckgl } = {}) {
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
   config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : !!CONTOUR_LAYER_DATASET_CONFIG[config.dataset];
-  config.contour.step = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.step || 0;
+  config.contour.interval = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.interval || 0;
 
   config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset];
   config.highLow.radius = HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]?.radius || 0;
@@ -223,7 +223,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
   contour.addInput(config.contour, 'enabled').on('change', update);
-  contour.addInput(config.contour, 'step', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
+  contour.addInput(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
   contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
   contour.addInput(config.contour, 'color').on('change', update);
   contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);

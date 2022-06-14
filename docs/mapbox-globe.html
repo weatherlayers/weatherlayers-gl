@@ -107,7 +107,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.step) : undefined;
+          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.interval) : undefined;
           if (contourLayer) {
             map.removeLayer('contourLabel');
             map.removeLayer('contour');

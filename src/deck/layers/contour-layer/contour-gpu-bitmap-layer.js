@@ -5,13 +5,14 @@ import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 
 const defaultProps = {
-  image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
-  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageTexture: {type: 'object', value: null, required: true},
+  imageTexture2: {type: 'object', value: null},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  step: {type: 'number', required: true},
+  interval: {type: 'number', value: null}, // TODO: make required after step is removed
+  step: {type: 'number', value: null}, // deprecated in 2022.6.0, use interval instead, TODO: remove
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
 
@@ -36,7 +37,8 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, step, color, width, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, color, width, rasterOpacity} = this.props;
+    const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
 
     if (!imageTexture) {
       return;
@@ -49,13 +51,15 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
         [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.step]: step,
+        [fsDeclTokens.interval]: interval,
         [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsDeclTokens.width]: width,
         [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
+      this.props.image = imageTexture;
       super.draw(opts);
+      this.props.image = undefined;
     }
   }
 }

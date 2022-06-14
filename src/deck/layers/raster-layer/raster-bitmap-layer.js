@@ -14,7 +14,7 @@ const defaultProps = {
   imageUnscale: {type: 'array', value: null},
 
   palette: {type: 'object', value: null}, // TODO: make required after colormapBreaks is removed
-  colormapBreaks: {type: 'array', value: null}, // deprecated in 2022.5.0, use palette instead
+  colormapBreaks: {type: 'array', value: null}, // deprecated in 2022.5.0, use palette instead, TODO: remove
 
   rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
@@ -34,11 +34,15 @@ export class RasterBitmapLayer extends BitmapLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {palette, colormapBreaks} = props;
+    const {palette} = props;
+    const {colormapBreaks} = props; // TODO: remove after colormapBreaks is removed
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (palette !== oldProps.palette || colormapBreaks !== oldProps.colormapBreaks) {
+    if (
+      palette !== oldProps.palette ||
+      colormapBreaks !== oldProps.colormapBreaks // TODO: remove after colormapBreaks is removed
+    ) {
       this.updatePaletteTexture();
     }
   }
@@ -72,7 +76,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   updatePaletteTexture() {
     const {gl} = this.context;
-    const palette = this.props.palette || this.props.colormapBreaks;
+    const palette = this.props.palette || this.props.colormapBreaks; // TODO: remove after colormapBreaks is removed
 
     const paletteScale = parsePalette(palette);
     const paletteDomain = paletteScale.domain();

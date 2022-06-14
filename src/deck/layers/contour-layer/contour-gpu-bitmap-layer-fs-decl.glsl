@@ -2,7 +2,7 @@ uniform sampler2D bitmapTexture2;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
-uniform float step;
+uniform float interval;
 uniform vec4 color;
 uniform float width;
 uniform float rasterOpacity;

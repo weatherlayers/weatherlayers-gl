@@ -45,15 +45,15 @@ function getLineBbox(line) {
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
- * @param {number} step
+ * @param {number} interval
  * @returns {{ coordinates: GeoJSON.Position[], value: number }[]}
  */
-function computeContours(data, width, height, step) {
+function computeContours(data, width, height, interval) {
   const min = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.min(prev, curr) : prev, Infinity);
   const max = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.max(prev, curr) : prev, -Infinity);
-  const minThreshold = Math.ceil(min / step) * step;
-  const maxThreshold = Math.floor(max / step) * step;
-  const thresholds = new Array((maxThreshold - minThreshold) / step + 1).fill(() => undefined).map((_, i) => minThreshold + i * step);
+  const minThreshold = Math.ceil(min / interval) * interval;
+  const maxThreshold = Math.floor(max / interval) * interval;
+  const thresholds = new Array((maxThreshold - minThreshold) / interval + 1).fill(() => undefined).map((_, i) => minThreshold + i * interval);
 
   // compute contours
   // d3-contours returns multipolygons with holes, framed around data borders
@@ -95,11 +95,11 @@ function computeContours(data, width, height, step) {
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
- * @param {number} step
+ * @param {number} interval
  * @param {GeoJSON.BBox} bounds
  * @returns {Float32Array}
  */
-function getContourLineData(data, width, height, step, bounds) {
+function getContourLineData(data, width, height, interval, bounds) {
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -119,7 +119,7 @@ function getContourLineData(data, width, height, step, bounds) {
   data = blur(data, width, height);
 
   // compute contours
-  let contours = computeContours(data, width, height, step);
+  let contours = computeContours(data, width, height, interval);
 
   // transform pixel coordinates to geographical coordinates
   /** @type {(point: GeoJSON.Position) => GeoJSON.Position} */
@@ -160,12 +160,12 @@ expose({
    * @param {Float32Array} data
    * @param {number} width
    * @param {number} height
-   * @param {number} step
+   * @param {number} interval
    * @param {GeoJSON.BBox} bounds
    * @returns {Float32Array}
    */
-  getContourLineData(data, width, height, step, bounds) {
-    const contourLineData = getContourLineData(data, width, height, step, bounds);
+  getContourLineData(data, width, height, interval, bounds) {
+    const contourLineData = getContourLineData(data, width, height, interval, bounds);
     return transfer(contourLineData, [contourLineData.buffer]);
   },
 });
