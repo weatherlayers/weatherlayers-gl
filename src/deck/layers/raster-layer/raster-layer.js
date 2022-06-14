@@ -10,7 +10,6 @@ const defaultProps = {
   imageTexture2: undefined,
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  imageInterpolate: {type: 'boolean', value: true},
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
@@ -33,7 +32,6 @@ class RasterLayer extends CompositeLayer {
         imageTexture2,
         image: undefined,
         image2: undefined,
-        imageInterpolate: undefined,
       })),
     ];
   }

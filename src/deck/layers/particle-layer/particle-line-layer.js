@@ -14,6 +14,7 @@ const FPS = 30;
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageInterpolate: {type: 'boolean', value: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.VECTOR},
   imageUnscale: {type: 'array', value: null},
@@ -189,7 +190,7 @@ export class ParticleLineLayer extends LineLayer {
     }
 
     const {viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {
@@ -216,6 +217,8 @@ export class ParticleLineLayer extends LineLayer {
 
       [updateTransformVsTokens.bitmapTexture]: imageTexture,
       [updateTransformVsTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+      [updateTransformVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+      [updateTransformVsTokens.imageInterpolate]: imageInterpolate,
       [updateTransformVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateTransformVsTokens.imageUnscale]: imageUnscale || [0, 0],
       [updateTransformVsTokens.bounds]: bounds,

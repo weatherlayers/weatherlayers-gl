@@ -1,5 +1,7 @@
+bitmapColor = texture2DFilter(bitmapTexture, imageResolution, imageInterpolate, uv);
 if (imageWeight > 0.) {
-  bitmapColor = mix(bitmapColor, texture2D(bitmapTexture2, uv), imageWeight);
+  vec4 bitmapColor2 = texture2DFilter(bitmapTexture2, imageResolution, imageInterpolate, uv);
+  bitmapColor = mix(bitmapColor, bitmapColor2, imageWeight);
 }
 
 // drop nodata

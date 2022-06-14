@@ -7,6 +7,7 @@ import {ImageType} from '../../../_utils/image-type';
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageInterpolate: {type: 'boolean', value: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
@@ -37,7 +38,7 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, color, width, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, color, width, rasterOpacity} = this.props;
     const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
 
     if (!imageTexture) {
@@ -48,6 +49,8 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
       model.setUniforms({
         bitmapTexture: imageTexture,
         [fsDeclTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsDeclTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+        [fsDeclTokens.imageInterpolate]: imageInterpolate,
         [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],

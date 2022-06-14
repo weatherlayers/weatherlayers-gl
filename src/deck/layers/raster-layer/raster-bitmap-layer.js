@@ -9,6 +9,7 @@ import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageInterpolate: {type: 'boolean', value: true},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
@@ -49,7 +50,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageWeight, imageType, imageUnscale, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, rasterOpacity} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
 
     if (!imageTexture || !paletteTexture) {
@@ -60,6 +61,8 @@ export class RasterBitmapLayer extends BitmapLayer {
       model.setUniforms({
         bitmapTexture: imageTexture,
         [fsDeclTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsDeclTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+        [fsDeclTokens.imageInterpolate]: imageInterpolate,
         [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
