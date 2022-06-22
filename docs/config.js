@@ -18,9 +18,9 @@ const GRID_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
-  'gfs/wind_10m_above_ground': { speedFactor: 1, width: 2 },
-  'gfswave/waves': { speedFactor: 1, width: 5 },
-  'cmems_phy/currents': { speedFactor: 20, width: 2 },
+  'gfs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'gfswave/waves': { speedFactor: 2, width: 5 },
+  'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
 export async function initConfig({ deckgl, globe } = {}) {
@@ -257,7 +257,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     particle.addInput(config.particle, 'enabled').on('change', update);
     particle.addInput(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
     particle.addInput(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
-    particle.addInput(config.particle, 'speedFactor', { min: 0, max: 20, step: 0.1 }).on('change', update);
+    particle.addInput(config.particle, 'speedFactor', { min: 0, max: 50, step: 0.1 }).on('change', update);
     particle.addInput(config.particle, 'color').on('change', update);
     particle.addInput(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
     particle.addInput(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);

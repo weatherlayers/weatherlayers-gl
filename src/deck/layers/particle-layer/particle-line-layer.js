@@ -21,7 +21,7 @@ const defaultProps = {
 
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 10},
-  speedFactor: {type: 'number', min: 0, max: 1, value: 1},
+  speedFactor: {type: 'number', min: 0, max: 50, value: 1},
 
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
