@@ -87,7 +87,9 @@ export class TooltipControl {
     div.innerHTML = '';
     
     if (typeof event.raster !== 'undefined') {
-      div.innerHTML = formatValueWithUnit(event.raster.value, this.stacCollection['weatherLayers:units'][0]);
+      const unit = this.stacCollection['weatherLayers:units'][0];
+      const unitWithIncreasedPrecision = { ...unit, decimals: (unit.decimals ?? 0) + 1 };
+      div.innerHTML = formatValueWithUnit(event.raster.value, unitWithIncreasedPrecision);
       
       if (typeof event.raster.direction !== 'undefined') {
         div.innerHTML += `, ${formatDirection(event.raster.direction)}`
