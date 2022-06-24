@@ -12,8 +12,11 @@ export function getProjectFunction(width, height, bounds) {
   return position => {
     const lng = position[0];
     const lat = position[1];
-    const i = (lng - origin[0]) / lngResolution;
-    const j = -(lat - origin[1]) / latResolution;
+
+    // Offset (test case: Gibraltar)
+    const i = (lng - origin[0]) / lngResolution + 0.5;
+    const j = -(lat - origin[1]) / latResolution + 0.5;
+
     const point = [i, j];
     return point;
   };

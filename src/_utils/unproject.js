@@ -12,8 +12,11 @@ export function getUnprojectFunction(width, height, bounds) {
   return point => {
     const i = point[0];
     const j = point[1];
-    const lng = origin[0] + i * lngResolution;
-    const lat = origin[1] + -j * latResolution;
+
+    // Offset (test case: Gibraltar)
+    const lng = origin[0] + (i - 0.5) * lngResolution;
+    const lat = origin[1] - (j - 0.5) * latResolution;
+
     const position = [lng, lat];
     return position;
   };
