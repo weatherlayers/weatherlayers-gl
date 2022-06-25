@@ -217,7 +217,7 @@ export class ParticleLineLayer extends LineLayer {
 
       [updateTransformVsTokens.bitmapTexture]: imageTexture,
       [updateTransformVsTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
-      [updateTransformVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+      [updateTransformVsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
       [updateTransformVsTokens.imageInterpolate]: imageInterpolate,
       [updateTransformVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateTransformVsTokens.imageUnscale]: imageUnscale || [0, 0],

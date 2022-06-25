@@ -1,5 +1,5 @@
 uniform sampler2D bitmapTexture2;
-uniform vec2 imageResolution;
+uniform vec2 imageTexelSize;
 uniform bool imageInterpolate;
 uniform float imageWeight;
 uniform bool imageTypeVector;
@@ -25,12 +25,10 @@ bool isNaN(float value) {
 
 // texture2D with software bilinear filtering
 // see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 texture2DBilinear(sampler2D image, vec2 resolution, vec2 uv) {
-  vec2 texelSize = 1. / resolution;
-
+vec4 texture2DBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
   // Calculate pixels to sample and interpolating factor
   uv -= texelSize * 0.5;
-  vec2 factor = fract(uv * resolution);
+  vec2 factor = fract(uv / texelSize);
 
   // Snap to corner of texel and then move to center
   vec2 uvSnapped = uv - texelSize * factor + texelSize * 0.5;
@@ -44,17 +42,24 @@ vec4 texture2DBilinear(sampler2D image, vec2 resolution, vec2 uv) {
   return mix(top, bottom, factor.y);
 }
 
-vec4 texture2DFilter(sampler2D image, vec2 resolution, bool interpolate, vec2 uv) {
-  vec2 texelSize = 1. / resolution;
-
+vec4 texture2DFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
   // Offset (test case: Gibraltar)
   uv += texelSize * 0.5;
 
   if (interpolate) {
-    return texture2DBilinear(image, resolution, uv);
+    return texture2DBilinear(image, texelSize, uv);
   } else {
     return texture2D(image, uv);
   }
+}
+
+vec4 texture2DInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, vec2 uv) {
+  vec4 color = texture2DFilter(image, texelSize, interpolate, uv);
+  if (imageWeight > 0.) {
+    vec4 color2 = texture2DFilter(image2, texelSize, interpolate, uv);
+    color = mix(color, color2, imageWeight);
+  }
+  return color;
 }
 
 bool raster_has_values(vec4 values) {
