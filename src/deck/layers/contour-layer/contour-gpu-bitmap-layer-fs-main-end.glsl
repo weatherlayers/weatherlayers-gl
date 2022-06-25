@@ -18,4 +18,4 @@ float dfactor = fwidth(contourValue); // contour derivation, consistent width in
 float contourOpacity = 1. - clamp((factor / dfactor) - contourWidth, 0., 1.);
 
 // contourOpacity += factor; // debug
-gl_FragColor = vec4(color.rgb, color.a * contourOpacity * rasterOpacity);
+gl_FragColor = vec4(color.rgb, color.a * contourOpacity * opacity);

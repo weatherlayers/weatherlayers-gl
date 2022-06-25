@@ -16,8 +16,6 @@ const defaultProps = {
 
   palette: {type: 'object', value: null}, // TODO: make required after colormapBreaks is removed
   colormapBreaks: {type: 'array', value: null}, // deprecated in 2022.5.0, use palette instead, TODO: remove
-
-  rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 
 export class RasterBitmapLayer extends BitmapLayer {
@@ -50,7 +48,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
 
     if (!imageTexture || !paletteTexture) {
@@ -68,7 +66,6 @@ export class RasterBitmapLayer extends BitmapLayer {
         [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
         [fsDeclTokens.paletteTexture]: paletteTexture,
         [fsDeclTokens.paletteBounds]: paletteBounds,
-        [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
       this.props.image = imageTexture;

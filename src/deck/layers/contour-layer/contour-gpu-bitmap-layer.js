@@ -16,8 +16,6 @@ const defaultProps = {
   step: {type: 'number', value: null}, // deprecated in 2022.6.0, use interval instead, TODO: remove
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
-
-  rasterOpacity: {type: 'number', min: 0, max: 1, value: 1},
 };
 
 export class ContourGpuBitmapLayer extends BitmapLayer {
@@ -38,7 +36,7 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, color, width, rasterOpacity} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, color, width} = this.props;
     const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
 
     if (!imageTexture) {
@@ -57,7 +55,6 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
         [fsDeclTokens.interval]: interval,
         [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsDeclTokens.width]: width,
-        [fsDeclTokens.rasterOpacity]: rasterOpacity,
       });
 
       this.props.image = imageTexture;

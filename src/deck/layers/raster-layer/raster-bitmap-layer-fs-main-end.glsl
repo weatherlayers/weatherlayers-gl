@@ -7,8 +7,8 @@ if (!raster_has_values(pixel)) {
 
 float value = raster_get_value(pixel);
 float paletteValue = raster_get_palette_value(value);
-vec4 rasterColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
-gl_FragColor = raster_apply_opacity(rasterColor.rgb, rasterColor.a * rasterOpacity);
+vec4 color = texture2D(paletteTexture, vec2(paletteValue, 0.));
+gl_FragColor = apply_opacity(color.rgb, color.a * opacity);
 
 if (picking_uActive) {
   float directionValue = raster_get_direction_value(pixel);

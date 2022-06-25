@@ -6,7 +6,6 @@ uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
 uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
-uniform float rasterOpacity;
 
 const float RASTER_PI = 3.1415926535;
 
@@ -107,8 +106,4 @@ float raster_get_direction_value(vec4 pixel) {
   } else {
     return 0.;
   }
-}
-
-vec4 raster_apply_opacity(vec3 color, float alpha) {
-  return mix(vec4(0.), vec4(color, 1.), alpha);
 }

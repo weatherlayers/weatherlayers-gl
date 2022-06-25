@@ -7,7 +7,6 @@ uniform vec2 imageUnscale;
 uniform float interval;
 uniform vec4 color;
 uniform float width;
-uniform float rasterOpacity;
 
 bool isNaN(float value) {
   return !(value <= 0. || 0. <= value);
@@ -78,8 +77,4 @@ float raster_get_value(vec4 pixel) {
   }
 
   return value;
-}
-
-vec4 raster_apply_opacity(vec3 color, float alpha) {
-  return mix(vec4(0.), vec4(color, 1.), alpha);
 }

@@ -24,8 +24,6 @@ export class ContourGpuLayer extends CompositeLayer {
     const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection['weatherLayers:imageType'];
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
-    const opacity = 1; // apply separate opacity
-    const rasterOpacity = Math.pow(props.opacity, 1 / 2.2); // apply gamma to opacity to make it visually "linear"
 
     return [
       new BaseContourGpuLayer(props, this.getSubLayerProps({
@@ -41,9 +39,6 @@ export class ContourGpuLayer extends CompositeLayer {
         imageWeight,
         imageType,
         imageUnscale,
-
-        opacity,
-        rasterOpacity,
 
         bounds: stacCollection.extent.spatial.bbox[0],
         _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
