@@ -10,7 +10,7 @@ import { GlslMinify } from 'webpack-glsl-minify/build/minify';
 
 async function minifyShader(code, id, minimize) {
   // injected deck.gl names
-  const injectedNames = ['PI', 'EARTH_RADIUS', 'uv', 'picking_uActive', 'bitmapTexture', 'bitmapColor', 'instanceSourcePositions', 'instanceTargetPositions', 'sourcePosition', 'targetPosition', 'drop'];
+  const injectedNames = ['PI', 'EARTH_RADIUS', 'uv', 'picking_uActive', 'bitmapTexture', 'instanceSourcePositions', 'instanceTargetPositions', 'sourcePosition', 'targetPosition', 'drop'];
 
   // injected deck.gl declaration fragment
   const injectDecl = id.match(/(main-start|main-end)/);

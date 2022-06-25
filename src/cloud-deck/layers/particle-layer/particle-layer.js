@@ -37,8 +37,8 @@ export class ParticleLayer extends CompositeLayer {
         image,
         image2,
         imageInterpolate,
-        imageType,
         imageWeight,
+        imageType,
         imageUnscale,
 
         bounds: stacCollection.extent.spatial.bbox[0],

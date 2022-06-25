@@ -1,5 +1,5 @@
 import {expose, transfer} from 'comlink';
-import {getUnprojectFunction} from '../../../_utils/unproject';
+import {getUnprojectFunction} from '../../../_utils/project';
 import {blur} from '../../../_utils/blur';
 import {distance} from '../../../_utils/geodesy';
 

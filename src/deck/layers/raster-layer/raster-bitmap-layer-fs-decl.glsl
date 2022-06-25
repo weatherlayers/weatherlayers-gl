@@ -25,7 +25,7 @@ bool isNaN(float value) {
 
 // texture2D with software bilinear filtering
 // see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 texture2DBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
+vec4 getPixelBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
   // Calculate pixels to sample and interpolating factor
   uv -= texelSize * 0.5;
   vec2 factor = fract(uv / texelSize);
@@ -42,47 +42,48 @@ vec4 texture2DBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
   return mix(top, bottom, factor.y);
 }
 
-vec4 texture2DFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
+vec4 getPixelFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
   // Offset (test case: Gibraltar)
   uv += texelSize * 0.5;
 
   if (interpolate) {
-    return texture2DBilinear(image, texelSize, uv);
+    return getPixelBilinear(image, texelSize, uv);
   } else {
     return texture2D(image, uv);
   }
 }
 
-vec4 texture2DInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, vec2 uv) {
-  vec4 color = texture2DFilter(image, texelSize, interpolate, uv);
-  if (imageWeight > 0.) {
-    vec4 color2 = texture2DFilter(image2, texelSize, interpolate, uv);
-    color = mix(color, color2, imageWeight);
-  }
-  return color;
-}
-
-bool raster_has_values(vec4 values) {
-  if (imageUnscale[0] < imageUnscale[1]) {
-    return values.a == 1.;
+vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, float weight, vec2 uv) {
+  if (weight > 0.) {
+    vec4 pixel = getPixelFilter(image, texelSize, interpolate, uv);
+    vec4 pixel2 = getPixelFilter(image2, texelSize, interpolate, uv);
+    return mix(pixel, pixel2, weight);
   } else {
-    return !isNaN(values.x);
+    return getPixelFilter(image, texelSize, interpolate, uv);
   }
 }
 
-float raster_get_value(vec4 color) {
+bool raster_has_values(vec4 pixel) {
+  if (imageUnscale[0] < imageUnscale[1]) {
+    return pixel.a == 1.;
+  } else {
+    return !isNaN(pixel.x);
+  }
+}
+
+float raster_get_value(vec4 pixel) {
   float value;
   if (imageTypeVector) {
     if (imageUnscale[0] < imageUnscale[1]) {
-      value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy));
+      value = length(mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), pixel.xy));
     } else {
-      value = length(color.xy);
+      value = length(pixel.xy);
     }
   } else {
     if (imageUnscale[0] < imageUnscale[1]) {
-      value = mix(imageUnscale[0], imageUnscale[1], color.x);
+      value = mix(imageUnscale[0], imageUnscale[1], pixel.x);
     } else {
-      value = color.x;
+      value = pixel.x;
     }
   }
 
@@ -93,13 +94,13 @@ float raster_get_palette_value(float value) {
   return unscale(paletteBounds[0], paletteBounds[1], value);
 }
 
-float raster_get_direction_value(vec4 color) {
+float raster_get_direction_value(vec4 pixel) {
   if (imageTypeVector) {
     vec2 value;
     if (imageUnscale[0] < imageUnscale[1]) {
-      value = mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), color.xy);
+      value = mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), pixel.xy);
     } else {
-      value = color.xy;
+      value = pixel.xy;
     }
 
     return mod((360. - (atan2(value.y, value.x) / RASTER_PI * 180. + 180.)) - 270., 360.) / 360.;

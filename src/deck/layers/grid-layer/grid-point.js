@@ -1,8 +1,7 @@
 import {ImageType} from '../../../_utils/image-type';
-import {mix} from '../../../_utils/mix';
 import {getValue, getDirection} from '../../../_utils/data';
 import {getProjectFunction} from '../../../_utils/project';
-import {getPixel} from '../../../_utils/pixel';
+import {getPixelInterpolate} from '../../../_utils/pixel';
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').FloatData} FloatData */
@@ -27,12 +26,8 @@ export function getGridPoints(image, image2, imageInterpolate, imageWeight, imag
   const gridPoints = /** @type {GridPoint[]} */ ([]);
   for (let position of positions) {
     const point = project(position);
-    const pixel11 = getPixel(image, imageInterpolate, point[0], point[1], 0);
-    const pixel12 = getPixel(image, imageInterpolate, point[0], point[1], 1);
-    const pixel21 = image2 ? getPixel(image2, imageInterpolate, point[0], point[1], 0) : null;
-    const pixel22 = image2 ? getPixel(image2, imageInterpolate, point[0], point[1], 1) : null;
-    const pixel1 = pixel21 ? mix(pixel11, pixel21, imageWeight) : pixel11;
-    const pixel2 = pixel22 ? mix(pixel12, pixel22, imageWeight) : pixel12;
+    const pixel1 = getPixelInterpolate(image, image2, imageInterpolate, imageWeight, point, 0);
+    const pixel2 = getPixelInterpolate(image, image2, imageInterpolate, imageWeight, point, 1);
     const value = getValue(pixel1, pixel2, imageTypeVector);
     const direction = getDirection(pixel1, pixel2, imageTypeVector);
     if (isNaN(value)) {

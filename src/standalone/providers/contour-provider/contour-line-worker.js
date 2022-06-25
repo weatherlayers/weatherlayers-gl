@@ -2,7 +2,7 @@ import {expose, transfer} from 'comlink';
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
 import {blur} from '../../../_utils/blur';
-import {getUnprojectFunction} from '../../../_utils/unproject';
+import {getUnprojectFunction} from '../../../_utils/project';
 
 /**
  * wrap data around the world by repeating the data in the west and east

@@ -40,7 +40,7 @@ bool isNaN(float value) {
 
 // texture2D with software bilinear filtering
 // see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 texture2DBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
+vec4 getPixelBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
   // Calculate pixels to sample and interpolating factor
   uv -= texelSize * 0.5;
   vec2 factor = fract(uv / texelSize);
@@ -57,24 +57,25 @@ vec4 texture2DBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
   return mix(top, bottom, factor.y);
 }
 
-vec4 texture2DFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
+vec4 getPixelFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
   // Offset (test case: Gibraltar)
   uv += texelSize * 0.5;
 
   if (interpolate) {
-    return texture2DBilinear(image, texelSize, uv);
+    return getPixelBilinear(image, texelSize, uv);
   } else {
     return texture2D(image, uv);
   }
 }
 
-vec4 texture2DInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, vec2 uv) {
-  vec4 color = texture2DFilter(image, texelSize, interpolate, uv);
-  if (imageWeight > 0.) {
-    vec4 color2 = texture2DFilter(image2, texelSize, interpolate, uv);
-    color = mix(color, color2, imageWeight);
+vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, float weight, vec2 uv) {
+  if (weight > 0.) {
+    vec4 pixel = getPixelFilter(image, texelSize, interpolate, uv);
+    vec4 pixel2 = getPixelFilter(image2, texelSize, interpolate, uv);
+    return mix(pixel, pixel2, weight);
+  } else {
+    return getPixelFilter(image, texelSize, interpolate, uv);
   }
-  return color;
 }
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
@@ -172,19 +173,19 @@ vec2 getUV(vec2 pos) {
   );
 }
 
-bool raster_has_values(vec4 values) {
+bool raster_has_values(vec4 pixel) {
   if (imageUnscale[0] < imageUnscale[1]) {
-    return values.a == 1.;
+    return pixel.a == 1.;
   } else {
-    return !isNaN(values.x);
+    return !isNaN(pixel.x);
   }
 }
 
-vec2 raster_get_value_vector(vec4 values) {
+vec2 raster_get_value_vector(vec4 pixel) {
   if (imageUnscale[0] < imageUnscale[1]) {
-    return mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), values.xy);
+    return mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), pixel.xy);
   } else {
-    return values.xy;
+    return pixel.xy;
   }
 }
 
@@ -227,16 +228,16 @@ void main() {
   }
 
   vec2 uv = getUV(sourcePosition.xy);
-  vec4 bitmapColor = texture2DInterpolate(bitmapTexture, bitmapTexture2, imageTexelSize, imageInterpolate, uv);
+  vec4 pixel = getPixelInterpolate(bitmapTexture, bitmapTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
 
-  if (!raster_has_values(bitmapColor)) {
+  if (!raster_has_values(pixel)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;
     return;
   }
 
   // update position
-  vec2 speed = raster_get_value_vector(bitmapColor) * speedFactor;
+  vec2 speed = raster_get_value_vector(pixel) * speedFactor;
   // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
   // float bearing = degrees(-atan2(speed.y, speed.x));
   // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
