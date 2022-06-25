@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
+  <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
+  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div id="deck"></div>
+  </div>
+
+  <script type="module">
+    window.addEventListener('DOMContentLoaded', async () => {
+      // deck.gl
+      const deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {
+          longitude: 30,
+          latitude: 10,
+          zoom: 0,
+        },
+        controller: {
+          normalize: false,
+        },
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
+        layers: [
+          new deck.BitmapLayer({
+            id: 'bitmap',
+            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Whole_world_-_land_and_oceans_12000.jpg/2560px-Whole_world_-_land_and_oceans_12000.jpg',
+            bounds: [-180, -90, 180, 90],
+            _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
+            extensions: [new deck.ClipExtension()],
+            clipBounds: [-181, -85.051129, 181, 85.051129],
+          }),
+        ],
+      });
+    });
+  </script>
+</body>
+
+</html>
