@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.js"></script>
+  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./info-control.css">
   <link rel="stylesheet" href="./fps-control.css">
@@ -35,7 +35,6 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ deckgl: true });
-      config.contour.color.a = 0.8;
       let gui;
 
       // animated deck.gl

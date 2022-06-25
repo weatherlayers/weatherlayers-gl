@@ -5,8 +5,8 @@ uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
 uniform float interval;
-uniform vec4 color;
 uniform float width;
+uniform vec4 color;
 
 bool isNaN(float value) {
   return !(value <= 0. || 0. <= value);
