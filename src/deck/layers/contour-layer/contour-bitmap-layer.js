@@ -12,8 +12,7 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  interval: {type: 'number', value: null}, // TODO: make required after step is removed
-  step: {type: 'number', value: null}, // deprecated in 2022.6.0, use interval instead, TODO: remove
+  interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
 };
@@ -37,8 +36,7 @@ export class ContourBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, color, width} = this.props;
-    const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
 
     if (!imageTexture) {
       return;

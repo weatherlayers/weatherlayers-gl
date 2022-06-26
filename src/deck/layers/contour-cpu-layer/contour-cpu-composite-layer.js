@@ -12,8 +12,7 @@ const defaultProps = {
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
 
-  interval: {type: 'number', value: null}, // TODO: make required after step is removed
-  step: {type: 'number', value: null}, // deprecated in 2022.6.0, use interval instead, TODO: remove
+  interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
   textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
@@ -67,14 +66,10 @@ class ContourCpuCompositeLayer extends CompositeLayer {
 
   updateState({props, oldProps, changeFlags}) {
     const {image, interval} = props;
-    const {step} = props; // TODO: remove after step is removed
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (
-      !interval &&
-      !step // TODO: remove after step is removed
-    ) {
+    if (!interval) {
       this.setState({
         contourLabels: undefined,
         visibleContourLabels: undefined,
@@ -82,11 +77,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
       return;
     }
 
-    if (
-      image !== oldProps.image ||
-      interval !== oldProps.interval ||
-      step !== oldProps.step // TODO: remove after step is removed
-    ) {
+    if (image !== oldProps.image || interval !== oldProps.interval) {
       this.updateContourLines();
     }
 
@@ -98,8 +89,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
   }
 
   async updateContourLines() {
-    const {image, imageType, imageUnscale, bounds} = this.props;
-    const interval = this.props.interval || this.props.step; // TODO: remove after step is removed
+    const {image, imageType, imageUnscale, interval, bounds} = this.props;
     if (!image) {
       return;
     }
