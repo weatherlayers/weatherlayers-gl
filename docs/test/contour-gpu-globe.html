@@ -7,19 +7,16 @@
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.5/dist/dist.dev.js"></script>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
-<body class="arcgis">
+<body>
   <div id="container">
-    <div id="arcgis"></div>
     <div id="deck"></div>
   </div>
   <div id="top-left"></div>
@@ -27,81 +24,49 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      format: 'tif',
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ deckgl: true, webgl2: true, globe: true });
       let gui;
 
-      // ArcGIS
-      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, watchUtils] } = await deck.loadArcGISModules([
-        'esri/Map',
-        'esri/views/SceneView',
-        'esri/views/3d/externalRenderers',
-        'esri/core/watchUtils',
-      ], { version: '4.23' });
-      const map = new Map({
-        basemap: 'dark-gray-vector',
-        layers: [],
-      });
-      const view = new SceneView({
-        container: 'arcgis',
-        map: map,
-        camera: {
-          position: {
-            longitude: 30,
-            latitude: 10,
-            z: 100000 * 1000, // 100000 km
-          },
-        },
-        viewingMode: 'local',
-      });
-      view.ui.components = ['attribution'];
-
-      // ArcGIS deck.gl layer
-      await watchUtils.whenFalseOnce(view, 'updating');
-      const deckRenderer = new DeckRenderer(view, {
-        layers: [],
-      });
-      externalRenderers.add(view, deckRenderer);
-
-      // animated deck.gl
-      const deckgl = new deck.Deck({
+      // deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
-        initialViewState: {},
-        controller: false,
+        initialViewState: {
+          longitude: 10,
+          latitude: 40,
+          altitude: 0.75,
+          zoom: 1.4,
+          /*
+          // screenshot Twitter 600x335, slide 1440x810
+          longitude: 7,
+          latitude: 46,
+          */
+        },
+        controller: true,
+        views: [
+          new deck._GlobeView(),
+        ],
         layers: [],
       });
-      // see https://github.com/visgl/deck.gl/blob/master/modules/arcgis/src/deck-renderer.js#L6
-      function arcgisFOVToDeckAltitude(fov, aspectRatio) {
-        const D = Math.sqrt(1 + aspectRatio ** 2);
-        const halfFOV = (fov / 2 / 180) * Math.PI;
-        return D / 2 / Math.tan(halfFOV);
-      }
-      function updateDeckView() {
-        const viewState = {
-          longitude: view.center.longitude,
-          latitude: view.center.latitude,
-          altitude: arcgisFOVToDeckAltitude(view.camera.fov, view.size[0] / view.size[1]),
-          zoom: view.zoom,
-          pitch: view.camera.tilt,
-          bearing: view.camera.heading,
-        };
-        deckgl.setProps({ viewState });
-      }
-      view.watch('camera', updateDeckView);
-      updateDeckView();
-      const rasterDeckgl = deckRenderer.deckInstance;
-      const particleDeckgl = deckgl;
+
+      // rotate
+      const rotateAnimation = new WeatherLayers.Animation(() => {
+        const initialViewState = { ...deckgl.props.initialViewState };
+        initialViewState.longitude += 0.3;
+        deckgl.setProps({ initialViewState });
+      });
 
       // info panels
-      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      const infoControl = new InfoControl({ deckgl });
       document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
@@ -119,10 +84,12 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
       document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
       const attributionControl = new WeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
@@ -135,8 +102,36 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        deckRenderer.deck.set({
+        deckgl.setProps({
           layers: [
+            new deck.SolidPolygonLayer({
+              id: 'background',
+              data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+              getPolygon: d => d,
+              stroked: false,
+              filled: true,
+              getFillColor: [26, 26, 26],
+            }),
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
+              minZoom: 0,
+              maxZoom: 22,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north],
+                  _imageCoordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+                });
+              },
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
@@ -146,10 +141,14 @@
               imageInterpolate: config.imageInterpolate,
               opacity: config.raster.opacity,
               pickable: !isIOS15(),
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
             }),
-            new WeatherLayers.ContourLayer({
+            new WeatherLayers.ContourGpuLayer({
               id: 'contour',
-              visible: config.contour.enabled && !timelineControl.animation.running,
+              visible: config.contour.enabled,
               dataset,
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
@@ -194,10 +193,6 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
@@ -217,13 +212,14 @@
           ],
         });
 
+        rotateAnimation.toggle(config.rotate);
         legendControl.update({ ...legendControl.config, dataset });
         timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
         tooltipControl.update({ ...tooltipControl.config, dataset });
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
-      gui = initGui(config, update, { deckgl: particleDeckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true, globe: true });
     });
   </script>
 </body>

@@ -9,10 +9,10 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-client.umd.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-client.umd.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -26,9 +26,9 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token

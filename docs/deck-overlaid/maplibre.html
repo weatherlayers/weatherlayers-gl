@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
+  <script src="https://unpkg.com/@deck.gl/mapbox@8.7.5/dist/dist.dev.js"></script>
+  <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
+</head>
+
+<body class="maplibre">
+  <div id="container">
+    <div id="maplibre"></div>
+    <div id="deck"></div>
+  </div>
+  <div id="top-left"></div>
+  <div id="bottom-left">
+    <div id="maptiler-logo">
+      <a href="https://www.maptiler.com" target="_blank">
+        <img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler Logo">
+      </a>
+    </div>
+  </div>
+  <div id="bottom-right"></div>
+
+  <script type="module">
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
+
+    WeatherLayers.setClientConfig({
+      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const config = await initConfig({ deckgl: true, webgl2: true });
+      let gui;
+
+      // Mapbox
+      const map = new maplibregl.Map({
+        container: 'maplibre',
+        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
+        center: [30, 10],
+        zoom: 1,
+        /*
+        // screenshot Twitter 600x335, slide 1440x810
+        zoom: 0,
+        */
+        /*
+        // banner 1500x500
+        center: [7, 46],
+        zoom: 3.5,
+        pitch: 40,
+        bearing: 0,
+        */
+      });
+      await new Promise(resolve => map.on('load', resolve));
+
+      // overlaid deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {},
+        controller: false,
+        views: [
+          new deck.MapView({ repeat: true }),
+        ],
+        layers: [],
+      });
+      function updateDeckView() {
+        const viewState = {
+          longitude: map.getCenter().lng,
+          latitude: map.getCenter().lat,
+          zoom: map.getZoom(),
+          pitch: map.getPitch(),
+          bearing: map.getBearing(),
+        };
+        deckgl.setProps({ viewState });
+      }
+      map.on('move', updateDeckView);
+      map.on('zoom', updateDeckView);
+      updateDeckView();
+      function dispatchMouseEvent(event) {
+        document.querySelector('#maplibre .mapboxgl-canvas-container').dispatchEvent(new event.constructor(event.type, event));
+        event.preventDefault();
+      }
+      document.getElementById('deck').addEventListener('mousedown', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('mouseup', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('mousemove', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('wheel', dispatchMouseEvent);
+
+      // info panels
+      const infoControl = new InfoControl({ deckgl });
+      document.getElementById('top-left').prepend(infoControl.onAdd());
+
+      // legend
+      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+
+      // timeline
+      const timelineControl = new WeatherLayers.TimelineControl({
+        width: 250,
+        onUpdate: event => {
+          config.datetime = event.datetime || NO_DATA;
+          update();
+        },
+      });
+      document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+
+      // tooltip
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
+      document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
+
+      // attribution
+      const attributionControl = new WeatherLayers.AttributionControl();
+      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+
+      // config
+      async function update() {
+        const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+
+        deckgl.setProps({
+          layers: [
+            new WeatherLayers.RasterLayer({
+              id: 'raster',
+              visible: config.raster.enabled,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              opacity: config.raster.opacity,
+              pickable: !isIOS15(),
+            }),
+            new WeatherLayers.ContourLayer({
+              id: 'contour',
+              visible: config.contour.enabled && !timelineControl.animation.running,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              interval: config.contour.interval,
+              width: config.contour.width,
+              color: colorToArray(config.contour.color),
+              textSize: config.contour.textSize,
+              textColor: colorToArray(config.contour.textColor),
+              textOutlineWidth: config.contour.textOutlineWidth,
+              textOutlineColor: colorToArray(config.contour.textOutlineColor),
+              opacity: config.contour.opacity,
+            }),
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              visible: config.highLow.enabled && !timelineControl.animation.running,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: colorToArray(config.highLow.textColor),
+              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              opacity: config.highLow.opacity,
+            }),
+            new WeatherLayers.GridLayer({
+              id: 'grid',
+              visible: config.grid.enabled,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              style: config.grid.style,
+              textSize: config.grid.textSize,
+              textColor: colorToArray(config.grid.textColor),
+              textOutlineWidth: config.grid.textOutlineWidth,
+              textOutlineColor: colorToArray(config.grid.textOutlineColor),
+              iconBounds: config.grid.iconBounds,
+              iconSize: config.grid.iconSize,
+              iconColor: colorToArray(config.grid.iconColor),
+              opacity: config.grid.opacity,
+            }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              visible: config.particle.enabled,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
+          ],
+        });
+
+        legendControl.update({ ...legendControl.config, dataset });
+        timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
+        tooltipControl.update({ ...tooltipControl.config, dataset });
+        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
+      }
+      update();
+      gui = initGui(config, update, { deckgl, webgl2: true });
+    });
+  </script>
+</body>
+
+</html>

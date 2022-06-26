@@ -23,7 +23,7 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
-export async function initConfig({ deckgl, globe } = {}) {
+export async function initConfig({ deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
   const client = WeatherLayers.getClient();
@@ -84,6 +84,8 @@ export async function initConfig({ deckgl, globe } = {}) {
         iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
         opacity: 1,
       },
+    } : {}),
+    ...(webgl2 ? {
       particle: {
         enabled: false,
         numParticles: 5000,
@@ -97,7 +99,7 @@ export async function initConfig({ deckgl, globe } = {}) {
     } : {}),
   };
 
-  await updateDataset(config, { deckgl, globe });
+  await updateDataset(config, { deckgl, webgl2, globe });
 
   return config;
 }
@@ -110,7 +112,7 @@ function getDatetimeOptions(datetimes) {
   return datetimes.map(x => ({ value: x, text: WeatherLayers.formatDatetime(x) }));
 }
 
-async function updateDataset(config, { deckgl } = {}) {
+async function updateDataset(config, { deckgl, webgl2 } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
   if (config.dataset === NO_DATA) {
@@ -121,6 +123,8 @@ async function updateDataset(config, { deckgl } = {}) {
     config.highLow.enabled = false;
     if (deckgl) {
       config.grid.enabled = false;
+    }
+    if (webgl2) {
       config.particle.enabled = false;
     }
     return;
@@ -144,14 +148,15 @@ async function updateDataset(config, { deckgl } = {}) {
     config.grid.enabled = urlConfig.has('grid') ? urlConfig.get('grid') === 'true' : !!GRID_LAYER_DATASET_CONFIG[config.dataset];
     config.grid.style = GRID_LAYER_DATASET_CONFIG[config.dataset]?.style || WeatherLayers.GridStyle.VALUE;
     config.grid.iconBounds = GRID_LAYER_DATASET_CONFIG[config.dataset]?.iconBounds || null;
-
+  }
+  if (webgl2) {
     config.particle.enabled = urlConfig.has('particle') ? urlConfig.get('particle') === 'true' : !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset];
     config.particle.speedFactor = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.speedFactor || 0;
     config.particle.width = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.width || 0;
   }
 }
 
-function updateUrlConfig(config, { deckgl } = {}) {
+function updateUrlConfig(config, { deckgl, webgl2 } = {}) {
   const urlConfig = new URLSearchParams();
   if (config.dataset !== DEFAULT_DATASET) {
     urlConfig.set('dataset', config.dataset);
@@ -169,6 +174,8 @@ function updateUrlConfig(config, { deckgl } = {}) {
     if (config.grid.enabled !== !!GRID_LAYER_DATASET_CONFIG[config.dataset]) {
       urlConfig.set('grid', config.grid.enabled);
     }
+  }
+  if (webgl2) {
     if (config.particle.enabled !== !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset]) {
       urlConfig.set('particle', config.particle.enabled);
     }
@@ -186,7 +193,7 @@ function debounce(callback, wait) {
   };
 }
 
-export function initGui(config, update, { deckgl, globe } = {}) {
+export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   const originalUpdate = update;
   update = debounce(() => { updateUrlConfig(config, { deckgl }); originalUpdate() }, 100);
   const updateLast = event => event.last && update();
@@ -195,7 +202,7 @@ export function initGui(config, update, { deckgl, globe } = {}) {
 
   let datetime;
   gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
-    await updateDataset(config, { deckgl, globe });
+    await updateDataset(config, { deckgl, webgl2, globe });
     datetime.dispose();
     datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     gui.refresh();
@@ -252,7 +259,9 @@ export function initGui(config, update, { deckgl, globe } = {}) {
     grid.addInput(config.grid, 'iconSize', { min: 0, max: 100, step: 1 }).on('change', update);
     grid.addInput(config.grid, 'iconColor').on('change', update);
     grid.addInput(config.grid, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+  }
 
+  if (webgl2) {
     const particle = gui.addFolder({ title: 'Particle layer', expanded: true });
     particle.addInput(config.particle, 'enabled').on('change', update);
     particle.addInput(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);

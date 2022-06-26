@@ -10,9 +10,9 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.7.5/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.23/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -25,8 +25,8 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray } from './config.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token

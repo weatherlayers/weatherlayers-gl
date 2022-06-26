@@ -9,9 +9,9 @@
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Cesium.js"></script>
   <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Widgets/widgets.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -24,8 +24,8 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToCss } from './config.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToCss } from '../config.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token

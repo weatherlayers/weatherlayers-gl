@@ -10,10 +10,10 @@
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/google-maps@8.7.5/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -27,16 +27,16 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ deckgl: true, webgl2: true });
       let gui;
 
       // Google Maps
@@ -48,17 +48,10 @@
         backgroundColor: 'none',
         disableDefaultUI: true,
       });
+      await new Promise(resolve => map.addListener('tilesloaded', resolve));
 
-      // Google Maps deck.gl layer
-      await new Promise(resolve => google.maps.event.addListenerOnce(map, 'tilesloaded', resolve));
-      const deckLayer = new deck.GoogleMapsOverlay({
-        interleaved: false,
-        layers: [],
-      });
-      deckLayer.setMap(map);
-
-      // animated deck.gl
-      const deckgl = new deck.Deck({
+      // overlaid deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
@@ -77,13 +70,19 @@
         };
         deckgl.setProps({ viewState });
       }
-      google.maps.event.addListener(map, 'bounds_changed', updateDeckView);
+      map.addListener('bounds_changed', updateDeckView);
       updateDeckView();
-      const rasterDeckgl = deckLayer;
-      const particleDeckgl = deckgl;
+      function dispatchMouseEvent(event) {
+        document.querySelector('#google-maps .gm-style > div[aria-label]').dispatchEvent(new event.constructor(event.type, event));
+        event.preventDefault();
+      }
+      document.getElementById('deck').addEventListener('mousedown', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('mouseup', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('mousemove', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('wheel', dispatchMouseEvent);
 
       // info panels
-      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      const infoControl = new InfoControl({ deckgl });
       document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
@@ -101,7 +100,7 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
       document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
@@ -117,7 +116,7 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        deckLayer.setProps({
+        deckgl.setProps({
           layers: [
             new WeatherLayers.RasterLayer({
               id: 'raster',
@@ -176,10 +175,6 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
@@ -205,7 +200,7 @@
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
-      gui = initGui(config, update, { deckgl: particleDeckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

@@ -6,119 +6,60 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/mapbox@8.7.5/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
-<body class="maplibre">
+<body>
   <div id="container">
-    <div id="maplibre"></div>
     <div id="deck"></div>
   </div>
   <div id="top-left"></div>
-  <div id="bottom-left">
-    <div id="maptiler-logo">
-      <a href="https://www.maptiler.com" target="_blank">
-        <img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler Logo">
-      </a>
-    </div>
-  </div>
+  <div id="bottom-left"></div>
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      format: 'tif',
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ deckgl: true, webgl2: true });
       let gui;
 
-      // Mapbox
-      const map = new maplibregl.Map({
-        container: 'maplibre',
-        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
-        center: [30, 10],
-        zoom: 1,
-        /*
-        // screenshot Twitter 600x335, slide 1440x810
-        zoom: 0,
-        */
-        /*
-        // banner 1500x500
-        center: [7, 46],
-        zoom: 3.5,
-        pitch: 40,
-        bearing: 0,
-        */
-      });
-
-      // Mapbox deck.gl layer
-      await new Promise(resolve => map.on('load', resolve));
-      const deckLayer = new deck.MapboxLayer({
-        type: class extends deck.CompositeLayer {
-          renderLayers() {
-            return this.props.layers;
-          }
-        },
-        id: 'deck',
-        layers: [],
-      });
-      map.addLayer(deckLayer, 'label_airport');
-      /*
-      // screenshot, banner
-      // hide boundaries
-      map.setLayoutProperty('admin_sub', 'visibility', 'none');
-      map.setLayoutProperty('admin_country', 'visibility', 'none');
-      // hide labels
-      map.setLayoutProperty('label_airport', 'visibility', 'none');
-      map.setLayoutProperty('label_road', 'visibility', 'none');
-      map.setLayoutProperty('label_place_other', 'visibility', 'none');
-      map.setLayoutProperty('label_place_city', 'visibility', 'none');
-      map.setLayoutProperty('label_country_other', 'visibility', 'none');
-      map.setLayoutProperty('label_country', 'visibility', 'none');
-      */
-
-      // animated deck.gl
-      const deckgl = new deck.Deck({
+      // deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
-        initialViewState: {},
-        controller: false,
+        initialViewState: {
+          longitude: 30,
+          latitude: 10,
+          zoom: 0,
+          /*
+          // screenshot Twitter 600x335, slide 1440x810
+          zoom: 1,
+          */
+        },
+        controller: {
+          normalize: false,
+        },
         views: [
           new deck.MapView({ repeat: true }),
         ],
         layers: [],
       });
-      function updateDeckView() {
-        const viewState = {
-          longitude: map.getCenter().lng,
-          latitude: map.getCenter().lat,
-          zoom: map.getZoom(),
-          pitch: map.getPitch(),
-          bearing: map.getBearing(),
-        };
-        deckgl.setProps({ viewState });
-      }
-      map.on('move', updateDeckView);
-      map.on('zoom', updateDeckView);
-      updateDeckView();
-      const rasterDeckgl = deckLayer.deck;
-      const particleDeckgl = deckgl;
 
       // info panels
-      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      const infoControl = new InfoControl({ deckgl });
       document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
@@ -136,10 +77,12 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
       document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      document.getElementById('bottom-right').prepend(basemapAttributionControl.onAdd());
       const attributionControl = new WeatherLayers.AttributionControl();
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
@@ -152,8 +95,23 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        deckLayer.setProps({
+        deckgl.setProps({
           layers: [
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
+              minZoom: 0,
+              maxZoom: 22,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north],
+                });
+              },
+            }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
               visible: config.raster.enabled,
@@ -164,9 +122,9 @@
               opacity: config.raster.opacity,
               pickable: !isIOS15(),
             }),
-            new WeatherLayers.ContourLayer({
+            new WeatherLayers.ContourGpuLayer({
               id: 'contour',
-              visible: config.contour.enabled && !timelineControl.animation.running,
+              visible: config.contour.enabled,
               dataset,
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
@@ -190,8 +148,8 @@
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
               textColor: colorToArray(config.highLow.textColor),
-              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
               textOutlineWidth: config.highLow.textOutlineWidth,
+              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
               opacity: config.highLow.opacity,
             }),
             new WeatherLayers.GridLayer({
@@ -211,10 +169,6 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
@@ -240,7 +194,7 @@
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
-      gui = initGui(config, update, { deckgl: particleDeckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

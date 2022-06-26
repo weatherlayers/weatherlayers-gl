@@ -6,21 +6,20 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/mapbox@8.7.5/dist/dist.dev.js"></script>
+  <script src="https://unpkg.com/@deck.gl/arcgis@8.7.5/dist/dist.dev.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
-<body class="mapbox">
+<body class="arcgis">
   <div id="container">
-    <div id="mapbox"></div>
+    <div id="arcgis"></div>
     <div id="deck"></div>
   </div>
   <div id="top-left"></div>
@@ -28,64 +27,39 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ deckgl: true, webgl2: true });
       let gui;
 
-      // Mapbox
-      const map = new mapboxgl.Map({
-        container: 'mapbox',
-        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v10',
-        center: [30, 10],
-        zoom: 1,
-      });
-
-      // Mapbox deck.gl layer
-      await new Promise(resolve => map.on('load', resolve));
-      const deckLayer = new deck.MapboxLayer({
-        type: class extends deck.CompositeLayer {
-          renderLayers() {
-            return this.props.layers;
-          }
-        },
-        id: 'deck',
+      // ArcGIS
+      const { DeckLayer, modules: [Map, MapView, watchUtils] } = await deck.loadArcGISModules([
+        'esri/Map',
+        'esri/views/MapView',
+        'esri/core/watchUtils',
+      ], { version: '4.23' });
+      const map = new Map({
+        basemap: 'dark-gray-vector',
         layers: [],
       });
-      map.addLayer(deckLayer, 'waterway-label');
-      /*
-      // banner
-      // hide boundaries
-      map.setLayoutProperty('admin-0-boundary-disputed', 'visibility', 'none');
-      map.setLayoutProperty('admin-0-boundary', 'visibility', 'none');
-      map.setLayoutProperty('admin-1-boundary', 'visibility', 'none');
-      map.setLayoutProperty('admin-0-boundary-bg', 'visibility', 'none');
-      map.setLayoutProperty('admin-1-boundary-bg', 'visibility', 'none');
-      // hide labels
-      map.setLayoutProperty('country-label', 'visibility', 'none');
-      map.setLayoutProperty('state-label', 'visibility', 'none');
-      map.setLayoutProperty('settlement-label', 'visibility', 'none');
-      map.setLayoutProperty('settlement-subdivision-label', 'visibility', 'none');
-      map.setLayoutProperty('airport-label', 'visibility', 'none');
-      map.setLayoutProperty('poi-label', 'visibility', 'none');
-      map.setLayoutProperty('water-point-label', 'visibility', 'none');
-      map.setLayoutProperty('water-line-label', 'visibility', 'none');
-      map.setLayoutProperty('natural-point-label', 'visibility', 'none');
-      map.setLayoutProperty('natural-line-label', 'visibility', 'none');
-      map.setLayoutProperty('waterway-label', 'visibility', 'none');
-      map.setLayoutProperty('road-label', 'visibility', 'none');
-      */
+      const view = new MapView({
+        container: 'arcgis',
+        map: map,
+        center: [30, 10],
+        zoom: 0,
+      });
+      view.ui.components = ['attribution'];
+      await watchUtils.whenFalseOnce(view, 'updating');
 
-      // animated deck.gl
-      const deckgl = new deck.Deck({
+      // overlaid deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {},
         controller: false,
@@ -96,22 +70,28 @@
       });
       function updateDeckView() {
         const viewState = {
-          longitude: map.getCenter().lng,
-          latitude: map.getCenter().lat,
-          zoom: map.getZoom(),
-          pitch: map.getPitch(),
-          bearing: map.getBearing(),
+          longitude: view.center.longitude,
+          latitude: view.center.latitude,
+          zoom: view.zoom,
+          bearing: -view.rotation,
         };
         deckgl.setProps({ viewState });
       }
-      map.on('move', updateDeckView);
-      map.on('zoom', updateDeckView);
+      view.watch('center', updateDeckView);
+      view.watch('zoom', updateDeckView);
+      view.watch('rotation', updateDeckView);
       updateDeckView();
-      const rasterDeckgl = deckLayer.deck;
-      const particleDeckgl = deckgl;
+      function dispatchMouseEvent(event) {
+        document.querySelector('#arcgis .esri-view-surface').dispatchEvent(new event.constructor(event.type, event));
+        event.preventDefault();
+      }
+      document.getElementById('deck').addEventListener('pointerdown', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('pointerup', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('pointermove', dispatchMouseEvent);
+      document.getElementById('deck').addEventListener('wheel', dispatchMouseEvent);
 
       // info panels
-      const infoControl = new InfoControl({ deckgl: rasterDeckgl });
+      const infoControl = new InfoControl({ deckgl });
       document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
@@ -129,7 +109,7 @@
       document.getElementById('bottom-left').prepend(timelineControl.onAdd());
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl: rasterDeckgl });
+      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
       document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
@@ -145,17 +125,21 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
 
-        deckLayer.setProps({
+        deckgl.setProps({
           layers: [
-            new WeatherLayers.RasterLayer({
-              id: 'raster',
-              visible: config.raster.enabled,
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              visible: config.highLow.enabled && !timelineControl.animation.running,
               dataset,
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               imageInterpolate: config.imageInterpolate,
-              opacity: config.raster.opacity,
-              pickable: !isIOS15(),
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: colorToArray(config.highLow.textColor),
+              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              opacity: config.highLow.opacity,
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
@@ -173,19 +157,15 @@
               textOutlineColor: colorToArray(config.contour.textOutlineColor),
               opacity: config.contour.opacity,
             }),
-            new WeatherLayers.HighLowLayer({
-              id: 'highLow',
-              visible: config.highLow.enabled && !timelineControl.animation.running,
+            new WeatherLayers.RasterLayer({
+              id: 'raster',
+              visible: config.raster.enabled,
               dataset,
               datetime,
               datetimeInterpolate: config.datetimeInterpolate,
               imageInterpolate: config.imageInterpolate,
-              radius: config.highLow.radius,
-              textSize: config.highLow.textSize,
-              textColor: colorToArray(config.highLow.textColor),
-              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
-              textOutlineWidth: config.highLow.textOutlineWidth,
-              opacity: config.highLow.opacity,
+              opacity: config.raster.opacity,
+              pickable: !isIOS15(),
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
@@ -204,10 +184,6 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
-          ],
-        });
-        deckgl.setProps({
-          layers: [
             new WeatherLayers.ParticleLayer({
               id: 'particle',
               visible: config.particle.enabled,
@@ -233,7 +209,7 @@
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
-      gui = initGui(config, update, { deckgl: particleDeckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

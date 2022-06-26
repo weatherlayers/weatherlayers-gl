@@ -6,29 +6,35 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.0-beta.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@2.2.0-pre.2/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-client.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./info-control.css">
-  <link rel="stylesheet" href="./fps-control.css">
+  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
-<body class="mapbox">
+<body class="maplibre">
   <div id="container">
-    <div id="mapbox"></div>
+    <div id="maplibre"></div>
     <div id="deck"></div>
   </div>
   <div id="top-left"></div>
-  <div id="bottom-left"></div>
+  <div id="bottom-left">
+    <div id="maptiler-logo">
+      <a href="https://www.maptiler.com" target="_blank">
+        <img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler Logo">
+      </a>
+    </div>
+  </div>
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from './config.js';
-    import { InfoControl } from './info-control.js';
-    import { FpsControl } from './fps-control.js';
+    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     WeatherLayers.setClientConfig({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
@@ -40,10 +46,9 @@
       let gui;
 
       // Mapbox
-      const map = new mapboxgl.Map({
-        container: 'mapbox',
-        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6IlB6c09JTjQifQ.pGUFp8k7f-W9IAkCrM_PYQ', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v10',
+      const map = new maplibregl.Map({
+        container: 'maplibre',
+        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
         center: [30, 10],
         zoom: 1,
       });

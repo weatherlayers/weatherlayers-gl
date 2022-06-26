@@ -8,8 +8,8 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../dist/weatherlayers-cloud-deck.umd.min.js"></script>
-  <link rel="stylesheet" href="./style.css">
+  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -19,20 +19,9 @@
   </div>
 
   <script type="module">
-    WeatherLayers.setClientConfig({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
-    });
-
     window.addEventListener('DOMContentLoaded', async () => {
-      const client = WeatherLayers.getClient();
-      const stacCatalog = await client.loadStacCatalog();
-      const dataset = 'gfs/wind_10m_above_ground';
-      const stacCollection = await client.loadStacCollection(dataset);
-      const datetimes = client.getStacCollectionDatetimes(stacCollection);
-      const datetime = datetimes[0];
-
       // deck.gl
-      const deckgl = new deck.Deck({
+      const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
           longitude: 30,
@@ -49,18 +38,10 @@
           new deck.BitmapLayer({
             id: 'bitmap',
             image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Whole_world_-_land_and_oceans_12000.jpg/2560px-Whole_world_-_land_and_oceans_12000.jpg',
-            pickable: true, // crashes when zooming in on iOS 15
             bounds: [-180, -90, 180, 90],
             _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
             extensions: [new deck.ClipExtension()],
             clipBounds: [-181, -85.051129, 181, 85.051129],
-          }),
-          // doesn't crash, just makes it faster to appear
-          new WeatherLayers.ParticleLayer({
-            id: 'particle',
-            dataset,
-            datetime,
-            getPolygonOffset: () => [0, -1000],
           }),
         ],
       });
