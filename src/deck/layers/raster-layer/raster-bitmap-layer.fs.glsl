@@ -32,10 +32,10 @@ void main(void) {
   vec4 color = texture2D(paletteTexture, vec2(paletteValue, 0.));
   gl_FragColor = apply_opacity(color.rgb, color.a * opacity);
 
+  @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
+
   if (picking_uActive) {
     float directionValue = getPixelDirectionValue(pixel, imageTypeVector, imageUnscale);
     gl_FragColor = vec4(paletteValue, directionValue, 0, 1);
   }
-
-  @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
 }
