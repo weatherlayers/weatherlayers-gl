@@ -39,6 +39,10 @@ void main(void) {
   float factor = abs(fract(contourValue + 0.5) - 0.5); // contour position, min 0: contour, max 0.5: between contours
   float dFactor = fwidth(contourValue); // contour derivation, consistent width in screen space
   float contour = 1. - clamp((factor / dFactor) + 0.5 - contourWidth, 0., 1.);
+  if (dFactor == 0.) {
+    // drop flat areas
+    contour = 0.;
+  }
   float contourOpacity = contour * contourMajor; // minor contour: half opacity
 
   // contourOpacity += factor; // debug
