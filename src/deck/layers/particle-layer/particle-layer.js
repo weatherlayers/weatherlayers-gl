@@ -35,7 +35,7 @@ class ParticleLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageInterpolate, imageUnscale} = props;
+    const {image, image2, imageUnscale} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
@@ -43,7 +43,7 @@ class ParticleLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate) {
+    if (image !== oldProps.image || image2 !== oldProps.image2) {
       this.updateTexture();
     }
 
@@ -52,10 +52,10 @@ class ParticleLayer extends CompositeLayer {
 
   updateTexture() {
     const {gl} = this.context;
-    const {image, image2, imageInterpolate} = this.props;
+    const {image, image2} = this.props;
 
-    const imageTexture = image ? createTextureCached(gl, image, imageInterpolate) : null;
-    const imageTexture2 = image2 ? createTextureCached(gl, image2, imageInterpolate) : null;
+    const imageTexture = image ? createTextureCached(gl, image) : null;
+    const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
 
     this.setState({ imageTexture, imageTexture2 });
   }

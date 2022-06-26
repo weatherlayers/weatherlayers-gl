@@ -22,10 +22,9 @@ const cache = new WeakMap();
 /**
  * @param {WebGL2RenderingContext} gl
  * @param {TextureData} image
- * @param {boolean} imageInterpolate
  * @returns {any}
  */
-function getTextureOptions(gl, image, imageInterpolate) {
+function getTextureOptions(gl, image) {
   const { data, width, height } = image;
   const bandsCount = data.length / (width * height);
 
@@ -92,7 +91,11 @@ function getTextureOptions(gl, image, imageInterpolate) {
     throw new Error('Unsupported data format');
   }
 
-  const parameters = imageInterpolate ? LINEAR_TEXTURE_PARAMETERS : NEAREST_TEXTURE_PARAMETERS;
+  // software bilinear filtering in pixel.glsl
+  const parameters = {
+    [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
+    [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
+  };
 
   return { data: textureData, width, height, format, type, parameters };
 }
@@ -100,28 +103,20 @@ function getTextureOptions(gl, image, imageInterpolate) {
 /**
  * @param {WebGL2RenderingContext} gl
  * @param {TextureData} image
- * @param {boolean} imageInterpolate
  * @returns {Texture2D}
  */
-export function createTextureCached(gl, image, imageInterpolate) {
-  const parameters = imageInterpolate ? LINEAR_TEXTURE_PARAMETERS : NEAREST_TEXTURE_PARAMETERS;
-
+export function createTextureCached(gl, image) {
   if (!cache.has(gl)) {
     cache.set(gl, new WeakMap());
   }
 
   const cache2 = /** @type {WeakMap<TextureData, WeakMap<TextureParameters, Texture2D>>} */ (cache.get(gl));
   if (!cache2.has(image)) {
-    cache2.set(image, new WeakMap());
-  }
-
-  const cache3 = /** @type {WeakMap<TextureParameters, Texture2D>} */ (cache2.get(image));
-  if (!cache3.has(parameters)) {
-    const textureOptions = getTextureOptions(gl, image, imageInterpolate);
+    const textureOptions = getTextureOptions(gl, image);
     const texture = new Texture2D(gl, textureOptions);
-    cache3.set(parameters, texture);
+    cache2.set(image, texture);
   }
 
-  const texture = cache3.get(parameters);
+  const texture = cache2.get(image);
   return texture;
 }
