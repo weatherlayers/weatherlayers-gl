@@ -3,10 +3,10 @@ import {TextLayer, IconLayer} from '@deck.gl/layers';
 import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
-import {getViewportVisibleGrid} from '../../../_utils/viewport-grid';
+import {getViewportGridPositions} from '../../../_utils/viewport-grid';
 import {GridStyle} from '../../../_utils';
+import {getGridPoints} from '../../../standalone/providers/grid-provider/grid-point';
 import {GRID_ICON_STYLES} from './grid-style';
-import {getGridPoints} from './grid-point';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
@@ -106,7 +106,7 @@ class GridCompositeLayer extends CompositeLayer {
   updatePositions() {
     const {viewport} = this.context;
 
-    const positions = getViewportVisibleGrid(viewport, 3);
+    const positions = getViewportGridPositions(viewport, 3);
 
     this.setState({ positions });
 

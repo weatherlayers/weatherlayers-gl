@@ -24,7 +24,6 @@ void main(void) {
   @include "../../../_utils/deck-bitmap-layer-main-start.glsl"
   
   vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
-
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     discard;

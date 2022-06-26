@@ -6,7 +6,7 @@ import {getPixelMagnitudeData} from '../../../_utils/pixel-data';
 import {getUnprojectFunction} from '../../../_utils/project';
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
-/** @typedef {import('../../../_utils/data').TextureData} TextureData */
+/** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
 
 /**
  * wrap data around the world by repeating the data in the west and east
@@ -161,7 +161,7 @@ function getContourLineData(data, width, height, interval, bounds) {
 
 expose({
   /**
-   * @param {Float32Array} data
+   * @param {TextureDataArray} data
    * @param {number} width
    * @param {number} height
    * @param {ImageType} imageType

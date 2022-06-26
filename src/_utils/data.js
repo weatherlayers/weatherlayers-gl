@@ -21,9 +21,12 @@ function maskData(data, nodata = undefined) {
   // sea_ice_fraction:
   // - real nodata: 1.27999997138977
   // - meta nodata: 1.27999997138977095, parsed in JS as 1.279999971389771
-  const maskedData = new data.constructor(Array.from(data).map(value => {
-    return Math.abs(value - nodata) > Number.EPSILON * 2 ? value : NaN;
-  }));
+  const maskedData = data.slice(0);
+  for (let i = 0; i < maskedData.length; i++) {
+    if (Math.abs(maskedData[i] - nodata) < Number.EPSILON * 2) {
+      maskedData[i] = NaN;
+    }
+  }
 
   return maskedData;
 }

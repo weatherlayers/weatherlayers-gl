@@ -4,20 +4,20 @@ import {mix} from './mix';
 /** @typedef {import('./image-type').ImageType} ImageType */
 
 /**
- * @param {[number, number]} pixel
+ * @param {number[]} pixel
  * @param {[number, number] | null} imageUnscale
  * @returns {boolean}
  */
-function hasPixelValue(pixel, imageUnscale) {
+export function hasPixelValue(pixel, imageUnscale) {
   if (imageUnscale) {
-    return pixel[3] == 1.;
+    return pixel[3] == 255;
   } else {
     return !isNaN(pixel[0]);
   }
 }
 
 /**
- * @param {[number, number]} pixel
+ * @param {number[]} pixel
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @returns {number}
@@ -35,7 +35,7 @@ function getPixelScalarValue(pixel, imageType, imageUnscale) {
 }
 
 /**
- * @param {[number, number]} pixel
+ * @param {number[]} pixel
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @returns {[number, number]}
@@ -56,7 +56,7 @@ function getPixelVectorValue(pixel, imageType, imageUnscale) {
 }
 
 /**
- * @param {[number, number]} pixel
+ * @param {number[]} pixel
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @returns {number}
@@ -71,7 +71,7 @@ export function getPixelMagnitudeValue(pixel, imageType, imageUnscale) {
 }
   
 /**
- * @param {[number, number]} pixel
+ * @param {number[]} pixel
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @returns {number}

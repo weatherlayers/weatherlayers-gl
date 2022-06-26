@@ -1,5 +1,6 @@
 import {parsePalette} from 'cpt2js';
-import { getPixelMagnitudeValue } from '../../../_utils/pixel-value';
+import {getPixelInterpolate} from '../../../_utils/pixel';
+import {hasPixelValue, getPixelMagnitudeValue} from '../../../_utils/pixel-value';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
@@ -13,8 +14,7 @@ import { getPixelMagnitudeValue } from '../../../_utils/pixel-value';
  * @returns {Promise<HTMLCanvasElement>}
  */
 export async function getRasterImage(image, imageType, imageUnscale, palette) {
-  const {data, width, height} = image;
-  const bandsCount = data.length / (width * height);
+  const {width, height} = image;
 
   const paletteScale = parsePalette(palette);
 
@@ -25,17 +25,26 @@ export async function getRasterImage(image, imageType, imageUnscale, palette) {
   const imageData = context.createImageData(width, height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const i = (x + y * width) * bandsCount;
-      const j = (x + y * width) * 4;
+      const i = (x + y * width) * 4;
 
-      const pixel = /** @type {[number, number]} */ ([data[i], data[i + 1]]);
+      const point = [x, y];
+      const pixel = getPixelInterpolate(image, null, false, 0, point);
+      if (!hasPixelValue(pixel, imageUnscale)) {
+        const color = paletteScale(null).rgba();
+        imageData.data[i] = color[0];
+        imageData.data[i + 1] = color[1];
+        imageData.data[i + 2] = color[2];
+        imageData.data[i + 3] = color[3] * 255;
+        continue;
+      }
+
       const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
       const color = paletteScale(value).rgba();
 
-      imageData.data[j] = color[0];
-      imageData.data[j + 1] = color[1];
-      imageData.data[j + 2] = color[2];
-      imageData.data[j + 3] = color[3] * 255;
+      imageData.data[i] = color[0];
+      imageData.data[i + 1] = color[1];
+      imageData.data[i + 2] = color[2];
+      imageData.data[i + 3] = color[3] * 255;
     }
   }
   context.putImageData(imageData, 0, 0);

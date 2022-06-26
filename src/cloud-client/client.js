@@ -3,11 +3,13 @@ import {loadTextureData} from '../_utils/data';
 import {getRasterImage} from '../standalone/providers/raster-provider/raster-image';
 import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
 import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
+import {getGridPoints} from '../standalone/providers/grid-provider/grid-point';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../_utils/data').TextureData} TextureData */
 /** @typedef {import('../standalone/providers/contour-provider/contour-line').ContourLine} ContourLine */
 /** @typedef {import('../standalone/providers/high-low-provider/high-low-point').HighLowPoint} HighLowPoint */
+/** @typedef {import('../standalone/providers/grid-provider/grid-point').GridPoint} GridPoint */
 /** @typedef {import('./stac').StacCatalog} StacCatalog */
 /** @typedef {import('./stac').StacCollection} StacCollection */
 /** @typedef {import('./stac').StacProviderRole} StacProviderRole */

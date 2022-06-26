@@ -169,8 +169,8 @@ void main() {
   }
 
   vec2 uv = getUV(sourcePosition.xy);
-  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
 
+  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;

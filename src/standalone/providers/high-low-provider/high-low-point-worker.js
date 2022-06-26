@@ -5,6 +5,7 @@ import {distance} from '../../../_utils/geodesy';
 import { getPixelMagnitudeData } from '../../../_utils/pixel-data';
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
+/** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
@@ -16,8 +17,8 @@ import { getPixelMagnitudeData } from '../../../_utils/pixel-data';
  * @returns {Float32Array}
  */
 function getHighLowPointData(data, width, height, radius, bounds) {
-  const unproject = getUnprojectFunction(width, height, bounds);
   const radiusKm = radius * 1000;
+  const unproject = getUnprojectFunction(width, height, bounds);
 
   // blur noisy data
   data = blur(data, width, height);
@@ -109,7 +110,7 @@ function getHighLowPointData(data, width, height, radius, bounds) {
 
 expose({
   /**
-   * @param {Float32Array} data
+   * @param {TextureDataArray} data
    * @param {number} width
    * @param {number} height
    * @param {ImageType} imageType

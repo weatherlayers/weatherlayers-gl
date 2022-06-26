@@ -16,7 +16,7 @@ const ICOMESH_INDEX_AT_ZOOM_CACHE = new Map();
  * @param {number} [zoomOffset]
  * @return {GeoJSON.Position[]}
  */
-export function getViewportVisibleGrid(viewport, zoomOffset = 0) {
+export function getViewportGridPositions(viewport, zoomOffset = 0) {
   const zoom = Math.floor(viewport.zoom + (isViewportGlobe(viewport) ? 1 : 0) + zoomOffset);
   /** @type {GeoJSON.Position[]} */
   let positions;
