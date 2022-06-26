@@ -59,10 +59,17 @@ function computeContours(data, width, height, interval) {
   const maxThreshold = Math.floor(max / interval) * interval;
   const thresholds = new Array((maxThreshold - minThreshold) / interval + 1).fill(() => undefined).map((_, i) => minThreshold + i * interval);
 
-  // compute contours
-  // d3-contours returns multipolygons with holes, framed around data borders
+  // compute contours with d3-contours
+  // - input: data without NaNs, see https://github.com/d3/d3-contour/issues/49
+  // - output: multipolygons with holes, framed around data borders
+  const dataForContours = data.slice(0);
+  for (let i = 0; i < dataForContours.length; i++) {
+    if (isNaN(dataForContours[i])) {
+      dataForContours[i] = null;
+    }
+  }
   const originalContours = /** @type {(GeoJSON.MultiPolygon & { value: number })[]} */ (
-    d3Contours.contours().size([width, height]).thresholds(thresholds)(data)
+    d3Contours.contours().size([width, height]).thresholds(thresholds)(dataForContours)
   );
 
   // transform contours from multipolygons with holes to separate lines
