@@ -31,16 +31,16 @@ void main(void) {
 
   float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
   float contourValue = value / interval;
-  float major = (step(fract(contourValue * 0.2), 0.1) + 1.) / 2.; // 1: major contour every fifth contour, 0.5: minor contour
-  float contourWidth = width * major - 0.5; // minor contour: half width
+  float contourMajor = (step(fract(contourValue * 0.2), 0.1) + 1.) / 2.; // 1: major contour every fifth contour, 0.5: minor contour
+  float contourWidth = width * contourMajor; // minor contour: half width
 
   // https://stackoverflow.com/a/30909828/1823988
   // https://forum.unity.com/threads/antialiased-grid-lines-fwidth.1010668/
   // https://www.shadertoy.com/view/Mlfyz2
   float factor = abs(fract(contourValue + 0.5) - 0.5); // contour position, min 0: contour, max 0.5: between contours
   float dFactor = fwidth(contourValue); // contour derivation, consistent width in screen space
-  float contour = 1. - clamp((factor / dFactor) - contourWidth, 0., 1.);
-  float contourOpacity = contour * major; // minor contour: half opacity
+  float contour = 1. - clamp((factor / dFactor) + 0.5 - contourWidth, 0., 1.);
+  float contourOpacity = contour * contourMajor; // minor contour: half opacity
 
   // contourOpacity += factor; // debug
   gl_FragColor = vec4(color.rgb, color.a * contourOpacity * opacity);
