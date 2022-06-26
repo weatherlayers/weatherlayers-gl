@@ -65,6 +65,19 @@
         */
       });
       await new Promise(resolve => map.on('load', resolve));
+      /*
+      // screenshot, banner
+      // hide boundaries
+      map.setLayoutProperty('admin_sub', 'visibility', 'none');
+      map.setLayoutProperty('admin_country', 'visibility', 'none');
+      // hide labels
+      map.setLayoutProperty('label_airport', 'visibility', 'none');
+      map.setLayoutProperty('label_road', 'visibility', 'none');
+      map.setLayoutProperty('label_place_other', 'visibility', 'none');
+      map.setLayoutProperty('label_place_city', 'visibility', 'none');
+      map.setLayoutProperty('label_country_other', 'visibility', 'none');
+      map.setLayoutProperty('label_country', 'visibility', 'none');
+      */
 
       // overlaid deck.gl
       const deckgl = window.deckgl = new deck.Deck({
