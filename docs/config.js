@@ -216,8 +216,8 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     gui.addInput(config, 'rotate').on('change', update);
   }
 
-  gui.addButton({ title: 'Catalog' }).on('click', () => location.href = 'http://browser.weatherlayers.com/');
-  gui.addButton({ title: 'Docs' }).on('click', () => location.href = 'http://docs.weatherlayers.com/');
+  gui.addButton({ title: 'Catalog' }).on('click', () => location.href = 'https://browser.weatherlayers.com/');
+  gui.addButton({ title: 'Docs' }).on('click', () => location.href = 'https://docs.weatherlayers.com/');
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addInput(config.raster, 'enabled').on('change', update);
