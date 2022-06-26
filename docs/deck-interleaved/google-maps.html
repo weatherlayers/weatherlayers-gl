@@ -35,7 +35,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ deckgl: true, webgl2: true });
       let gui;
 
       // Google Maps
@@ -151,6 +151,22 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              visible: config.particle.enabled,
+              dataset,
+              datetime,
+              datetimeInterpolate: config.datetimeInterpolate,
+              imageInterpolate: config.imageInterpolate,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
           ],
         });
 
@@ -160,7 +176,7 @@
         attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
       }
       update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>
