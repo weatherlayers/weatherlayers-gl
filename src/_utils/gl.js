@@ -1,6 +1,8 @@
 // see https://github.com/visgl/luma.gl/blob/master/modules/constants/src/constants-enum.ts
 export default {
+  UNSIGNED_BYTE: 0x1401,
   FLOAT: 0x1406,
+  RGB: 0x1907,
   RGBA: 0x1908,
   LUMINANCE_ALPHA: 0x190a,
   NEAREST: 0x2600,

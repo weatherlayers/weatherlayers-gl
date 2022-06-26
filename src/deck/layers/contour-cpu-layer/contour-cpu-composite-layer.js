@@ -24,7 +24,7 @@ const defaultProps = {
   textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 };
 
-class ContourCompositeLayer extends CompositeLayer {
+class ContourCpuCompositeLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
     const {props, contourLines, visibleContourLabels} = this.state;
@@ -125,7 +125,7 @@ class ContourCompositeLayer extends CompositeLayer {
   }
 }
 
-ContourCompositeLayer.layerName = 'ContourCompositeLayer';
-ContourCompositeLayer.defaultProps = defaultProps;
+ContourCpuCompositeLayer.layerName = 'ContourCpuCompositeLayer';
+ContourCpuCompositeLayer.defaultProps = defaultProps;
 
-export {ContourCompositeLayer};
+export {ContourCpuCompositeLayer};

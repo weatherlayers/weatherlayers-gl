@@ -1,6 +1,5 @@
-import {Texture2D} from '@luma.gl/core';
+import {FEATURES, isWebGL2, hasFeatures, Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
-import {getTextureDataFormat} from './data';
 
 /** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {any} TextureParameters */
@@ -24,6 +23,84 @@ const cache = new WeakMap();
  * @param {WebGL2RenderingContext} gl
  * @param {TextureData} image
  * @param {boolean} imageInterpolate
+ * @returns {any}
+ */
+function getTextureOptions(gl, image, imageInterpolate) {
+  const { data, width, height } = image;
+  const bandsCount = data.length / (width * height);
+
+  let type;
+  let format;
+  let textureData;
+  if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
+    type = GL.UNSIGNED_BYTE;
+    if (bandsCount === 4) {
+      format = GL.RGBA;
+      textureData = data;
+    } else if (bandsCount === 2) {
+      format = GL.LUMINANCE_ALPHA;
+      textureData = data;
+    } else {
+      throw new Error('Unsupported data format');
+    }
+  } else if (data instanceof Float32Array) {
+    if (!hasFeatures(gl, FEATURES.TEXTURE_FLOAT)) {
+      throw new Error('OES_texture_float is required');
+    }
+
+    type = GL.FLOAT;
+    if (bandsCount === 2) {
+      if (isWebGL2(gl)) {
+        format = GL.RG32F;
+        textureData = data;
+      } else {
+        format = GL.RGB;
+        textureData = new Float32Array(width * height * 3);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const i = (x + y * width) * 2;
+            const j = (x + y * width) * 3;
+
+            textureData[j] = data[i];
+            textureData[j + 1] = data[i + 1];
+            textureData[j + 2] = NaN;
+          }
+        }
+      }
+    } else if (bandsCount === 1) {
+      if (isWebGL2(gl)) {
+        format = GL.R32F;
+        textureData = data;
+      } else {
+        format = GL.RGB;
+        textureData = new Float32Array(width * height * 3);
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const i = x + y * width;
+            const j = (x + y * width) * 3;
+
+            textureData[j] = data[i];
+            textureData[j + 1] = NaN;
+            textureData[j + 2] = NaN;
+          }
+        }
+      }
+    } else {
+      throw new Error('Unsupported data format');
+    }
+  } else {
+    throw new Error('Unsupported data format');
+  }
+
+  const parameters = imageInterpolate ? LINEAR_TEXTURE_PARAMETERS : NEAREST_TEXTURE_PARAMETERS;
+
+  return { data: textureData, width, height, format, type, parameters };
+}
+
+/**
+ * @param {WebGL2RenderingContext} gl
+ * @param {TextureData} image
+ * @param {boolean} imageInterpolate
  * @returns {Texture2D}
  */
 export function createTextureCached(gl, image, imageInterpolate) {
@@ -40,8 +117,8 @@ export function createTextureCached(gl, image, imageInterpolate) {
 
   const cache3 = /** @type {WeakMap<TextureParameters, Texture2D>} */ (cache2.get(image));
   if (!cache3.has(parameters)) {
-    const format = getTextureDataFormat(image);
-    const texture = new Texture2D(gl, { ...image, format, parameters });
+    const textureOptions = getTextureOptions(gl, image, imageInterpolate);
+    const texture = new Texture2D(gl, textureOptions);
     cache3.set(parameters, texture);
   }
 

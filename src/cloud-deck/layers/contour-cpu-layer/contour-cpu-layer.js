@@ -1,32 +1,32 @@
-import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
+import {CompositeLayer} from '@deck.gl/core';
 import {getDatetimeWeight} from '../../../_utils/datetime';
 import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
+import {formatValue} from '../../../_utils/format';
 import {getClient} from '../../../cloud-client/client';
-import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-gpu-layer/contour-gpu-layer';
+import {ContourCpuLayer as BaseContourCpuLayer} from '../../../deck/layers/contour-cpu-layer/contour-cpu-layer';
 
 const defaultProps = {
-  ...BaseContourGpuLayer.defaultProps,
+  ...BaseContourCpuLayer.defaultProps,
 
   dataset: {type: 'object', value: null, required: true},
   datetime: {type: 'object', value: null, required: true},
   datetimeInterpolate: false,
 };
 
-export class ContourGpuLayer extends CompositeLayer {
+export class ContourCpuLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, stacCollection, image, image2, imageWeight} = this.state;
+    const {props, stacCollection, image} = this.state;
 
     if (!props || !stacCollection || !image) {
       return [];
     }
 
-    const imageInterpolate = props.imageInterpolate;
     const imageType = stacCollection['weatherLayers:imageType'];
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
 
     return [
-      new BaseContourGpuLayer(props, this.getSubLayerProps({
+      new BaseContourCpuLayer(props, this.getSubLayerProps({
         id: 'base',
 
         dataset: undefined,
@@ -34,14 +34,12 @@ export class ContourGpuLayer extends CompositeLayer {
         datetimeInterpolate: undefined,
 
         image,
-        image2,
-        imageInterpolate,
-        imageWeight,
         imageType,
         imageUnscale,
 
+        textFunction: this.state.textFunction,
+
         bounds: stacCollection.extent.spatial.bbox[0],
-        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         extensions: getViewportClipExtensions(viewport),
         clipBounds: this.state.clipBounds,
       })),
@@ -71,6 +69,7 @@ export class ContourGpuLayer extends CompositeLayer {
       this.state.stacCollection = await client.loadStacCollection(dataset);
 
       // avoid props change in renderLayers
+      this.state.textFunction = (/** @type {number} */ value) => formatValue(value, this.state.stacCollection['weatherLayers:units'][0]).toString();
       this.state.clipBounds = getViewportClipBounds(viewport, this.state.stacCollection.extent.spatial.bbox[0]);
     }
 
@@ -96,5 +95,5 @@ export class ContourGpuLayer extends CompositeLayer {
   }
 }
 
-ContourGpuLayer.layerName = 'ContourGpuLayer';
-ContourGpuLayer.defaultProps = defaultProps;
+ContourCpuLayer.layerName = 'ContourCpuLayer';
+ContourCpuLayer.defaultProps = defaultProps;

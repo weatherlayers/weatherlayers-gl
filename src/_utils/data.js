@@ -32,35 +32,6 @@ function maskData(data, nodata = undefined) {
 }
 
 /**
- * @param {TextureData} textureData
- * @returns {number}
- */
-export function getTextureDataFormat(textureData) {
-  const { data, width, height } = textureData;
-  const bandsCount = data.length / (width * height);
-
-  if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
-    if (bandsCount === 4) {
-      return GL.RGBA;
-    } else if (bandsCount === 2) {
-      return GL.LUMINANCE_ALPHA;
-    } else {
-      throw new Error('Unsupported data format');
-    }
-  } else if (data instanceof Float32Array) {
-    if (bandsCount === 2) {
-      return GL.RG32F;
-    } else if (bandsCount === 1) {
-      return GL.R32F;
-    } else {
-      throw new Error('Unsupported data format');
-    }
-  } else {
-    throw new Error('Unsupported data format');
-  }
-}
-
-/**
  * @param {string} url
  * @returns {Promise<TextureData>}
  */

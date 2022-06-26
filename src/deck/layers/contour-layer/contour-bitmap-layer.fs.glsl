@@ -1,5 +1,4 @@
-#version 300 es
-#define SHADER_NAME contour-gpu-bitmap-layer-fragment-shader
+#define SHADER_NAME contour-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
 precision highp float;

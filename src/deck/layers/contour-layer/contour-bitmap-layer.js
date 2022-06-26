@@ -1,6 +1,6 @@
-import {isWebGL2} from '@luma.gl/core';
 import {BitmapLayer} from '@deck.gl/layers';
-import {sourceCode as fs, tokens as fsTokens} from './contour-gpu-bitmap-layer.fs.glsl';
+import {FEATURES, isWebGL2, hasFeatures} from '@luma.gl/core';
+import {sourceCode as fs, tokens as fsTokens} from './contour-bitmap-layer.fs.glsl';
 import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 
@@ -18,19 +18,20 @@ const defaultProps = {
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
 };
 
-export class ContourGpuBitmapLayer extends BitmapLayer {
+export class ContourBitmapLayer extends BitmapLayer {
   getShaders() {
     const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      throw new Error('WebGL 2 is required');
+    if (!hasFeatures(gl, FEATURES.GLSL_DERIVATIVES)) {
+      throw new Error('Derivatives are required');
     }
     
     const parentShaders = super.getShaders();
 
     return {
       ...parentShaders,
-      vs: ['#version 300 es', parentShaders.vs].join('\n'),
-      fs: fs,
+      vs: isWebGL2(gl) ? `#version 300 es\n${parentShaders.vs}` : parentShaders.vs,
+      fs: isWebGL2(gl) ? `#version 300 es\n${fs}` : fs,
+      prologue: false,
     };
   }
 
@@ -64,5 +65,5 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
   }
 }
 
-ContourGpuBitmapLayer.layerName = 'ContourGpuBitmapLayer';
-ContourGpuBitmapLayer.defaultProps = defaultProps;
+ContourBitmapLayer.layerName = 'ContourBitmapLayer';
+ContourBitmapLayer.defaultProps = defaultProps;

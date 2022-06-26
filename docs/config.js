@@ -53,11 +53,6 @@ export async function initConfig({ deckgl, webgl2, globe } = {}) {
       interval: undefined, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
-      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
-      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
-      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
     },
     highLow: {
@@ -149,6 +144,7 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
     config.grid.style = GRID_LAYER_DATASET_CONFIG[config.dataset]?.style || WeatherLayers.GridStyle.VALUE;
     config.grid.iconBounds = GRID_LAYER_DATASET_CONFIG[config.dataset]?.iconBounds || null;
   }
+
   if (webgl2) {
     config.particle.enabled = urlConfig.has('particle') ? urlConfig.get('particle') === 'true' : !!PARTICLE_LAYER_DATASET_CONFIG[config.dataset];
     config.particle.speedFactor = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.speedFactor || 0;
@@ -230,13 +226,9 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
   contour.addInput(config.contour, 'enabled').on('change', update);
-  contour.addInput(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', updateLast);
+  contour.addInput(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', update);
   contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
   contour.addInput(config.contour, 'color').on('change', update);
-  contour.addInput(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
-  contour.addInput(config.contour, 'textColor').on('change', update);
-  contour.addInput(config.contour, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
-  contour.addInput(config.contour, 'textOutlineColor').on('change', update);
   contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
