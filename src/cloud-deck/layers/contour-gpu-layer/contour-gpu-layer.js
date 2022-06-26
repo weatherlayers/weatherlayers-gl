@@ -2,7 +2,7 @@ import {COORDINATE_SYSTEM, CompositeLayer} from '@deck.gl/core';
 import {getDatetimeWeight} from '../../../_utils/datetime';
 import {getViewportClipExtensions, getViewportClipBounds} from '../../../_utils/viewport';
 import {getClient} from '../../../cloud-client/client';
-import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-layer/contour-gpu-layer';
+import {ContourGpuLayer as BaseContourGpuLayer} from '../../../deck/layers/contour-gpu-layer/contour-gpu-layer';
 
 const defaultProps = {
   ...BaseContourGpuLayer.defaultProps,
