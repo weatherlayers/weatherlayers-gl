@@ -45,7 +45,7 @@ function getTextureOptions(gl, image, imageInterpolate) {
     }
   } else if (data instanceof Float32Array) {
     if (!hasFeatures(gl, FEATURES.TEXTURE_FLOAT)) {
-      throw new Error('OES_texture_float is required');
+      throw new Error('Float textures are required');
     }
 
     type = GL.FLOAT;
