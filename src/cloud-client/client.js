@@ -1,5 +1,5 @@
 import {VERSION} from '../_utils/build';
-import {loadTextureData, unscaleTextureData} from '../_utils/data';
+import {loadTextureData} from '../_utils/data';
 import {getRasterImage} from '../standalone/providers/raster-provider/raster-image';
 import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
 import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
@@ -257,8 +257,7 @@ export class Client {
     const imageType = stacCollection['weatherLayers:imageType'];
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
 
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const canvas = getRasterImage(unscaledData, imageType, palette);
+    const canvas = getRasterImage(image, imageType, imageUnscale, palette);
 
     return canvas;
   }
@@ -276,8 +275,7 @@ export class Client {
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
     const bounds = stacCollection.extent.spatial.bbox[0];
 
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const contourLines = await getContourLines(unscaledData, imageType, interval, bounds);
+    const contourLines = await getContourLines(image, imageType, imageUnscale, interval, bounds);
 
     return { type: 'FeatureCollection', features: contourLines };
   }
@@ -295,8 +293,7 @@ export class Client {
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
     const bounds = stacCollection.extent.spatial.bbox[0];
 
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const highLowPoints = await getHighLowPoints(unscaledData, imageType, radius, bounds);
+    const highLowPoints = await getHighLowPoints(image, imageType, imageUnscale, radius, bounds);
 
     return { type: 'FeatureCollection', features: highLowPoints };
   }

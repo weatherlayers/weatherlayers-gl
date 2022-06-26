@@ -4,7 +4,6 @@ import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_T
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
-import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
 import {getContourLines} from '../../../standalone/providers/contour-provider/contour-line';
 import {getContourLabels} from '../../../standalone/providers/contour-provider/contour-label';
@@ -30,8 +29,6 @@ const defaultProps = {
 
 @withCheckLicense(defaultProps)
 class ContourLayer extends CompositeLayer {
-  static defaultProps = defaultProps;
-
   renderLayers() {
     const {viewport} = this.context;
     const {props, contourLines, visibleContourLabels} = this.state;
@@ -115,8 +112,7 @@ class ContourLayer extends CompositeLayer {
       return;
     }
 
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const contourLines = await getContourLines(unscaledData, imageType, interval, bounds);
+    const contourLines = await getContourLines(image, imageType, imageUnscale, interval, bounds);
     const contourLabels = getContourLabels(contourLines);
 
     this.setState({ image, interval, contourLines, contourLabels });

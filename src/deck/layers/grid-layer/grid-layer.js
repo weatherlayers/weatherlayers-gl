@@ -4,7 +4,6 @@ import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFA
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisibleGrid} from '../../../_utils/viewport-grid';
-import {unscaleTextureData} from '../../../_utils/data';
 import {GridStyle} from '../../../_utils';
 import {withCheckLicense} from '../../license';
 import {GRID_ICON_STYLES} from './grid-style';
@@ -35,8 +34,6 @@ const defaultProps = {
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
 @withCheckLicense(defaultProps)
 class GridLayer extends CompositeLayer {
-  static defaultProps = defaultProps;
-
   renderLayers() {
     const {viewport} = this.context;
     const {props, gridPoints} = this.state;
@@ -103,11 +100,7 @@ class GridLayer extends CompositeLayer {
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate) {
-      this.updateData();
-    }
-
-    if (imageWeight !== oldProps.imageWeight) {
+    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate || imageWeight !== oldProps.imageWeight) {
       this.updateGridPoints();
     }
 
@@ -116,20 +109,6 @@ class GridLayer extends CompositeLayer {
     }
 
     this.setState({ props });
-  }
-
-  updateData() {
-    const {image, image2, imageUnscale} = this.props;
-    if (!image) {
-      return;
-    }
-
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const unscaledData2 = image2 ? unscaleTextureData(image2, imageUnscale) : null;
-
-    this.setState({ unscaledData, unscaledData2 });
-
-    this.updateGridPoints();
   }
 
   updatePositions() {
@@ -143,13 +122,13 @@ class GridLayer extends CompositeLayer {
   }
 
   updateGridPoints() {
-    const {imageInterpolate, imageWeight, imageType, bounds} = this.props;
-    const {unscaledData, unscaledData2, positions} = this.state;
-    if (!unscaledData) {
+    const {image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds} = this.props;
+    const {positions} = this.state;
+    if (!image) {
       return;
     }
 
-    const gridPoints = getGridPoints(unscaledData, unscaledData2, imageInterpolate, imageWeight, imageType, positions, bounds);
+    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds);
 
     this.setState({ gridPoints });
   }

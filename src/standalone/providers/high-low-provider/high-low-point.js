@@ -1,9 +1,8 @@
 import {transfer, wrap} from 'comlink';
-import {getValueData} from '../../../_utils/data';
 import highLowPointWorker from 'worker!./high-low-point-worker';
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
-/** @typedef {import('../../../_utils/data').FloatData} FloatData */
+/** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {'L' | 'H'} HighLowType */
 /** @typedef {GeoJSON.Feature<GeoJSON.Point, { type: HighLowType, value: number }>} HighLowPoint */
 
@@ -34,17 +33,18 @@ function getHighLowPointsFromData(highLowPointData) {
 }
 
 /**
- * @param {FloatData} image
+ * @param {TextureData} image
  * @param {ImageType} imageType
+ * @param {[number, number] | null} imageUnscale
  * @param {number} radius
  * @param {GeoJSON.BBox} bounds
  * @returns {Promise<HighLowPoint[]>}
  */
-export async function getHighLowPoints(image, imageType, radius, bounds) {
-  const valueData = getValueData(image, imageType);
-  const {data, width, height} = valueData;
+export async function getHighLowPoints(image, imageType, imageUnscale, radius, bounds) {
+  const {data, width, height} = image;
 
-  const highLowPointData = await highLowPointWorkerProxy.getHighLowPointData(transfer(data, [data.buffer]), width, height, radius, bounds);
+  const dataCopy = data.slice(0);
+  const highLowPointData = await highLowPointWorkerProxy.getHighLowPointData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageType, imageUnscale, radius, bounds);
   const highLowPoints = getHighLowPointsFromData(highLowPointData);
   return highLowPoints;
 }

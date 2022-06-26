@@ -16,8 +16,6 @@ const defaultProps = {
 
 @withCheckLicense(defaultProps)
 class RasterLayer extends CompositeLayer {
-  static defaultProps = defaultProps;
-
   renderLayers() {
     const {props, imageTexture, imageTexture2} = this.state;
 

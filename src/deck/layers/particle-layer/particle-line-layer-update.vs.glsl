@@ -1,7 +1,12 @@
 #version 300 es
-#define SHADER_NAME particle-layer-update-transform-vertex-shader
+#define SHADER_NAME particle-line-layer-update-vertex-shader
 
+#ifdef GL_ES
 precision highp float;
+#endif
+
+@include "../../../_utils/pixel.glsl"
+@include "../../../_utils/pixel-value.glsl"
 
 in vec3 sourcePosition;
 out vec3 targetPosition;
@@ -12,11 +17,12 @@ uniform float viewportGlobeRadius;
 uniform vec4 viewportBounds;
 uniform float viewportZoomChangeFactor;
 
-uniform sampler2D bitmapTexture;
-uniform sampler2D bitmapTexture2;
+uniform sampler2D imageTexture;
+uniform sampler2D imageTexture2;
 uniform vec2 imageTexelSize;
 uniform bool imageInterpolate;
 uniform float imageWeight;
+uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
 uniform vec4 bounds;
 
@@ -28,55 +34,6 @@ uniform float time;
 uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
-
-// see https://stackoverflow.com/a/27228836/1823988
-float atan2(float y, float x) {
-  return x == 0. ? sign(y) * PI / 2. : atan(y, x);
-}
-
-bool isNaN(float value) {
-  return !(value <= 0. || 0. <= value);
-}
-
-// texture2D with software bilinear filtering
-// see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 getPixelBilinear(sampler2D image, vec2 texelSize, vec2 uv) {
-  // Calculate pixels to sample and interpolating factor
-  uv -= texelSize * 0.5;
-  vec2 factor = fract(uv / texelSize);
-
-  // Snap to corner of texel and then move to center
-  vec2 uvSnapped = uv - texelSize * factor + texelSize * 0.5;
-
-  vec4 topLeft = texture2D(image, uvSnapped);
-  vec4 topRight = texture2D(image, uvSnapped + vec2(texelSize.x, 0));
-  vec4 bottomLeft = texture2D(image, uvSnapped + vec2(0, texelSize.y));
-  vec4 bottomRight = texture2D(image, uvSnapped + texelSize);
-  vec4 top = mix(topLeft, topRight, factor.x);
-  vec4 bottom = mix(bottomLeft, bottomRight, factor.x);
-  return mix(top, bottom, factor.y);
-}
-
-vec4 getPixelFilter(sampler2D image, vec2 texelSize, bool interpolate, vec2 uv) {
-  // Offset (test case: Gibraltar)
-  uv += texelSize * 0.5;
-
-  if (interpolate) {
-    return getPixelBilinear(image, texelSize, uv);
-  } else {
-    return texture2D(image, uv);
-  }
-}
-
-vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 texelSize, bool interpolate, float weight, vec2 uv) {
-  if (weight > 0.) {
-    vec4 pixel = getPixelFilter(image, texelSize, interpolate, uv);
-    vec4 pixel2 = getPixelFilter(image2, texelSize, interpolate, uv);
-    return mix(pixel, pixel2, weight);
-  } else {
-    return getPixelFilter(image, texelSize, interpolate, uv);
-  }
-}
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
 float distanceTo(vec2 from, vec2 point) {
@@ -164,29 +121,13 @@ bool isPositionVisible(vec2 position) {
   }
 }
 
-// bitmapTexture is in COORDINATE_SYSTEM.LNGLAT
+// imageTexture is in COORDINATE_SYSTEM.LNGLAT
 // no coordinate conversion needed
 vec2 getUV(vec2 pos) {
   return vec2(
     (pos.x - bounds[0]) / (bounds[2] - bounds[0]),
     (pos.y - bounds[3]) / (bounds[1] - bounds[3])
   );
-}
-
-bool raster_has_values(vec4 pixel) {
-  if (imageUnscale[0] < imageUnscale[1]) {
-    return pixel.a == 1.;
-  } else {
-    return !isNaN(pixel.x);
-  }
-}
-
-vec2 raster_get_value_vector(vec4 pixel) {
-  if (imageUnscale[0] < imageUnscale[1]) {
-    return mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), pixel.xy);
-  } else {
-    return pixel.xy;
-  }
 }
 
 void main() {
@@ -228,16 +169,16 @@ void main() {
   }
 
   vec2 uv = getUV(sourcePosition.xy);
-  vec4 pixel = getPixelInterpolate(bitmapTexture, bitmapTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
+  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
 
-  if (!raster_has_values(pixel)) {
+  if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;
     return;
   }
 
   // update position
-  vec2 speed = raster_get_value_vector(pixel) * speedFactor;
+  vec2 speed = getPixelVectorValue(pixel, imageTypeVector, imageUnscale) * speedFactor;
   // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
   // float bearing = degrees(-atan2(speed.y, speed.x));
   // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);

@@ -2,6 +2,9 @@ import {expose, transfer} from 'comlink';
 import {getUnprojectFunction} from '../../../_utils/project';
 import {blur} from '../../../_utils/blur';
 import {distance} from '../../../_utils/geodesy';
+import { getPixelMagnitudeData } from '../../../_utils/pixel-data';
+
+/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
@@ -109,12 +112,15 @@ expose({
    * @param {Float32Array} data
    * @param {number} width
    * @param {number} height
+   * @param {ImageType} imageType
+   * @param {[number, number] | null} imageUnscale
    * @param {number} radius
    * @param {GeoJSON.BBox} bounds
    * @returns {Float32Array}
    */
-  getHighLowPointData(data, width, height, radius, bounds) {
-    const highLowPointData = getHighLowPointData(data, width, height, radius, bounds);
+  getHighLowPointData(data, width, height, imageType, imageUnscale, radius, bounds) {
+    const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
+    const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, radius, bounds);
     return transfer(highLowPointData, [highLowPointData.buffer]);
   },
 });

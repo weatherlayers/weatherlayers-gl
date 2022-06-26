@@ -1,1 +1,0 @@
-varying float drop;

@@ -16,8 +16,6 @@ const defaultProps = {
 
 @withCheckLicense(defaultProps)
 class ContourGpuLayer extends CompositeLayer {
-  static defaultProps = defaultProps;
-
   renderLayers() {
     const {props, imageTexture, imageTexture2} = this.state;
 

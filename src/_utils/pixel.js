@@ -1,9 +1,9 @@
 import {mix} from './mix';
 
-/** @typedef {import('./data').FloatData} FloatData */
+/** @typedef {import('./data').TextureData} TextureData */
 
 /**
- * @param {FloatData} image
+ * @param {TextureData} image
  * @param {number} x
  * @param {number} y
  * @param {number} band
@@ -18,7 +18,7 @@ function getPixel(image, x, y, band) {
 /**
  * texture2D with software bilinear filtering
  * see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
- * @param {FloatData} image
+ * @param {TextureData} image
  * @param {GeoJSON.Position} point
  * @param {number} band
  * @return {number}
@@ -38,7 +38,7 @@ function getPixelBilinear(image, point, band) {
 }
 
 /**
- * @param {FloatData} image
+ * @param {TextureData} image
  * @param {GeoJSON.Position} point
  * @param {number} band
  * @return {number}
@@ -51,14 +51,14 @@ function getPixelNearest(image, point, band) {
 }
 
 /**
- * @param {FloatData} image
- * @param {boolean} interpolate
+ * @param {TextureData} image
+ * @param {boolean} imageInterpolate
  * @param {GeoJSON.Position} point
  * @param {number} band
  * @return {number}
  */
-function getPixelFilter(image, interpolate, point, band) {
-  if (interpolate) {
+function getPixelFilter(image, imageInterpolate, point, band) {
+  if (imageInterpolate) {
     return getPixelBilinear(image, point, band);
   } else {
     return getPixelNearest(image, point, band);
@@ -66,20 +66,20 @@ function getPixelFilter(image, interpolate, point, band) {
 }
 
 /**
- * @param {FloatData} image
- * @param {FloatData | null} image2
- * @param {boolean} interpolate
- * @param {number} weight
+ * @param {TextureData} image
+ * @param {TextureData | null} image2
+ * @param {boolean} imageInterpolate
+ * @param {number} imageWeight
  * @param {GeoJSON.Position} point
  * @param {number} band
  * @return {number}
  */
-export function getPixelInterpolate(image, image2, interpolate, weight, point, band) {
-  if (image2 && weight > 0) {
-    const pixel = getPixelFilter(image, interpolate, point, band);
-    const pixel2 = getPixelFilter(image2, interpolate, point, band);
-    return mix(pixel, pixel2, weight);
+export function getPixelInterpolate(image, image2, imageInterpolate, imageWeight, point, band) {
+  if (image2 && imageWeight > 0) {
+    const pixel = getPixelFilter(image, imageInterpolate, point, band);
+    const pixel2 = getPixelFilter(image2, imageInterpolate, point, band);
+    return mix(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, interpolate, point, band);
+    return getPixelFilter(image, imageInterpolate, point, band);
   }
 }

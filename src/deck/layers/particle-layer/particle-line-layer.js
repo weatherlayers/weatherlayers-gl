@@ -3,13 +3,11 @@ import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
-import {code as vsDecl} from './particle-line-layer-vs-decl.glsl';
-import {code as vsMainStart} from './particle-line-layer-vs-main-start.glsl';
-import {code as fsDecl} from './particle-line-layer-fs-decl.glsl';
-import {code as fsMainStart} from './particle-line-layer-fs-main-start.glsl';
-import {code as updateTransformVs, tokens as updateTransformVsTokens} from './particle-line-layer-update-transform.vs.glsl';
+import {sourceCode as updateVs, tokens as updateVsTokens} from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
+const SOURCE_POSITION = 'sourcePosition';
+const TARGET_POSITION = 'targetPosition';
 
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
@@ -32,26 +30,35 @@ const defaultProps = {
 
 export class ParticleLineLayer extends LineLayer {
   getShaders() {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      throw new Error('WebGL 2 is required');
+    }
+
     const parentShaders = super.getShaders();
 
     return {
       ...parentShaders,
       inject: {
         ...parentShaders.inject,
-        'vs:#decl': [parentShaders.inject?.['vs:#decl'], vsDecl].join('\n'),
-        'vs:#main-start': [parentShaders.inject?.['vs:#main-start'], vsMainStart].join('\n'),
-        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
-        'fs:#main-start': [parentShaders.inject?.['fs:#main-start'], fsMainStart].join('\n'),
+        'vs:#decl': (parentShaders.inject?.['vs:#decl'] || '') + `
+          varying float drop;
+          const vec2 DROP_POSITION = vec2(0);
+        `,
+        'vs:#main-start': (parentShaders.inject?.['vs:#main-start'] || '') + `
+          drop = float(instanceSourcePositions.xy == DROP_POSITION || instanceTargetPositions.xy == DROP_POSITION);
+        `,
+        'fs:#decl': (parentShaders.inject?.['fs:#decl'] || '') + `
+          varying float drop;
+        `,
+        'fs:#main-start': (parentShaders.inject?.['fs:#main-start'] || '') + `
+          if (drop > 0.5) discard;
+        `,
       },
     };
   }
 
   initializeState() {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      throw new Error('WebGL 2 is required');
-    }
-
     super.initializeState({});
 
     this._setupTransformFeedback();
@@ -91,11 +98,6 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   draw({uniforms}) {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      return;
-    }
-
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -122,10 +124,6 @@ export class ParticleLineLayer extends LineLayer {
 
   _setupTransformFeedback() {
     const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      return;
-    }
-
     const {initialized} = this.state;
     if (initialized) {
       this._deleteTransformFeedback();
@@ -151,15 +149,15 @@ export class ParticleLineLayer extends LineLayer {
     // setup transform feedback for particles age0
     const transform = new Transform(gl, {
       sourceBuffers: {
-        [updateTransformVsTokens.sourcePosition]: sourcePositions,
+        [SOURCE_POSITION]: sourcePositions,
       },
       feedbackBuffers: {
-        [updateTransformVsTokens.targetPosition]: targetPositions,
+        [TARGET_POSITION]: targetPositions,
       },
       feedbackMap: {
-        [updateTransformVsTokens.sourcePosition]: updateTransformVsTokens.targetPosition,
+        [SOURCE_POSITION]: TARGET_POSITION,
       },
-      vs: updateTransformVs,
+      vs: updateVs,
       elementCount: numParticles,
     });
 
@@ -179,18 +177,13 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _runTransformFeedback() {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      return;
-    }
-
     const {initialized} = this.state;
     if (!initialized) {
       return;
     }
 
     const {viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {
@@ -209,32 +202,33 @@ export class ParticleLineLayer extends LineLayer {
 
     // update particles age0
     const uniforms = {
-      [updateTransformVsTokens.viewportGlobe]: viewportGlobe,
-      [updateTransformVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
-      [updateTransformVsTokens.viewportGlobeRadius]: viewportGlobeRadius || 0,
-      [updateTransformVsTokens.viewportBounds]: viewportBounds || [0, 0, 0, 0],
-      [updateTransformVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor || 0,
+      [updateVsTokens.viewportGlobe]: viewportGlobe,
+      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
+      [updateVsTokens.viewportGlobeRadius]: viewportGlobeRadius || 0,
+      [updateVsTokens.viewportBounds]: viewportBounds || [0, 0, 0, 0],
+      [updateVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor || 0,
 
-      [updateTransformVsTokens.bitmapTexture]: imageTexture,
-      [updateTransformVsTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
-      [updateTransformVsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
-      [updateTransformVsTokens.imageInterpolate]: imageInterpolate,
-      [updateTransformVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-      [updateTransformVsTokens.imageUnscale]: imageUnscale || [0, 0],
-      [updateTransformVsTokens.bounds]: bounds,
-      [updateTransformVsTokens.numParticles]: numParticles,
-      [updateTransformVsTokens.maxAge]: maxAge,
-      [updateTransformVsTokens.speedFactor]: currentSpeedFactor,
+      [updateVsTokens.imageTexture]: imageTexture,
+      [updateVsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+      [updateVsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
+      [updateVsTokens.imageInterpolate]: imageInterpolate,
+      [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
+      [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
+      [updateVsTokens.imageUnscale]: imageUnscale || [0, 0],
+      [updateVsTokens.bounds]: bounds,
+      [updateVsTokens.numParticles]: numParticles,
+      [updateVsTokens.maxAge]: maxAge,
+      [updateVsTokens.speedFactor]: currentSpeedFactor,
 
-      [updateTransformVsTokens.time]: time,
-      [updateTransformVsTokens.seed]: Math.random(),
+      [updateVsTokens.time]: time,
+      [updateVsTokens.seed]: Math.random(),
     };
     transform.run({uniforms});
 
     // update particles age1-age(N-1)
     // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
-    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers[updateTransformVsTokens.sourcePosition];
-    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers[updateTransformVsTokens.targetPosition];
+    const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers[SOURCE_POSITION];
+    const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers[TARGET_POSITION];
     targetPositions.copyData({
       sourceBuffer: sourcePositions,
       readOffset: 0,
@@ -252,11 +246,6 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _resetTransformFeedback() {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      return;
-    }
-
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -269,11 +258,6 @@ export class ParticleLineLayer extends LineLayer {
   }
 
   _deleteTransformFeedback() {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      return;
-    }
-
     const {initialized} = this.state;
     if (!initialized) {
       return;

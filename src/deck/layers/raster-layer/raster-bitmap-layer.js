@@ -3,8 +3,7 @@ import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 import {parsePalette, colorRampCanvas} from 'cpt2js';
 import {ImageType} from '../../../_utils/image-type';
-import {code as fsDecl, tokens as fsDeclTokens} from './raster-bitmap-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './raster-bitmap-layer-fs-main-end.glsl';
+import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
@@ -24,11 +23,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
     return {
       ...parentShaders,
-      inject: {
-        ...parentShaders.inject,
-        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
-        'fs:#main-end': [parentShaders.inject?.['fs:#main-end'], fsMainEnd].join('\n'),
-      },
+      fs: fs,
     };
   }
 
@@ -57,15 +52,15 @@ export class RasterBitmapLayer extends BitmapLayer {
 
     if (model) {
       model.setUniforms({
-        bitmapTexture: imageTexture,
-        [fsDeclTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
-        [fsDeclTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
-        [fsDeclTokens.imageInterpolate]: imageInterpolate,
-        [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-        [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-        [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.paletteTexture]: paletteTexture,
-        [fsDeclTokens.paletteBounds]: paletteBounds,
+        [fsTokens.imageTexture]: imageTexture,
+        [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
+        [fsTokens.imageInterpolate]: imageInterpolate,
+        [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
+        [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
+        [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.paletteTexture]: paletteTexture,
+        [fsTokens.paletteBounds]: paletteBounds,
       });
 
       this.props.image = imageTexture;

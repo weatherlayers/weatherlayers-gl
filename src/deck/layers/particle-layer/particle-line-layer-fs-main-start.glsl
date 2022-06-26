@@ -1,1 +1,0 @@
-if (drop > 0.5) discard;

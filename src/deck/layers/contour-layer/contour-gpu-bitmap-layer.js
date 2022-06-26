@@ -1,6 +1,6 @@
+import {isWebGL2} from '@luma.gl/core';
 import {BitmapLayer} from '@deck.gl/layers';
-import {code as fsDecl, tokens as fsDeclTokens} from './contour-gpu-bitmap-layer-fs-decl.glsl';
-import {code as fsMainEnd} from './contour-gpu-bitmap-layer-fs-main-end.glsl';
+import {sourceCode as fs, tokens as fsTokens} from './contour-gpu-bitmap-layer.fs.glsl';
 import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 
@@ -20,17 +20,17 @@ const defaultProps = {
 
 export class ContourGpuBitmapLayer extends BitmapLayer {
   getShaders() {
+    const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      throw new Error('WebGL 2 is required');
+    }
+    
     const parentShaders = super.getShaders();
 
     return {
       ...parentShaders,
       vs: ['#version 300 es', parentShaders.vs].join('\n'),
-      fs: ['#version 300 es', parentShaders.fs].join('\n'),
-      inject: {
-        ...parentShaders.inject,
-        'fs:#decl': [parentShaders.inject?.['fs:#decl'], fsDecl].join('\n'),
-        'fs:#main-end': [parentShaders.inject?.['fs:#main-end'], fsMainEnd].join('\n'),
-      },
+      fs: fs,
     };
   }
 
@@ -45,16 +45,16 @@ export class ContourGpuBitmapLayer extends BitmapLayer {
 
     if (model) {
       model.setUniforms({
-        bitmapTexture: imageTexture,
-        [fsDeclTokens.bitmapTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
-        [fsDeclTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
-        [fsDeclTokens.imageInterpolate]: imageInterpolate,
-        [fsDeclTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-        [fsDeclTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-        [fsDeclTokens.imageUnscale]: imageUnscale || [0, 0],
-        [fsDeclTokens.interval]: interval,
-        [fsDeclTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
-        [fsDeclTokens.width]: width,
+        [fsTokens.imageTexture]: imageTexture,
+        [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
+        [fsTokens.imageInterpolate]: imageInterpolate,
+        [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
+        [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
+        [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.interval]: interval,
+        [fsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+        [fsTokens.width]: width,
       });
 
       this.props.image = imageTexture;

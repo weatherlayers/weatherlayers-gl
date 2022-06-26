@@ -4,7 +4,6 @@ import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFA
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
-import {unscaleTextureData} from '../../../_utils/data';
 import {withCheckLicense} from '../../license';
 import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point';
 
@@ -27,8 +26,6 @@ const defaultProps = {
 
 @withCheckLicense(defaultProps)
 class HighLowLayer extends CompositeLayer {
-  static defaultProps = defaultProps;
-
   renderLayers() {
     const {viewport} = this.context;
     const {props, highLowPoints, visibleHighLowPoints} = this.state;
@@ -111,8 +108,7 @@ class HighLowLayer extends CompositeLayer {
       return;
     }
 
-    const unscaledData = unscaleTextureData(image, imageUnscale);
-    const highLowPoints = await getHighLowPoints(unscaledData, imageType, radius, bounds);
+    const highLowPoints = await getHighLowPoints(image, imageType, imageUnscale, radius, bounds);
 
     this.setState({ image, radius, highLowPoints });
 

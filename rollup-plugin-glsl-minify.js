@@ -3,64 +3,36 @@
 // changes:
 // - mangleShader - mangle tokens
 // - generateCode - export code and tokens
-import * as fs from 'fs';
-
 import { createFilter } from 'rollup-pluginutils';
 import { GlslMinify } from 'webpack-glsl-minify/build/minify';
+import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node';
 
-async function minifyShader(code, id, minimize) {
-  // injected deck.gl names
-  const injectedNames = ['PI', 'EARTH_RADIUS', 'uv', 'picking_uActive', 'bitmapTexture', 'apply_opacity', 'opacity', 'instanceSourcePositions', 'instanceTargetPositions', 'sourcePosition', 'targetPosition', 'drop'];
+function minifyShader(code, id, minimize) {
+  // don't mangle injected deck.gl names
+  const nomangle = [
+    'PI', 'EARTH_RADIUS',
+    'transparentColor', 'opacity', 'coordinateConversion', 'bounds',
+    'geometry', 'uv', 'DECKGL_FILTER_COLOR',
+    'picking_uActive',
+  ];
 
-  // injected deck.gl declaration fragment
-  const injectDecl = id.match(/(main-start|main-end)/);
-  if (injectDecl) {
-    const declId = id.replace(/(main-start|main-end)/, 'decl');
-    if (fs.existsSync(declId)) {
-      const declCode = fs.readFileSync(declId).toString();
-
-      // minify deck.gl declaration fragment
-      // TODO: reuse?
-      const glslMinify = new GlslMinify({
-        preserveAll: !minimize,
-        nomangle: injectedNames,
-      });
-      await glslMinify.execute(declCode);
-
-      // use minified names from deck.gl declaration fragment in current code
-      Object.entries(glslMinify.tokens.tokens)
-        .filter(([originalName, {variableName}]) => originalName !== variableName)
-        .forEach(([originalName, {variableName}]) => {
-          code = code.replace(new RegExp(`\\b(?<!\\.)${originalName}\\b`, 'g'), variableName);
-          injectedNames.push(variableName);
-        });
-      }
-  }
-
-  // minify current code
-  const glslMinify = new GlslMinify({
+  // minify
+  const glsl = new GlslMinify({
+    preserveDefines: true,
     preserveAll: !minimize,
-    nomangle: injectedNames,
-  });
-  const glslMinifyResult = await glslMinify.execute(code);
-  code = glslMinifyResult.sourceCode;
-
-  // extract current tokens
-  const tokens = Object.fromEntries(
-    Object.entries(glslMinify.tokens.tokens)
-      .filter(([originalName, {variableName, variableType}]) => variableType || originalName !== variableName || ['sourcePosition', 'targetPosition'].includes(originalName))
-      .map(([originalName, {variableName}]) => [originalName, variableName])
-  );
-
-  const result = { code, tokens };
-  return result;
+    nomangle: nomangle,
+  }, nodeReadFile, nodeDirname);
+  return glsl.executeFile({ path: id, contents: code });
 }
 
 function generateCode(result) {
+  // extract minified uniform tokens
+  const tokens = Object.fromEntries(Object.entries(result.uniforms).map(([originalName, {variableName}]) => [originalName, variableName]));
+
   return `
     // eslint-disable
-    export const code = ${JSON.stringify(result.code)};
-    export const tokens = ${JSON.stringify(result.tokens)};
+    export const sourceCode = ${JSON.stringify(result.sourceCode)};
+    export const tokens = ${JSON.stringify(tokens)};
   `;
 }
 

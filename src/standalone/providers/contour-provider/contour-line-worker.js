@@ -2,7 +2,11 @@ import {expose, transfer} from 'comlink';
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
 import {blur} from '../../../_utils/blur';
+import {getPixelMagnitudeData} from '../../../_utils/pixel-data';
 import {getUnprojectFunction} from '../../../_utils/project';
+
+/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
+/** @typedef {import('../../../_utils/data').TextureData} TextureData */
 
 /**
  * wrap data around the world by repeating the data in the west and east
@@ -160,12 +164,15 @@ expose({
    * @param {Float32Array} data
    * @param {number} width
    * @param {number} height
+   * @param {ImageType} imageType
+   * @param {[number, number] | null} imageUnscale
    * @param {number} interval
    * @param {GeoJSON.BBox} bounds
    * @returns {Float32Array}
    */
-  getContourLineData(data, width, height, interval, bounds) {
-    const contourLineData = getContourLineData(data, width, height, interval, bounds);
+  getContourLineData(data, width, height, imageType, imageUnscale, interval, bounds) {
+    const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
+    const contourLineData = getContourLineData(magnitudeData.data, width, height, interval, bounds);
     return transfer(contourLineData, [contourLineData.buffer]);
   },
 });
