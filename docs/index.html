@@ -16,12 +16,19 @@
       padding: 2px 4px;
       vertical-align: top;
     }
+    sup {
+      vertical-align: top;
+      position: relative;
+      top: -2px;
+    }
     .icon {
       width: 16px;
       height: 16px;
       margin-top: -2px;
-      margin-right: 6px;
       vertical-align: middle;
+    }
+    .icon + a {
+      margin-left: 6px;
     }
   </style>
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -29,7 +36,6 @@
 
 <body>
   <h1>WeatherLayers GL</h2>
-  <p>Requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15)</p>
 
   <h2>deck.gl</h2>
   <table>
@@ -46,7 +52,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck/map.html">Map</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -55,7 +61,7 @@
       <td><img src="./globe-alt.svg" class="icon"><a href="./deck/globe.html">Globe</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -77,7 +83,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/mapbox.html">Mapbox</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -86,7 +92,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/maplibre.html">MapLibre</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -95,7 +101,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/google-maps.html">Google Maps</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -104,7 +110,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -113,7 +119,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -123,7 +129,7 @@
       <td><img src="./globe-alt.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer-globe.html">ArcGIS Renderer - Globe</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -146,7 +152,7 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/leaflet.html">Leaflet</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -155,27 +161,25 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/mapbox.html">Mapbox</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td>WebGL 1 only</td>
     </tr>
     <tr>
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/maplibre.html">MapLibre</a></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td>WebGL 1 only</td>
     </tr>
     <tr>
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/google-maps.html">Google Maps</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
@@ -184,32 +188,29 @@
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td>WebGL 1 only</td>
     </tr>
     <tr>
       <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td>WebGL 1 only</td>
     </tr>
     <!--
     <tr>
       <td><img src="./globe-alt.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer-globe.html">ArcGIS Renderer Globe</a> <small>(experimental)</small></td>
       <td><img src="./check.svg" class="icon"></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
       <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td>WebGL 1 only</td>
     </tr>
     -->
   </table>
@@ -227,50 +228,55 @@
     </tr>
     <tr>
       <td><img src="./map.svg" class="icon"><a href="./standalone/mapbox.html">Mapbox</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
     </tr>
     <tr>
       <td><img src="./map.svg" class="icon"><a href="./standalone/maplibre.html">MapLibre</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
     </tr>
     <tr>
       <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/mapbox-globe.html">Mapbox Globe</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
     </tr>
     <tr>
       <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/arcgis-globe.html">ArcGIS Globe</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
     </tr>
     <tr>
       <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/cesium-globe.html">Cesium Globe</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
       <td><img src="./x.svg" class="icon"></td>
     </tr>
   </table>
+
+  <p>
+    <sup>1</sup> CPU implementation, disabled animation<br>
+    <sup>2</sup> Basemap library is WebGL 1 only, Particle layer requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15)
+  </p>
 
   <h2>Layers and Datasets</h2>
   <table>
