@@ -53,6 +53,12 @@ export async function initConfig({ deckgl, webgl2, globe } = {}) {
       interval: undefined, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+      // text config is used for labels in standalone demos
+      textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
+      textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
+      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
+      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
     },
     highLow: {
