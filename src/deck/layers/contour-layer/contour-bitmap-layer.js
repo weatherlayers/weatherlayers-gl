@@ -35,10 +35,15 @@ export class ContourBitmapLayer extends BitmapLayer {
   }
 
   draw(opts) {
+    const {viewport} = this.context;
     const {model} = this.state;
     const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
 
     if (!imageTexture) {
+      return;
+    }
+    if (viewport.zoom > 10) {
+      // drop artifacts in high zoom
       return;
     }
 
