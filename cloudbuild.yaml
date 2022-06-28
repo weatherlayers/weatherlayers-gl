@@ -10,10 +10,15 @@ steps:
     entrypoint: npm
   - name: bash
     args:
+      - mkdir
+      - docs/dist
+  - name: bash
+    args:
       - cp
       - '-r'
-      - dist
-      - docs
+      - dist/weatherlayers-cloud-deck.umd.min.js
+      - dist/weatherlayers-cloud-client.umd.min.js
+      - docs/dist
   - name: gcr.io/cloud-builders/gsutil
     args:
       - '-m'
