@@ -60,7 +60,7 @@ async function loadImage(url) {
  */
 async function loadGeotiff(url) {
   // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff.js/issues/218
-  const geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: 256*1024 });
+  const geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: 10*1024*1024 });
   const geotiffImage = await geotiff.getImage(0);
 
   const sourceData = await geotiffImage.readRasters({ interleave: true });
