@@ -9,6 +9,9 @@
       font-family: 'Lucida Grande', sans-serif;
       font-size: 12px;
     }
+    table {
+      width: 800px;
+    }
     table th {
       text-align: left;
     }
@@ -20,6 +23,15 @@
       vertical-align: top;
       position: relative;
       top: -2px;
+    }
+    .thumbnails {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 8px;
+      width: 800px;
+    }
+    .thumbnails > div {
+      text-align: center;
     }
     .icon {
       width: 16px;
@@ -37,10 +49,37 @@
 <body>
   <h1>WeatherLayers GL</h2>
 
+  <div class="thumbnails">
+    <div>
+      <a href="./deck/map.html#dataset=gfs%2Fwind_10m_above_ground"><img src="./assets/datasets/wind.png" width="260" height="130">Wind</a><br>
+      Raster, Grid (wind barbs), Particle
+    </div>
+    <div>
+      <a href="./deck/map.html#dataset=gfs%2Ftemperature_2m_above_ground"><img src="./assets/datasets/temperature.png" width="260" height="130">Temperature</a><br>
+      Raster, Contour, Grid (values)
+    </div>
+    <div>
+      <a href="./deck/map.html#dataset=gfs%2Fpressure_mean_sea_level"><img src="./assets/datasets/pressure.png" width="260" height="130">Pressure</a><br>
+      Raster, Contour, HighLow
+    </div>
+    <div>
+      <a href="./deck/map.html#dataset=gfswave%2Fwaves"><img src="./assets/datasets/waves.png" width="260" height="130">Waves</a><br>
+      Raster, Grid (arrows), Particle (waves)
+    </div>
+    <div>
+      <a href="./deck/map.html#dataset=cmems_sst%2Fsea_surface_temperature"><img src="./assets/datasets/sea-surface-temperature.png" width="260" height="130">Sea Surface Temperature</a><br>
+      Raster, Contour, Grid (values)
+    </div>
+    <div>
+      <a href="./deck/map.html#dataset=cmems_phy%2Fcurrents"><img src="./assets/datasets/currents.png" width="260" height="130">Currents</a><br>
+      Raster, Grid (arrows), Particle
+    </div>
+  </div>
+
   <h2>deck.gl</h2>
   <table>
     <tr>
-      <th width="300"></th>
+      <th></th>
       <th width="60">Raster</th>
       <th width="60">Contour</th>
       <th width="60">HighLow</th>
@@ -49,29 +88,29 @@
       <th width="60">Picking</th>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck/map.html">Map</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck/map.html">Map</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./deck/globe.html">Globe</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./deck/globe.html">Globe</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
   </table>
 
   <h2>Overlaid deck.gl</h2>
   <table>
     <tr>
-      <th width="300"></th>
+      <th></th>
       <th width="60">Raster</th>
       <th width="60">Contour</th>
       <th width="60">HighLow</th>
@@ -80,59 +119,59 @@
       <th width="60">Picking</th>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/mapbox.html">Mapbox</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-overlaid/mapbox.html">Mapbox</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/maplibre.html">MapLibre</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-overlaid/maplibre.html">MapLibre</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/google-maps.html">Google Maps</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-overlaid/google-maps.html">Google Maps</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-overlaid/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <!--
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer-globe.html">ArcGIS Renderer - Globe</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./deck-overlaid/arcgis-renderer-globe.html">ArcGIS Renderer - Globe</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
   -->
   </table>
@@ -140,7 +179,7 @@
   <h2>Interleaved deck.gl</h2>
   <table>
     <tr>
-      <th width="300"></th>
+      <th></th>
       <th width="60">Raster</th>
       <th width="60">Contour</th>
       <th width="60">HighLow</th>
@@ -149,68 +188,68 @@
       <th width="60">Picking</th>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/leaflet.html">Leaflet</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/leaflet.html">Leaflet</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/mapbox.html">Mapbox</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/mapbox.html">Mapbox</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"><sup>2</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/maplibre.html">MapLibre</a></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/maplibre.html">MapLibre</a></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"><sup>2</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/google-maps.html">Google Maps</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/google-maps.html">Google Maps</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/arcgis.html">ArcGIS</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"><sup>2</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer.html">ArcGIS Renderer</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"><sup>2</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     <!--
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer-globe.html">ArcGIS Renderer Globe</a> <small>(experimental)</small></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"><sup>2</sup></td>
-      <td><img src="./check.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./deck-interleaved/arcgis-renderer-globe.html">ArcGIS Renderer Globe</a> <small>(experimental)</small></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"><sup>2</sup></td>
+      <td><img src="./assets/check.svg" class="icon"></td>
     </tr>
     -->
   </table>
@@ -218,7 +257,7 @@
   <h2>Standalone</h2>
   <table>
     <tr>
-      <th width="300"></th>
+      <th></th>
       <th width="60">Raster</th>
       <th width="60">Contour</th>
       <th width="60">HighLow</th>
@@ -227,49 +266,49 @@
       <th width="60">Picking</th>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./standalone/mapbox.html">Mapbox</a></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./standalone/mapbox.html">Mapbox</a></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./map.svg" class="icon"><a href="./standalone/maplibre.html">MapLibre</a></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
+      <td><img src="./assets/map.svg" class="icon"><a href="./standalone/maplibre.html">MapLibre</a></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/mapbox-globe.html">Mapbox Globe</a></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./standalone/mapbox-globe.html">Mapbox Globe</a></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/arcgis-globe.html">ArcGIS Globe</a></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./standalone/arcgis-globe.html">ArcGIS Globe</a></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
     </tr>
     <tr>
-      <td><img src="./globe-alt.svg" class="icon"><a href="./standalone/cesium-globe.html">Cesium Globe</a></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./check.svg" class="icon"><sup>1</sup></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
-      <td><img src="./x.svg" class="icon"></td>
+      <td><img src="./assets/globe-alt.svg" class="icon"><a href="./standalone/cesium-globe.html">Cesium Globe</a></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/check.svg" class="icon"><sup>1</sup></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
+      <td><img src="./assets/x.svg" class="icon"></td>
     </tr>
   </table>
 
@@ -281,46 +320,6 @@
     <sup>1</sup> No animation support<br>
     <sup>2</sup> Basemap library is WebGL 1 only, but Particle layer requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15)
   </p>
-
-  <h2>Layers and Datasets</h2>
-  <table>
-    <tr>
-      <th>Layer</th>
-      <th>Dataset</th>
-    </tr>
-    <tr>
-      <td>Raster</td>
-      <td>all</td>
-    </tr>
-    <tr>
-      <td>Contour</td>
-      <td>gfs/pressure_mean_sea_level</td>
-    </tr>
-    <tr>
-      <td>HighLow</td>
-      <td>gfs/pressure_mean_sea_level</td>
-    </tr>
-    <tr>
-      <td>Particle</td>
-      <td>gfs/wind_10m_above_ground, cmems_phy/currents</td>
-    </tr>
-    <tr>
-      <td>Particle (waves)</td>
-      <td>gfswave/waves</td>
-    </tr>
-    <tr>
-      <td>Grid (values)</td>
-      <td>gfs/temperature_2m_above_ground, gfs/apparent_temperature_2m_above_ground, cmems_sst/sea_surface_temperature</td>
-    </tr>
-    <tr>
-      <td>Grid (arrows)</td>
-      <td>gfswave/waves, cmems_phy/currents</td>
-    </tr>
-    <tr>
-      <td>Grid (wind barbs)</td>
-      <td>gfs/wind_10m_above_ground</td>
-    </tr>
-  </table>
 </body>
 
 </html>
