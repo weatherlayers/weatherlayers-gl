@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.8.2/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.2/dist/dist.dev.js"></script>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
+  <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
@@ -40,12 +40,12 @@
       let gui;
 
       // ArcGIS
-      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, watchUtils] } = await deck.loadArcGISModules([
+      const { DeckRenderer, modules: [Map, SceneView, externalRenderers, reactiveUtils] } = await deck.loadArcGISModules([
         'esri/Map',
         'esri/views/SceneView',
         'esri/views/3d/externalRenderers',
-        'esri/core/watchUtils',
-      ], { version: '4.23' });
+        'esri/core/reactiveUtils',
+      ], { version: '4.24' });
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -63,7 +63,7 @@
         viewingMode: 'local',
       });
       view.ui.components = ['attribution'];
-      await watchUtils.whenFalseOnce(view, 'updating');
+      await reactiveUtils.whenOnce(() => !view.updating);
 
       // interleaved deck.gl
       const deckRenderer = new DeckRenderer(view, {
