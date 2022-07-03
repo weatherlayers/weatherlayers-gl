@@ -23,7 +23,7 @@ export class ContourBitmapLayer extends BitmapLayer {
     if (!hasFeatures(gl, FEATURES.GLSL_DERIVATIVES)) {
       throw new Error('Derivatives are required');
     }
-    
+
     const parentShaders = super.getShaders();
 
     return {

@@ -30,11 +30,6 @@ const defaultProps = {
 
 export class ParticleLineLayer extends LineLayer {
   getShaders() {
-    const {gl} = this.context;
-    if (!isWebGL2(gl)) {
-      throw new Error('WebGL 2 is required');
-    }
-
     const parentShaders = super.getShaders();
 
     return {
@@ -124,6 +119,10 @@ export class ParticleLineLayer extends LineLayer {
 
   _setupTransformFeedback() {
     const {gl} = this.context;
+    if (!isWebGL2(gl)) {
+      throw new Error('WebGL 2 is required');
+    }
+
     const {initialized} = this.state;
     if (initialized) {
       this._deleteTransformFeedback();
