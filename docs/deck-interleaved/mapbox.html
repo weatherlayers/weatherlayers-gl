@@ -8,8 +8,8 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
-  <script src="https://unpkg.com/deck.gl@8.7.5/dist.min.js"></script>
-  <script src="https://unpkg.com/@deck.gl/mapbox@8.7.5/dist/dist.dev.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.8.2/dist.min.js"></script>
+  <script src="https://unpkg.com/@deck.gl/mapbox@8.8.2/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
@@ -51,17 +51,12 @@
       await new Promise(resolve => map.on('load', resolve));
 
       // interleaved deck.gl
-      const deckLayer = new deck.MapboxLayer({
-        type: class extends deck.CompositeLayer {
-          renderLayers() {
-            return this.props.layers;
-          }
-        },
-        id: 'deck',
+      const deckLayer = new deck.MapboxOverlay({
+        interleaved: true,
         layers: [],
       });
-      map.addLayer(deckLayer, 'waterway-label');
-      const deckgl = window.deckgl = deckLayer.deck;
+      map.addControl(deckLayer);
+      const deckgl = window.deckgl = deckLayer._deck;
 
       // info panels
       const infoControl = new InfoControl({ deckgl });
