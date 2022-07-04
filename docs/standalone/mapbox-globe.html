@@ -187,7 +187,7 @@
 
         rotateAnimation.toggle(config.rotate);
         legendControl.update({ ...legendControl.config, dataset });
-        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
+        attributionControl.update({ dataset });
       }
       update();
       gui = initGui(config, update, { globe: true });

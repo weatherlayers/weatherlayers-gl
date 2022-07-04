@@ -174,7 +174,7 @@
         legendControl.update({ ...legendControl.config, dataset });
         timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
         tooltipControl.update({ ...tooltipControl.config, dataset });
-        attributionControl.update({ dataset: (config.raster.enabled || config.particle.enabled) && dataset });
+        attributionControl.update({ dataset });
       }
       update();
       gui = initGui(config, update, { deckgl, webgl2: true });
