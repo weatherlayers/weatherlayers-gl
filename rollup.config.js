@@ -38,9 +38,13 @@ function bundle(entrypoint, filename, format, options = {}) {
       banner: [
         '/*!',
         ' * Copyright (c) 2022 WeatherLayers.com',
-        ...(LICENSE_DATE ? [` * Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
-        ...(LICENSE_DOMAIN ? [` * Project License, valid for ${LICENSE_DOMAIN}`] : []),
-        ' * See License Terms of Use in LICENSE.md',
+        ' *',
+        ...(LICENSE_DATE ? [` * WeatherLayers GL Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
+        ...(LICENSE_DOMAIN ? [` * WeatherLayers GL Project License, valid for ${LICENSE_DOMAIN}`] : []),
+        ' *',
+        ' * Demo - https://demo.weatherlayers.com/',
+        ' * Docs - https://docs.weatherlayers.com/',
+        ' * License Terms of Use - https://weatherlayers.com/license-terms-of-use.html',
         ' */'
       ].join('\n'),
     },
