@@ -1,6 +1,6 @@
-# weatherlayers-gl
+# WeatherLayers GL
 
-WeatherLayers.com visualization layers and controls
+WeatherLayers GL visualization layers and controls
 
 [Demo](https://demo.weatherlayers.com/)
 
