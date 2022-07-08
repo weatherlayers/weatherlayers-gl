@@ -12,7 +12,7 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 | @mapbox/sphericalmercator | 1.2.0 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
 | @luma.gl/core | 8.5.14 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
 | comlink | 4.3.1 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
-| cpt2js | 1.5.0 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
+| cpt2js | 1.5.0 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
 | geodesy-fn | 1.0.1 | https://github.com/zakjan/geodesy-fn | MIT | https://github.com/zakjan/geodesy-fn/blob/main/LICENSE |
 | geokdbush | 1.1.0 | https://github.com/mourner/geokdbush | ISC | https://github.com/mourner/geokdbush/blob/master/LICENSE |
 | geotiff | 2.0.5 | https://github.com/geotiffjs/geotiff.js | MIT | https://github.com/geotiffjs/geotiff.js/blob/master/LICENSE |

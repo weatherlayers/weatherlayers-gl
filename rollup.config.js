@@ -40,6 +40,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         ' * Copyright (c) 2022 WeatherLayers.com',
         ...(LICENSE_DATE ? [` * Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
         ...(LICENSE_DOMAIN ? [` * Project License, valid for ${LICENSE_DOMAIN}`] : []),
+        ' * See License Terms of Use in LICENSE.md',
         ' */'
       ].join('\n'),
     },
