@@ -35,8 +35,8 @@
     "@deck.gl/core": "^8.8.4",
     "@deck.gl/extensions": "^8.8.4",
     "@deck.gl/layers": "^8.8.4",
-    "@luma.gl/constants": "^8.5.14",
-    "@luma.gl/core": "^8.5.14",
+    "@luma.gl/constants": "^8.5.16",
+    "@luma.gl/core": "^8.5.16",
     "@rollup/plugin-alias": "^3.1.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.0",
@@ -65,7 +65,7 @@
     "@deck.gl/core": "^8.8.2",
     "@deck.gl/extensions": "^8.8.2",
     "@deck.gl/layers": "^8.8.2",
-    "@luma.gl/core": "^8.5.14",
+    "@luma.gl/core": "^8.5.16",
     "geotiff": "^2.0.5"
   }
 }
