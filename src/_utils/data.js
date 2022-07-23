@@ -1,5 +1,4 @@
 import * as GeoTIFF from 'geotiff';
-import GL from '@luma.gl/constants';
 import {ImageType} from './image-type';
 
 /** @typedef {import('./image-type').ImageType} ImageType */

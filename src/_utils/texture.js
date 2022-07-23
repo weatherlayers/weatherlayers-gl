@@ -4,18 +4,6 @@ import GL from '@luma.gl/constants';
 /** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {any} TextureParameters */
 
-/** @type {TextureParameters} */
-const LINEAR_TEXTURE_PARAMETERS = {
-  [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
-  [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
-};
-
-/** @type {TextureParameters} */
-const NEAREST_TEXTURE_PARAMETERS = {
-  [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-  [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-};
-
 /** @type {WeakMap<WebGL2RenderingContext, WeakMap<TextureData, WeakMap<TextureParameters, Texture2D>>>} */
 const cache = new WeakMap();
 
