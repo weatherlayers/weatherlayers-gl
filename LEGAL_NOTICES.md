@@ -6,11 +6,11 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 
 | Name | Version | Homepage | License | Link |
 |---|---|---|---|---|
-| @deck.gl/core | 8.8.2 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/extensions | 8.8.2 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/layers | 8.8.2 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/core | 8.8.4 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/extensions | 8.8.4 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/layers | 8.8.4 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
 | @mapbox/sphericalmercator | 1.2.0 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
-| @luma.gl/core | 8.5.14 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
+| @luma.gl/core | 8.5.16 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
 | comlink | 4.3.1 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
 | cpt2js | 1.5.0 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
 | geodesy-fn | 1.0.1 | https://github.com/zakjan/geodesy-fn | MIT | https://github.com/zakjan/geodesy-fn/blob/main/LICENSE |
