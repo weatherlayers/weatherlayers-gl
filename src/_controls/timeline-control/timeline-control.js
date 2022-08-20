@@ -1,32 +1,27 @@
 import {Animation} from '../../_utils/animation';
-import {getClient} from '../../cloud-client/client';
 import {interpolateDatetime} from '../../_utils/datetime';
 import {formatDatetime} from '../../_utils/format';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
-/** @typedef {import('../../cloud-client/client').Client} Client */
-/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
+
+const DEFAULT_WIDTH = 250;
 
 const FPS = 15;
 const STEP = 1;
 const STEP_INTERPOLATE = 0.25;
 
+const PADDING_Y = 10;
+const PLAY_PAUSE_BUTTON_WIDTH = 16;
+const PROGRESS_INPUT_MARGIN_LEFT = 10;
+
 export class TimelineControl {
   /** @type {TimelineConfig} */
-  config = undefined;
-  /** @type {number} */
-  step = undefined;
-  /** @type {Client} */
-  client = undefined;
-  /** @type {HTMLElement} */
+  config;
+  /** @type {HTMLElement | undefined} */
   container = undefined;
-  /** @type {StacCollection} */
-  stacCollection = undefined;
-  /** @type {string[]} */
-  datetimes = undefined;
   /** @type {Animation} */
-  animation = undefined;
+  animation;
   /** @type {boolean} */
   loading = false;
 
@@ -35,11 +30,9 @@ export class TimelineControl {
    */
   constructor(config) {
     this.config = config;
-    this.step = config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
-    this.client = getClient();
 
     this.animation = new Animation(() => {
-      if (this.progress < this.datetimes.length - 1) {
+      if (this.progress < this.config.datetimes.length - 1) {
         this.progress += this.step;
 
         if (Math.ceil(this.progress / this.step) !== this.progress / this.step) {
@@ -56,7 +49,18 @@ export class TimelineControl {
   /**
    * @returns {number}
    */
+  get step() {
+    return this.config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
+  }
+
+  /**
+   * @returns {number}
+   */
   get progress() {
+    if (!this.container) {
+      return 0;
+    }
+
     const progressInput = this.container.querySelector('input');
     if (!progressInput) {
       return 0;
@@ -70,6 +74,10 @@ export class TimelineControl {
    * @returns {void}
    */
   set progress(value) {
+    if (!this.container) {
+      return;
+    }
+
     const progressInput = this.container.querySelector('input');
     if (!progressInput) {
       return;
@@ -82,15 +90,27 @@ export class TimelineControl {
    * @returns {void}
    */
   updateProgress() {
+    if (!this.container) {
+      return;
+    }
+
+    const info = this.container.querySelector('span');
+    if (!info) {
+      return;
+    }
+    
     const index = Math.floor(this.progress);
-    const startDatetime = this.datetimes[index];
-    const endDatetime = this.datetimes[index + 1];
+    const startDatetime = this.config.datetimes[index];
+    const endDatetime = this.config.datetimes[index + 1];
     const ratio = endDatetime ? Math.round((this.progress - index) * 100) / 100 : 0;
     const datetime = endDatetime ? interpolateDatetime(startDatetime, endDatetime, ratio) : startDatetime;
     
-    this.config.onUpdate({
-      datetime,
-    });
+    this.config.datetime = datetime;
+    info.innerHTML = formatDatetime(datetime);
+
+    if (this.config.onUpdate) {
+      this.config.onUpdate({ datetime });
+    }
   }
 
   /**
@@ -123,6 +143,10 @@ export class TimelineControl {
       return;
     }
 
+    if (!this.container) {
+      return;
+    }
+
     const playPauseButton = this.container.querySelector('a');
     const progressInput = this.container.querySelector('input');
     const info = this.container.querySelector('span');
@@ -134,21 +158,26 @@ export class TimelineControl {
       playPauseButton.classList.remove('pause');
       playPauseButton.classList.add('play');
 
+      if (this.config.onStop) {
+        this.config.onStop();
+      }
+
       this.animation.stop();
     } else {
       playPauseButton.classList.remove('play');
       playPauseButton.classList.add('pause');
 
-      // preload images
-      this.loading = true;
-      this.container.classList.add('loading');
-      progressInput.disabled = true;
-      info.innerHTML = 'Loading...';
-      await Promise.all(this.datetimes.map(x => this.client.loadStacCollectionData(this.config.dataset, x)));
-      info.innerHTML = formatDatetime(this.config.datetime);
-      progressInput.disabled = false;
-      this.container.classList.remove('loading');
-      this.loading = false;
+      if (this.config.onStart) {
+        this.loading = true;
+        this.container.classList.add('loading');
+        progressInput.disabled = true;
+        info.innerHTML = 'Loading...';
+        await this.config.onStart();
+        info.innerHTML = formatDatetime(this.config.datetime);
+        progressInput.disabled = false;
+        this.container.classList.remove('loading');
+        this.loading = false;
+      }
 
       this.animation.start();
     }
@@ -158,41 +187,40 @@ export class TimelineControl {
 
   /**
    * @param {TimelineConfig} config
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async update(config) {
+  update(config) {
     if (!this.container) {
       return;
     }
-    this.step = config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
-    if (this.stacCollection && this.config.dataset === config.dataset) {
-      const info = this.container.querySelector('span');
-      const progressInput = this.container.querySelector('input');
-      info.innerHTML = formatDatetime(config.datetime);
-      progressInput.step = this.step;
+
+    // validate config
+    if (!config.datetimes || config.datetimes.length < 2 || !config.datetime) {
+      return;
+    }
+
+    // prevent update if no config changed
+    if (
+      this.container.children.length > 0 &&
+      this.config.width === config.width &&
+      this.config.datetimes.length === config.datetimes.length &&
+      this.config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
+      this.config.datetimeInterpolate === config.datetimeInterpolate &&
+      this.config.datetime === config.datetime &&
+      this.config.onStart === config.onStart &&
+      this.config.onUpdate === config.onUpdate &&
+      this.config.onStop === config.onStop
+    ) {
       return;
     }
 
     this.config = config;
-    
-    if (!this.config.dataset) {
-      this.container.innerHTML = '';
-      return;
-    }
-
-    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
-    this.datetimes = this.client.getStacCollectionDatetimes(this.stacCollection);
-    if (this.datetimes.length < 2) {
-      this.container.innerHTML = '';
-      return;
-    }
-
-    const paddingY = 10;
-    const playPauseButtonWidth = 16;
-    const progressInputMarginLeft = 10;
+    const width = this.config.width || DEFAULT_WIDTH;
+    const datetimes = this.config.datetimes;
+    const datetime = this.config.datetime;
 
     this.container.innerHTML = '';
-    this.container.style.width = `${this.config.width}px`;
+    this.container.style.width = `${width}px`;
 
     const div = document.createElement('div');
     this.container.appendChild(div);
@@ -200,21 +228,21 @@ export class TimelineControl {
     const playPauseButton = document.createElement('a');
     playPauseButton.href = 'javascript:void(0)';
     playPauseButton.className = this.animation.running ? 'pause' : 'play';
-    playPauseButton.addEventListener('click', this.toggleAnimation.bind(this));
+    playPauseButton.addEventListener('click', () => this.toggleAnimation());
     div.appendChild(playPauseButton);
 
     const progressInput = document.createElement('input');
     progressInput.type = 'range';
     progressInput.min = 0;
-    progressInput.max = this.datetimes.length - 1;
+    progressInput.max = datetimes.length - 1;
     progressInput.step = this.step;
-    progressInput.value = this.datetimes.findIndex(x => x >= this.config.datetime);
-    progressInput.style.width = `${this.config.width - 2 * paddingY - playPauseButtonWidth - progressInputMarginLeft}px`;
+    progressInput.valueAsNumber = datetimes.findIndex(x => x >= datetime);
+    progressInput.style.width = `${width - 2 * PADDING_Y - PLAY_PAUSE_BUTTON_WIDTH - PROGRESS_INPUT_MARGIN_LEFT}px`;
     progressInput.addEventListener('input', () => this.updateProgress());
     div.appendChild(progressInput);
 
     const info = document.createElement('span');
-    info.innerHTML = formatDatetime(this.config.datetime);
+    info.innerHTML = formatDatetime(datetime);
     div.appendChild(info);
   }
 }

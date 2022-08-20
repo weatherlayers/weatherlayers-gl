@@ -1,4 +1,4 @@
-/** @typedef {import('../cloud-client/stac').StacRasterUnit} StacRasterUnit */
+/** @typedef {import('../cloud/stac').StacRasterUnit} StacRasterUnit */
 
 /**
  * @param {string} value

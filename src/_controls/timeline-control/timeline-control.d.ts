@@ -1,9 +1,11 @@
 export interface TimelineConfig {
   width: number;
-  dataset: string;
-  datetime: string;
+  datetimes: string[];
   datetimeInterpolate: boolean;
-  onUpdate: (event: TimelineUpdateEvent) => void;
+  datetime: string;
+  onStart?: () => Promise<void>;
+  onStop?: () => void;
+  onUpdate?: (event: TimelineUpdateEvent) => void;
 }
 
 export interface TimelineUpdateEvent {

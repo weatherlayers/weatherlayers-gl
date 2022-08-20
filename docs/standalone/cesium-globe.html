@@ -9,7 +9,7 @@
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Cesium.js"></script>
   <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.91/Build/Cesium/Widgets/widgets.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -27,14 +27,13 @@
     import { NO_DATA, initConfig, initGui, colorToCss } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
-    WeatherLayers.setClientConfig({
+    const client = new WeatherLayers.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       format: 'tif',
     });
-    const client = WeatherLayers.getClient();
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ globe: true });
+      const config = await initConfig({ client, globe: true });
       let gui;
 
       // Cesium
@@ -63,7 +62,7 @@
       });
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      const legendControl = new WeatherLayers.LegendControl({});
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // FPS meter
@@ -73,12 +72,13 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-
-        const attribution = await client.getStacCollectionAttribution(dataset);
+        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime) : undefined;
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette) : undefined;
           if (rasterLayer) {
             viewer.imageryLayers.remove(rasterLayer);
           }
@@ -144,7 +144,7 @@
                 label: {
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                  text: `${highLowPoint.properties.type}\n${Math.round(highLowPoint.properties.value / 100)}`,
+                  text: `${highLowPoint.properties.type}\n${Math.round(highLowPoint.properties.value)}`,
                 },
               });
             }
@@ -163,7 +163,7 @@
         }
 
         rotateAnimation.toggle(config.rotate);
-        legendControl.update({ ...legendControl.config, dataset });
+        legendControl.update({ ...legendControl.config, title, unit, palette });
       }
       update();
       gui = initGui(config, update, { globe: true });

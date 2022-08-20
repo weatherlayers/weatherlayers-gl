@@ -36,3 +36,23 @@ export function getDatetimeWeight(start, end, middle) {
     return ratio;
   }
 }
+
+/**
+ * @param {string[]} datetimes
+ * @param {string} datetime
+ * @returns {string | undefined}
+ */
+export function getClosestStartDatetime(datetimes, datetime) {
+  const closestDatetime = [...datetimes].reverse().find(x => x <= datetime);
+  return closestDatetime;
+}
+
+/**
+ * @param {string[]} datetimes
+ * @param {string} datetime
+ * @returns {string | undefined}
+ */
+export function getClosestEndDatetime(datetimes, datetime) {
+  const closestDatetime = datetimes.find(x => x >= datetime);
+  return closestDatetime;
+}

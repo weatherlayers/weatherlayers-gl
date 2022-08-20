@@ -10,6 +10,3 @@
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
 }
-.weatherlayers-tooltip-control > div:empty {
-  display: none;
-}

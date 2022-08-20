@@ -1,4 +1,6 @@
+import { StacRasterUnit } from '../../cloud/stac';
+
 export interface TooltipConfig {
   deckgl: any;
-  dataset: string;
+  unit: StacRasterUnit;
 }

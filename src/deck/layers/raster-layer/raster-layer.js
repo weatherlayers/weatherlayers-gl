@@ -1,4 +1,4 @@
-import {CompositeLayer} from '@deck.gl/core';
+import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
 import {createTextureCached} from '../../../_utils/texture';
 import {withCheckLicense} from '../../license';
 import {RasterBitmapLayer} from './raster-bitmap-layer';
@@ -30,6 +30,8 @@ class RasterLayer extends CompositeLayer {
         imageTexture2,
         image: undefined,
         image2: undefined,
+        
+        _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
       })),
     ];
   }

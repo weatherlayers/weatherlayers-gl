@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.4/dist/dist.dev.js"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud-deck.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../info-control.css">
   <link rel="stylesheet" href="../fps-control.css">
@@ -26,17 +26,17 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isIOS15 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    WeatherLayers.setClientConfig({
+const client = new WeatherLayers.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       format: 'tif',
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ deckgl: true });
+      const config = await initConfig({ client, deckgl: true });
       let gui;
 
       // ArcGIS
@@ -77,12 +77,14 @@
       document.getElementById('top-left').prepend(infoControl.onAdd());
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      const legendControl = new WeatherLayers.LegendControl({});
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        width: 250,
+        onStart: async () => {
+          await Promise.all(config.datetimes.map(datetime => client.loadStacCollectionData(config.dataset, datetime)));
+        },
         onUpdate: event => {
           config.datetime = event.datetime || NO_DATA;
           update();
@@ -95,7 +97,7 @@
       document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
 
       // attribution
-      const attributionControl = new WeatherLayers.AttributionControl();
+      const attributionControl = new WeatherLayers.AttributionControl({});
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter
@@ -105,17 +107,25 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
 
         deckLayer.deck.set({
           layers: [
             new WeatherLayers.HighLowLayer({
               id: 'highLow',
-              visible: config.highLow.enabled && !timelineControl.animation.running,
-              dataset,
-              datetime,
-              datetimeInterpolate: config.datetimeInterpolate,
+              // data properties
+              image,
+              image2,
               imageInterpolate: config.imageInterpolate,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.highLow.enabled && !timelineControl.animation.running,
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
               textColor: colorToArray(config.highLow.textColor),
@@ -125,33 +135,53 @@
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
-              visible: config.contour.enabled,
-              dataset,
-              datetime,
-              datetimeInterpolate: config.datetimeInterpolate,
+              // data properties
+              image,
+              image2,
               imageInterpolate: config.imageInterpolate,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.contour.enabled,
               interval: config.contour.interval,
               width: config.contour.width,
               color: colorToArray(config.contour.color),
               opacity: config.contour.opacity,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-181, -85.051129, 181, 85.051129],
             }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
-              visible: config.raster.enabled,
-              dataset,
-              datetime,
-              datetimeInterpolate: config.datetimeInterpolate,
+              // data properties
+              image,
+              image2,
               imageInterpolate: config.imageInterpolate,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              palette,
+              visible: config.raster.enabled,
               opacity: config.raster.opacity,
-              pickable: !isIOS15(),
+              pickable: !isMetalWebGl2(),
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-181, -85.051129, 181, 85.051129],
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
-              visible: config.grid.enabled,
-              dataset,
-              datetime,
-              datetimeInterpolate: config.datetimeInterpolate,
+              // data properties
+              image,
+              image2,
               imageInterpolate: config.imageInterpolate,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.grid.enabled,
               style: config.grid.style,
               textSize: config.grid.textSize,
               textColor: colorToArray(config.grid.textColor),
@@ -165,10 +195,10 @@
           ],
         });
 
-        legendControl.update({ ...legendControl.config, dataset });
-        timelineControl.update({ ...timelineControl.config, dataset, datetime, datetimeInterpolate: config.datetimeInterpolate });
-        tooltipControl.update({ ...tooltipControl.config, dataset });
-        attributionControl.update({ dataset });
+        legendControl.update({ ...legendControl.config, title, unit, palette });
+        timelineControl.update({ ...timelineControl.config, datetimes, datetimeInterpolate: config.datetimeInterpolate, datetime });
+        tooltipControl.update({ ...tooltipControl.config, unit });
+        attributionControl.update({ attribution });
       }
       update();
       gui = initGui(config, update, { deckgl });

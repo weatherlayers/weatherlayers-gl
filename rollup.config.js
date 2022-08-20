@@ -87,26 +87,17 @@ function bundle(entrypoint, filename, format, options = {}) {
 }
 
 export default commandLineArgs => {
-  if (commandLineArgs.watch) {
-    return [
-      ['src/cloud-deck/index.js', 'dist/weatherlayers-cloud-deck.js'],
-      ['src/cloud-client/index.js', 'dist/weatherlayers-cloud-client.js'],
-    ].map(([entrypoint, filename]) => [
-      bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
-      bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
-    ]).flat();
-  } else {
-    return [
-      ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
-      ['src/cloud-deck/index.js', 'dist/weatherlayers-cloud-deck.js'],
-      ['src/cloud-client/index.js', 'dist/weatherlayers-cloud-client.js'],
-    ].map(([entrypoint, filename]) => [
+  return [
+    ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
+    ['src/cloud/index.js', 'dist/weatherlayers-cloud.js'],
+  ].map(([entrypoint, filename]) => [
+    ...(!commandLineArgs.watch ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),
       bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
       bundle(entrypoint, filename, 'es', { resolve: true }),
       bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
-      bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
-      bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
-    ]).flat();
-  }
+    ] : []),
+    bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
+    bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
+  ]).flat();
 };

@@ -1,4 +1,3 @@
 export interface AttributionConfig {
-  attribution?: string;
-  dataset?: string;
+  attribution: string;
 }

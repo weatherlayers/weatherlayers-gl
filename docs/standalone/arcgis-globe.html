@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.4/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.24/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -28,14 +28,13 @@
     import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
-    WeatherLayers.setClientConfig({
+    const client = new WeatherLayers.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       // format: 'tif',
     });
-    const client = WeatherLayers.getClient();
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ globe: true });
+      const config = await initConfig({ client, globe: true });
       let gui;
 
       // ArcGIS
@@ -100,7 +99,7 @@
       });
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      const legendControl = new WeatherLayers.LegendControl({});
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // FPS meter
@@ -111,11 +110,11 @@
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-
-        const attribution = await client.getStacCollectionAttribution(dataset, 'esri-attribution__link');
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
+        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset, 'esri-attribution__link');
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, `mercator.${client.config.format}`) : undefined;
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette, `mercator.${client.config.format}`) : undefined;
           if (rasterLayer) {
             map.remove(rasterLayer);
           }
@@ -164,7 +163,7 @@
           // contourLayer.labelingInfo = [
           //   {
           //     labelPlacement: 'center-center',
-          //     labelExpressionInfo: { expression: 'Round($feature.value / 100)' },
+          //     labelExpressionInfo: { expression: 'Round($feature.value)' },
           //     symbol: {
           //       type: 'text',
           //       font: {
@@ -208,7 +207,7 @@
           highLowLayer.labelingInfo = [
             {
               labelPlacement: 'center-center',
-              labelExpressionInfo: { expression: '$feature.type + TextFormatting.NewLine + Round($feature.value / 100)' },
+              labelExpressionInfo: { expression: '$feature.type + TextFormatting.NewLine + Round($feature.value)' },
               symbol: {
                 type: 'text',
                 font: {
@@ -225,7 +224,7 @@
         }
 
         rotateAnimation.toggle(config.rotate);
-        legendControl.update({ ...legendControl.config, dataset });
+        legendControl.update({ ...legendControl.config, title, unit, palette });
       }
       update();
       gui = initGui(config, update, { globe: true });

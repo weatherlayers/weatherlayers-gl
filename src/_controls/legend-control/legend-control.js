@@ -1,31 +1,26 @@
 import {parsePalette, colorRampCanvas} from 'cpt2js';
-import './legend-control.css';
-import {getClient} from '../../cloud-client/client';
 import {formatValue, formatUnit} from '../../_utils/format';
+import './legend-control.css';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
-/** @typedef {import('../../cloud-client/client').Client} Client */
-/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
+
+const DEFAULT_WIDTH = 250;
+const DEFAULT_TICKS_COUNT = 6;
+
+const PADDING_Y = 15;
 
 export class LegendControl {
   /** @type {LegendConfig} */
-  config = undefined;
-  /** @type {Client} */
-  client = undefined;
-  /** @type {HTMLElement} */
+  config;
+  /** @type {HTMLElement | undefined} */
   container = undefined;
-  /** @type {StacCollection} */
-  stacCollection = undefined;
-  /** @type {Palette} */
-  stacCollectionPalette = undefined;
 
   /**
    * @param {LegendConfig} config
    */
   constructor(config) {
     this.config = config;
-    this.client = getClient();
   }
 
   /**
@@ -52,61 +47,68 @@ export class LegendControl {
 
   /**
    * @param {LegendConfig} config
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async update(config) {
+  update(config) {
     if (!this.container) {
       return;
     }
-    if (this.stacCollection && this.config.dataset === config.dataset) {
+
+    // validate config
+    if (!config.title || !config.unit || !config.palette) {
+      return;
+    }
+
+    // prevent update if no config changed
+    if (
+      this.container.children.length > 0 &&
+      this.config.width === config.width &&
+      this.config.ticksCount === config.ticksCount &&
+      this.config.title === config.title &&
+      this.config.unit === config.unit &&
+      this.config.palette === config.palette
+    ) {
       return;
     }
 
     this.config = config;
-
-    if (!this.config.dataset) {
-      this.container.innerHTML = '';
-      return;
-    }
-
-    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
-    this.stacCollectionPalette = await this.client.loadStacCollectionPalette(this.config.dataset);
-    const palette = this.config.palette || this.stacCollectionPalette;
+    const width = this.config.width || DEFAULT_WIDTH;
+    const ticksCount = this.config.ticksCount || DEFAULT_TICKS_COUNT;
+    const title = this.config.title;
+    const unit = this.config.unit;
+    const palette = this.config.palette;
     const paletteScale = parsePalette(palette);
     const paletteDomain = paletteScale.domain();
     const paletteBounds = /** @type {[number, number]} */ ([paletteDomain[0], paletteDomain[paletteDomain.length - 1]]);
     const paletteCanvas = colorRampCanvas(paletteScale);
     const paletteCanvasDataUrl = paletteCanvas.toDataURL();
 
-    const paddingY = 15;
-    const unit = this.stacCollection['weatherLayers:units'][0];
-
     this.container.innerHTML = '';
-    this.container.style.width = `${this.config.width}px`;
+    this.container.style.width = `${width}px`;
 
     const div = document.createElement('div');
     this.container.appendChild(div);
 
     const xmlns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(xmlns, 'svg');
-    svg.setAttribute('width', `${this.config.width}px`);
+    svg.setAttribute('width', `${width}px`);
     svg.setAttribute('height', '50px');
     svg.style.display = 'block';
     div.appendChild(svg);
 
-    const title = document.createElementNS(xmlns, 'text');
-    title.innerHTML = `${this.stacCollection.title} [${formatUnit(unit)}]`;
-    title.style.fontWeight = 'bold';
-    title.style.transform = `translate(${paddingY}px, 15px)`;
-    svg.appendChild(title);
+    const text = document.createElementNS(xmlns, 'text');
+    text.innerHTML = `${title} [${formatUnit(unit)}]`;
+    text.style.fontWeight = 'bold';
+    text.style.transform = `translate(${PADDING_Y}px, 15px)`;
+    svg.appendChild(text);
 
     const g = document.createElementNS(xmlns, 'g');
-    g.style.transform = `translate(${paddingY}px, 22px)`;
+    g.style.transform = `translate(${PADDING_Y}px, 22px)`;
     svg.appendChild(g);
 
     const image = document.createElementNS(xmlns, 'image');
     image.setAttribute('href', paletteCanvasDataUrl);
-    image.setAttribute('width', `${this.config.width - 2 * paddingY}`);
+    image.setAttribute('width', `${width - 2 * PADDING_Y}`);
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
     g.appendChild(image);
@@ -115,13 +117,13 @@ export class LegendControl {
     ticks.style.textAnchor = 'middle';
     g.appendChild(ticks);
 
-    const delta = (paletteBounds[1] - paletteBounds[0]) / (this.config.ticksCount - 1);
-    for (let i = 0; i < this.config.ticksCount; i++) {
+    const delta = (paletteBounds[1] - paletteBounds[0]) / (ticksCount - 1);
+    for (let i = 0; i < ticksCount; i++) {
       const value = paletteBounds[0] + i * delta;
       const formattedValue = formatValue(value, unit);
 
       const tick = document.createElementNS(xmlns, 'g');
-      tick.style.transform = `translate(${(value - paletteBounds[0]) / (paletteBounds[1] - paletteBounds[0]) * (this.config.width - 2 * paddingY)}px, 0)`;
+      tick.style.transform = `translate(${(value - paletteBounds[0]) / (paletteBounds[1] - paletteBounds[0]) * (width - 2 * PADDING_Y)}px, 0)`;
       ticks.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');

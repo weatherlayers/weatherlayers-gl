@@ -1,26 +1,18 @@
 import './attribution-control.css';
-import {getClient} from '../../cloud-client/client';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
-/** @typedef {import('../../cloud-client/client').Client} Client */
-/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
 
 export class AttributionControl {
   /** @type {AttributionConfig} */
-  config = undefined;
-  /** @type {Client} */
-  client = undefined;
-  /** @type {HTMLElement} */
+  config;
+  /** @type {HTMLElement | undefined} */
   container = undefined;
-  /** @type {StacCollection} */
-  stacCollection = undefined;
 
   /**
-   * @param {AttributionConfig} [config]
+   * @param {AttributionConfig} config
    */
-  constructor(config = {}) {
+  constructor(config) {
     this.config = config;
-    this.client = getClient();
   }
 
   /**
@@ -47,24 +39,29 @@ export class AttributionControl {
 
   /**
    * @param {AttributionConfig} config
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async update(config) {
+  update(config) {
     if (!this.container) {
       return;
     }
-    if (this.stacCollection && this.config.dataset === config.dataset) {
+
+    // validate config
+    if (!config.attribution) {
+      return;
+    }
+
+    // prevent update if no config changed
+    if (
+      this.container.children.length > 0 &&
+      this.config.attribution === config.attribution
+    ) {
       return;
     }
 
     this.config = config;
+    const attribution = this.config.attribution;
 
-    if (!this.config.dataset) {
-      this.container.innerHTML = this.config.attribution ? `<div>${this.config.attribution}</div>` : '';
-      return;
-    }
-
-    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
-    this.container.innerHTML = `<div>${await this.client.getStacCollectionAttribution(this.config.dataset)}</div>`;
+    this.container.innerHTML = `<div>${attribution}</div>`;
   }
 }

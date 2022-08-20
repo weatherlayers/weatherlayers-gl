@@ -1,9 +1,9 @@
 import {VERSION} from '../_utils/build';
 import {loadTextureData} from '../_utils/data';
+import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
 import {getRasterImage} from '../standalone/providers/raster-provider/raster-image';
 import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
 import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
-import {getGridPoints} from '../standalone/providers/grid-provider/grid-point';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../_utils/data').TextureData} TextureData */
@@ -16,10 +16,12 @@ import {getGridPoints} from '../standalone/providers/grid-provider/grid-point';
 /** @typedef {import('./stac').StacProvider} StacProvider */
 /** @typedef {import('./stac').StacAssetRole} StacAssetRole */
 /** @typedef {import('./stac').StacItem} StacItem */
-/** @typedef {{ url: string, accessToken?: string, format: string }} ClientConfig */
+/** @typedef {import('./stac').StacRasterUnit} StacRasterUnit */
+/** @typedef {import('./stac').StacCollectionImageType} StacCollectionImageType */
+/** @typedef {import('./client').ClientConfig} ClientConfig */
 
 /** @type {ClientConfig} */
-const DEFAULT_CLIENT_CONFIG = {
+const DEFAULT_CONFIG = {
   url: 'https://catalog.weatherlayers.com',
   // url: 'http://localhost:8080',
   format: 'byte.png',
@@ -100,9 +102,73 @@ function loadTextureDataCached(url, cache) {
   return dataPromise;
 }
 
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {string}
+ */
+function getStacCollectionTitle(stacCollection) {
+  return stacCollection.title;
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {StacRasterUnit}
+ */
+function getStacCollectionUnit(stacCollection) {
+  return stacCollection['weatherLayers:units'][0];
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @param {string} [linkClass]
+ * @returns {string}
+ */
+function getStacCollectionAttribution(stacCollection, linkClass = undefined) {
+  const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
+  const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
+  const attribution = [
+    ...(producer ? [`<a href="${producer.url}"${linkClass ? ` class="${linkClass}"`: ''}>${producer.name}</a>`] : []),
+    ...(processor ? [`<a href="${processor.url}"${linkClass ? ` class="${linkClass}"`: ''}>${processor.name}</a>`] : []),
+  ].join(' via ');
+  return attribution;
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {string[]}
+ */
+function getStacCollectionDatetimes(stacCollection) {
+  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
+  return datetimes;
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {StacCollectionImageType}
+ */
+function getStacCollectionImageType(stacCollection) {
+  return stacCollection['weatherLayers:imageType'];
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {[number, number]}
+ */
+function getStacCollectionImageUnscale(stacCollection) {
+  return stacCollection['weatherLayers:imageUnscale'];
+}
+
+/**
+ * @param {StacCollection} stacCollection
+ * @returns {[number, number, number, number]}
+ */
+function getStacCollectionBounds(stacCollection) {
+  return stacCollection.extent.spatial.bbox[0];
+}
+
 export class Client {
   /** @type {ClientConfig} */
-  config = undefined;
+  config;
   /** @type {Map<string, any>} */
   cache = new Map();
 
@@ -110,7 +176,7 @@ export class Client {
    * @param {Partial<ClientConfig>} config
    */
   constructor(config) {
-    this.config = { ...DEFAULT_CLIENT_CONFIG, ...config };
+    this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   /**
@@ -142,79 +208,32 @@ export class Client {
   }
 
   /**
-   * @param {string} stacCollectionId
+   * @param {string} dataset
    * @returns {Promise<StacCollection>}
    */
-  async loadStacCollection(stacCollectionId) {
+  async loadStacCollection(dataset) {
     const params = new URLSearchParams();
     if (this.config.accessToken) {
       params.set('access_token', this.config.accessToken);
     }
     params.set('version', VERSION);
     const query = params.toString();
-    const url = `${this.config.url}/catalog/${stacCollectionId}${query ? `?${query}` : ''}`;
+    const url = `${this.config.url}/catalog/${dataset}${query ? `?${query}` : ''}`;
     return loadJsonCached(url, this.cache);
   }
 
   /**
-   * @param {string} stacCollectionId
+   * @param {string} dataset
    * @returns {Promise<Palette>}
    */
-  async loadStacCollectionPalette(stacCollectionId) {
-    const stacCollection = await this.loadStacCollection(stacCollectionId);
+  async loadStacCollectionPalette(dataset) {
+    const stacCollection = await this.loadStacCollection(dataset);
     const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(/** @type {StacAssetRole} */('palette')) && x.type === 'text/plain');
     if (!asset) {
       throw new Error(`Palette asset not found`);
     }
     const url = asset.href;
     return loadTextCached(url, this.cache);
-  }
-
-  /**
-   * @param {string} dataset
-   * @param {string} [linkClass]
-   * @returns {Promise<string>}
-   */
-  async getStacCollectionAttribution(dataset, linkClass) {
-    const stacCollection = await client.loadStacCollection(dataset);
-    const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
-    const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
-    const attribution = [
-      ...(producer ? [`<a href="${producer.url}"${linkClass ? ` class="${linkClass}"`: ''}>${producer.name}</a>`] : []),
-      ...(processor ? [`<a href="${processor.url}"${linkClass ? ` class="${linkClass}"`: ''}>${processor.name}</a>`] : []),
-    ].join(' via ');
-    return attribution;
-  }
-
-  /**
-   * @param {StacCollection} stacCollection
-   * @returns {string[]}
-   */
-  getStacCollectionDatetimes(stacCollection) {
-    const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
-    return datetimes;
-  }
-
-  /**
-   * @param {StacCollection} stacCollection
-   * @param {string} datetime
-   * @returns {string | undefined}
-   */
-  getStacCollectionClosestStartDatetime(stacCollection, datetime) {
-    const datetimes = this.getStacCollectionDatetimes(stacCollection);
-    const closestDatetime = [...datetimes].reverse().find(x => x <= datetime);
-    return closestDatetime;
-  }
-  
-  /**
-   * @param {StacCollection} stacCollection
-   * @param {string} datetime
-   * @returns {string | undefined}
-   */
-  getStacCollectionClosestEndDatetime(stacCollection, datetime) {
-    const datetimes = this.getStacCollectionDatetimes(stacCollection);
-    const closestDatetime = datetimes.find(x => x >= datetime);
-    return closestDatetime;
   }
 
   /**
@@ -245,19 +264,62 @@ export class Client {
 
   /**
    * @param {string} dataset
+   * @param {string} [linkClass]
+   * @returns {Promise<{title: string, unit: StacRasterUnit, attribution: string, datetimes: string[], palette: Palette}>}
+   */
+  async loadStacCollectionProperties(dataset, linkClass = undefined) {
+    const stacCollection = await this.loadStacCollection(dataset);
+    const title = getStacCollectionTitle(stacCollection);
+    const unit = getStacCollectionUnit(stacCollection);
+    const attribution = getStacCollectionAttribution(stacCollection, linkClass);
+    const datetimes = getStacCollectionDatetimes(stacCollection);
+    const palette = await this.loadStacCollectionPalette(dataset);
+
+    return {title, unit, attribution, datetimes, palette};
+  }
+
+  /**
+   * @param {string} dataset
    * @param {string} datetime
+   * @param {boolean} datetimeInterpolate
    * @param {string} [format]
-   * @param {Palette} [palette]
+   * @returns {Promise<{image: TextureData, image2: TextureData | null, imageWeight: number, imageType: StacCollectionImageType, imageUnscale: [number, number] | null, bounds: [number, number, number, number]}>}
+   */
+  async loadStacCollectionDataProperties(dataset, datetime, datetimeInterpolate, format = this.config.format) {
+    const stacCollection = await this.loadStacCollection(dataset);
+    const datetimes = getStacCollectionDatetimes(stacCollection);
+    const startDatetime = getClosestStartDatetime(datetimes, datetime);
+    const endDatetime = getClosestEndDatetime(datetimes, datetime);
+
+    if (!startDatetime) {
+      throw new Error('No data found');
+    }
+
+    const [image, image2] = await Promise.all([
+      this.loadStacCollectionData(dataset, startDatetime, format),
+      endDatetime ? this.loadStacCollectionData(dataset, endDatetime, format) : null,
+    ]);
+
+    const imageWeight = datetimeInterpolate && startDatetime && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+    const imageType = getStacCollectionImageType(stacCollection);
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
+    const bounds = getStacCollectionBounds(stacCollection);
+    
+    return {image, image2, imageWeight, imageType, imageUnscale, bounds};
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {string} datetime
+   * @param {Palette} palette
+   * @param {string} [format]
    * @returns {Promise<HTMLCanvasElement>}
    */
-  async loadStacCollectionRasterImage(dataset, datetime, format, palette) {
-    const stacCollection = await client.loadStacCollection(dataset);
-    const stacCollectionPalette = await client.loadStacCollectionPalette(dataset)
-    palette = palette || stacCollectionPalette;
-
-    const image = await client.loadStacCollectionData(dataset, datetime, format);
-    const imageType = stacCollection['weatherLayers:imageType'];
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
+  async loadStacCollectionRasterImage(dataset, datetime, palette, format = undefined) {
+    const stacCollection = await this.loadStacCollection(dataset);
+    const image = await this.loadStacCollectionData(dataset, datetime, format);
+    const imageType = getStacCollectionImageType(stacCollection);
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
 
     const canvas = getRasterImage(image, imageType, imageUnscale, palette);
 
@@ -271,11 +333,11 @@ export class Client {
    * @returns {Promise<GeoJSON.FeatureCollection>}
    */
   async loadStacCollectionContourLines(dataset, datetime, interval) {
-    const stacCollection = await client.loadStacCollection(dataset);
-    const image = await client.loadStacCollectionData(dataset, datetime);
-    const imageType = stacCollection['weatherLayers:imageType'];
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
-    const bounds = stacCollection.extent.spatial.bbox[0];
+    const stacCollection = await this.loadStacCollection(dataset);
+    const image = await this.loadStacCollectionData(dataset, datetime);
+    const imageType = getStacCollectionImageType(stacCollection);
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
+    const bounds = getStacCollectionBounds(stacCollection);
 
     const contourLines = await getContourLines(image, imageType, imageUnscale, interval, bounds);
 
@@ -289,37 +351,14 @@ export class Client {
    * @returns {Promise<GeoJSON.FeatureCollection>}
    */
   async loadStacCollectionHighLowPoints(dataset, datetime, radius) {
-    const stacCollection = await client.loadStacCollection(dataset);
-    const image = await client.loadStacCollectionData(dataset, datetime);
-    const imageType = stacCollection['weatherLayers:imageType'];
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null;
-    const bounds = stacCollection.extent.spatial.bbox[0];
+    const stacCollection = await this.loadStacCollection(dataset);
+    const image = await this.loadStacCollectionData(dataset, datetime);
+    const imageType = getStacCollectionImageType(stacCollection);
+    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
+    const bounds = getStacCollectionBounds(stacCollection);
 
     const highLowPoints = await getHighLowPoints(image, imageType, imageUnscale, radius, bounds);
 
     return { type: 'FeatureCollection', features: highLowPoints };
   }
-}
-
-/** @type {Partial<ClientConfig>} */
-let clientConfig;
-
-/**
- * @param {Partial<ClientConfig>} config
- */
-export function setClientConfig(config) {
-  clientConfig = config;
-}
-
-/** @type {Client} */
-let client;
-
-/**
- * @returns {Client}
- */
-export function getClient() {
-  if (!client) {
-    client = new Client(clientConfig);
-  }
-  return client;
 }

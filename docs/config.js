@@ -26,10 +26,9 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
-export async function initConfig({ deckgl, webgl2, globe } = {}) {
+export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const client = WeatherLayers.getClient();
   const stacCatalog = await client.loadStacCatalog();
 
   const config = {
@@ -135,10 +134,10 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
   }
 
   const client = config.client;
-  const stacCollection = await client.loadStacCollection(config.dataset);
+  const {datetimes} = await client.loadStacCollectionProperties(config.dataset);
 
-  config.datetimes = client.getStacCollectionDatetimes(stacCollection);
-  config.datetime = client.getStacCollectionClosestStartDatetime(stacCollection, config.datetime) || config.datetimes[0];
+  config.datetimes = datetimes;
+  config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
@@ -291,6 +290,7 @@ export function colorToCss(color) {
   return `rgba(${color.r}, ${color.g}, ${color.b}, ${typeof color.a === 'number' ? color.a : 1 })`;
 }
 
-export function isIOS15() {
+export function isMetalWebGl2() {
+  // iOS 15+
   return navigator.maxTouchPoints && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome');
 }

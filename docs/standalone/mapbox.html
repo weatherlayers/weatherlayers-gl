@@ -9,7 +9,7 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud-client.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../info-control.css">
   <link rel="stylesheet" href="../fps-control.css">
@@ -25,18 +25,17 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToCss, isIOS15 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, colorToCss, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    WeatherLayers.setClientConfig({
+    const client = new WeatherLayers.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       // format: 'tif',
     });
-    const client = WeatherLayers.getClient();
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig();
+      const config = await initConfig({ client });
       let gui;
 
       // Mapbox
@@ -52,11 +51,11 @@
       let highLowLayer;
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({ width: 250, ticksCount: 6 });
+      const legendControl = new WeatherLayers.LegendControl({});
       document.getElementById('bottom-left').prepend(legendControl.onAdd());
 
       // attribution
-      const attributionControl = new WeatherLayers.AttributionControl();
+      const attributionControl = new WeatherLayers.AttributionControl({});
       document.getElementById('bottom-right').prepend(attributionControl.onAdd());
 
       // FPS meter
@@ -66,10 +65,13 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
+        
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
+        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, `mercator.${client.config.format}`) : undefined;
+          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette, `mercator.${client.config.format}`) : undefined;
           if (rasterLayer) {
             map.removeLayer('raster');
             map.removeSource('raster');
@@ -124,7 +126,7 @@
               type: 'symbol',
               layout: {
                 'symbol-placement': 'line',
-                'text-field': ['to-string', ['round', ['/', ['get', 'value'], 100]]],
+                'text-field': ['to-string', ['round', ['get', 'value']]],
               },
             });
           }
@@ -151,7 +153,7 @@
           if (highLowPoints) {
             map.addSource('highLow', {
               type: 'geojson',
-              data: highLowPoints
+              data: highLowPoints,
             });
             highLowLayer = map.addLayer({
               id: 'highLow',
@@ -161,9 +163,9 @@
                 'text-field': ['format',
                   ['get', 'type'], { 'font-scale': 1.2 },
                   '\n', {},
-                  ['to-string', ['round', ['/', ['get', 'value'], 100]]], {}
-                ]
-              }
+                  ['to-string', ['round', ['get', 'value']]], {},
+                ],
+              },
             });
             highLowLayer.dataset = dataset;
             highLowLayer.datetime = datetime;
@@ -178,8 +180,8 @@
           map.setPaintProperty('highLow', 'text-opacity', config.highLow.opacity);
         }
 
-        legendControl.update({ ...legendControl.config, dataset });
-        attributionControl.update({ dataset });
+        legendControl.update({ ...legendControl.config, title, unit, palette });
+        attributionControl.update({ attribution });
       }
       update();
       gui = initGui(config, update);

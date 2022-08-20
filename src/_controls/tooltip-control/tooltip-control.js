@@ -1,27 +1,19 @@
-import './tooltip-control.css';
-import {getClient} from '../../cloud-client/client';
 import {formatValueWithUnit, formatDirection} from '../../_utils/format';
+import './tooltip-control.css';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
-/** @typedef {import('../../cloud-client/client').Client} Client */
-/** @typedef {import('../../cloud-client/stac').StacCollection} StacCollection */
 
 export class TooltipControl {
   /** @type {TooltipConfig} */
-  config = undefined;
-  /** @type {Client} */
-  client = undefined;
-  /** @type {HTMLElement} */
+  config;
+  /** @type {HTMLElement | undefined} */
   container = undefined;
-  /** @type {StacCollection} */
-  stacCollection = undefined;
 
   /**
    * @param {TooltipConfig} config
    */
   constructor(config) {
     this.config = config;
-    this.client = getClient();
   }
 
   /**
@@ -30,6 +22,8 @@ export class TooltipControl {
   onAdd() {
     this.container = document.createElement('div');
     this.container.className = 'weatherlayers-tooltip-control';
+
+    this.update(this.config);
 
     this.config.deckgl.setProps({
       onHover: (/** @type {any} */ event) => this.onHover(event),
@@ -54,28 +48,30 @@ export class TooltipControl {
 
   /**
    * @param {TooltipConfig} config
-   * @returns {Promise<void>}
+   * @returns {void}
    */
-  async update(config) {
+  update(config) {
     if (!this.container) {
       return;
     }
-    if (this.stacCollection && this.config.dataset === config.dataset) {
+
+    // validate config
+    if (!config.unit) {
+      return;
+    }
+
+    // prevent update if no config changed
+    if (
+      this.container.children.length > 0 &&
+      this.config.deckgl === config.deckgl &&
+      this.config.unit === config.unit
+    ) {
       return;
     }
     
     this.config = config;
-    
-    if (!this.config.dataset) {
-      this.container.innerHTML = '';
-      return;
-    }
 
-    this.stacCollection = await this.client.loadStacCollection(this.config.dataset);
     this.container.innerHTML = '';
-
-    const div = document.createElement('div');
-    this.container.appendChild(div);
   }
 
   /**
@@ -83,17 +79,23 @@ export class TooltipControl {
    * @returns {void}
    */
   onHover(event) {
-    const div = this.container.querySelector('div');
-    div.innerHTML = '';
-    
-    if (typeof event.raster !== 'undefined') {
-      const unit = this.stacCollection['weatherLayers:units'][0];
-      const unitWithIncreasedPrecision = { ...unit, decimals: (unit.decimals ?? 0) + 1 };
-      div.innerHTML = formatValueWithUnit(event.raster.value, unitWithIncreasedPrecision);
-      
-      if (typeof event.raster.direction !== 'undefined') {
-        div.innerHTML += `, ${formatDirection(event.raster.direction)}`
-      }
+    if (!this.container) {
+      return;
     }
+
+    if (!event.raster) {
+      this.container.innerHTML = '';
+      return;
+    }
+    
+    const unit = this.config.unit;
+    const unitWithIncreasedPrecision = { ...unit, decimals: (unit.decimals ?? 0) + 1 };
+    let tooltip = formatValueWithUnit(event.raster.value, unitWithIncreasedPrecision);
+    
+    if (typeof event.raster.direction !== 'undefined') {
+      tooltip += `, ${formatDirection(event.raster.direction)}`
+    }
+
+    this.container.innerHTML = `<div>${tooltip}</div>`;
   }
 }

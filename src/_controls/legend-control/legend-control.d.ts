@@ -1,8 +1,10 @@
 import { Palette } from 'cpt2js';
+import { StacRasterUnit } from '../../cloud/stac';
 
 export interface LegendConfig {
   width: number;
   ticksCount: number;
-  palette?: Palette;
-  dataset: string;
+  title: string;
+  unit: StacRasterUnit;
+  palette: Palette;
 }
