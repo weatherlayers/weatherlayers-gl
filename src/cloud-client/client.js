@@ -191,7 +191,7 @@ export class Client {
    * @returns {string[]}
    */
   getStacCollectionDatetimes(stacCollection) {
-    const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x['forecast:datetime']).filter(x => !!x));
+    const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
     return datetimes;
   }
 
@@ -224,7 +224,7 @@ export class Client {
    */
   async loadStacItem(dataset, datetime) {
     const stacCollection = await this.loadStacCollection(dataset);
-    const link = stacCollection.links.find(x => x.rel === 'item' && x['forecast:datetime'] === datetime);
+    const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
     if (!link) {
       throw new Error(`Item ${datetime} not found`);
     }

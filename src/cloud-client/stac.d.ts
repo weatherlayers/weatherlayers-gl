@@ -25,7 +25,7 @@ export interface StacLink {
   rel: StacLinkRel;
   type: string;
   id?: string; // custom
-  'forecast:datetime'?: string; // custom
+  datetime?: string; // custom
 }
 
 export interface StacRasterUnit {
@@ -103,7 +103,7 @@ export interface StacItem {
   };
   bbox: [number, number, number, number];
   properties: {
-    'forecast:datetime': string; // custom
+    datetime: string;
   };
   links: StacLink[];
   assets: { [key: string]: StacAsset };
