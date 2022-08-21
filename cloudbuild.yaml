@@ -16,8 +16,8 @@ steps:
     args:
       - cp
       - '-r'
-      - dist/weatherlayers-cloud-deck.umd.min.js
-      - dist/weatherlayers-cloud-client.umd.min.js
+      - dist/weatherlayers-deck.umd.min.js
+      - dist/weatherlayers-cloud.umd.min.js
       - docs/dist
   - name: gcr.io/cloud-builders/gsutil
     args:
