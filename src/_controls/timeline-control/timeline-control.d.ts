@@ -3,11 +3,6 @@ export interface TimelineConfig {
   datetimes: string[];
   datetimeInterpolate: boolean;
   datetime: string;
-  onStart?: () => Promise<void>;
-  onStop?: () => void;
-  onUpdate?: (event: TimelineUpdateEvent) => void;
-}
-
-export interface TimelineUpdateEvent {
-  datetime: string;
+  onPreload?: (datetimes: string[]) => Promise<void>;
+  onUpdate?: (datetime: string) => void;
 }

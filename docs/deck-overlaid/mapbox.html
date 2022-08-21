@@ -68,11 +68,9 @@ const client = new WeatherLayers.Client({
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        onStart: async () => {
-          await Promise.all(config.datetimes.map(datetime => client.loadStacCollectionData(config.dataset, datetime)));
-        },
-        onUpdate: event => {
-          config.datetime = event.datetime || NO_DATA;
+        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadStacCollectionData(config.dataset, datetime))),
+        onUpdate: datetime => {
+          config.datetime = datetime || NO_DATA;
           update();
         },
       });

@@ -5,10 +5,10 @@ import './legend-control.css';
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('./legend-control').LegendConfig} LegendConfig */
 
-const DEFAULT_WIDTH = 250;
+const DEFAULT_WIDTH = 300;
 const DEFAULT_TICKS_COUNT = 6;
 
-const PADDING_Y = 15;
+const PADDING_Y = 10;
 
 export class LegendControl {
   /** @type {LegendConfig} */
@@ -92,18 +92,18 @@ export class LegendControl {
     const xmlns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(xmlns, 'svg');
     svg.setAttribute('width', `${width}px`);
-    svg.setAttribute('height', '50px');
-    svg.style.display = 'block';
+    svg.setAttribute('height', '56px');
+    svg.style.verticalAlign = 'middle';
     div.appendChild(svg);
 
     const text = document.createElementNS(xmlns, 'text');
     text.innerHTML = `${title} [${formatUnit(unit)}]`;
     text.style.fontWeight = 'bold';
-    text.style.transform = `translate(${PADDING_Y}px, 15px)`;
+    text.style.transform = `translate(${PADDING_Y}px, 17px)`;
     svg.appendChild(text);
 
     const g = document.createElementNS(xmlns, 'g');
-    g.style.transform = `translate(${PADDING_Y}px, 22px)`;
+    g.style.transform = `translate(${PADDING_Y}px, 28px)`;
     svg.appendChild(g);
 
     const image = document.createElementNS(xmlns, 'image');
@@ -135,6 +135,11 @@ export class LegendControl {
       const tickValue = document.createElementNS(xmlns, 'text');
       tickValue.innerHTML = formattedValue;
       tickValue.style.transform = 'translate(0, 22px)';
+      if (i === 0) {
+        tickValue.style.textAnchor = 'start';
+      } else if (i === ticksCount - 1) {
+        tickValue.style.textAnchor = 'end';
+      }
       tick.appendChild(tickValue);
     }
   }

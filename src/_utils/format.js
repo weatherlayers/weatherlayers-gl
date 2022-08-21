@@ -19,7 +19,7 @@ export function formatDatetime(value) {
   const day = `${date.getUTCDate()}`.padStart(2, '0');
   const hour = `${date.getUTCHours()}`.padStart(2, '0');
   const minute = `${date.getUTCMinutes()}`.padStart(2, '0');
-  const formattedValue = `${year}/${month}/${day} ${hour}:${minute} UTC`;
+  const formattedValue = `${year}/${month}/${day} ${hour}:${minute}\xa0UTC`;
   return formattedValue;
 }
 
@@ -50,7 +50,7 @@ export function formatUnit(unit) {
  * @returns {string}
  */
 export function formatValueWithUnit(value, unit) {
-  const formattedValueWithUnit = `${formatValue(value, unit)} ${formatUnit(unit)}`;
+  const formattedValueWithUnit = `${formatValue(value, unit)}\xa0${formatUnit(unit)}`;
   return formattedValueWithUnit;
 }
   

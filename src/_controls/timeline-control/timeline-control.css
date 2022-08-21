@@ -4,43 +4,72 @@
 .weatherlayers-timeline-control > div {
   display: inline-block;
   background: rgba(255, 255, 255, 0.5);
-  padding: 5px 10px;
-  width: calc(100% - 2 * 10px);
+  width: 100%;
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 12px;
-  line-height: 20px;
+  line-height: 14px;
   color: rgba(0, 0, 0, 0.75);
 }
-.weatherlayers-timeline-control a {
+.weatherlayers-timeline-control header, .weatherlayers-timeline-control main, .weatherlayers-timeline-control footer {
+  margin: 5px 10px;
+  text-align: center;
+}
+.weatherlayers-timeline-control footer {
+  display: flex;
+  gap: 10px;
+}
+.weatherlayers-timeline-control .progress-input {
+  width: 100%;
+  margin: 0;
+  vertical-align: middle;
+}
+.weatherlayers-timeline-control .current-datetime {
+  font-weight: bold;
+}
+.weatherlayers-timeline-control .start-datetime, .weatherlayers-timeline-control .end-datetime {
+  flex: 0 0;
+}
+.weatherlayers-timeline-control .buttons {
+  flex: 1 0;
+}
+.weatherlayers-timeline-control .start-datetime {
+  text-align: left;
+}
+.weatherlayers-timeline-control .end-datetime {
+  text-align: right;
+}
+.weatherlayers-timeline-control .button {
   display: inline-block;
   width: 16px;
   height: 16px;
   vertical-align: middle;
   background: no-repeat center / contain;
 }
-.weatherlayers-timeline-control a.play {
+.weatherlayers-timeline-control .button + .button {
+  margin-left: 5px;
+}
+.weatherlayers-timeline-control .play-button {
   background-image: inline('./play.svg');
 }
-.weatherlayers-timeline-control a.pause {
+.weatherlayers-timeline-control .pause-button {
   background-image: inline('./pause.svg');
 }
-.weatherlayers-timeline-control input {
-  vertical-align: middle;
-  margin-left: 10px;
-  margin-right: 0;
+.weatherlayers-timeline-control .step-backward-button {
+  background-image: inline('./step-backward.svg');
 }
-.weatherlayers-timeline-control span {
-  display: block;
-  margin-left: 26px;
-  text-align: center;
+.weatherlayers-timeline-control .step-forward-button {
+  background-image: inline('./step-forward.svg');
 }
 
-.weatherlayers-timeline-control.loading * {
+.weatherlayers-timeline-control.loading {
   cursor: wait;
 }
-.weatherlayers-timeline-control.loading a {
-  opacity: 0.2;
+.weatherlayers-timeline-control.loading * {
+  pointer-events: none;
 }
-.weatherlayers-timeline-control.loading span {
-  opacity: 0.5;
+.weatherlayers-timeline-control.running .play-button {
+  display: none;
+}
+.weatherlayers-timeline-control:not(.running) .pause-button {
+  display: none;
 }

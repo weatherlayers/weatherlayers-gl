@@ -1,19 +1,19 @@
 import {Animation} from '../../_utils/animation';
 import {interpolateDatetime} from '../../_utils/datetime';
 import {formatDatetime} from '../../_utils/format';
+import {randomString} from '../../_utils/random-string';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
 
-const DEFAULT_WIDTH = 250;
+const DEFAULT_WIDTH = 300;
 
 const FPS = 15;
 const STEP = 1;
 const STEP_INTERPOLATE = 0.25;
 
-const PADDING_Y = 10;
-const PLAY_PAUSE_BUTTON_WIDTH = 16;
-const PROGRESS_INPUT_MARGIN_LEFT = 10;
+const LOADING_CLASS = 'loading';
+const RUNNING_CLASS = 'running';
 
 export class TimelineControl {
   /** @type {TimelineConfig} */
@@ -22,95 +22,13 @@ export class TimelineControl {
   container = undefined;
   /** @type {Animation} */
   animation;
-  /** @type {boolean} */
-  loading = false;
 
   /**
    * @param {TimelineConfig} config
    */
   constructor(config) {
     this.config = config;
-
-    this.animation = new Animation(() => {
-      if (this.progress < this.config.datetimes.length - 1) {
-        this.progress += this.step;
-
-        if (Math.ceil(this.progress / this.step) !== this.progress / this.step) {
-          this.progress = Math.ceil(this.progress / this.step) * this.step;
-        }
-      } else {
-        this.progress = 0;
-      }
-
-      this.updateProgress();
-    }, FPS);
-  }
-
-  /**
-   * @returns {number}
-   */
-  get step() {
-    return this.config.datetimeInterpolate ? STEP_INTERPOLATE : STEP;
-  }
-
-  /**
-   * @returns {number}
-   */
-  get progress() {
-    if (!this.container) {
-      return 0;
-    }
-
-    const progressInput = this.container.querySelector('input');
-    if (!progressInput) {
-      return 0;
-    }
-
-    return progressInput.valueAsNumber;
-  }
-
-  /**
-   * @param {number} value
-   * @returns {void}
-   */
-  set progress(value) {
-    if (!this.container) {
-      return;
-    }
-
-    const progressInput = this.container.querySelector('input');
-    if (!progressInput) {
-      return;
-    }
-
-    progressInput.valueAsNumber = value;
-  }
-
-  /**
-   * @returns {void}
-   */
-  updateProgress() {
-    if (!this.container) {
-      return;
-    }
-
-    const info = this.container.querySelector('span');
-    if (!info) {
-      return;
-    }
-    
-    const index = Math.floor(this.progress);
-    const startDatetime = this.config.datetimes[index];
-    const endDatetime = this.config.datetimes[index + 1];
-    const ratio = endDatetime ? Math.round((this.progress - index) * 100) / 100 : 0;
-    const datetime = endDatetime ? interpolateDatetime(startDatetime, endDatetime, ratio) : startDatetime;
-    
-    this.config.datetime = datetime;
-    info.innerHTML = formatDatetime(datetime);
-
-    if (this.config.onUpdate) {
-      this.config.onUpdate({ datetime });
-    }
+    this.animation = new Animation(() => this.animationUpdated(), FPS);
   }
 
   /**
@@ -136,10 +54,146 @@ export class TimelineControl {
   }
 
   /**
+   * @returns {boolean}
+   */
+  get loading() {
+    if (!this.container) {
+      return false;
+    }
+
+    return this.container.classList.contains(LOADING_CLASS);
+  }
+
+  /**
+   * @param {boolean} value
+   */
+  set loading(value) {
+    if (!this.container) {
+      return;
+    }
+
+    this.container.classList.toggle(LOADING_CLASS, value);
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get running() {
+    if (!this.container) {
+      return false;
+    }
+
+    return this.container.classList.contains(RUNNING_CLASS);
+  }
+
+  /**
+   * @param {boolean} value
+   */
+  set running(value) {
+    if (!this.container) {
+      return;
+    }
+
+    this.container.classList.toggle(RUNNING_CLASS, value);
+  }
+
+  /**
+   * @returns {string[]}
+   */
+  get startEndDatetimes() {
+    if (!this.container) {
+      return [];
+    }
+
+    const progressInput = this.container.querySelector('input');
+    if (!progressInput) {
+      return [];
+    }
+
+    const startDatetime = this.config.datetimes[Math.floor(progressInput.valueAsNumber)];
+    const endDatetime = this.config.datetimes[Math.ceil(progressInput.valueAsNumber)];
+    if (startDatetime === endDatetime) {
+      return [startDatetime];
+    } else {
+      return [startDatetime, endDatetime];
+    }
+  }
+
+  /**
+   * @returns {void}
+   */
+  updateProgress() {
+    if (!this.container) {
+      return;
+    }
+
+    const currentDatetime = this.container.querySelector('.current-datetime');
+    const progressInput = this.container.querySelector('input');
+    if (!currentDatetime || !progressInput) {
+      return;
+    }
+    
+    const startDatetime = this.config.datetimes[Math.floor(progressInput.valueAsNumber)];
+    const endDatetime = this.config.datetimes[Math.ceil(progressInput.valueAsNumber)];
+    const ratio = progressInput.valueAsNumber % 1;
+    const datetime = interpolateDatetime(startDatetime, endDatetime, ratio);
+    
+    this.config.datetime = datetime;
+    currentDatetime.innerHTML = formatDatetime(datetime);
+
+    if (this.config.onUpdate) {
+      this.config.onUpdate(datetime);
+    }
+  }
+
+  /**
    * @returns {Promise<void>}
    */
-  async toggleAnimation() {
-    if (this.loading) {
+  async playButtonClicked() {
+    if (this.loading || this.running) {
+      return;
+    }
+
+    await this.preload(this.config.datetimes);
+
+    this.animation.start();
+    this.running = true;
+
+    this.updateProgress();
+  }
+
+  /**
+   * @returns {void}
+   */
+  pauseButtonClicked() {
+    if (this.loading || !this.running) {
+      return;
+    }
+
+    this.animation.stop();
+    this.running = false;
+
+    this.updateProgress();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async progressInputClicked() {
+    if (this.loading || this.running) {
+      return;
+    }
+
+    await this.preload(this.startEndDatetimes);
+
+    this.updateProgress();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async stepBackwardButtonClicked() {
+    if (this.loading || this.running) {
       return;
     }
 
@@ -147,42 +201,91 @@ export class TimelineControl {
       return;
     }
 
-    const playPauseButton = this.container.querySelector('a');
     const progressInput = this.container.querySelector('input');
-    const info = this.container.querySelector('span');
-    if (!playPauseButton || !progressInput || !info) {
+    if (!progressInput) {
       return;
     }
 
-    if (this.animation.running) {
-      playPauseButton.classList.remove('pause');
-      playPauseButton.classList.add('play');
-
-      if (this.config.onStop) {
-        this.config.onStop();
-      }
-
-      this.animation.stop();
+    if (progressInput.value !== progressInput.min) {
+      progressInput.stepDown();
     } else {
-      playPauseButton.classList.remove('play');
-      playPauseButton.classList.add('pause');
+      progressInput.value = progressInput.max;
+    }
 
-      if (this.config.onStart) {
-        this.loading = true;
-        this.container.classList.add('loading');
-        progressInput.disabled = true;
-        info.innerHTML = 'Loading...';
-        await this.config.onStart();
-        info.innerHTML = formatDatetime(this.config.datetime);
-        progressInput.disabled = false;
-        this.container.classList.remove('loading');
-        this.loading = false;
-      }
+    await this.preload(this.startEndDatetimes);
 
-      this.animation.start();
+    this.updateProgress();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async stepForwardButtonClicked() {
+    if (this.loading || this.running) {
+      return;
+    }
+
+    if (!this.container) {
+      return;
+    }
+
+    const progressInput = this.container.querySelector('input');
+    if (!progressInput) {
+      return;
+    }
+
+    if (progressInput.value !== progressInput.max) {
+      progressInput.stepUp();
+    } else {
+      progressInput.value = progressInput.min;
+    }
+
+    await this.preload(this.startEndDatetimes);
+
+    this.updateProgress();
+  }
+
+  /**
+   * @returns {void}
+   */
+  animationUpdated() {
+    if (this.loading || !this.running) {
+      return;
+    }
+
+    if (!this.container) {
+      return;
+    }
+
+    const progressInput = this.container.querySelector('input');
+    if (!progressInput) {
+      return;
+    }
+
+    if (progressInput.value !== progressInput.max) {
+      progressInput.stepUp();
+    } else {
+      progressInput.value = progressInput.min;
     }
 
     this.updateProgress();
+  }
+
+  /**
+   * @param {string[]} datetimes
+   * @returns {Promise<void>}
+   */
+  async preload(datetimes) {
+    if (!this.container) {
+      return;
+    }
+    if (!this.config.onPreload) {
+      return;
+    }
+
+    this.loading = true;
+    await this.config.onPreload(datetimes);
+    this.loading = false;
   }
 
   /**
@@ -207,9 +310,8 @@ export class TimelineControl {
       this.config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
       this.config.datetimeInterpolate === config.datetimeInterpolate &&
       this.config.datetime === config.datetime &&
-      this.config.onStart === config.onStart &&
-      this.config.onUpdate === config.onUpdate &&
-      this.config.onStop === config.onStop
+      this.config.onPreload === config.onPreload &&
+      this.config.onUpdate === config.onUpdate
     ) {
       return;
     }
@@ -217,6 +319,7 @@ export class TimelineControl {
     this.config = config;
     const width = this.config.width || DEFAULT_WIDTH;
     const datetimes = this.config.datetimes;
+    const datetimeInterpolate = this.config.datetimeInterpolate;
     const datetime = this.config.datetime;
 
     this.container.innerHTML = '';
@@ -225,24 +328,80 @@ export class TimelineControl {
     const div = document.createElement('div');
     this.container.appendChild(div);
 
-    const playPauseButton = document.createElement('a');
-    playPauseButton.href = 'javascript:void(0)';
-    playPauseButton.className = this.animation.running ? 'pause' : 'play';
-    playPauseButton.addEventListener('click', () => this.toggleAnimation());
-    div.appendChild(playPauseButton);
+    const header = document.createElement('header');
+    div.appendChild(header);
 
+    const currentDatetime = document.createElement('div');
+    currentDatetime.className = 'current-datetime';
+    currentDatetime.innerHTML = formatDatetime(datetime);
+    header.appendChild(currentDatetime);
+
+    const main = document.createElement('main');
+    div.appendChild(main);
+    
+    const progressInputTicksId = `progress-ticks-${randomString()}`;
     const progressInput = document.createElement('input');
+    progressInput.className = 'progress-input';
     progressInput.type = 'range';
-    progressInput.min = 0;
-    progressInput.max = datetimes.length - 1;
-    progressInput.step = this.step;
+    progressInput.min = '0';
+    progressInput.max = `${datetimes.length - 1}`;
+    progressInput.step = `${datetimeInterpolate ? STEP_INTERPOLATE : STEP}`;
     progressInput.valueAsNumber = datetimes.findIndex(x => x >= datetime);
-    progressInput.style.width = `${width - 2 * PADDING_Y - PLAY_PAUSE_BUTTON_WIDTH - PROGRESS_INPUT_MARGIN_LEFT}px`;
-    progressInput.addEventListener('input', () => this.updateProgress());
-    div.appendChild(progressInput);
+    progressInput.setAttribute('list', progressInputTicksId);
+    progressInput.addEventListener('input', () => this.progressInputClicked());
+    main.appendChild(progressInput);
 
-    const info = document.createElement('span');
-    info.innerHTML = formatDatetime(datetime);
-    div.appendChild(info);
+    const progressInputTicks = document.createElement('datalist');
+    progressInputTicks.id = progressInputTicksId;
+    main.appendChild(progressInputTicks);
+
+    const progressInputStartTick = document.createElement('option');
+    progressInputStartTick.innerHTML = progressInput.min;
+    progressInputTicks.appendChild(progressInputStartTick);
+
+    const progressInputEndTick = document.createElement('option');
+    progressInputEndTick.innerHTML = progressInput.max;
+    progressInputTicks.appendChild(progressInputEndTick);
+
+    const footer = document.createElement('footer');
+    div.appendChild(footer);
+
+    const startDatetime = document.createElement('div');
+    startDatetime.className = 'start-datetime';
+    startDatetime.innerHTML = formatDatetime(datetimes[0]);
+    footer.appendChild(startDatetime);
+
+    const buttons = document.createElement('div');
+    buttons.className = 'buttons';
+    footer.appendChild(buttons);
+
+    const endDatetime = document.createElement('div');
+    endDatetime.className = 'end-datetime';
+    endDatetime.innerHTML = formatDatetime(datetimes[datetimes.length - 1]);
+    footer.appendChild(endDatetime);
+
+    const stepBackwardButton = document.createElement('a');
+    stepBackwardButton.href = 'javascript:void(0)';
+    stepBackwardButton.className = 'button step-backward-button';
+    stepBackwardButton.addEventListener('click', () => this.stepBackwardButtonClicked());
+    buttons.appendChild(stepBackwardButton);
+
+    const playButton = document.createElement('a');
+    playButton.href = 'javascript:void(0)';
+    playButton.className = 'button play-button';
+    playButton.addEventListener('click', () => this.playButtonClicked());
+    buttons.appendChild(playButton);
+
+    const pauseButton = document.createElement('a');
+    pauseButton.href = 'javascript:void(0)';
+    pauseButton.className = 'button pause-button';
+    pauseButton.addEventListener('click', () => this.pauseButtonClicked());
+    buttons.appendChild(pauseButton);
+
+    const stepForwardButton = document.createElement('a');
+    stepForwardButton.href = 'javascript:void(0)';
+    stepForwardButton.className = 'button step-forward-button';
+    stepForwardButton.addEventListener('click', () => this.stepForwardButtonClicked());
+    buttons.appendChild(stepForwardButton);
   }
 }
