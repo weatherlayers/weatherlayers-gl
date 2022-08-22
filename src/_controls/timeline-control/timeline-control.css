@@ -16,6 +16,7 @@
 }
 .weatherlayers-timeline-control footer {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 .weatherlayers-timeline-control .progress-input {

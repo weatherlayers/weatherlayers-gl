@@ -331,7 +331,7 @@ export class TimelineControl {
     const header = document.createElement('header');
     div.appendChild(header);
 
-    const currentDatetime = document.createElement('div');
+    const currentDatetime = document.createElement('span');
     currentDatetime.className = 'current-datetime';
     currentDatetime.innerHTML = formatDatetime(datetime);
     header.appendChild(currentDatetime);
@@ -339,7 +339,7 @@ export class TimelineControl {
     const main = document.createElement('main');
     div.appendChild(main);
     
-    const progressInputTicksId = `progress-ticks-${randomString()}`;
+    const progressInputTicksId = `progress-input-ticks-${randomString()}`;
     const progressInput = document.createElement('input');
     progressInput.className = 'progress-input';
     progressInput.type = 'range';
@@ -355,27 +355,25 @@ export class TimelineControl {
     progressInputTicks.id = progressInputTicksId;
     main.appendChild(progressInputTicks);
 
-    const progressInputStartTick = document.createElement('option');
-    progressInputStartTick.innerHTML = progressInput.min;
-    progressInputTicks.appendChild(progressInputStartTick);
-
-    const progressInputEndTick = document.createElement('option');
-    progressInputEndTick.innerHTML = progressInput.max;
-    progressInputTicks.appendChild(progressInputEndTick);
+    for (let i = 0; i < datetimes.length; i++) {
+      const progressInputTick = document.createElement('option');
+      progressInputTick.innerHTML = `${i}`;
+      progressInputTicks.appendChild(progressInputTick);
+    }
 
     const footer = document.createElement('footer');
     div.appendChild(footer);
 
-    const startDatetime = document.createElement('div');
+    const startDatetime = document.createElement('span');
     startDatetime.className = 'start-datetime';
     startDatetime.innerHTML = formatDatetime(datetimes[0]);
     footer.appendChild(startDatetime);
 
-    const buttons = document.createElement('div');
+    const buttons = document.createElement('span');
     buttons.className = 'buttons';
     footer.appendChild(buttons);
 
-    const endDatetime = document.createElement('div');
+    const endDatetime = document.createElement('span');
     endDatetime.className = 'end-datetime';
     endDatetime.innerHTML = formatDatetime(datetimes[datetimes.length - 1]);
     footer.appendChild(endDatetime);
