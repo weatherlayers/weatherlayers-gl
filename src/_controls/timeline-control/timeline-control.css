@@ -14,6 +14,9 @@
   margin: 5px 10px;
   text-align: center;
 }
+.weatherlayers-timeline-control header {
+  font-weight: bold;
+}
 .weatherlayers-timeline-control footer {
   display: flex;
   align-items: center;
@@ -23,9 +26,6 @@
   width: 100%;
   margin: 0;
   vertical-align: middle;
-}
-.weatherlayers-timeline-control .current-datetime {
-  font-weight: bold;
 }
 .weatherlayers-timeline-control .start-datetime, .weatherlayers-timeline-control .end-datetime {
   flex: 0 0;
