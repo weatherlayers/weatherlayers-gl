@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
@@ -15,7 +15,7 @@ const defaultProps = {
   interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
-  textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
+  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
   textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
@@ -32,7 +32,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {color, width, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
+    const {color, width, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new PathLayer(this.getSubLayerProps({
@@ -47,7 +47,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
         id: 'value',
         data: visibleContourLabels,
         getPosition: d => d.geometry.coordinates,
-        getText: d => textFunction(d.properties.value),
+        getText: d => textFormatFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
         getAngle: d => getViewportAngle(viewport, d.properties.angle),

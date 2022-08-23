@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer, IconLayer} from '@deck.gl/layers';
-import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportAngle} from '../../../_utils/viewport';
 import {getViewportGridPositions} from '../../../_utils/viewport-grid';
@@ -17,7 +17,7 @@ const defaultProps = {
   imageUnscale: {type: 'array', value: null},
 
   style: {type: 'object', value: GridStyle.VALUE},
-  textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
+  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
   textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
@@ -38,7 +38,7 @@ class GridCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {style, textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
+    const {style, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
@@ -65,7 +65,7 @@ class GridCompositeLayer extends CompositeLayer {
           id: 'text',
           data: gridPoints,
           getPosition: d => d.geometry.coordinates,
-          getText: d => textFunction(d.properties.value),
+          getText: d => textFormatFunction(d.properties.value),
           getSize: textSize,
           getColor: textColor,
           getAngle: getViewportAngle(viewport, 0),

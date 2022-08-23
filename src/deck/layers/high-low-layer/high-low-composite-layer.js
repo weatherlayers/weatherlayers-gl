@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import {DEFAULT_TEXT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
 import {ImageType} from '../../../_utils/image-type';
 import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport';
 import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
@@ -13,7 +13,7 @@ const defaultProps = {
 
   radius: {type: 'number', value: null, required: true},
 
-  textFunction: {type: 'function', value: DEFAULT_TEXT_FUNCTION},
+  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
   textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
@@ -30,7 +30,7 @@ class HighLowCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {textFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
+    const {textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -53,7 +53,7 @@ class HighLowCompositeLayer extends CompositeLayer {
         data: visibleHighLowPoints,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
-        getText: d => textFunction(d.properties.value),
+        getText: d => textFormatFunction(d.properties.value),
         getSize: textSize,
         getColor: textColor,
         getAngle: getViewportAngle(viewport, 0),
