@@ -2,7 +2,7 @@ const DEFAULT_FPS = 30;
 
 export class Animation {
   /** @type {() => void} */
-  update;
+  updateFunction;
   /** @type {number} */
   fps;
   /** @type {boolean} */
@@ -13,11 +13,11 @@ export class Animation {
   lastFrameTime = 0;
 
   /**
-   * @param {() => void} update
+   * @param {() => void} updateFunction
    * @param {number} [fps]
    */
-  constructor(update, fps = DEFAULT_FPS) {
-    this.update = update;
+  constructor(updateFunction, fps = DEFAULT_FPS) {
+    this.updateFunction = updateFunction;
     this.fps = fps;
   }
 
@@ -30,7 +30,7 @@ export class Animation {
     const fpsInterval = 1000 / this.fps;
     if (elapsed > fpsInterval) {
       this.lastFrameTime = now - (elapsed % fpsInterval);
-      this.update();
+      this.updateFunction();
     }
 
     if (this.running) {
