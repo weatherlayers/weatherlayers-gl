@@ -40,7 +40,7 @@ export class TimelineControl extends Control {
     this.container = document.createElement('div');
     this.container.className = 'weatherlayers-timeline-control';
 
-    this.update(this.config);
+    this.setConfig(this.config);
 
     return this.container;
   }
@@ -294,7 +294,7 @@ export class TimelineControl extends Control {
    * @param {TimelineConfig} config
    * @returns {void}
    */
-  update(config) {
+  setConfig(config) {
     if (!this.container) {
       return;
     }

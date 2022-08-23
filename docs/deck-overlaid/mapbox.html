@@ -59,8 +59,9 @@
       const deckgl = window.deckgl = deckLayer._deck;
 
       // info panels
-      const infoControl = new InfoControl({ deckgl });
+      const infoControl = new InfoControl();
       infoControl.prependTo(document.getElementById('top-left'));
+      deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
 
       // legend
       const legendControl = new WeatherLayers.LegendControl();
@@ -77,8 +78,9 @@
       timelineControl.prependTo(document.getElementById('bottom-left'));
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
+      const tooltipControl = new WeatherLayers.TooltipControl();
       tooltipControl.prependTo(document.getElementById('bottom-left'));
+      deckgl.setProps({ onHover: event => tooltipControl.update(event.raster) });
 
       // attribution
       const attributionControl = new WeatherLayers.AttributionControl();
@@ -200,10 +202,10 @@
           ],
         });
 
-        legendControl.update({ ...legendControl.config, title, unit, palette });
-        timelineControl.update({ ...timelineControl.config, datetimes, datetimeInterpolate: config.datetimeInterpolate, datetime });
-        tooltipControl.update({ ...tooltipControl.config, unit });
-        attributionControl.update({ attribution });
+        legendControl.setConfig({ ...legendControl.config, title, unit, palette });
+        timelineControl.setConfig({ ...timelineControl.config, datetimes, datetimeInterpolate: config.datetimeInterpolate, datetime });
+        tooltipControl.setConfig({ ...tooltipControl.config, unit });
+        attributionControl.setConfig({ attribution });
       }
       update();
       gui = initGui(config, update, { deckgl, webgl2: true });

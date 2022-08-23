@@ -30,7 +30,7 @@ export class LegendControl extends Control {
     this.container = document.createElement('div');
     this.container.className = 'weatherlayers-legend-control';
 
-    this.update(this.config);
+    this.setConfig(this.config);
 
     return this.container;
   }
@@ -49,7 +49,7 @@ export class LegendControl extends Control {
    * @param {LegendConfig} config
    * @returns {void}
    */
-  update(config) {
+  setConfig(config) {
     if (!this.container) {
       return;
     }

@@ -3,6 +3,7 @@ import {Control} from '../control';
 import './tooltip-control.css';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
+/** @typedef {import('./tooltip-control').TooltipHoverEvent} TooltipHoverEvent */
 
 export class TooltipControl extends Control {
   /** @type {TooltipConfig} */
@@ -25,11 +26,7 @@ export class TooltipControl extends Control {
     this.container = document.createElement('div');
     this.container.className = 'weatherlayers-tooltip-control';
 
-    this.update(this.config);
-
-    this.config.deckgl.setProps({
-      onHover: (/** @type {any} */ event) => this.onHover(event),
-    });
+    this.setConfig(this.config);
 
     return this.container;
   }
@@ -41,10 +38,6 @@ export class TooltipControl extends Control {
     if (this.container && this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
       this.container = undefined;
-
-      this.config.deckgl.setProps({
-        onHover: undefined,
-      });
     }
   }
 
@@ -52,7 +45,7 @@ export class TooltipControl extends Control {
    * @param {TooltipConfig} config
    * @returns {void}
    */
-  update(config) {
+  setConfig(config) {
     if (!this.container) {
       return;
     }
@@ -65,7 +58,6 @@ export class TooltipControl extends Control {
     // prevent update if no config changed
     if (
       this.container.children.length > 0 &&
-      this.config.deckgl === config.deckgl &&
       this.config.unit === config.unit
     ) {
       return;
@@ -77,25 +69,26 @@ export class TooltipControl extends Control {
   }
 
   /**
-   * @param {any} event
+   * @param {TooltipHoverEvent | undefined} event
    * @returns {void}
    */
-  onHover(event) {
+  update(event) {
     if (!this.container) {
       return;
     }
 
-    if (!event.raster) {
+    if (!event) {
       this.container.innerHTML = '';
       return;
     }
     
     const unit = this.config.unit;
     const unitWithIncreasedPrecision = { ...unit, decimals: (unit.decimals ?? 0) + 1 };
-    let tooltip = formatValueWithUnit(event.raster.value, unitWithIncreasedPrecision);
-    
-    if (typeof event.raster.direction !== 'undefined') {
-      tooltip += `, ${formatDirection(event.raster.direction)}`
+
+    const {value, direction} = event;
+    let tooltip = formatValueWithUnit(value, unitWithIncreasedPrecision);
+    if (typeof direction !== 'undefined') {
+      tooltip += `, ${formatDirection(direction)}`
     }
 
     this.container.innerHTML = `<div>${tooltip}</div>`;

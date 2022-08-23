@@ -24,7 +24,7 @@ export class AttributionControl extends Control {
     this.container = document.createElement('div');
     this.container.className = 'weatherlayers-attribution-control';
 
-    this.update(this.config);
+    this.setConfig(this.config);
 
     return this.container;
   }
@@ -43,7 +43,7 @@ export class AttributionControl extends Control {
    * @param {AttributionConfig} config
    * @returns {void}
    */
-  update(config) {
+  setConfig(config) {
     if (!this.container) {
       return;
     }

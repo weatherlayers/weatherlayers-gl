@@ -1,6 +1,10 @@
 import { StacRasterUnit } from '../../cloud/stac';
 
 export interface TooltipConfig {
-  deckgl: any;
   unit: StacRasterUnit;
+}
+
+export interface TooltipHoverEvent {
+  value: number;
+  direction?: number;
 }
