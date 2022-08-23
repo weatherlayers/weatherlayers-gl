@@ -5,6 +5,8 @@ import {parsePalette, colorRampCanvas} from 'cpt2js';
 import {ImageType} from '../../../_utils/image-type';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
+/** @typedef {import('../../../_utils/raster-picking-info').RasterPickingInfo} RasterPickingInfo */
+
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
@@ -106,13 +108,17 @@ export class RasterBitmapLayer extends BitmapLayer {
       return info;
     }
 
+
+    /** @type {RasterPickingInfo} */
+    let rasterPickingInfo;
     const value = this.getRasterValue(info.color);
     if (imageType === ImageType.VECTOR) {
       const direction = this.getRasterDirection(info.color);
-      info.raster = { value, direction };
+      rasterPickingInfo = { value, direction };
     } else {
-      info.raster = { value };
+      rasterPickingInfo = { value };
     }
+    info.raster = rasterPickingInfo;
 
     return info;
   }

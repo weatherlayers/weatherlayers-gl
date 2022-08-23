@@ -2,8 +2,8 @@ import {formatValueWithUnit, formatDirection} from '../../_utils/format';
 import {Control} from '../control';
 import './tooltip-control.css';
 
+/** @typedef {import('../../_utils/raster-picking-info').RasterPickingInfo} RasterPickingInfo */
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
-/** @typedef {import('./tooltip-control').TooltipHoverEvent} TooltipHoverEvent */
 
 export class TooltipControl extends Control {
   /** @type {TooltipConfig} */
@@ -69,15 +69,15 @@ export class TooltipControl extends Control {
   }
 
   /**
-   * @param {TooltipHoverEvent | undefined} event
+   * @param {RasterPickingInfo | undefined} rasterPickingInfo
    * @returns {void}
    */
-  update(event) {
+  update(rasterPickingInfo) {
     if (!this.container) {
       return;
     }
 
-    if (!event) {
+    if (!rasterPickingInfo) {
       this.container.innerHTML = '';
       return;
     }
@@ -85,7 +85,7 @@ export class TooltipControl extends Control {
     const unit = this.config.unit;
     const unitWithIncreasedPrecision = { ...unit, decimals: (unit.decimals ?? 0) + 1 };
 
-    const {value, direction} = event;
+    const {value, direction} = rasterPickingInfo;
     let tooltip = formatValueWithUnit(value, unitWithIncreasedPrecision);
     if (typeof direction !== 'undefined') {
       tooltip += `, ${formatDirection(direction)}`
