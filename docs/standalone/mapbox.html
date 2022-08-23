@@ -51,16 +51,16 @@
       let highLowLayer;
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({});
-      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+      const legendControl = new WeatherLayers.LegendControl();
+      legendControl.prependTo(document.getElementById('bottom-left'));
 
       // attribution
-      const attributionControl = new WeatherLayers.AttributionControl({});
-      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+      const attributionControl = new WeatherLayers.AttributionControl();
+      attributionControl.prependTo(document.getElementById('bottom-right'));
 
       // FPS meter
       const fpsControl = new FpsControl();
-      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+      fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
       async function update() {

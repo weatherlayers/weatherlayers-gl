@@ -103,11 +103,11 @@
 
       // info panels
       const infoControl = new InfoControl({ deckgl });
-      document.getElementById('top-left').prepend(infoControl.onAdd());
+      infoControl.prependTo(document.getElementById('top-left'));
 
       // legend
-      const legendControl = new WeatherLayers.LegendControl({});
-      document.getElementById('bottom-left').prepend(legendControl.onAdd());
+      const legendControl = new WeatherLayers.LegendControl();
+      legendControl.prependTo(document.getElementById('bottom-left'));
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
@@ -117,19 +117,19 @@
           update();
         },
       });
-      document.getElementById('bottom-left').prepend(timelineControl.onAdd());
+      timelineControl.prependTo(document.getElementById('bottom-left'));
 
       // tooltip
       const tooltipControl = new WeatherLayers.TooltipControl({ deckgl });
-      document.getElementById('bottom-left').prepend(tooltipControl.onAdd());
+      tooltipControl.prependTo(document.getElementById('bottom-left'));
 
       // attribution
-      const attributionControl = new WeatherLayers.AttributionControl({});
-      document.getElementById('bottom-right').prepend(attributionControl.onAdd());
+      const attributionControl = new WeatherLayers.AttributionControl();
+      attributionControl.prependTo(document.getElementById('bottom-right'));
 
       // FPS meter
       const fpsControl = new FpsControl();
-      document.getElementById('bottom-right').prepend(fpsControl.onAdd());
+      fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
       async function update() {

@@ -1,5 +1,6 @@
 import {parsePalette, colorRampCanvas} from 'cpt2js';
 import {formatValue, formatUnit} from '../../_utils/format';
+import {Control} from '../control';
 import './legend-control.css';
 
 /** @typedef {import('cpt2js').Palette} Palette */
@@ -8,18 +9,17 @@ import './legend-control.css';
 const DEFAULT_WIDTH = 300;
 const DEFAULT_TICKS_COUNT = 6;
 
-const PADDING_Y = 10;
-
-export class LegendControl {
+export class LegendControl extends Control {
   /** @type {LegendConfig} */
   config;
   /** @type {HTMLElement | undefined} */
   container = undefined;
 
   /**
-   * @param {LegendConfig} config
+   * @param {LegendConfig} [config]
    */
-  constructor(config) {
+  constructor(config = {}) {
+    super();
     this.config = config;
   }
 
@@ -106,15 +106,12 @@ export class LegendControl {
     svg.setAttribute('class', 'legend');
     main.appendChild(svg);
 
-    const g = document.createElementNS(xmlns, 'g');
-    svg.appendChild(g);
-
     const image = document.createElementNS(xmlns, 'image');
     image.setAttribute('href', paletteCanvasDataUrl);
     image.setAttribute('width', '100%');
     image.setAttribute('height', '5');
     image.setAttribute('preserveAspectRatio', 'none');
-    g.appendChild(image);
+    svg.appendChild(image);
 
     const delta = (paletteBounds[1] - paletteBounds[0]) / (ticksCount - 1);
     for (let i = 0; i < ticksCount; i++) {
@@ -123,7 +120,7 @@ export class LegendControl {
 
       const tick = document.createElementNS(xmlns, 'g');
       tick.style.transform = `translate(${(value - paletteBounds[0]) / (paletteBounds[1] - paletteBounds[0]) * 100}%, 0)`;
-      g.appendChild(tick);
+      svg.appendChild(tick);
 
       const tickLine = document.createElementNS(xmlns, 'line');
       tickLine.setAttribute('y1', '0');

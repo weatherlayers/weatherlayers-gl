@@ -2,6 +2,7 @@ import {Animation} from '../../_utils/animation';
 import {interpolateDatetime} from '../../_utils/datetime';
 import {formatDatetime} from '../../_utils/format';
 import {randomString} from '../../_utils/random-string';
+import {Control} from '../control';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */
@@ -15,7 +16,7 @@ const STEP_INTERPOLATE = 0.25;
 const LOADING_CLASS = 'loading';
 const RUNNING_CLASS = 'running';
 
-export class TimelineControl {
+export class TimelineControl extends Control {
   /** @type {TimelineConfig} */
   config;
   /** @type {HTMLElement | undefined} */
@@ -24,9 +25,10 @@ export class TimelineControl {
   animation;
 
   /**
-   * @param {TimelineConfig} config
+   * @param {TimelineConfig} [config]
    */
-  constructor(config) {
+  constructor(config = {}) {
+    super();
     this.config = config;
     this.animation = new Animation(() => this.animationUpdated(), FPS);
   }

@@ -1,17 +1,19 @@
+import {Control} from '../control';
 import './attribution-control.css';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
 
-export class AttributionControl {
+export class AttributionControl extends Control {
   /** @type {AttributionConfig} */
   config;
   /** @type {HTMLElement | undefined} */
   container = undefined;
 
   /**
-   * @param {AttributionConfig} config
+   * @param {AttributionConfig} [config]
    */
-  constructor(config) {
+  constructor(config = {}) {
+    super();
     this.config = config;
   }
 

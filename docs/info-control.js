@@ -1,15 +1,28 @@
+import {Control} from './control.js';
+
+/** @typedef {import('./info-control').InfoConfig} InfoConfig */
+
 function formatNumber(value, decimals = 6) {
   return Math.floor(value * 10 ** decimals) / 10 ** decimals;
 }
 
-export class InfoControl {
+export class InfoControl extends Control {
+  /** @type {InfoConfig} */
+  config;
+  /** @type {HTMLElement | undefined} */
   container = undefined;
-  config = undefined;
 
+  /**
+   * @param {InfoConfig} [config]
+   */
   constructor(config = {}) {
+    super();
     this.config = config;
   }
 
+  /**
+   * @returns {HTMLElement}
+   */
   onAdd() {
     this.container = document.createElement('div');
     this.container.className = 'info-control';
@@ -21,6 +34,9 @@ export class InfoControl {
     return this.container;
   }
 
+  /**
+   * @returns {void}
+   */
   onRemove() {
     if (this.container && this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
@@ -32,6 +48,9 @@ export class InfoControl {
     }
   }
 
+  /**
+   * @param {any} viewState
+   */
   onViewStateChange(viewState) {
     const viewport = new deck.WebMercatorViewport(viewState);
     const bounds = viewport.getBounds();

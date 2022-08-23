@@ -1,18 +1,20 @@
 import {formatValueWithUnit, formatDirection} from '../../_utils/format';
+import {Control} from '../control';
 import './tooltip-control.css';
 
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
 
-export class TooltipControl {
+export class TooltipControl extends Control {
   /** @type {TooltipConfig} */
   config;
   /** @type {HTMLElement | undefined} */
   container = undefined;
 
   /**
-   * @param {TooltipConfig} config
+   * @param {TooltipConfig} [config]
    */
-  constructor(config) {
+  constructor(config = {}) {
+    super();
     this.config = config;
   }
 
