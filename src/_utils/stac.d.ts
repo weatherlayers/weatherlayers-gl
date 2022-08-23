@@ -1,3 +1,5 @@
+import { UnitFormat } from './unit-format';
+
 export enum StacProviderRole {
   LICENSOR = 'licensor',
   PRODUCER = 'producer',
@@ -26,13 +28,6 @@ export interface StacLink {
   type: string;
   id?: string; // custom
   datetime?: string; // custom
-}
-
-export interface StacRasterUnit {
-  unit: string;
-  scale?: number;
-  offset?: number;
-  decimals?: number;
 }
 
 export interface StacRasterBand {
@@ -89,7 +84,7 @@ export interface StacCollection {
   assets: { [key: string]: StacAsset };
   'weatherLayers:imageType': StacCollectionImageType; // custom
   'weatherLayers:imageUnscale': [number, number]; // custom
-  'weatherLayers:units': StacRasterUnit[]; // custom
+  'weatherLayers:units': UnitFormat[]; // custom
 }
 
 export interface StacItem {

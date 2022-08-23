@@ -1,4 +1,4 @@
-/** @typedef {import('../cloud/stac').StacRasterUnit} StacRasterUnit */
+/** @typedef {import('./unit-format').UnitFormat} UnitFormat */
 
 /**
  * @param {string} value
@@ -25,32 +25,32 @@ export function formatDatetime(value) {
 
 /**
  * @param {number} value
- * @param {StacRasterUnit} unit
+ * @param {UnitFormat} unitFormat
  * @returns {string}
  */
-export function formatValue(value, unit) {
-  const { scale = 1, offset = 0, decimals = 0 } = unit;
+export function formatValue(value, unitFormat) {
+  const { scale = 1, offset = 0, decimals = 0 } = unitFormat;
   const formattedValue = scale * value + offset;
   const roundedFormattedValue = decimals ? Math.round(formattedValue * 10 ** decimals) / 10 ** decimals : Math.round(formattedValue);
   return `${roundedFormattedValue}`;
 }
 
 /**
- * @param {StacRasterUnit} unit
+ * @param {UnitFormat} unitFormat
  * @returns {string}
  */
-export function formatUnit(unit) {
-  const formattedUnit = unit.unit.replace('^2', '²').replace('^3', '³');
+export function formatUnit(unitFormat) {
+  const formattedUnit = unitFormat.unit.replace('^2', '²').replace('^3', '³');
   return formattedUnit;
 }
 
 /**
  * @param {number} value
- * @param {StacRasterUnit} unit
+ * @param {UnitFormat} unitFormat
  * @returns {string}
  */
-export function formatValueWithUnit(value, unit) {
-  const formattedValueWithUnit = `${formatValue(value, unit)}\xa0${formatUnit(unit)}`;
+export function formatValueWithUnit(value, unitFormat) {
+  const formattedValueWithUnit = `${formatValue(value, unitFormat)}\xa0${formatUnit(unitFormat)}`;
   return formattedValueWithUnit;
 }
   

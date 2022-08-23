@@ -55,7 +55,7 @@ export class LegendControl extends Control {
     }
 
     // validate config
-    if (!config.title || !config.unit || !config.palette) {
+    if (!config.title || !config.unitFormat || !config.palette) {
       return;
     }
 
@@ -65,7 +65,7 @@ export class LegendControl extends Control {
       this.config.width === config.width &&
       this.config.ticksCount === config.ticksCount &&
       this.config.title === config.title &&
-      this.config.unit === config.unit &&
+      this.config.unitFormat === config.unitFormat &&
       this.config.palette === config.palette
     ) {
       return;
@@ -75,7 +75,7 @@ export class LegendControl extends Control {
     const width = this.config.width || DEFAULT_WIDTH;
     const ticksCount = this.config.ticksCount || DEFAULT_TICKS_COUNT;
     const title = this.config.title;
-    const unit = this.config.unit;
+    const unitFormat = this.config.unitFormat;
     const palette = this.config.palette;
     const paletteScale = parsePalette(palette);
     const paletteDomain = paletteScale.domain();
@@ -94,7 +94,7 @@ export class LegendControl extends Control {
 
     const text = document.createElement('span');
     text.className = 'text';
-    text.innerHTML = `${title} [${formatUnit(unit)}]`;
+    text.innerHTML = `${title} [${formatUnit(unitFormat)}]`;
     header.appendChild(text);
 
     const main = document.createElement('main');
@@ -116,7 +116,7 @@ export class LegendControl extends Control {
     const delta = (paletteBounds[1] - paletteBounds[0]) / (ticksCount - 1);
     for (let i = 0; i < ticksCount; i++) {
       const value = paletteBounds[0] + i * delta;
-      const formattedValue = formatValue(value, unit);
+      const formattedValue = formatValue(value, unitFormat);
 
       const tick = document.createElementNS(xmlns, 'g');
       tick.style.transform = `translate(${(value - paletteBounds[0]) / (paletteBounds[1] - paletteBounds[0]) * 100}%, 0)`;

@@ -138,7 +138,7 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
+        const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
         const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
 
         deckgl.setProps({
@@ -245,9 +245,9 @@
           ],
         });
 
-        legendControl.setConfig({ ...legendControl.config, title, unit, palette });
+        legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
         timelineControl.setConfig({ ...timelineControl.config, datetimes, datetimeInterpolate: config.datetimeInterpolate, datetime });
-        tooltipControl.setConfig({ ...tooltipControl.config, unit });
+        tooltipControl.setConfig({ ...tooltipControl.config, unitFormat });
         attributionControl.setConfig({ attribution });
       }
       update();

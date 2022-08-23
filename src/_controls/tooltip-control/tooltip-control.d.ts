@@ -1,5 +1,5 @@
-import { StacRasterUnit } from '../../cloud/stac';
+import { UnitFormat } from '../../_utils/unit-format';
 
 export interface TooltipConfig {
-  unit: StacRasterUnit;
+  unitFormat: UnitFormat;
 }

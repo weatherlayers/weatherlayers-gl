@@ -10,14 +10,14 @@ import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-l
 /** @typedef {import('../standalone/providers/contour-provider/contour-line').ContourLine} ContourLine */
 /** @typedef {import('../standalone/providers/high-low-provider/high-low-point').HighLowPoint} HighLowPoint */
 /** @typedef {import('../standalone/providers/grid-provider/grid-point').GridPoint} GridPoint */
-/** @typedef {import('./stac').StacCatalog} StacCatalog */
-/** @typedef {import('./stac').StacCollection} StacCollection */
-/** @typedef {import('./stac').StacProviderRole} StacProviderRole */
-/** @typedef {import('./stac').StacProvider} StacProvider */
-/** @typedef {import('./stac').StacAssetRole} StacAssetRole */
-/** @typedef {import('./stac').StacItem} StacItem */
-/** @typedef {import('./stac').StacRasterUnit} StacRasterUnit */
-/** @typedef {import('./stac').StacCollectionImageType} StacCollectionImageType */
+/** @typedef {import('../_utils/unit-format').UnitFormat} UnitFormat */
+/** @typedef {import('../_utils/stac').StacCatalog} StacCatalog */
+/** @typedef {import('../_utils/stac').StacCollection} StacCollection */
+/** @typedef {import('../_utils/stac').StacProviderRole} StacProviderRole */
+/** @typedef {import('../_utils/stac').StacProvider} StacProvider */
+/** @typedef {import('../_utils/stac').StacAssetRole} StacAssetRole */
+/** @typedef {import('../_utils/stac').StacItem} StacItem */
+/** @typedef {import('../_utils/stac').StacCollectionImageType} StacCollectionImageType */
 /** @typedef {import('./client').ClientConfig} ClientConfig */
 
 /** @type {ClientConfig} */
@@ -112,9 +112,9 @@ function getStacCollectionTitle(stacCollection) {
 
 /**
  * @param {StacCollection} stacCollection
- * @returns {StacRasterUnit}
+ * @returns {UnitFormat}
  */
-function getStacCollectionUnit(stacCollection) {
+function getStacCollectionUnitFormat(stacCollection) {
   return stacCollection['weatherLayers:units'][0];
 }
 
@@ -265,17 +265,17 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} [linkClass]
-   * @returns {Promise<{title: string, unit: StacRasterUnit, attribution: string, datetimes: string[], palette: Palette}>}
+   * @returns {Promise<{title: string, unitFormat: UnitFormat, attribution: string, datetimes: string[], palette: Palette}>}
    */
   async loadStacCollectionProperties(dataset, linkClass = undefined) {
     const stacCollection = await this.loadStacCollection(dataset);
     const title = getStacCollectionTitle(stacCollection);
-    const unit = getStacCollectionUnit(stacCollection);
+    const unitFormat = getStacCollectionUnitFormat(stacCollection);
     const attribution = getStacCollectionAttribution(stacCollection, linkClass);
     const datetimes = getStacCollectionDatetimes(stacCollection);
     const palette = await this.loadStacCollectionPalette(dataset);
 
-    return {title, unit, attribution, datetimes, palette};
+    return {title, unitFormat, attribution, datetimes, palette};
   }
 
   /**

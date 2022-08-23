@@ -111,7 +111,7 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
         const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
-        const {title, unit, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset, 'esri-attribution__link');
+        const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset, 'esri-attribution__link');
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
           const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette, `mercator.${client.config.format}`) : undefined;
@@ -224,7 +224,7 @@
         }
 
         rotateAnimation.toggle(config.rotate);
-        legendControl.setConfig({ ...legendControl.config, title, unit, palette });
+        legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
       }
       update();
       gui = initGui(config, update, { globe: true });
