@@ -7,6 +7,8 @@ steps:
     args:
       - run
       - build
+    env:
+      - 'LICENSE_DOMAIN=weatherlayers.com'
     entrypoint: npm
   - name: bash
     args:
