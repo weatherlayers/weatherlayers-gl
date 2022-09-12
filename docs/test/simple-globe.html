@@ -24,15 +24,16 @@
       const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
-          longitude: 30,
-          latitude: 10,
-          zoom: 0,
+          longitude: 10,
+          latitude: 40,
+          altitude: 0.75,
+          zoom: 1.4,
         },
         controller: {
           normalize: false,
         },
         views: [
-          new deck.MapView({ repeat: true }),
+          new deck._GlobeView(),
         ],
         layers: [
           new deck.BitmapLayer({
@@ -40,8 +41,6 @@
             image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Whole_world_-_land_and_oceans_12000.jpg/2560px-Whole_world_-_land_and_oceans_12000.jpg',
             bounds: [-180, -90, 180, 90],
             _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-            extensions: [new deck.ClipExtension()],
-            clipBounds: [-181, -85.051129, 181, 85.051129],
           }),
         ],
       });

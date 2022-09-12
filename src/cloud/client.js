@@ -194,10 +194,10 @@ export class Client {
   }
 
   /**
-   * @param {StacCatalog} stacCatalog
    * @returns {Promise<string[]>}
    */
-  async loadStacCatalogChildCollectionIds(stacCatalog) {
+  async loadStacCatalogChildCollectionIds() {
+    const stacCatalog = await this.loadStacCatalog();
     const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
     const childIds = (await Promise.all(ids.map(async id => {
       const stacCollection = await this.loadStacCollection(id);

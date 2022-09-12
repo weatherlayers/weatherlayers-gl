@@ -21,46 +21,60 @@
   <script type="module">
     import { initConfig, colorToArray } from '../config.js';
 
-    const client = new WeatherLayers.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
-      format: 'tif',
-    });
-
     window.addEventListener('DOMContentLoaded', async () => {
-      const config = await initConfig({ client, deckgl: true, webgl2: true });
+      const config = await initConfig({ deckgl: true, webgl2: true });
 
-      const stacCatalog = await client.loadStacCatalog();
-      const dataset = 'gfs/wind_10m_above_ground';
-      const stacCollection = await client.loadStacCollection(dataset);
-      const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
-      const datetime = datetimes[0];
-      const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
+      const image = await WeatherLayers.loadTextureData('region.png');
+      const image2 = null;
+      const imageWeight = 0;
+      const imageType = WeatherLayers.ImageType.VECTOR;
+      const imageUnscale = [-128, 127];
+      const bounds = [-125.09000000000003, 48.2327999999999975, -119.7467999999999932, 50.4861000000000004];
 
       // deck.gl
       const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
-          longitude: 30,
-          latitude: 10,
-          zoom: 0,
+          longitude: -122.41840000000002,
+          latitude: 49.359449999999995,
+          altitude: 0.75,
+          zoom: 5,
         },
         controller: {
           normalize: false,
         },
         views: [
-          new deck.MapView({ repeat: true }),
+          new deck._GlobeView(),
         ],
         layers: [
-          new deck.BitmapLayer({
-            id: 'bitmap',
-            image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Whole_world_-_land_and_oceans_12000.jpg/2560px-Whole_world_-_land_and_oceans_12000.jpg',
-            pickable: true, // crashes when zooming in on iOS 15
-            bounds: [-180, -90, 180, 90],
-            _imageCoordinateSystem: deck.COORDINATE_SYSTEM.LNGLAT,
-            extensions: [new deck.ClipExtension()],
-            clipBounds: [-181, -85.051129, 181, 85.051129],
-          }),
-          // doesn't crash, just makes it faster to appear
+            new deck.SolidPolygonLayer({
+              id: 'background',
+              data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+              getPolygon: d => d,
+              stroked: false,
+              filled: true,
+              getFillColor: [26, 26, 26],
+            }),
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
+              minZoom: 0,
+              maxZoom: 22,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north],
+                  _imageCoordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
+                });
+              },
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
           new WeatherLayers.ParticleLayer({
             id: 'particle',
             // data properties

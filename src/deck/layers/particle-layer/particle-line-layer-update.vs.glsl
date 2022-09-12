@@ -106,18 +106,22 @@ vec2 pointToPosition(vec2 point) {
   }
 }
 
-bool isPositionVisible(vec2 position) {
+bool isPositionInBounds(vec2 position, vec4 bounds) {
+  vec2 boundsMin = bounds.xy;
+  vec2 boundsMax = bounds.zw;
+  float lng = wrapLongitude(position.x, boundsMin.x);
+  float lat = position.y;
+  return (
+    boundsMin.x <= lng && lng <= boundsMax.x &&
+    boundsMin.y <= lat && lat <= boundsMax.y
+  );
+}
+
+bool isPositionInViewport(vec2 position) {
   if (viewportGlobe) {
     return distanceTo(viewportGlobeCenter, position) <= viewportGlobeRadius;
   } else {
-    vec2 viewportBoundsMin = viewportBounds.xy;
-    vec2 viewportBoundsMax = viewportBounds.zw;
-    float lng = wrapLongitude(position.x, viewportBoundsMin.x);
-    float lat = position.y;
-    return (
-      viewportBoundsMin.x <= lng && lng <= viewportBoundsMax.x &&
-      viewportBoundsMin.y <= lat && lat <= viewportBoundsMax.y
-    );
+    return isPositionInBounds(position, viewportBounds);
   }
 }
 
@@ -150,8 +154,14 @@ void main() {
     return;
   }
 
-  if (!isPositionVisible(sourcePosition.xy)) {
+  if (!isPositionInBounds(sourcePosition.xy, bounds)) {
     // drop out of bounds
+    targetPosition.xy = DROP_POSITION;
+    return;
+  }
+
+  if (!isPositionInViewport(sourcePosition.xy)) {
+    // drop out of viewport
     targetPosition.xy = DROP_POSITION;
     return;
   }

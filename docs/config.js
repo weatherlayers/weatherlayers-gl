@@ -29,11 +29,11 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
 export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const stacCatalog = await client.loadStacCatalog();
+  const datasets = client ? await client.loadStacCatalogChildCollectionIds() : { datasets: [] };
 
   const config = {
     client,
-    datasets: await client.loadStacCatalogChildCollectionIds(stacCatalog),
+    datasets,
     dataset: urlConfig.get('dataset') ?? DEFAULT_DATASET,
     datetimes: [],
     datetime: new Date().toISOString(),
@@ -116,6 +116,7 @@ function getDatetimeOptions(datetimes) {
 }
 
 async function updateDataset(config, { deckgl, webgl2 } = {}) {
+  const { client } = config;
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
   if (config.dataset === NO_DATA) {
@@ -133,8 +134,7 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
     return;
   }
 
-  const client = config.client;
-  const {datetimes} = await client.loadStacCollectionProperties(config.dataset);
+  const { datetimes } = client ? await client.loadStacCollectionProperties(config.dataset) : { datetimes: [] };
 
   config.datetimes = datetimes;
   config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
