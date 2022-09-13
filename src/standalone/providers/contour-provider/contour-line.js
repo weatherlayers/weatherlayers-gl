@@ -3,18 +3,18 @@ import contourLineWorker from 'worker!./contour-line-worker';
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
-/** @typedef {GeoJSON.Feature<GeoJSON.LineString, { value: number }>} ContourLine */
+/** @typedef {{ value: number }} ContourLineProperties */
 
 const contourLineWorkerProxy = wrap(contourLineWorker());
 
 /**
  * @param {Float32Array} contourLineData
- * @returns {ContourLine[]}
+ * @returns {GeoJSON.Feature<GeoJSON.LineString, ContourLineProperties>[]}
  */
 function getContourLinesFromData(contourLineData) {
   let i = 0;
 
-  const contourLines = /** @type {ContourLine[]} */([]);
+  const contourLines = /** @type {GeoJSON.Feature<GeoJSON.LineString, ContourLineProperties>[]} */([]);
   const contourCount = contourLineData[i++];
   for (let j = 0; j < contourCount; j++) {
     const coordinates = /** @type {[number, number][]} */ ([]);
@@ -36,7 +36,7 @@ function getContourLinesFromData(contourLineData) {
  * @param {[number, number] | null} imageUnscale
  * @param {number} interval
  * @param {GeoJSON.BBox} bounds
- * @returns {Promise<ContourLine[]>}
+ * @returns {Promise<GeoJSON.FeatureCollection<GeoJSON.LineString, ContourLineProperties>>}
  */
 export async function getContourLines(image, imageType, imageUnscale, interval, bounds) {
   const {data, width, height} = image;
@@ -44,5 +44,6 @@ export async function getContourLines(image, imageType, imageUnscale, interval, 
   const dataCopy = data.slice(0);
   const contourLineData = await contourLineWorkerProxy.getContourLineData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageType, imageUnscale, interval, bounds);
   const contourLines = getContourLinesFromData(contourLineData);
-  return contourLines;
+
+  return { type: 'FeatureCollection', features: contourLines };
 }

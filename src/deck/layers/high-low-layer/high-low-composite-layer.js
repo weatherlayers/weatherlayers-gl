@@ -100,7 +100,7 @@ class HighLowCompositeLayer extends CompositeLayer {
       return;
     }
 
-    const highLowPoints = await getHighLowPoints(image, imageType, imageUnscale, radius, bounds);
+    const highLowPoints = (await getHighLowPoints(image, imageType, imageUnscale, radius, bounds)).features;
 
     this.setState({ image, radius, highLowPoints });
 

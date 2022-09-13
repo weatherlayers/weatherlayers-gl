@@ -94,7 +94,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
       return;
     }
 
-    const contourLines = await getContourLines(image, imageType, imageUnscale, interval, bounds);
+    const contourLines = (await getContourLines(image, imageType, imageUnscale, interval, bounds)).features;
     const contourLabels = getContourLabels(contourLines);
 
     this.setState({ image, interval, contourLines, contourLabels });

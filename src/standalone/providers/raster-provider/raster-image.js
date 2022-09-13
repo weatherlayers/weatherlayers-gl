@@ -11,9 +11,9 @@ import {hasPixelValue, getPixelMagnitudeValue} from '../../../_utils/pixel-value
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
  * @param {Palette} palette
- * @returns {Promise<HTMLCanvasElement>}
+ * @returns {HTMLCanvasElement}
  */
-export async function getRasterImage(image, imageType, imageUnscale, palette) {
+export function getRasterImage(image, imageType, imageUnscale, palette) {
   const {width, height} = image;
 
   const paletteScale = parsePalette(palette);

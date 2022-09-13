@@ -120,7 +120,7 @@ class GridCompositeLayer extends CompositeLayer {
       return;
     }
 
-    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds);
+    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds).features;
 
     this.setState({ gridPoints });
   }

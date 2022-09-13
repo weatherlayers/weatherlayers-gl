@@ -1,15 +1,9 @@
 import {VERSION} from '../_utils/build';
 import {loadTextureData} from '../_utils/data';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
-import {getRasterImage} from '../standalone/providers/raster-provider/raster-image';
-import {getContourLines} from '../standalone/providers/contour-provider/contour-line';
-import {getHighLowPoints} from '../standalone/providers/high-low-provider/high-low-point';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../_utils/data').TextureData} TextureData */
-/** @typedef {import('../standalone/providers/contour-provider/contour-line').ContourLine} ContourLine */
-/** @typedef {import('../standalone/providers/high-low-provider/high-low-point').HighLowPoint} HighLowPoint */
-/** @typedef {import('../standalone/providers/grid-provider/grid-point').GridPoint} GridPoint */
 /** @typedef {import('../_utils/unit-format').UnitFormat} UnitFormat */
 /** @typedef {import('../_utils/stac').StacCatalog} StacCatalog */
 /** @typedef {import('../_utils/stac').StacCollection} StacCollection */
@@ -306,59 +300,5 @@ export class Client {
     const bounds = getStacCollectionBounds(stacCollection);
     
     return {image, image2, imageWeight, imageType, imageUnscale, bounds};
-  }
-
-  /**
-   * @param {string} dataset
-   * @param {string} datetime
-   * @param {Palette} palette
-   * @param {string} [format]
-   * @returns {Promise<HTMLCanvasElement>}
-   */
-  async loadStacCollectionRasterImage(dataset, datetime, palette, format = undefined) {
-    const stacCollection = await this.loadStacCollection(dataset);
-    const image = await this.loadStacCollectionData(dataset, datetime, format);
-    const imageType = getStacCollectionImageType(stacCollection);
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
-
-    const canvas = getRasterImage(image, imageType, imageUnscale, palette);
-
-    return canvas;
-  }
-
-  /**
-   * @param {string} dataset
-   * @param {string} datetime
-   * @param {number} interval
-   * @returns {Promise<GeoJSON.FeatureCollection>}
-   */
-  async loadStacCollectionContourLines(dataset, datetime, interval) {
-    const stacCollection = await this.loadStacCollection(dataset);
-    const image = await this.loadStacCollectionData(dataset, datetime);
-    const imageType = getStacCollectionImageType(stacCollection);
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
-    const bounds = getStacCollectionBounds(stacCollection);
-
-    const contourLines = await getContourLines(image, imageType, imageUnscale, interval, bounds);
-
-    return { type: 'FeatureCollection', features: contourLines };
-  }
-
-  /**
-   * @param {string} dataset
-   * @param {string} datetime
-   * @param {number} radius
-   * @returns {Promise<GeoJSON.FeatureCollection>}
-   */
-  async loadStacCollectionHighLowPoints(dataset, datetime, radius) {
-    const stacCollection = await this.loadStacCollection(dataset);
-    const image = await this.loadStacCollectionData(dataset, datetime);
-    const imageType = getStacCollectionImageType(stacCollection);
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
-    const bounds = getStacCollectionBounds(stacCollection);
-
-    const highLowPoints = await getHighLowPoints(image, imageType, imageUnscale, radius, bounds);
-
-    return { type: 'FeatureCollection', features: highLowPoints };
   }
 }

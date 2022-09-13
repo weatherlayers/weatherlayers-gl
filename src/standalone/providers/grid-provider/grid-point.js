@@ -5,7 +5,7 @@ import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../
 
 /** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
-/** @typedef {GeoJSON.Feature<GeoJSON.Point, { value: number, direction: number }>} GridPoint */
+/** @typedef {{ value: number, direction: number }} GridPointProperties */
 
 /**
  * @param {TextureData} image
@@ -16,13 +16,13 @@ import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../
  * @param {[number, number] | null} imageUnscale
  * @param {GeoJSON.Position[]} positions
  * @param {GeoJSON.BBox} bounds
- * @returns {GridPoint[]}
+ * @returns {GeoJSON.FeatureCollection<GeoJSON.Point, GridPointProperties>}
  */
 export function getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds) {
   const {width, height} = image;
   const project = getProjectFunction(width, height, bounds);
 
-  const gridPoints = /** @type {GridPoint[]} */ ([]);
+  const gridPoints = /** @type {GeoJSON.FeatureCollection<GeoJSON.Point, GridPointProperties>[]} */ ([]);
   for (let position of positions) {
     const point = project(position);
 
@@ -37,5 +37,5 @@ export function getGridPoints(image, image2, imageInterpolate, imageWeight, imag
     gridPoints.push({ type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: { value, direction }});
   }
 
-  return gridPoints;
+  return { type: 'FeatureCollection', features: gridPoints };
 }

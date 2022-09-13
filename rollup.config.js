@@ -22,7 +22,7 @@ const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
 function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
 
-  const bundleGl = filename.includes('deck');
+  const bundleGl = filename.includes('deck') || filename.includes('standalone');
   const bundleCloud = filename.includes('cloud');
   const banner = [
     'Copyright (c) 2021-2022 WeatherLayers.com',
@@ -101,6 +101,7 @@ export default commandLineArgs => {
   return [
     ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
     ['src/cloud/index.js', 'dist/weatherlayers-cloud.js'],
+    ['src/standalone/index.js', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),

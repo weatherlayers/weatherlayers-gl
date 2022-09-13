@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.4/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.24/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-standalone.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
@@ -110,11 +110,12 @@
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
         const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset, 'esri-attribution__link');
+        const {image, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, false);
+        const {image: imageMercator} = await client.loadStacCollectionDataProperties(dataset, datetime, false, `mercator.${client.config.format}`);
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette, `mercator.${client.config.format}`) : undefined;
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(imageMercator, imageType, imageUnscale, palette) : undefined;
           if (rasterLayer) {
             map.remove(rasterLayer);
           }
@@ -135,7 +136,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.interval) : undefined;
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, imageType, imageUnscale, config.contour.interval, bounds) : undefined;
           if (contourLayer) {
             map.remove(contourLayer);
           }
@@ -180,7 +181,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime, config.highLow.radius) : undefined;
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, imageType, imageUnscale, config.highLow.radius, bounds) : undefined;
           if (highLowLayer) {
             map.remove(highLowLayer);
           }

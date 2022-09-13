@@ -9,7 +9,7 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-standalone.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../info-control.css">
   <link rel="stylesheet" href="../fps-control.css">
@@ -68,10 +68,11 @@
         
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
         const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
-        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
+        const {image, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, false);
+        const {image: imageMercator} = await client.loadStacCollectionDataProperties(dataset, datetime, false, `mercator.${client.config.format}`);
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? await client.loadStacCollectionRasterImage(dataset, datetime, palette, `mercator.${client.config.format}`) : undefined;
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(imageMercator, imageType, imageUnscale, palette) : undefined;
           if (rasterLayer) {
             map.removeLayer('raster');
             map.removeSource('raster');
@@ -102,7 +103,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await client.loadStacCollectionContourLines(dataset, datetime, config.contour.interval) : undefined;
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, imageType, imageUnscale, config.contour.interval, bounds) : undefined;
           if (contourLayer) {
             map.removeLayer('contourLabel');
             map.removeLayer('contour');
@@ -145,7 +146,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await client.loadStacCollectionHighLowPoints(dataset, datetime, config.highLow.radius) : undefined;
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, imageType, imageUnscale, config.highLow.radius, bounds) : undefined;
           if (highLowLayer) {
             map.removeLayer('highLow');
             map.removeSource('highLow');
