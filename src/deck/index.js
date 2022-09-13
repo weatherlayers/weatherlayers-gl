@@ -1,8 +1,6 @@
 export * from '../_utils/index';
 export * from '../_controls/index';
 
-export * from '../cloud/client';
-
 export * from './layers/raster-layer/raster-layer';
 export * from './layers/contour-layer/contour-layer';
 // export * from './layers/contour-cpu-layer/contour-cpu-layer';

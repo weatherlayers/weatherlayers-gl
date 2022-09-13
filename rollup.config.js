@@ -43,7 +43,7 @@ function bundle(entrypoint, filename, format, options = {}) {
     output: {
       file: filename,
       format: format,
-      name: 'WeatherLayers',
+      name: bundleCloud ? 'WeatherLayersCloud' : 'WeatherLayers',
       sourcemap: true,
       globals: {
         '@deck.gl/core': 'deck',

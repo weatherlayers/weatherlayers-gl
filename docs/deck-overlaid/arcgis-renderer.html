@@ -10,6 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.4/dist/dist.dev.js"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
+  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
   <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../info-control.css">
@@ -31,7 +32,7 @@
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    const client = new WeatherLayers.Client({
+    const client = new WeatherLayersCloud.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       format: 'tif',
     });
