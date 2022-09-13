@@ -106,11 +106,11 @@ function computeContours(data, width, height, interval) {
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
- * @param {number} interval
  * @param {GeoJSON.BBox} bounds
+ * @param {number} interval
  * @returns {Float32Array}
  */
-function getContourLineData(data, width, height, interval, bounds) {
+function getContourLineData(data, width, height, bounds, interval) {
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -173,13 +173,13 @@ expose({
    * @param {number} height
    * @param {ImageType} imageType
    * @param {[number, number] | null} imageUnscale
-   * @param {number} interval
    * @param {GeoJSON.BBox} bounds
+   * @param {number} interval
    * @returns {Float32Array}
    */
-  getContourLineData(data, width, height, imageType, imageUnscale, interval, bounds) {
+  getContourLineData(data, width, height, imageType, imageUnscale, bounds, interval) {
     const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
-    const contourLineData = getContourLineData(magnitudeData.data, width, height, interval, bounds);
+    const contourLineData = getContourLineData(magnitudeData.data, width, height, bounds, interval);
     return transfer(contourLineData, [contourLineData.buffer]);
   },
 });

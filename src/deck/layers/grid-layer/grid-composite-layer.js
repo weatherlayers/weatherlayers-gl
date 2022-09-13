@@ -15,6 +15,7 @@ const defaultProps = {
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   style: {type: 'object', value: GridStyle.VALUE},
   textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
@@ -120,7 +121,7 @@ class GridCompositeLayer extends CompositeLayer {
       return;
     }
 
-    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds).features;
+    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds, positions).features;
 
     this.setState({ gridPoints });
   }

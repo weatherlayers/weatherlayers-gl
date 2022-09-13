@@ -10,6 +10,7 @@ const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   radius: {type: 'number', value: null, required: true},
 
@@ -95,12 +96,12 @@ class HighLowCompositeLayer extends CompositeLayer {
   }
 
   async updateHighLowPoints() {
-    const {image, imageType, imageUnscale, radius, bounds} = this.props;
+    const {image, imageType, imageUnscale, bounds, radius} = this.props;
     if (!image) {
       return;
     }
 
-    const highLowPoints = (await getHighLowPoints(image, imageType, imageUnscale, radius, bounds)).features;
+    const highLowPoints = (await getHighLowPoints(image, imageType, imageUnscale, bounds, radius)).features;
 
     this.setState({ image, radius, highLowPoints });
 

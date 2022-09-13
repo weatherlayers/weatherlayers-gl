@@ -16,6 +16,7 @@ const defaultProps = {
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.VECTOR},
   imageUnscale: {type: 'array', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 10},

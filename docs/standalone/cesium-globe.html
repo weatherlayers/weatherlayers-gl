@@ -101,7 +101,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, imageType, imageUnscale, config.contour.interval, bounds) : undefined;
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
           if (contourLayer) {
             viewer.dataSources.remove(contourLayer);
           }
@@ -130,7 +130,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, imageType, imageUnscale, config.highLow.radius, bounds) : undefined;
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
           if (highLowLayer) {
             viewer.dataSources.remove(highLowLayer);
           }

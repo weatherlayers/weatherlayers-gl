@@ -11,6 +11,7 @@ const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
@@ -89,12 +90,12 @@ class ContourCpuCompositeLayer extends CompositeLayer {
   }
 
   async updateContourLines() {
-    const {image, imageType, imageUnscale, interval, bounds} = this.props;
+    const {image, imageType, imageUnscale, bounds, interval} = this.props;
     if (!image) {
       return;
     }
 
-    const contourLines = (await getContourLines(image, imageType, imageUnscale, interval, bounds)).features;
+    const contourLines = (await getContourLines(image, imageType, imageUnscale, bounds, interval)).features;
     const contourLabels = getContourLabels(contourLines);
 
     this.setState({ image, interval, contourLines, contourLabels });

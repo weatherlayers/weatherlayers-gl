@@ -12,11 +12,11 @@ import { getPixelMagnitudeData } from '../../../_utils/pixel-data';
  * @param {Float32Array} data
  * @param {number} width
  * @param {number} height
- * @param {number} radius
  * @param {GeoJSON.BBox} bounds
+ * @param {number} radius
  * @returns {Float32Array}
  */
-function getHighLowPointData(data, width, height, radius, bounds) {
+function getHighLowPointData(data, width, height, bounds, radius) {
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -115,13 +115,13 @@ expose({
    * @param {number} height
    * @param {ImageType} imageType
    * @param {[number, number] | null} imageUnscale
-   * @param {number} radius
    * @param {GeoJSON.BBox} bounds
+   * @param {number} radius
    * @returns {Float32Array}
    */
-  getHighLowPointData(data, width, height, imageType, imageUnscale, radius, bounds) {
+  getHighLowPointData(data, width, height, imageType, imageUnscale, bounds, radius) {
     const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
-    const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, radius, bounds);
+    const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, bounds, radius);
     return transfer(highLowPointData, [highLowPointData.buffer]);
   },
 });

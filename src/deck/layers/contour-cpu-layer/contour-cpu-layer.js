@@ -4,8 +4,6 @@ import {ContourCpuCompositeLayer} from './contour-cpu-composite-layer';
 
 const defaultProps = {
   ...ContourCpuCompositeLayer.defaultProps,
-
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 @withCheckLicense(defaultProps)

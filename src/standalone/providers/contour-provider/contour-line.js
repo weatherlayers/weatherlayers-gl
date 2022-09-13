@@ -34,15 +34,15 @@ function getContourLinesFromData(contourLineData) {
  * @param {TextureData} image
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
- * @param {number} interval
  * @param {GeoJSON.BBox} bounds
+ * @param {number} interval
  * @returns {Promise<GeoJSON.FeatureCollection<GeoJSON.LineString, ContourLineProperties>>}
  */
-export async function getContourLines(image, imageType, imageUnscale, interval, bounds) {
+export async function getContourLines(image, imageType, imageUnscale, bounds, interval) {
   const {data, width, height} = image;
   
   const dataCopy = data.slice(0);
-  const contourLineData = await contourLineWorkerProxy.getContourLineData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageType, imageUnscale, interval, bounds);
+  const contourLineData = await contourLineWorkerProxy.getContourLineData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageType, imageUnscale, bounds, interval);
   const contourLines = getContourLinesFromData(contourLineData);
 
   return { type: 'FeatureCollection', features: contourLines };

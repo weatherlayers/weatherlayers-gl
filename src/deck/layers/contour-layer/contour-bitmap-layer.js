@@ -11,6 +11,7 @@ const defaultProps = {
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},

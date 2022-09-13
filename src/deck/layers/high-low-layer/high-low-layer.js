@@ -4,8 +4,6 @@ import {HighLowCompositeLayer} from './high-low-composite-layer';
 
 const defaultProps = {
   ...HighLowCompositeLayer.defaultProps,
-
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
 @withCheckLicense(defaultProps)

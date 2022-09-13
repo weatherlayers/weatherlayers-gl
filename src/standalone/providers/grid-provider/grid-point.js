@@ -14,11 +14,11 @@ import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../
  * @param {number} imageWeight
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
- * @param {GeoJSON.Position[]} positions
  * @param {GeoJSON.BBox} bounds
+ * @param {GeoJSON.Position[]} positions
  * @returns {GeoJSON.FeatureCollection<GeoJSON.Point, GridPointProperties>}
  */
-export function getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, positions, bounds) {
+export function getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds, positions) {
   const {width, height} = image;
   const project = getProjectFunction(width, height, bounds);
 
