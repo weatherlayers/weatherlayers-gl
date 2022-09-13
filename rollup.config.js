@@ -12,6 +12,7 @@ import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import assets from 'postcss-assets';
 import { terser } from 'rollup-plugin-terser';
+import license from 'rollup-plugin-license';
 import visualizer from 'rollup-plugin-visualizer';
 import gnirts from 'gnirts';
 
@@ -20,6 +21,22 @@ const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
 
 function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
+
+  const bundleGl = filename.includes('deck');
+  const bundleCloud = filename.includes('cloud');
+  const banner = [
+    'Copyright (c) 2021-2022 WeatherLayers.com',
+    '',
+    ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? ['WeatherLayers GL'] : []),
+    ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
+    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL, Project License, valid for ${LICENSE_DOMAIN}`] : []),
+    ...(bundleCloud ? ['WeatherLayers Cloud'] : []),
+    '',
+    'Demo - https://demo.weatherlayers.com/',
+    'Docs - https://docs.weatherlayers.com/',
+    ...(bundleGl ? ['License Terms of Use - https://weatherlayers.com/license-terms-of-use.html'] : []),
+    ...(bundleCloud ? ['Terms of Use - https://weatherlayers.com/terms-of-use.html'] : []),
+  ].join('\n');
 
   return {
     input: entrypoint,
@@ -35,18 +52,6 @@ function bundle(entrypoint, filename, format, options = {}) {
         '@luma.gl/core': 'luma',
         'geotiff': 'GeoTIFF',
       },
-      banner: [
-        '/*!',
-        ' * Copyright (c) 2022 WeatherLayers.com',
-        ' *',
-        ...(LICENSE_DATE ? [` * WeatherLayers GL Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
-        ...(LICENSE_DOMAIN ? [` * WeatherLayers GL Project License, valid for ${LICENSE_DOMAIN}`] : []),
-        ' *',
-        ' * Demo - https://demo.weatherlayers.com/',
-        ' * Docs - https://docs.weatherlayers.com/',
-        ' * License Terms of Use - https://weatherlayers.com/license-terms-of-use.html',
-        ' */'
-      ].join('\n'),
     },
     external: [
       ...Object.keys(pkg.peerDependencies),
@@ -78,7 +83,13 @@ function bundle(entrypoint, filename, format, options = {}) {
       glslMinify({ minimize: options.minimize }),
       worker({ plugins: [resolve(), commonjs()] }),
       postcss({ plugins: [autoprefixer(), assets()], minimize: options.minimize }),
-      ...(options.minimize ? [terser()] : []),
+      ...(options.minimize ? [terser({ output: { comments: false } })] : []),
+      license({
+        banner: {
+          content: banner,
+          commentStyle: 'ignored',
+        },
+      }),
       ...(options.stats ? [visualizer({
         filename: filename + '.stats.html',
       })] : []),
