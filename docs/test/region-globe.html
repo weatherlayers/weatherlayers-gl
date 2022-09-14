@@ -10,6 +10,8 @@
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
   <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
 </head>
 
@@ -17,19 +19,17 @@
   <div id="container">
     <div id="deck"></div>
   </div>
+  <div id="top-left"></div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
 
   <script type="module">
     import { initConfig, colorToArray } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ deckgl: true, webgl2: true });
-
-      const image = await WeatherLayers.loadTextureData('region.png');
-      const image2 = null;
-      const imageWeight = 0;
-      const imageType = WeatherLayers.ImageType.VECTOR;
-      const imageUnscale = [-128, 127];
-      const bounds = [-125.09000000000003, 48.2327999999999975, -119.7467999999999932, 50.4861000000000004];
 
       // deck.gl
       const deckgl = window.deckgl = new deck.Deck({
@@ -46,7 +46,31 @@
         views: [
           new deck._GlobeView(),
         ],
-        layers: [
+        layers: [],
+      });
+
+      // info panels
+      const infoControl = new InfoControl();
+      infoControl.prependTo(document.getElementById('top-left'));
+      deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
+
+      // attribution
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      basemapAttributionControl.prependTo(document.getElementById('bottom-right'));
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      fpsControl.prependTo(document.getElementById('bottom-right'));
+
+      // config
+      async function update() {
+        const image = await WeatherLayers.loadTextureData('region.png');
+        const imageType = WeatherLayers.ImageType.VECTOR;
+        const imageUnscale = [-128, 127];
+        const bounds = [-125.09000000000003, 48.2327999999999975, -119.7467999999999932, 50.4861000000000004];
+
+        deckgl.setProps({
+          layers: [
             new deck.SolidPolygonLayer({
               id: 'background',
               data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
@@ -75,29 +99,28 @@
                 depthTest: false,
               },
             }),
-          new WeatherLayers.ParticleLayer({
-            id: 'particle',
-            // data properties
-            image,
-            image2,
-            imageInterpolate: config.imageInterpolate,
-            imageWeight,
-            imageType,
-            imageUnscale,
-            bounds,
-            // style properties
-            visible: config.particle.enabled,
-            numParticles: config.particle.numParticles,
-            maxAge: config.particle.maxAge,
-            speedFactor: config.particle.speedFactor,
-            width: config.particle.width,
-            color: colorToArray(config.particle.color),
-            opacity: config.particle.opacity,
-            animate: config.particle.animate,
-            getPolygonOffset: () => [0, -1000],
-          }),
-        ],
-      });
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
+          ],
+        });
+      }
+      update();
     });
   </script>
 </body>

@@ -35,15 +35,13 @@
       const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
-          longitude: -122.41840000000002,
-          latitude: 49.359449999999995,
-          zoom: 6,
+          longitude: -100,
+          latitude: 30,
+          zoom: 1.4,
         },
-        controller: {
-          normalize: false,
-        },
+        controller: true,
         views: [
-          new deck.MapView({ repeat: true }),
+          new deck._GlobeView(),
         ],
         layers: [],
       });
@@ -63,13 +61,21 @@
 
       // config
       async function update() {
-        const image = await WeatherLayers.loadTextureData('region.png');
+        const image = await WeatherLayers.loadTextureData('wind_data.png');
         const imageType = WeatherLayers.ImageType.VECTOR;
         const imageUnscale = [-128, 127];
-        const bounds = [-125.09000000000003, 48.2327999999999975, -119.7467999999999932, 50.4861000000000004];
+        const bounds = [-180, -90, 180, 90];
 
         deckgl.setProps({
           layers: [
+            new deck.SolidPolygonLayer({
+              id: 'background',
+              data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+              getPolygon: d => d,
+              stroked: false,
+              filled: true,
+              getFillColor: [26, 26, 26],
+            }),
             new deck.TileLayer({
               id: 'basemap',
               data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
@@ -83,6 +89,10 @@
                   image: props.data,
                   bounds: [west, south, east, north],
                 });
+              },
+              parameters: {
+                cull: true,
+                depthTest: false,
               },
             }),
             new WeatherLayers.ParticleLayer({

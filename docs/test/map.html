@@ -35,9 +35,9 @@
       const deckgl = window.deckgl = new deck.Deck({
         parent: document.getElementById('deck'),
         initialViewState: {
-          longitude: -122.41840000000002,
-          latitude: 49.359449999999995,
-          zoom: 6,
+          longitude: 30,
+          latitude: 0,
+          zoom: 0,
         },
         controller: {
           normalize: false,
@@ -63,10 +63,10 @@
 
       // config
       async function update() {
-        const image = await WeatherLayers.loadTextureData('region.png');
+        const image = await WeatherLayers.loadTextureData('wind_data.png');
         const imageType = WeatherLayers.ImageType.VECTOR;
         const imageUnscale = [-128, 127];
-        const bounds = [-125.09000000000003, 48.2327999999999975, -119.7467999999999932, 50.4861000000000004];
+        const bounds = [-180, -90, 180, 90];
 
         deckgl.setProps({
           layers: [

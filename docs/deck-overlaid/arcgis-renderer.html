@@ -137,7 +137,6 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
         const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
         const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
