@@ -97,6 +97,24 @@ function loadTextureDataCached(url, cache) {
 }
 
 /**
+ * @param {string} url
+ * @param {string} [accessToken]
+ * @returns {string}
+ */
+function getAuthenticatedUrl(url, accessToken = undefined) {
+  const params = new URLSearchParams();
+  if (!url.includes('access_token=') && accessToken) {
+    params.set('access_token', accessToken);
+  }
+  if (!url.includes('version=')) {
+    params.set('version', VERSION);
+  }
+  const query = params.toString();
+  const fullUrl = `${url}${query ? `?${query}` : ''}`;
+  return fullUrl;
+}
+
+/**
  * @param {StacCollection} stacCollection
  * @returns {string}
  */
@@ -177,13 +195,7 @@ export class Client {
    * @returns {Promise<StacCatalog>}
    */
   async loadStacCatalog() {
-    const params = new URLSearchParams();
-    if (this.config.accessToken) {
-      params.set('access_token', this.config.accessToken);
-    }
-    params.set('version', VERSION);
-    const query = params.toString();
-    const url = `${this.config.url}/catalog${query ? `?${query}` : ''}`;
+    const url = getAuthenticatedUrl(`${this.config.url}/catalog`, this.config.accessToken);
     return loadJsonCached(url, this.cache);
   }
 
@@ -206,13 +218,7 @@ export class Client {
    * @returns {Promise<StacCollection>}
    */
   async loadStacCollection(dataset) {
-    const params = new URLSearchParams();
-    if (this.config.accessToken) {
-      params.set('access_token', this.config.accessToken);
-    }
-    params.set('version', VERSION);
-    const query = params.toString();
-    const url = `${this.config.url}/catalog/${dataset}${query ? `?${query}` : ''}`;
+    const url = getAuthenticatedUrl(`${this.config.url}/catalog/${dataset}`, this.config.accessToken);
     return loadJsonCached(url, this.cache);
   }
 
@@ -226,7 +232,7 @@ export class Client {
     if (!asset) {
       throw new Error(`Palette asset not found`);
     }
-    const url = asset.href;
+    const url = getAuthenticatedUrl(asset.href, this.config.accessToken);
     return loadTextCached(url, this.cache);
   }
 
@@ -241,7 +247,8 @@ export class Client {
     if (!link) {
       throw new Error(`Item ${datetime} not found`);
     }
-    return loadJsonCached(link.href, this.cache);
+    const url = getAuthenticatedUrl(link.href, this.config.accessToken);
+    return loadJsonCached(url, this.cache);
   }
 
   /**
@@ -252,7 +259,7 @@ export class Client {
    */
   async loadStacCollectionData(dataset, datetime, format = this.config.format) {
     const stacItem = await this.loadStacItem(dataset, datetime);
-    const url = stacItem.assets[`data.${format}`].href;
+    const url = getAuthenticatedUrl(stacItem.assets[`data.${format}`].href, this.config.accessToken);
     return loadTextureDataCached(url, this.cache);
   }
 
