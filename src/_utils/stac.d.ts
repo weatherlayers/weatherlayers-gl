@@ -1,3 +1,4 @@
+import { ImageType } from './image-type';
 import { UnitFormat } from './unit-format';
 
 export enum StacProviderRole {
@@ -60,11 +61,6 @@ export interface StacCatalog {
   links: StacLink[];
 }
 
-export enum StacCollectionImageType {
-  SCALAR = 0,
-  VECTOR = 1,
-}
-
 export interface StacCollection {
   type: 'Collection';
   stac_version: '1.0.0';
@@ -82,7 +78,7 @@ export interface StacCollection {
   };
   links: StacLink[];
   assets: { [key: string]: StacAsset };
-  'weatherLayers:imageType': StacCollectionImageType; // custom
+  'weatherLayers:imageType': ImageType; // custom
   'weatherLayers:imageUnscale': [number, number]; // custom
   'weatherLayers:units': UnitFormat[]; // custom
 }

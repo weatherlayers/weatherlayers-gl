@@ -1,8 +1,6 @@
 import {ImageType} from './image-type';
 import {mix} from './mix';
 
-/** @typedef {import('./image-type').ImageType} ImageType */
-
 /**
  * @param {number[]} pixel
  * @param {[number, number] | null} imageUnscale

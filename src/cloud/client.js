@@ -1,5 +1,6 @@
 import {VERSION} from '../_utils/build';
 import {loadTextureData} from '../_utils/data';
+import {ImageType} from '../_utils/image-type';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
 
 /** @typedef {import('cpt2js').Palette} Palette */
@@ -11,14 +12,15 @@ import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from 
 /** @typedef {import('../_utils/stac').StacProvider} StacProvider */
 /** @typedef {import('../_utils/stac').StacAssetRole} StacAssetRole */
 /** @typedef {import('../_utils/stac').StacItem} StacItem */
-/** @typedef {import('../_utils/stac').StacCollectionImageType} StacCollectionImageType */
 /** @typedef {import('./client').ClientConfig} ClientConfig */
+/** @typedef {import('./client').Dataset} Dataset */
+/** @typedef {import('./client').DatasetData} DatasetData */
 
 /** @type {ClientConfig} */
 const DEFAULT_CONFIG = {
   url: 'https://catalog.weatherlayers.com',
   // url: 'http://localhost:8080',
-  format: 'byte.png',
+  dataFormat: 'byte.png',
 };
 
 /**
@@ -132,15 +134,15 @@ function getStacCollectionUnitFormat(stacCollection) {
 
 /**
  * @param {StacCollection} stacCollection
- * @param {string} [linkClass]
+ * @param {string} [attributionLinkClass]
  * @returns {string}
  */
-function getStacCollectionAttribution(stacCollection, linkClass = undefined) {
+function getStacCollectionAttribution(stacCollection, attributionLinkClass = undefined) {
   const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
   const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
   const attribution = [
-    ...(producer ? [`<a href="${producer.url}"${linkClass ? ` class="${linkClass}"`: ''}>${producer.name}</a>`] : []),
-    ...(processor ? [`<a href="${processor.url}"${linkClass ? ` class="${linkClass}"`: ''}>${processor.name}</a>`] : []),
+    ...(producer ? [`<a href="${producer.url}"${attributionLinkClass ? ` class="${attributionLinkClass}"`: ''}>${producer.name}</a>`] : []),
+    ...(processor ? [`<a href="${processor.url}"${attributionLinkClass ? ` class="${attributionLinkClass}"`: ''}>${processor.name}</a>`] : []),
   ].join(' via ');
   return attribution;
 }
@@ -156,7 +158,7 @@ function getStacCollectionDatetimes(stacCollection) {
 
 /**
  * @param {StacCollection} stacCollection
- * @returns {StacCollectionImageType}
+ * @returns {ImageType}
  */
 function getStacCollectionImageType(stacCollection) {
   return stacCollection['weatherLayers:imageType'];
@@ -189,6 +191,14 @@ export class Client {
    */
   constructor(config) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+  }
+
+  /**
+   * @param {Partial<ClientConfig>} config
+   * @returns {void}
+   */
+  setConfig(config) {
+    this.config = { ...this.config, ...config };
   }
 
   /**
@@ -240,25 +250,39 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {string} [format]
+   * @param {string} dataFormat
    * @returns {Promise<TextureData>}
    */
-  async loadStacCollectionData(dataset, datetime, format = this.config.format) {
+  async loadStacItemData(dataset, datetime, dataFormat) {
     const stacItem = await this.loadStacItem(dataset, datetime);
-    const url = getAuthenticatedUrl(stacItem.assets[`data.${format}`].href, this.config.accessToken);
+    const url = getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config.accessToken);
     return loadTextureDataCached(url, this.cache);
   }
 
   /**
-   * @param {string} dataset
-   * @param {string} [linkClass]
-   * @returns {Promise<{title: string, unitFormat: UnitFormat, attribution: string, datetimes: string[], palette: Palette}>}
+   * @returns {Promise<string[]>}
    */
-  async loadStacCollectionProperties(dataset, linkClass = undefined) {
+  async loadCatalog() {
+    const stacCatalog = await this.loadStacCatalog();
+    const modelIds = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
+    const datasetIds = (await Promise.all(modelIds.map(async modelId => {
+      const stacCollection = await this.loadStacCollection(modelId);
+      const datasetIds = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
+      return datasetIds;
+    }))).flat();
+    return datasetIds;
+  }
+
+  /**
+   * @param {string} dataset
+   * @param {{attributionLinkClass?: string}} options
+   * @returns {Promise<Dataset>}
+   */
+  async loadDataset(dataset, {attributionLinkClass} = {}) {
     const stacCollection = await this.loadStacCollection(dataset);
     const title = getStacCollectionTitle(stacCollection);
     const unitFormat = getStacCollectionUnitFormat(stacCollection);
-    const attribution = getStacCollectionAttribution(stacCollection, linkClass);
+    const attribution = getStacCollectionAttribution(stacCollection, attributionLinkClass);
     const datetimes = getStacCollectionDatetimes(stacCollection);
     const palette = await this.loadStacCollectionPalette(dataset);
 
@@ -268,11 +292,10 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {boolean} datetimeInterpolate
-   * @param {string} [format]
-   * @returns {Promise<{image: TextureData, image2: TextureData | null, imageWeight: number, imageType: StacCollectionImageType, imageUnscale: [number, number] | null, bounds: [number, number, number, number]}>}
+   * @param {{datetimeInterpolate?: boolean}} options
+   * @returns {Promise<DatasetData>}
    */
-  async loadStacCollectionDataProperties(dataset, datetime, datetimeInterpolate, format = this.config.format) {
+  async loadDatasetData(dataset, datetime, {datetimeInterpolate = false} = {}) {
     const stacCollection = await this.loadStacCollection(dataset);
     const datetimes = getStacCollectionDatetimes(stacCollection);
     const startDatetime = getClosestStartDatetime(datetimes, datetime);
@@ -283,8 +306,8 @@ export class Client {
     }
 
     const [image, image2] = await Promise.all([
-      this.loadStacCollectionData(dataset, startDatetime, format),
-      endDatetime ? this.loadStacCollectionData(dataset, endDatetime, format) : null,
+      this.loadStacItemData(dataset, startDatetime, this.config.dataFormat),
+      endDatetime ? this.loadStacItemData(dataset, endDatetime, this.config.dataFormat) : null,
     ]);
 
     const imageWeight = datetimeInterpolate && startDatetime && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;

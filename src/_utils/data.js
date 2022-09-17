@@ -1,11 +1,9 @@
 import * as GeoTIFF from 'geotiff';
-import {ImageType} from './image-type';
 
-/** @typedef {import('./image-type').ImageType} ImageType */
-/** @typedef {Uint8Array | Uint8ClampedArray | Float32Array} TextureDataArray */
-/** @typedef {{ data: TextureDataArray, width: number, height: number }} TextureData */
-/** @typedef {Float32Array} FloatDataArray */
-/** @typedef {{ data: FloatDataArray, width: number, height: number }} FloatData */
+/** @typedef {import('./data').TextureDataArray} TextureDataArray */
+/** @typedef {import('./data').TextureData} TextureData */
+/** @typedef {import('./data').FloatDataArray} FloatDataArray */
+/** @typedef {import('./data').FloatData} FloatData */
 
 /**
  * @param {TextureDataArray} data

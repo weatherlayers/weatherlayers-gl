@@ -1,7 +1,7 @@
 import {transfer, wrap} from 'comlink';
 import highLowPointWorker from 'worker!./high-low-point-worker';
+import {ImageType} from '../../../_utils/image-type';
 
-/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {'L' | 'H'} HighLowType */
 /** @typedef {{ type: HighLowType, value: number }} HighLowPointProperties */

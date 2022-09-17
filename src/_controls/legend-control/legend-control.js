@@ -9,6 +9,9 @@ import './legend-control.css';
 const DEFAULT_WIDTH = 300;
 const DEFAULT_TICKS_COUNT = 6;
 
+/**
+ * @extends {Control<LegendConfig>}
+ */
 export class LegendControl extends Control {
   /** @type {LegendConfig} */
   config;

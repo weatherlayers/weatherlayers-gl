@@ -1,3 +1,6 @@
+/**
+ * @template C
+ */
 export class Control {
   /**
    * @param {HTMLElement} target
@@ -20,6 +23,15 @@ export class Control {
    */
   remove() {
     this.onRemove();
+  }
+
+  /**
+   * @abstract
+   * @param {C} config
+   * @returns {void}
+   */
+  setConfig(config) {
+    throw new Error('Not implemented');
   }
 
   /**

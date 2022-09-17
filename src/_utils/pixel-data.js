@@ -2,7 +2,6 @@ import {ImageType} from './image-type';
 import {getPixelInterpolate} from './pixel';
 import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value';
 
-/** @typedef {import('./image-type').ImageType} ImageType */
 /** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {import('./data').FloatData} FloatData */
 

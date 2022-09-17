@@ -26,21 +26,10 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
-async function loadDatasetIds(client) {
-  const stacCatalog = await client.loadStacCatalog();
-  const stacCollectionIds = stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x);
-  const datasetIds = (await Promise.all(stacCollectionIds.map(async stacCollectionId => {
-    const stacCollection = await client.loadStacCollection(stacCollectionId);
-    const datasetIds = stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x);
-    return datasetIds;
-  }))).flat();
-  return datasetIds;
-}
-
 export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const datasets = client ? await loadDatasetIds(client) : { datasets: [] };
+  const datasets = client ? await client.loadCatalog() : { datasets: [] };
 
   const config = {
     client,
@@ -145,7 +134,7 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
     return;
   }
 
-  const { datetimes } = client ? await client.loadStacCollectionProperties(config.dataset) : { datetimes: [] };
+  const { datetimes } = client ? await client.loadDataset(config.dataset) : { datetimes: [] };
 
   config.datetimes = datetimes;
   config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];

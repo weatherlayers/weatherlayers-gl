@@ -30,7 +30,7 @@
 
     const client = new WeatherLayersCloud.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
-      format: 'tif',
+      dataFormat: 'tif',
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -74,8 +74,8 @@
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
-        const {image, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, false);
+        const {title, unitFormat, attribution, datetimes, palette} = await client.loadDataset(dataset);
+        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime);
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
           const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(image, imageType, imageUnscale, palette) : undefined;

@@ -5,6 +5,9 @@ import './tooltip-control.css';
 /** @typedef {import('../../_utils/raster-picking-info').RasterPickingInfo} RasterPickingInfo */
 /** @typedef {import('./tooltip-control').TooltipConfig} TooltipConfig */
 
+/**
+ * @extends {Control<TooltipConfig>}
+ */
 export class TooltipControl extends Control {
   /** @type {TooltipConfig} */
   config;

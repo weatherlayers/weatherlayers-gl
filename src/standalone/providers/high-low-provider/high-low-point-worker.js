@@ -1,10 +1,10 @@
 import {expose, transfer} from 'comlink';
 import {getUnprojectFunction} from '../../../_utils/project';
+import {ImageType} from '../../../_utils/image-type';
 import {blur} from '../../../_utils/blur';
 import {distance} from '../../../_utils/geodesy';
-import { getPixelMagnitudeData } from '../../../_utils/pixel-data';
+import {getPixelMagnitudeData} from '../../../_utils/pixel-data';
 
-/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
 
 /**

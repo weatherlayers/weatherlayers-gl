@@ -3,7 +3,6 @@ import {getProjectFunction} from '../../../_utils/project';
 import {getPixelInterpolate} from '../../../_utils/pixel';
 import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../../../_utils/pixel-value';
 
-/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {{ value: number, direction: number }} GridPointProperties */
 
@@ -22,7 +21,7 @@ export function getGridPoints(image, image2, imageInterpolate, imageWeight, imag
   const {width, height} = image;
   const project = getProjectFunction(width, height, bounds);
 
-  const gridPoints = /** @type {GeoJSON.FeatureCollection<GeoJSON.Point, GridPointProperties>[]} */ ([]);
+  const gridPoints = /** @type {GeoJSON.Feature<GeoJSON.Point, GridPointProperties>[]} */ ([]);
   for (let position of positions) {
     const point = project(position);
 

@@ -16,6 +16,9 @@ const STEP_INTERPOLATE = 0.25;
 const LOADING_CLASS = 'loading';
 const RUNNING_CLASS = 'running';
 
+/**
+ * @extends {Control<TimelineConfig>}
+ */
 export class TimelineControl extends Control {
   /** @type {TimelineConfig} */
   config;
@@ -310,8 +313,8 @@ export class TimelineControl extends Control {
       this.config.width === config.width &&
       this.config.datetimes.length === config.datetimes.length &&
       this.config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
-      this.config.datetimeInterpolate === config.datetimeInterpolate &&
       this.config.datetime === config.datetime &&
+      this.config.datetimeInterpolate === config.datetimeInterpolate &&
       this.config.onPreload === config.onPreload &&
       this.config.onUpdate === config.onUpdate
     ) {
@@ -321,8 +324,8 @@ export class TimelineControl extends Control {
     this.config = config;
     const width = this.config.width || DEFAULT_WIDTH;
     const datetimes = this.config.datetimes;
-    const datetimeInterpolate = this.config.datetimeInterpolate;
     const datetime = this.config.datetime;
+    const datetimeInterpolate = this.config.datetimeInterpolate;
 
     this.container.innerHTML = '';
     this.container.style.width = `${width}px`;

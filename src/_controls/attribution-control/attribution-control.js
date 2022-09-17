@@ -3,6 +3,9 @@ import './attribution-control.css';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */
 
+/**
+ * @extends {Control<AttributionConfig>}
+ */
 export class AttributionControl extends Control {
   /** @type {AttributionConfig} */
   config;

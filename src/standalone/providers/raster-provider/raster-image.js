@@ -1,9 +1,9 @@
 import {parsePalette} from 'cpt2js';
+import {ImageType} from '../../../_utils/image-type';
 import {getPixelInterpolate} from '../../../_utils/pixel';
 import {hasPixelValue, getPixelMagnitudeValue} from '../../../_utils/pixel-value';
 
 /** @typedef {import('cpt2js').Palette} Palette */
-/** @typedef {import('../../../_utils/image-type').ImageType} ImageType */
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 
 /**

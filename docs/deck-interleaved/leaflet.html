@@ -34,7 +34,7 @@
 
     const client = new WeatherLayersCloud.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
-      format: 'tif',
+      dataFormat: 'tif',
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -74,7 +74,7 @@
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadStacCollectionData(config.dataset, datetime))),
+        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetData(config.dataset, datetime))),
         onUpdate: datetime => {
           config.datetime = datetime || NO_DATA;
           update();
@@ -101,8 +101,8 @@
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unitFormat, attribution, datetimes, palette} = await client.loadStacCollectionProperties(dataset);
-        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadStacCollectionDataProperties(dataset, datetime, config.datetimeInterpolate);
+        const {title, unitFormat, attribution, datetimes, palette} = await client.loadDataset(dataset);
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         deckLayer.setProps({
           layers: [
@@ -209,7 +209,7 @@
         });
 
         legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
-        timelineControl.setConfig({ ...timelineControl.config, datetimes, datetimeInterpolate: config.datetimeInterpolate, datetime });
+        timelineControl.setConfig({ ...timelineControl.config, datetimes, datetime, datetimeInterpolate: config.datetimeInterpolate });
         tooltipControl.setConfig({ ...tooltipControl.config, unitFormat });
         attributionControl.setConfig({ attribution });
       }
