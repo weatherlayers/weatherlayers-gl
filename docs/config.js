@@ -26,10 +26,21 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
+async function loadDatasetIds(client) {
+  const stacCatalog = await client.loadStacCatalog();
+  const stacCollectionIds = stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x);
+  const datasetIds = (await Promise.all(stacCollectionIds.map(async stacCollectionId => {
+    const stacCollection = await client.loadStacCollection(stacCollectionId);
+    const datasetIds = stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x);
+    return datasetIds;
+  }))).flat();
+  return datasetIds;
+}
+
 export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const datasets = client ? await client.loadStacCatalogChildCollectionIds() : { datasets: [] };
+  const datasets = client ? await loadDatasetIds(client) : { datasets: [] };
 
   const config = {
     client,

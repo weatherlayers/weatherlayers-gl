@@ -200,20 +200,6 @@ export class Client {
   }
 
   /**
-   * @returns {Promise<string[]>}
-   */
-  async loadStacCatalogChildCollectionIds() {
-    const stacCatalog = await this.loadStacCatalog();
-    const ids = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
-    const childIds = (await Promise.all(ids.map(async id => {
-      const stacCollection = await this.loadStacCollection(id);
-      const childIds = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
-      return childIds;
-    }))).flat();
-    return childIds;
-  }
-
-  /**
    * @param {string} dataset
    * @returns {Promise<StacCollection>}
    */
