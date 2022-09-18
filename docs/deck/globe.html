@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.8.4/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../info-control.css">
@@ -29,7 +29,7 @@
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    const client = new WeatherLayersCloud.Client({
+    const client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       dataFormat: 'tif',
     });

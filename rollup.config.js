@@ -23,19 +23,18 @@ function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
 
   const bundleGl = filename.includes('deck') || filename.includes('standalone');
-  const bundleCloud = filename.includes('cloud');
+  const bundleClient = filename.includes('client');
   const banner = [
     'Copyright (c) 2021-2022 WeatherLayers.com',
     '',
     ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? ['WeatherLayers GL'] : []),
     ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
     ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL, Project License, valid for ${LICENSE_DOMAIN}`] : []),
-    ...(bundleCloud ? ['WeatherLayers Cloud'] : []),
+    ...(bundleClient ? ['WeatherLayers Client'] : []),
     '',
     'Demo - https://demo.weatherlayers.com/',
     'Docs - https://docs.weatherlayers.com/',
     ...(bundleGl ? ['License Terms of Use - https://weatherlayers.com/license-terms-of-use.html'] : []),
-    ...(bundleCloud ? ['Terms of Use - https://weatherlayers.com/terms-of-use.html'] : []),
   ].join('\n');
 
   return {
@@ -43,7 +42,7 @@ function bundle(entrypoint, filename, format, options = {}) {
     output: {
       file: filename,
       format: format,
-      name: bundleCloud ? 'WeatherLayersCloud' : 'WeatherLayers',
+      name: bundleClient ? 'WeatherLayersClient' : 'WeatherLayers',
       sourcemap: true,
       globals: {
         '@deck.gl/core': 'deck',
@@ -100,7 +99,7 @@ function bundle(entrypoint, filename, format, options = {}) {
 export default commandLineArgs => {
   return [
     ['src/deck/index.js', 'dist/weatherlayers-deck.js'],
-    ['src/cloud/index.js', 'dist/weatherlayers-cloud.js'],
+    ['src/client/index.js', 'dist/weatherlayers-client.js'],
     ['src/standalone/index.js', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch ? [

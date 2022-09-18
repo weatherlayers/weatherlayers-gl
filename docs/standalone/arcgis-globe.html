@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/@deck.gl/arcgis@8.8.4/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.24/"></script> because of require function conflict -->
   <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
-  <script src="../../dist/weatherlayers-cloud.umd.min.js"></script>
+  <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-standalone.umd.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../fps-control.css">
@@ -29,11 +29,11 @@
     import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
-    const client = new WeatherLayersCloud.Client({
+    const client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       // dataFormat: 'tif',
     });
-    const mercatorClient = new WeatherLayersCloud.Client({
+    const mercatorClient = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       dataFormat: `mercator.${client.config.dataFormat}`,
     });
