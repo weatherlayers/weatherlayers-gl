@@ -31,7 +31,7 @@
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    const client = new WeatherLayersClient.Client({
+    const client = window.client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       dataFormat: 'tif',
     });
