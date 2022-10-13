@@ -13,7 +13,9 @@ import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from 
 /** @typedef {import('../_utils/stac').StacAssetRole} StacAssetRole */
 /** @typedef {import('../_utils/stac').StacItem} StacItem */
 /** @typedef {import('./client').ClientConfig} ClientConfig */
+/** @typedef {import('./client').LoadDatasetOptions} LoadDatasetOptions */
 /** @typedef {import('./client').Dataset} Dataset */
+/** @typedef {import('./client').LoadDatasetDataOptions} LoadDatasetDataOptions */
 /** @typedef {import('./client').DatasetData} DatasetData */
 
 /** @type {ClientConfig} */
@@ -275,7 +277,7 @@ export class Client {
 
   /**
    * @param {string} dataset
-   * @param {{attributionLinkClass?: string}} options
+   * @param {LoadDatasetOptions} options
    * @returns {Promise<Dataset>}
    */
   async loadDataset(dataset, {attributionLinkClass} = {}) {
@@ -292,7 +294,7 @@ export class Client {
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {{datetimeInterpolate?: boolean}} options
+   * @param {LoadDatasetDataOptions} options
    * @returns {Promise<DatasetData>}
    */
   async loadDatasetData(dataset, datetime, {datetimeInterpolate = false} = {}) {
