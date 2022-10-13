@@ -301,7 +301,7 @@ export class Client {
     const stacCollection = await this.loadStacCollection(dataset);
     const datetimes = getStacCollectionDatetimes(stacCollection);
     const startDatetime = getClosestStartDatetime(datetimes, datetime);
-    const endDatetime = getClosestEndDatetime(datetimes, datetime);
+    const endDatetime = datetimeInterpolate ? getClosestEndDatetime(datetimes, datetime) : null;
 
     if (!startDatetime) {
       throw new Error('No data found');
@@ -309,10 +309,10 @@ export class Client {
 
     const [image, image2] = await Promise.all([
       this.loadStacItemData(dataset, startDatetime, this.config.dataFormat),
-      endDatetime ? this.loadStacItemData(dataset, endDatetime, this.config.dataFormat) : null,
+      datetimeInterpolate && endDatetime ? this.loadStacItemData(dataset, endDatetime, this.config.dataFormat) : null,
     ]);
 
-    const imageWeight = datetimeInterpolate && startDatetime && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
+    const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
     const imageType = getStacCollectionImageType(stacCollection);
     const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
     const bounds = getStacCollectionBounds(stacCollection);
