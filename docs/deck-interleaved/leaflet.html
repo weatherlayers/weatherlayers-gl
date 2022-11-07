@@ -117,8 +117,8 @@
               imageUnscale,
               bounds,
               // style properties
-              palette,
               visible: config.raster.enabled,
+              palette,
               opacity: config.raster.opacity,
               pickable: !isMetalWebGl2(),
               extensions: [new deck.ClipExtension()],
@@ -155,6 +155,7 @@
               bounds,
               // style properties
               visible: config.highLow.enabled && !timelineControl.animation.running,
+              unitFormat,
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
               textColor: colorToArray(config.highLow.textColor),
@@ -196,6 +197,7 @@
               // style properties
               visible: config.grid.enabled,
               style: config.grid.style,
+              unitFormat,
               textSize: config.grid.textSize,
               textColor: colorToArray(config.grid.textColor),
               textOutlineWidth: config.grid.textOutlineWidth,

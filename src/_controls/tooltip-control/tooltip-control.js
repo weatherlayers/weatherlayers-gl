@@ -52,7 +52,7 @@ export class TooltipControl extends Control {
     if (!this.container) {
       return;
     }
-
+    
     // validate config
     if (!config.unitFormat) {
       return;
@@ -86,10 +86,9 @@ export class TooltipControl extends Control {
     }
     
     const unitFormat = this.config.unitFormat;
-    const unitFormatWithIncreasedPrecision = { ...unitFormat, decimals: (unitFormat.decimals ?? 0) + 1 };
 
     const {value, direction} = rasterPickingInfo;
-    let tooltip = formatValueWithUnit(value, unitFormatWithIncreasedPrecision);
+    let tooltip = formatValueWithUnit(value, unitFormat);
     if (typeof direction !== 'undefined') {
       tooltip += `, ${formatDirection(direction)}`
     }

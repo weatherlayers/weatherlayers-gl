@@ -14,6 +14,7 @@ const defaultProps = {
 
   radius: {type: 'number', value: null, required: true},
 
+  unitFormat: {type: 'object', value: null},
   textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
@@ -31,7 +32,7 @@ class HighLowCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
+    const {unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -54,7 +55,7 @@ class HighLowCompositeLayer extends CompositeLayer {
         data: visibleHighLowPoints,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
-        getText: d => textFormatFunction(d.properties.value),
+        getText: d => textFormatFunction(d.properties.value, unitFormat),
         getSize: textSize,
         getColor: textColor,
         getAngle: getViewportAngle(viewport, 0),

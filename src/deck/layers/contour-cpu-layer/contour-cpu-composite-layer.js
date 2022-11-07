@@ -16,6 +16,7 @@ const defaultProps = {
   interval: {type: 'number', value: null, required: true},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
+  unitFormat: {type: 'object', value: null},
   textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
@@ -33,7 +34,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {color, width, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
+    const {color, width, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
 
     return [
       new PathLayer(this.getSubLayerProps({
@@ -48,7 +49,7 @@ class ContourCpuCompositeLayer extends CompositeLayer {
         id: 'value',
         data: visibleContourLabels,
         getPosition: d => d.geometry.coordinates,
-        getText: d => textFormatFunction(d.properties.value),
+        getText: d => textFormatFunction(d.properties.value, unitFormat),
         getSize: textSize,
         getColor: textColor,
         getAngle: d => getViewportAngle(viewport, d.properties.angle),

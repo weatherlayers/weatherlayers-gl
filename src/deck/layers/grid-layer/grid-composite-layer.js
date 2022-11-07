@@ -18,6 +18,7 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   style: {type: 'object', value: GridStyle.VALUE},
+  unitFormat: {type: 'object', value: null},
   textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
@@ -39,7 +40,7 @@ class GridCompositeLayer extends CompositeLayer {
       return [];
     }
 
-    const {style, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
+    const {style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
@@ -66,7 +67,7 @@ class GridCompositeLayer extends CompositeLayer {
           id: 'text',
           data: gridPoints,
           getPosition: d => d.geometry.coordinates,
-          getText: d => textFormatFunction(d.properties.value),
+          getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
           getColor: textColor,
           getAngle: getViewportAngle(viewport, 0),
