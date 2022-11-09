@@ -14,6 +14,7 @@ const HIGH_LOW_LAYER_DATASET_CONFIG = {
 };
 const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB },
+  'gfs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB },
   'gfs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfs/apparent_temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'cmems_sst/sea_surface_temperature': { style: WeatherLayers.GridStyle.VALUE },
@@ -22,6 +23,7 @@ const GRID_LAYER_DATASET_CONFIG = {
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'gfs/wind_100m_above_ground': { speedFactor: 3, width: 2 },
   'gfswave/waves': { speedFactor: 2, width: 5 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
