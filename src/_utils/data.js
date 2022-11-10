@@ -5,6 +5,30 @@ import * as GeoTIFF from 'geotiff';
 /** @typedef {import('./data').FloatDataArray} FloatDataArray */
 /** @typedef {import('./data').FloatData} FloatData */
 
+/** @type {Map<string, any>} */
+const DEFAULT_CACHE = new Map();
+
+/**
+ * @template T
+ * @param {(url: string) => Promise<T>} loadFunction
+ * @return {(url: string, cache?: Map<string, any>) => Promise<T>}
+ */
+function loadCached(loadFunction) {
+  return (url, cache = DEFAULT_CACHE) => {
+    const dataOrPromise = cache.get(url);
+    if (dataOrPromise) {
+      return dataOrPromise;
+    }
+    
+    const dataPromise = loadFunction(url);
+    cache.set(url, dataPromise);
+    dataPromise.then(data => {
+      cache.set(url, data);
+    });
+    return dataPromise;
+  };
+}
+
 /**
  * @param {TextureDataArray} data
  * @param {number} [nodata]
@@ -84,3 +108,26 @@ export function loadTextureData(url) {
     throw new Error('Unsupported data format');
   }
 }
+
+export const loadTextureDataCached = loadCached(loadTextureData);
+
+/**
+ * @template T
+ * @param {string} url
+ * @return {Promise<T>}
+ */
+export async function loadJson(url) {
+  return (await fetch(url)).json();
+}
+
+export const loadJsonCached = loadCached(loadJson);
+
+/**
+ * @param {string} url
+ * @return {Promise<string>}
+ */
+export async function loadText(url) {
+  return (await fetch(url)).text();
+}
+
+export const loadTextCached = loadCached(loadText);

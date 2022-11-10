@@ -1,5 +1,5 @@
 import {VERSION} from '../_utils/build';
-import {loadTextureData} from '../_utils/data';
+import {loadTextureDataCached, loadJsonCached, loadTextCached} from '../_utils/data';
 import {ImageType} from '../_utils/image-type';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
 
@@ -24,81 +24,6 @@ const DEFAULT_CONFIG = {
   // url: 'http://localhost:8080',
   dataFormat: 'byte.png',
 };
-
-/**
- * @param {string} url
- * @return {Promise<string>}
- */
-async function loadText(url) {
-  return (await fetch(url)).text();
-}
-
-/**
- * @template T
- * @param {string} url
- * @return {Promise<T>}
- */
-async function loadJson(url) {
-  return (await fetch(url)).json();
-}
-
-/**
- * @param {string} url
- * @param {Map<string, any>} cache
- * @return {Promise<string>}
- */
-function loadTextCached(url, cache) {
-  const dataOrPromise = cache.get(url);
-  if (dataOrPromise) {
-    return dataOrPromise;
-  }
-  
-  const dataPromise = loadText(url);
-  cache.set(url, dataPromise);
-  dataPromise.then(data => {
-    cache.set(url, data);
-  });
-  return dataPromise;
-}
-
-/**
- * @template T
- * @param {string} url
- * @param {Map<string, any>} cache
- * @return {Promise<T>}
- */
-function loadJsonCached(url, cache) {
-  const dataOrPromise = cache.get(url);
-  if (dataOrPromise) {
-    return dataOrPromise;
-  }
-  
-  const dataPromise = loadJson(url);
-  cache.set(url, dataPromise);
-  dataPromise.then(data => {
-    cache.set(url, data);
-  });
-  return dataPromise;
-}
-
-/**
- * @param {string} url
- * @param {Map<string, any>} cache
- * @returns {Promise<TextureData>}
- */
-function loadTextureDataCached(url, cache) {
-  const dataOrPromise = cache.get(url);
-  if (dataOrPromise) {
-    return dataOrPromise;
-  }
-  
-  const dataPromise = loadTextureData(url);
-  cache.set(url, dataPromise);
-  dataPromise.then(data => {
-    cache.set(url, data);
-  });
-  return dataPromise;
-}
 
 /**
  * @param {string} url
