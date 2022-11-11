@@ -138,7 +138,7 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
 
   const { datetimes } = client ? await client.loadDataset(config.dataset) : { datetimes: [] };
 
-  config.datetimes = datetimes;
+  config.datetimes = datetimes.slice(-25);
   config.datetime = WeatherLayers.getClosestStartDatetime(config.datetimes, config.datetime) || config.datetimes[0];
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;

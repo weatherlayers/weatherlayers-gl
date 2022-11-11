@@ -189,7 +189,7 @@
         });
 
         legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
-        timelineControl.setConfig({ ...timelineControl.config, datetimes, datetime, datetimeInterpolate: config.datetimeInterpolate });
+        timelineControl.setConfig({ ...timelineControl.config, datetimes: datetimes.slice(-25), datetime, datetimeInterpolate: config.datetimeInterpolate });
         tooltipControl.setConfig({ ...tooltipControl.config, unitFormat });
         attributionControl.setConfig({ attribution });
       }
