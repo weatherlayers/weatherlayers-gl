@@ -19,7 +19,7 @@ steps:
       - cp
       - '-r'
       - dist/weatherlayers-deck.umd.min.js
-      - dist/weatherlayers-cloud.umd.min.js
+      - dist/weatherlayers-client.umd.min.js
       - docs/dist
   - name: gcr.io/cloud-builders/gsutil
     args:
