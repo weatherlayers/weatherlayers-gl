@@ -14,9 +14,6 @@ export interface FloatData {
   height: number;
 }
 
-export function loadTextureData(url: string): Promise<TextureData>;
-export function loadTextureDataCached(url: string, cache?: Map<string, any>): Promise<TextureData>;
-export function loadJson<T>(url: string): Promise<T>;
-export function loadJsonCached<T>(url: string, cache?: Map<string, any>): Promise<T>;
-export function loadText(url: string): Promise<string>;
-export function loadTextCached(url: string, cache?: Map<string, any>): Promise<string>;
+export function loadTextureData(url: string, cache?: Map<string, any> | false): Promise<TextureData>;
+export function loadJson<T>(url: string, cache?: Map<string, any> | false): Promise<T>;
+export function loadText(url: string, cache?: Map<string, any> | false): Promise<string>;

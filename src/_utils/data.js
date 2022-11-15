@@ -9,27 +9,6 @@ import * as GeoTIFF from 'geotiff';
 const DEFAULT_CACHE = new Map();
 
 /**
- * @template T
- * @param {(url: string) => Promise<T>} loadFunction
- * @return {(url: string, cache?: Map<string, any>) => Promise<T>}
- */
-function loadCached(loadFunction) {
-  return (url, cache = DEFAULT_CACHE) => {
-    const dataOrPromise = cache.get(url);
-    if (dataOrPromise) {
-      return dataOrPromise;
-    }
-    
-    const dataPromise = loadFunction(url);
-    cache.set(url, dataPromise);
-    dataPromise.then(data => {
-      cache.set(url, data);
-    });
-    return dataPromise;
-  };
-}
-
-/**
  * @param {TextureDataArray} data
  * @param {number} [nodata]
  * @returns {TextureDataArray}
@@ -96,10 +75,31 @@ async function loadGeotiff(url) {
 }
 
 /**
- * @param {string} url
- * @returns {Promise<TextureData>}
+ * @template T
+ * @param {(url: string) => Promise<T>} loadFunction
+ * @return {(url: string, cache?: Map<string, any> | false) => Promise<T>}
  */
-export function loadTextureData(url) {
+function loadCached(loadFunction) {
+  return (url, cache = DEFAULT_CACHE) => {
+    if (cache === false) {
+      return loadFunction(url);
+    }
+
+    const dataOrPromise = cache.get(url);
+    if (dataOrPromise) {
+      return dataOrPromise;
+    }
+    
+    const dataPromise = loadFunction(url);
+    cache.set(url, dataPromise);
+    dataPromise.then(data => {
+      cache.set(url, data);
+    });
+    return dataPromise;
+  };
+}
+
+export const loadTextureData = loadCached(url => {
   if (url.includes('.png')) {
     return loadImage(url);
   } else if (url.includes('.tif')) {
@@ -107,27 +107,12 @@ export function loadTextureData(url) {
   } else {
     throw new Error('Unsupported data format');
   }
-}
+});
 
-export const loadTextureDataCached = loadCached(loadTextureData);
-
-/**
- * @template T
- * @param {string} url
- * @return {Promise<T>}
- */
-export async function loadJson(url) {
+export const loadJson = loadCached(async url => {
   return (await fetch(url)).json();
-}
+});
 
-export const loadJsonCached = loadCached(loadJson);
-
-/**
- * @param {string} url
- * @return {Promise<string>}
- */
-export async function loadText(url) {
+export const loadText = loadCached(async url => {
   return (await fetch(url)).text();
-}
-
-export const loadTextCached = loadCached(loadText);
+});

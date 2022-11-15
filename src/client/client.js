@@ -1,5 +1,5 @@
 import {VERSION} from '../_utils/build';
-import {loadTextureDataCached, loadJsonCached, loadTextCached} from '../_utils/data';
+import {loadTextureData, loadJson, loadText} from '../_utils/data';
 import {ImageType} from '../_utils/image-type';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
 
@@ -133,7 +133,7 @@ export class Client {
    */
   async loadStacCatalog() {
     const url = getAuthenticatedUrl(`${this.config.url}/catalog`, this.config.accessToken);
-    return loadJsonCached(url, this.cache);
+    return loadJson(url, this.cache);
   }
 
   /**
@@ -142,7 +142,7 @@ export class Client {
    */
   async loadStacCollection(dataset) {
     const url = getAuthenticatedUrl(`${this.config.url}/catalog/${dataset}`, this.config.accessToken);
-    return loadJsonCached(url, this.cache);
+    return loadJson(url, this.cache);
   }
 
   /**
@@ -156,7 +156,7 @@ export class Client {
       throw new Error(`Palette asset not found`);
     }
     const url = getAuthenticatedUrl(asset.href, this.config.accessToken);
-    return loadTextCached(url, this.cache);
+    return loadText(url, this.cache);
   }
 
   /**
@@ -171,7 +171,7 @@ export class Client {
       throw new Error(`Item ${datetime} not found`);
     }
     const url = getAuthenticatedUrl(link.href, this.config.accessToken);
-    return loadJsonCached(url, this.cache);
+    return loadJson(url, this.cache);
   }
 
   /**
@@ -183,7 +183,7 @@ export class Client {
   async loadStacItemData(dataset, datetime, dataFormat) {
     const stacItem = await this.loadStacItem(dataset, datetime);
     const url = getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config.accessToken);
-    return loadTextureDataCached(url, this.cache);
+    return loadTextureData(url, this.cache);
   }
 
   /**
