@@ -1,7 +1,7 @@
-import {VERSION} from '../_utils/build';
-import {loadTextureData, loadJson, loadText} from '../_utils/data';
-import {ImageType} from '../_utils/image-type';
-import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime';
+import {VERSION} from '../_utils/build.js';
+import {loadTextureData, loadJson, loadText} from '../_utils/data.js';
+import {ImageType} from '../_utils/image-type.js';
+import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
 
 /** @typedef {import('cpt2js').Palette} Palette */
 /** @typedef {import('../_utils/data').TextureData} TextureData */

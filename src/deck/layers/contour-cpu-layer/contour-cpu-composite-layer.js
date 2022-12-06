@@ -1,11 +1,11 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {PathLayer, TextLayer} from '@deck.gl/layers';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
-import {ImageType} from '../../../_utils/image-type';
-import {getViewportAngle} from '../../../_utils/viewport';
-import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
-import {getContourLines} from '../../../standalone/providers/contour-provider/contour-line';
-import {getContourLabels} from '../../../standalone/providers/contour-provider/contour-label';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {getViewportAngle} from '../../../_utils/viewport.js';
+import {getViewportVisiblePoints} from '../../../_utils/viewport-point.js';
+import {getContourLines} from '../../../standalone/providers/contour-provider/contour-line.js';
+import {getContourLabels} from '../../../standalone/providers/contour-provider/contour-label.js';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data

@@ -1,7 +1,7 @@
-import {ImageType} from '../../../_utils/image-type';
-import {getProjectFunction} from '../../../_utils/project';
-import {getPixelInterpolate} from '../../../_utils/pixel';
-import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../../../_utils/pixel-value';
+import {ImageType} from '../../../_utils/image-type.js';
+import {getProjectFunction} from '../../../_utils/project.js';
+import {getPixelInterpolate} from '../../../_utils/pixel.js';
+import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../../../_utils/pixel-value.js';
 
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {{ value: number, direction: number }} GridPointProperties */

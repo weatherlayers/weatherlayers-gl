@@ -1,5 +1,5 @@
-import {ImageType} from './image-type';
-import {mix} from './mix';
+import {ImageType} from './image-type.js';
+import {mix} from './mix.js';
 
 /**
  * @param {number[]} pixel

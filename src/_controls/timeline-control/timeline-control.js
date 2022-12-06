@@ -1,8 +1,8 @@
-import {Animation} from '../../_utils/animation';
-import {interpolateDatetime} from '../../_utils/datetime';
-import {formatDatetime} from '../../_utils/format';
-import {randomString} from '../../_utils/random-string';
-import {Control} from '../control';
+import {Animation} from '../../_utils/animation.js';
+import {interpolateDatetime} from '../../_utils/datetime.js';
+import {formatDatetime} from '../../_utils/format.js';
+import {randomString} from '../../_utils/random-string.js';
+import {Control} from '../control.js';
 import './timeline-control.css';
 
 /** @typedef {import('./timeline-control').TimelineConfig} TimelineConfig */

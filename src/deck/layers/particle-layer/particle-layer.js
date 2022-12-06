@@ -1,7 +1,7 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
-import {createTextureCached} from '../../../_utils/texture';
-import {withCheckLicense} from '../../license';
-import {ParticleLineLayer} from './particle-line-layer';
+import {createTextureCached} from '../../../_utils/texture.js';
+import {withCheckLicense} from '../../license.js';
+import {ParticleLineLayer} from './particle-line-layer.js';
 
 const defaultProps = {
   ...ParticleLineLayer.defaultProps,

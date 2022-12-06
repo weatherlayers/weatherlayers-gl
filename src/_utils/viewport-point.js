@@ -1,6 +1,6 @@
 import KDBush from 'kdbush';
 import geokdbush from 'geokdbush';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport.js';
 
 /** @typedef {import('./viewport').Viewport} Viewport */
 /** @typedef {any} KDBush */

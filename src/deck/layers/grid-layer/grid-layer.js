@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {withCheckLicense} from '../../license';
-import {GridCompositeLayer} from './grid-composite-layer';
+import {withCheckLicense} from '../../license.js';
+import {GridCompositeLayer} from './grid-composite-layer.js';
 
 const defaultProps = {
   ...GridCompositeLayer.defaultProps,

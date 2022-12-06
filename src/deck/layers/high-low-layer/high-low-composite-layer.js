@@ -1,10 +1,10 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props';
-import {ImageType} from '../../../_utils/image-type';
-import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport';
-import {getViewportVisiblePoints} from '../../../_utils/viewport-point';
-import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport.js';
+import {getViewportVisiblePoints} from '../../../_utils/viewport-point.js';
+import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data

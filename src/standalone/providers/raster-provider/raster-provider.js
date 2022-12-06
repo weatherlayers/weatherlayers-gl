@@ -1,3 +1,3 @@
-import {getRasterImage} from './raster-image';
+import {getRasterImage} from './raster-image.js';
 
 export const RasterProvider = {getRasterImage};

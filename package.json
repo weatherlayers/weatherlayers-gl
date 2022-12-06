@@ -9,6 +9,7 @@
   "files": [
     "dist/**/*.min.js"
   ],
+  "type": "module",
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",

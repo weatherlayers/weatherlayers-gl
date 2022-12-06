@@ -1,5 +1,5 @@
-import { ImageType } from './image-type';
-import { UnitFormat } from './unit-format';
+import { ImageType } from './image-type.js';
+import { UnitFormat } from './unit-format.js';
 
 export enum StacProviderRole {
   LICENSOR = 'licensor',

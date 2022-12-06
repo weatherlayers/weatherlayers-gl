@@ -1,6 +1,6 @@
 import {transfer, wrap} from 'comlink';
-import contourLineWorker from 'worker!./contour-line-worker';
-import {ImageType} from '../../../_utils/image-type';
+import contourLineWorker from 'worker!./contour-line-worker.js';
+import {ImageType} from '../../../_utils/image-type.js';
 
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {{ value: number }} ContourLineProperties */

@@ -1,9 +1,9 @@
 import {expose, transfer} from 'comlink';
-import {getUnprojectFunction} from '../../../_utils/project';
-import {ImageType} from '../../../_utils/image-type';
-import {blur} from '../../../_utils/blur';
-import {distance} from '../../../_utils/geodesy';
-import {getPixelMagnitudeData} from '../../../_utils/pixel-data';
+import {getUnprojectFunction} from '../../../_utils/project.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {blur} from '../../../_utils/blur.js';
+import {distance} from '../../../_utils/geodesy.js';
+import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
 
 /** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
 

@@ -1,7 +1,7 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
-import {createTextureCached} from '../../../_utils/texture';
-import {withCheckLicense} from '../../license';
-import {RasterBitmapLayer} from './raster-bitmap-layer';
+import {createTextureCached} from '../../../_utils/texture.js';
+import {withCheckLicense} from '../../license.js';
+import {RasterBitmapLayer} from './raster-bitmap-layer.js';
 
 const defaultProps = {
   ...RasterBitmapLayer.defaultProps,

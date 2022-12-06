@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {withCheckLicense} from '../../license';
-import {HighLowCompositeLayer} from './high-low-composite-layer';
+import {withCheckLicense} from '../../license.js';
+import {HighLowCompositeLayer} from './high-low-composite-layer.js';
 
 const defaultProps = {
   ...HighLowCompositeLayer.defaultProps,

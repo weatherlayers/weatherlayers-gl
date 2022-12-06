@@ -1,5 +1,5 @@
-import {formatValueWithUnit, formatDirection} from '../../_utils/format';
-import {Control} from '../control';
+import {formatValueWithUnit, formatDirection} from '../../_utils/format.js';
+import {Control} from '../control.js';
 import './tooltip-control.css';
 
 /** @typedef {import('../../_utils/raster-picking-info').RasterPickingInfo} RasterPickingInfo */

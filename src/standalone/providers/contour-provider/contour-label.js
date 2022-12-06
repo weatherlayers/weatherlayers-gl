@@ -1,4 +1,4 @@
-import {projectPatternOnPointPath} from 'leaflet-polylinedecorator/src/patternUtils';
+import {projectPatternOnPointPath} from 'leaflet-polylinedecorator/src/patternUtils.js';
 
 /** @typedef {import('./contour-line').ContourLineProperties} ContourLineProperties */
 /** @typedef {{ value: number, angle: number }} ContourLabelProperties */

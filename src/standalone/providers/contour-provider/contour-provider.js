@@ -1,4 +1,4 @@
-import {getContourLines} from './contour-line';
-import {getContourLabels} from './contour-label';
+import {getContourLines} from './contour-line.js';
+import {getContourLabels} from './contour-label.js';
 
 export const ContourProvider = {getContourLines, getContourLabels};

@@ -1,4 +1,4 @@
-import {Control} from '../control';
+import {Control} from '../control.js';
 import './attribution-control.css';
 
 /** @typedef {import('./attribution-control').AttributionConfig} AttributionConfig */

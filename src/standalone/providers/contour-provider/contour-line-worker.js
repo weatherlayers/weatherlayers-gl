@@ -1,10 +1,10 @@
 import {expose, transfer} from 'comlink';
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
-import {blur} from '../../../_utils/blur';
-import {ImageType} from '../../../_utils/image-type';
-import {getPixelMagnitudeData} from '../../../_utils/pixel-data';
-import {getUnprojectFunction} from '../../../_utils/project';
+import {blur} from '../../../_utils/blur.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
+import {getUnprojectFunction} from '../../../_utils/project.js';
 
 /** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
 

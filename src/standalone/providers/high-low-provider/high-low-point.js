@@ -1,6 +1,6 @@
 import {transfer, wrap} from 'comlink';
-import highLowPointWorker from 'worker!./high-low-point-worker';
-import {ImageType} from '../../../_utils/image-type';
+import highLowPointWorker from 'worker!./high-low-point-worker.js';
+import {ImageType} from '../../../_utils/image-type.js';
 
 /** @typedef {import('../../../_utils/data').TextureData} TextureData */
 /** @typedef {'L' | 'H'} HighLowType */

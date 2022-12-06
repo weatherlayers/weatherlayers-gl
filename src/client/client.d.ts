@@ -1,7 +1,7 @@
 import { Palette } from 'cpt2js';
-import { TextureData } from '../_utils/data';
-import { ImageType } from '../_utils/image-type';
-import { UnitFormat } from '../_utils/unit-format';
+import { TextureData } from '../_utils/data.js';
+import { ImageType } from '../_utils/image-type.js';
+import { UnitFormat } from '../_utils/unit-format.js';
 
 export interface ClientConfig {
   url: string;

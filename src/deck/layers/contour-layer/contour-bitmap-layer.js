@@ -1,8 +1,8 @@
 import {BitmapLayer} from '@deck.gl/layers';
 import {FEATURES, isWebGL2, hasFeatures} from '@luma.gl/core';
 import {sourceCode as fs, tokens as fsTokens} from './contour-bitmap-layer.fs.glsl';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
-import {ImageType} from '../../../_utils/image-type';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props.js';
+import {ImageType} from '../../../_utils/image-type.js';
 
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},

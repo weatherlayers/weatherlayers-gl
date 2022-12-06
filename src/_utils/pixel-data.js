@@ -1,6 +1,6 @@
-import {ImageType} from './image-type';
-import {getPixelInterpolate} from './pixel';
-import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value';
+import {ImageType} from './image-type.js';
+import {getPixelInterpolate} from './pixel.js';
+import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value.js';
 
 /** @typedef {import('./data').TextureData} TextureData */
 /** @typedef {import('./data').FloatData} FloatData */

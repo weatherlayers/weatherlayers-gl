@@ -1,6 +1,6 @@
 import {parsePalette, colorRampCanvas} from 'cpt2js';
-import {formatValue, formatUnit} from '../../_utils/format';
-import {Control} from '../control';
+import {formatValue, formatUnit} from '../../_utils/format.js';
+import {Control} from '../control.js';
 import './legend-control.css';
 
 /** @typedef {import('cpt2js').Palette} Palette */

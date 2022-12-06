@@ -1,4 +1,4 @@
-import {mixAll} from './mix';
+import {mixAll} from './mix.js';
 
 /** @typedef {import('./data').TextureData} TextureData */
 

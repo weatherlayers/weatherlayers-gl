@@ -2,7 +2,7 @@ import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 import {parsePalette, colorRampCanvas} from 'cpt2js';
-import {ImageType} from '../../../_utils/image-type';
+import {ImageType} from '../../../_utils/image-type.js';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
 /** @typedef {import('../../../_utils/raster-picking-info').RasterPickingInfo} RasterPickingInfo */

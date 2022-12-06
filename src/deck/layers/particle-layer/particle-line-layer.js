@@ -1,8 +1,8 @@
 import {LineLayer} from '@deck.gl/layers';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props';
-import {ImageType} from '../../../_utils/image-type';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport.js';
 import {sourceCode as updateVs, tokens as updateVsTokens} from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;

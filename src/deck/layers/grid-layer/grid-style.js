@@ -1,4 +1,4 @@
-import {GridStyle} from '../../../_utils';
+import {GridStyle} from '../../../_utils/grid-style.js';
 import arrowIconAtlas from './arrow.png';
 import arrowIconMapping from './arrow.json';
 import windBarbIconAtlas from './wind-barb.png';

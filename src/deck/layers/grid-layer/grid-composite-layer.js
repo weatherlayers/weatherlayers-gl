@@ -1,12 +1,12 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer, IconLayer} from '@deck.gl/layers';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props';
-import {ImageType} from '../../../_utils/image-type';
-import {getViewportAngle} from '../../../_utils/viewport';
-import {getViewportGridPositions} from '../../../_utils/viewport-grid';
-import {GridStyle} from '../../../_utils';
-import {getGridPoints} from '../../../standalone/providers/grid-provider/grid-point';
-import {GRID_ICON_STYLES} from './grid-style';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props.js';
+import {ImageType} from '../../../_utils/image-type.js';
+import {getViewportAngle} from '../../../_utils/viewport.js';
+import {getViewportGridPositions} from '../../../_utils/viewport-grid.js';
+import {GridStyle} from '../../../_utils/grid-style.js';
+import {getGridPoints} from '../../../standalone/providers/grid-provider/grid-point.js';
+import {GRID_ICON_STYLES} from './grid-style.js';
 
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data

@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core';
-import {withCheckLicense} from '../../license';
-import {ContourCpuCompositeLayer} from './contour-cpu-composite-layer';
+import {withCheckLicense} from '../../license.js';
+import {ContourCpuCompositeLayer} from './contour-cpu-composite-layer.js';
 
 const defaultProps = {
   ...ContourCpuCompositeLayer.defaultProps,

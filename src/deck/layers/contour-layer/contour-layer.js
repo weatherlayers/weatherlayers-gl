@@ -1,7 +1,7 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
-import {createTextureCached} from '../../../_utils/texture';
-import {withCheckLicense} from '../../license';
-import {ContourBitmapLayer} from './contour-bitmap-layer';
+import {createTextureCached} from '../../../_utils/texture.js';
+import {withCheckLicense} from '../../license.js';
+import {ContourBitmapLayer} from './contour-bitmap-layer.js';
 
 const defaultProps = {
   ...ContourBitmapLayer.defaultProps,

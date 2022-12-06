@@ -1,9 +1,9 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
-import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../_utils/props';
-import {randomString} from '../_utils/random-string';
-import {getViewportAngle} from '../_utils/viewport';
-import {getViewportGridPositions} from '../_utils/viewport-grid';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../_utils/props.js';
+import {randomString} from '../_utils/random-string.js';
+import {getViewportAngle} from '../_utils/viewport.js';
+import {getViewportGridPositions} from '../_utils/viewport-grid.js';
 
 // https://anseki.github.io/gnirts/
 const DATE = (20).toString(36).toLowerCase().split('').map(function(v){return String.fromCharCode(v.charCodeAt()+(-39))}).join('')+(10).toString(36).toLowerCase()+(function(){var X=Array.prototype.slice.call(arguments),d=X.shift();return X.reverse().map(function(W,j){return String.fromCharCode(W-d-58-j)}).join('')})(56,216,230);

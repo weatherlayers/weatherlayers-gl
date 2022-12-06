@@ -2,8 +2,8 @@ import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import geokdbush from 'geokdbush';
-import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport';
-import {wrapLongitude} from './bounds';
+import {isViewportGlobe, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport.js';
+import {wrapLongitude} from './bounds.js';
 
 /** @typedef {import('./viewport').Viewport} Viewport */
 /** @typedef {any} KDBush */

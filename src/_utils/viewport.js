@@ -1,6 +1,6 @@
 import {ClipExtension} from '@deck.gl/extensions';
-import {distance} from './geodesy';
-import {wrapBounds, clipBounds} from './bounds';
+import {distance} from './geodesy.js';
+import {wrapBounds, clipBounds} from './bounds.js';
 
 /** @typedef {any} Viewport */
 

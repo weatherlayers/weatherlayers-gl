@@ -1,5 +1,5 @@
 import { Palette } from 'cpt2js';
-import { UnitFormat } from '../../_utils/unit-format';
+import { UnitFormat } from '../../_utils/unit-format.js';
 
 export interface LegendConfig {
   width: number;
