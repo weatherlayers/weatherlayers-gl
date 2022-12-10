@@ -1,6 +1,5 @@
 import {VERSION} from '../_utils/build.js';
 import {loadTextureData, loadJson, loadText} from '../_utils/data.js';
-import {ImageType} from '../_utils/image-type.js';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
 
 /** @typedef {import('cpt2js').Palette} Palette */
@@ -45,22 +44,6 @@ function getAuthenticatedUrl(url, accessToken = undefined) {
 
 /**
  * @param {StacCollection} stacCollection
- * @returns {string}
- */
-function getStacCollectionTitle(stacCollection) {
-  return stacCollection.title;
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {UnitFormat}
- */
-function getStacCollectionUnitFormat(stacCollection) {
-  return stacCollection['weatherLayers:units'][0];
-}
-
-/**
- * @param {StacCollection} stacCollection
  * @param {string} [attributionLinkClass]
  * @returns {string}
  */
@@ -72,39 +55,6 @@ function getStacCollectionAttribution(stacCollection, attributionLinkClass = und
     ...(processor ? [`<a href="${processor.url}"${attributionLinkClass ? ` class="${attributionLinkClass}"`: ''}>${processor.name}</a>`] : []),
   ].join(' via ');
   return attribution;
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {string[]}
- */
-function getStacCollectionDatetimes(stacCollection) {
-  const datetimes = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x));
-  return datetimes;
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {ImageType}
- */
-function getStacCollectionImageType(stacCollection) {
-  return stacCollection['weatherLayers:imageType'];
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {[number, number]}
- */
-function getStacCollectionImageUnscale(stacCollection) {
-  return stacCollection['weatherLayers:imageUnscale'];
-}
-
-/**
- * @param {StacCollection} stacCollection
- * @returns {[number, number, number, number]}
- */
-function getStacCollectionBounds(stacCollection) {
-  return stacCollection.extent.spatial.bbox[0];
 }
 
 export class Client {
@@ -132,8 +82,8 @@ export class Client {
    * @returns {Promise<StacCatalog>}
    */
   async loadStacCatalog() {
-    const url = getAuthenticatedUrl(`${this.config.url}/catalog`, this.config.accessToken);
-    return loadJson(url, this.cache);
+    const authenticatedUrl = getAuthenticatedUrl(`${this.config.url}/catalog`, this.config.accessToken);
+    return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
@@ -141,8 +91,8 @@ export class Client {
    * @returns {Promise<StacCollection>}
    */
   async loadStacCollection(dataset) {
-    const url = getAuthenticatedUrl(`${this.config.url}/catalog/${dataset}`, this.config.accessToken);
-    return loadJson(url, this.cache);
+    const authenticatedUrl = getAuthenticatedUrl(`${this.config.url}/catalog/${dataset}`, this.config.accessToken);
+    return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
@@ -155,8 +105,8 @@ export class Client {
     if (!asset) {
       throw new Error(`Palette asset not found`);
     }
-    const url = getAuthenticatedUrl(asset.href, this.config.accessToken);
-    return loadText(url, this.cache);
+    const authenticatedUrl = getAuthenticatedUrl(asset.href, this.config.accessToken);
+    return loadText(authenticatedUrl, this.cache);
   }
 
   /**
@@ -170,8 +120,8 @@ export class Client {
     if (!link) {
       throw new Error(`Item ${datetime} not found`);
     }
-    const url = getAuthenticatedUrl(link.href, this.config.accessToken);
-    return loadJson(url, this.cache);
+    const authenticatedUrl = getAuthenticatedUrl(link.href, this.config.accessToken);
+    return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
@@ -182,8 +132,8 @@ export class Client {
    */
   async loadStacItemData(dataset, datetime, dataFormat) {
     const stacItem = await this.loadStacItem(dataset, datetime);
-    const url = getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config.accessToken);
-    return loadTextureData(url, this.cache);
+    const authenticatedUrl = getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config.accessToken);
+    return loadTextureData(authenticatedUrl, this.cache);
   }
 
   /**
@@ -207,13 +157,14 @@ export class Client {
    */
   async loadDataset(dataset, {attributionLinkClass} = {}) {
     const stacCollection = await this.loadStacCollection(dataset);
-    const title = getStacCollectionTitle(stacCollection);
-    const unitFormat = getStacCollectionUnitFormat(stacCollection);
-    const attribution = getStacCollectionAttribution(stacCollection, attributionLinkClass);
-    const datetimes = getStacCollectionDatetimes(stacCollection);
-    const palette = await this.loadStacCollectionPalette(dataset);
 
-    return {title, unitFormat, attribution, datetimes, palette};
+    return {
+      title: stacCollection.title,
+      unitFormat: stacCollection['weatherLayers:units'][0],
+      attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
+      datetimes: /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x)),
+      palette: await this.loadStacCollectionPalette(dataset)
+    };
   }
 
   /**
@@ -224,7 +175,7 @@ export class Client {
    */
   async loadDatasetData(dataset, datetime, {datetimeInterpolate = false} = {}) {
     const stacCollection = await this.loadStacCollection(dataset);
-    const datetimes = getStacCollectionDatetimes(stacCollection);
+    const datetimes = (await this.loadDataset(dataset)).datetimes;
     const startDatetime = getClosestStartDatetime(datetimes, datetime);
     const endDatetime = datetimeInterpolate ? getClosestEndDatetime(datetimes, datetime) : null;
 
@@ -237,11 +188,13 @@ export class Client {
       datetimeInterpolate && endDatetime ? this.loadStacItemData(dataset, endDatetime, this.config.dataFormat) : null,
     ]);
 
-    const imageWeight = datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0;
-    const imageType = getStacCollectionImageType(stacCollection);
-    const imageUnscale = image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? getStacCollectionImageUnscale(stacCollection) : null;
-    const bounds = getStacCollectionBounds(stacCollection);
-    
-    return {image, image2, imageWeight, imageType, imageUnscale, bounds};
+    return {
+      image,
+      image2,
+      imageWeight: datetimeInterpolate && endDatetime ? getDatetimeWeight(startDatetime, endDatetime, datetime) : 0,
+      imageType: stacCollection['weatherLayers:imageType'],
+      imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null,
+      bounds: stacCollection.extent.spatial.bbox[0]
+    };
   }
 }

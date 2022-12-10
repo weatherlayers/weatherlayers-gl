@@ -95,6 +95,8 @@ export interface StacItem {
   bbox: [number, number, number, number];
   properties: {
     datetime: string;
+    'forecast:reference_datetime': string;
+    'forecast:horizon': string;
   };
   links: StacLink[];
   assets: { [key: string]: StacAsset };
