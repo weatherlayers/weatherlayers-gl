@@ -18,6 +18,7 @@ import gnirts from 'gnirts';
 
 const LICENSE_DATE = process.env.LICENSE_DAYS ? new Date(new Date().valueOf() + parseInt(process.env.LICENSE_DAYS, 10) * 24 * 60 * 60 * 1000) : undefined;
 const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
+const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
 function bundle(entrypoint, filename, format, options = {}) {
   filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
@@ -68,6 +69,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         __VERSION__: `"${pkg.version}"`,
         __LICENSE_DATE__: LICENSE_DATE ? gnirts.getCode(LICENSE_DATE.valueOf().toString(36)) : '""',
         __LICENSE_DOMAIN__: LICENSE_DOMAIN ? gnirts.getCode(LICENSE_DOMAIN) : '""',
+        __CATALOG_URL__: `"${CATALOG_URL}"`,
       }),
       alias({
         entries: [

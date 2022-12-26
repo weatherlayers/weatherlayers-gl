@@ -136,7 +136,7 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
     return;
   }
 
-  config.datetimes = client ? (await client.loadDataset(config.dataset)).datetimes.slice(-25) : [];
+  config.datetimes = client ? (await client.loadDataset(config.dataset)).datetimes : [];
   config.datetime = config.datetimes[0];
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;

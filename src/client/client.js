@@ -12,42 +12,18 @@ import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from 
 /** @typedef {import('../_utils/stac').StacAssetRole} StacAssetRole */
 /** @typedef {import('../_utils/stac').StacItem} StacItem */
 /** @typedef {import('./client').ClientConfig} ClientConfig */
-/** @typedef {import('./client').LoadDatasetOptions} LoadDatasetOptions */
 /** @typedef {import('./client').Dataset} Dataset */
-/** @typedef {import('./client').LoadDatasetDataOptions} LoadDatasetDataOptions */
 /** @typedef {import('./client').DatasetData} DatasetData */
 
-/** @type {ClientConfig} */
-const DEFAULT_CONFIG = {
-  url: 'https://catalog.weatherlayers.com',
-  // url: 'http://localhost:8080',
-  dataFormat: 'byte.png',
-};
-
-/**
- * @param {string} url
- * @param {string} [accessToken]
- * @returns {string}
- */
-function getAuthenticatedUrl(url, accessToken = undefined) {
-  const params = new URLSearchParams();
-  if (!url.includes('access_token=') && accessToken) {
-    params.set('access_token', accessToken);
-  }
-  if (!url.includes('version=')) {
-    params.set('version', VERSION);
-  }
-  const query = params.toString();
-  const fullUrl = `${url}${query ? `?${query}` : ''}`;
-  return fullUrl;
-}
+const DEFAULT_URL = __CATALOG_URL__;
+const DEFAULT_DATA_FORMAT = 'byte.png';
 
 /**
  * @param {StacCollection} stacCollection
- * @param {string} [attributionLinkClass]
+ * @param {string | null} attributionLinkClass
  * @returns {string}
  */
-function getStacCollectionAttribution(stacCollection, attributionLinkClass = undefined) {
+function getStacCollectionAttribution(stacCollection, attributionLinkClass = null) {
   const producer = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('producer')));
   const processor = stacCollection.providers.find(x => x.roles.includes(/** @type {StacProviderRole} */('processor')));
   const attribution = [
@@ -64,14 +40,14 @@ export class Client {
   cache = new Map();
 
   /**
-   * @param {Partial<ClientConfig>} config
+   * @param {ClientConfig} config
    */
   constructor(config) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = config;
   }
 
   /**
-   * @param {Partial<ClientConfig>} config
+   * @param {ClientConfig} config
    * @returns {void}
    */
   setConfig(config) {
@@ -79,71 +55,104 @@ export class Client {
   }
 
   /**
+   * @param {string} path
+   * @param {ClientConfig} [config]
+   * @returns {string}
+   */
+  #getAuthenticatedUrl(path, config = {}) {
+    const accessToken = config.accessToken ?? this.config.accessToken ?? null;
+    const hindcastDays = config.hindcastDays ?? this.config.hindcastDays ?? null;
+    const forecastDays = config.forecastDays ?? this.config.forecastDays ?? null;
+    const url = new URL(path);
+    if (!url.searchParams.has('access_token') && accessToken != null) {
+      url.searchParams.set('access_token', accessToken);
+    }
+    if (!url.searchParams.has('hindcast_days') && hindcastDays != null) {
+      url.searchParams.set('hindcast_days', hindcastDays.toString());
+    }
+    if (!url.searchParams.has('forecast_days') && forecastDays != null) {
+      url.searchParams.set('forecast_days', forecastDays.toString());
+    }
+    if (!url.searchParams.has('version')) {
+      url.searchParams.set('version', VERSION);
+    }
+    return url.toString();
+  }
+
+  /**
+   * @param {ClientConfig} [config]
    * @returns {Promise<StacCatalog>}
    */
-  async loadStacCatalog() {
-    const authenticatedUrl = getAuthenticatedUrl(`${this.config.url}/catalog`, this.config.accessToken);
+  async #loadStacCatalog(config = {}) {
+    const url = config.url ?? this.config.url ?? DEFAULT_URL;
+    const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog`, config);
     return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
    * @param {string} dataset
+   * @param {ClientConfig} [config]
    * @returns {Promise<StacCollection>}
    */
-  async loadStacCollection(dataset) {
-    const authenticatedUrl = getAuthenticatedUrl(`${this.config.url}/catalog/${dataset}`, this.config.accessToken);
+  async #loadStacCollection(dataset, config = {}) {
+    const url = config.url ?? this.config.url ?? DEFAULT_URL;
+    const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog/${dataset}`, config);
     return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
    * @param {string} dataset
+   * @param {ClientConfig} [config]
    * @returns {Promise<Palette>}
    */
-  async loadStacCollectionPalette(dataset) {
-    const stacCollection = await this.loadStacCollection(dataset);
+  async #loadStacCollectionPalette(dataset, config = {}) {
+    const stacCollection = await this.#loadStacCollection(dataset, config);
     const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(/** @type {StacAssetRole} */('palette')) && x.type === 'text/plain');
     if (!asset) {
       throw new Error(`Palette asset not found`);
     }
-    const authenticatedUrl = getAuthenticatedUrl(asset.href, this.config.accessToken);
+    const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.config);
     return loadText(authenticatedUrl, this.cache);
   }
 
   /**
    * @param {string} dataset
    * @param {string} datetime
+   * @param {ClientConfig} [config]
    * @returns {Promise<StacItem>}
    */
-  async loadStacItem(dataset, datetime) {
-    const stacCollection = await this.loadStacCollection(dataset);
+  async #loadStacItem(dataset, datetime, config = {}) {
+    const stacCollection = await this.#loadStacCollection(dataset, config);
     const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
     if (!link) {
       throw new Error(`Item ${datetime} not found`);
     }
-    const authenticatedUrl = getAuthenticatedUrl(link.href, this.config.accessToken);
+    const authenticatedUrl = this.#getAuthenticatedUrl(link.href, this.config);
     return loadJson(authenticatedUrl, this.cache);
   }
 
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {string} dataFormat
+   * @param {ClientConfig} [config]
    * @returns {Promise<TextureData>}
    */
-  async loadStacItemData(dataset, datetime, dataFormat) {
-    const stacItem = await this.loadStacItem(dataset, datetime);
-    const authenticatedUrl = getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config.accessToken);
+  async #loadStacItemData(dataset, datetime, config = {}) {
+    const dataFormat = config.dataFormat ?? this.config.dataFormat ?? DEFAULT_DATA_FORMAT;
+    const stacItem = await this.#loadStacItem(dataset, datetime);
+    const authenticatedUrl = this.#getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.config);
     return loadTextureData(authenticatedUrl, this.cache);
   }
 
   /**
+   * @param {ClientConfig} [config]
    * @returns {Promise<string[]>}
    */
-  async loadCatalog() {
-    const stacCatalog = await this.loadStacCatalog();
+  async loadCatalog(config = {}) {
+    const stacCatalog = await this.#loadStacCatalog(config);
     const modelIds = /** @type {string[]} */ (stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
     const datasetIds = (await Promise.all(modelIds.map(async modelId => {
-      const stacCollection = await this.loadStacCollection(modelId);
+      const stacCollection = await this.#loadStacCollection(modelId);
       const datasetIds = /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x));
       return datasetIds;
     }))).flat();
@@ -152,30 +161,32 @@ export class Client {
 
   /**
    * @param {string} dataset
-   * @param {LoadDatasetOptions} options
+   * @param {ClientConfig} [config]
    * @returns {Promise<Dataset>}
    */
-  async loadDataset(dataset, {attributionLinkClass} = {}) {
-    const stacCollection = await this.loadStacCollection(dataset);
+  async loadDataset(dataset, config = {}) {
+    const attributionLinkClass = config.attributionLinkClass ?? this.config.attributionLinkClass ?? null;
+    const stacCollection = await this.#loadStacCollection(dataset, config);
 
     return {
       title: stacCollection.title,
       unitFormat: stacCollection['weatherLayers:units'][0],
       attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
       datetimes: /** @type {string[]} */ (stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x)),
-      palette: await this.loadStacCollectionPalette(dataset)
+      palette: await this.#loadStacCollectionPalette(dataset)
     };
   }
 
   /**
    * @param {string} dataset
    * @param {string} datetime
-   * @param {LoadDatasetDataOptions} options
+   * @param {ClientConfig} [config]
    * @returns {Promise<DatasetData>}
    */
-  async loadDatasetData(dataset, datetime, {datetimeInterpolate = false} = {}) {
-    const stacCollection = await this.loadStacCollection(dataset);
-    const datetimes = (await this.loadDataset(dataset)).datetimes;
+  async loadDatasetData(dataset, datetime, config = {}) {
+    const datetimeInterpolate = config.datetimeInterpolate ?? this.config.datetimeInterpolate ?? false;
+    const stacCollection = await this.#loadStacCollection(dataset, config);
+    const datetimes = (await this.loadDataset(dataset, config)).datetimes;
     const startDatetime = getClosestStartDatetime(datetimes, datetime);
     const endDatetime = datetimeInterpolate ? getClosestEndDatetime(datetimes, datetime) : null;
 
@@ -184,8 +195,8 @@ export class Client {
     }
 
     const [image, image2] = await Promise.all([
-      this.loadStacItemData(dataset, startDatetime, this.config.dataFormat),
-      datetimeInterpolate && endDatetime ? this.loadStacItemData(dataset, endDatetime, this.config.dataFormat) : null,
+      this.#loadStacItemData(dataset, startDatetime, config),
+      datetimeInterpolate && endDatetime ? this.#loadStacItemData(dataset, endDatetime, config) : null,
     ]);
 
     return {

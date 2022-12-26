@@ -4,13 +4,13 @@ import { ImageType } from '../_utils/image-type.js';
 import { UnitFormat } from '../_utils/unit-format.js';
 
 export interface ClientConfig {
-  url: string;
+  url?: string;
   accessToken?: string;
-  dataFormat: string;
-}
-
-export interface LoadDatasetOptions {
+  dataFormat?: string;
+  hindcastDays?: number;
+  forecastDays?: number;
   attributionLinkClass?: string;
+  datetimeInterpolate?: boolean;
 }
 
 export interface Dataset {
@@ -19,10 +19,6 @@ export interface Dataset {
   attribution: string;
   datetimes: string[];
   palette: Palette;
-}
-
-export interface LoadDatasetDataOptions {
-  datetimeInterpolate?: boolean;
 }
 
 export interface DatasetData {

@@ -75,8 +75,8 @@ export class LegendControl extends Control {
     }
 
     this.config = config;
-    const width = this.config.width || DEFAULT_WIDTH;
-    const ticksCount = this.config.ticksCount || DEFAULT_TICKS_COUNT;
+    const width = this.config.width ?? DEFAULT_WIDTH;
+    const ticksCount = this.config.ticksCount ?? DEFAULT_TICKS_COUNT;
     const title = this.config.title;
     const unitFormat = this.config.unitFormat;
     const palette = this.config.palette;

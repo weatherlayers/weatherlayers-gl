@@ -322,7 +322,7 @@ export class TimelineControl extends Control {
     }
 
     this.config = config;
-    const width = this.config.width || DEFAULT_WIDTH;
+    const width = this.config.width ?? DEFAULT_WIDTH;
     const datetimes = this.config.datetimes;
     const datetime = this.config.datetime;
     const datetimeInterpolate = this.config.datetimeInterpolate;
