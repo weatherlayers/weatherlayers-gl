@@ -1,4 +1,5 @@
 import {mixAll} from './mix.js';
+import {ImageInterpolation} from './image-interpolation.js';
 
 /** @typedef {import('./data').TextureData} TextureData */
 
@@ -24,7 +25,7 @@ function getPixel(image, x, y) {
  * @param {GeoJSON.Position} point
  * @return {number[]}
  */
-function getPixelBilinear(image, point) {
+function getPixelInterpolateLinear(image, point) {
   const [x, y] = point;
   const floorX = Math.floor(x);
   const floorY = Math.floor(y);
@@ -52,32 +53,38 @@ function getPixelNearest(image, point) {
 
 /**
  * @param {TextureData} image
- * @param {boolean} imageInterpolate
+ * @param {ImageInterpolation} imageInterpolation
  * @param {GeoJSON.Position} point
  * @return {number[]}
  */
-function getPixelFilter(image, imageInterpolate, point) {
-  if (imageInterpolate) {
-    return getPixelBilinear(image, point);
+function getPixelFilter(image, imageInterpolation, point) {
+  // Offset
+  // Test case: Gibraltar (36, -5.5)
+  const offsetPoint = [point[0], point[1] - 0.5];
+
+  if (imageInterpolation === ImageInterpolation.CUBIC) {
+    return getPixelInterpolateLinear(image, offsetPoint); // TODO: implement cubic? or don't interpolate at all, use nearest only?
+  } else if (imageInterpolation === ImageInterpolation.LINEAR) {
+    return getPixelInterpolateLinear(image, offsetPoint);
   } else {
-    return getPixelNearest(image, point);
+    return getPixelNearest(image, offsetPoint);
   }
 }
 
 /**
  * @param {TextureData} image
  * @param {TextureData | null} image2
- * @param {boolean} imageInterpolate
+ * @param {ImageInterpolation} imageInterpolation
  * @param {number} imageWeight
  * @param {GeoJSON.Position} point
  * @return {number[]}
  */
-export function getPixelInterpolate(image, image2, imageInterpolate, imageWeight, point) {
+export function getPixelInterpolate(image, image2, imageInterpolation, imageWeight, point) {
   if (image2 && imageWeight > 0) {
-    const pixel = getPixelFilter(image, imageInterpolate, point);
-    const pixel2 = getPixelFilter(image2, imageInterpolate, point);
+    const pixel = getPixelFilter(image, imageInterpolation, point);
+    const pixel2 = getPixelFilter(image2, imageInterpolation, point);
     return mixAll(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, imageInterpolate, point);
+    return getPixelFilter(image, imageInterpolation, point);
   }
 }

@@ -2,6 +2,7 @@ import {BitmapLayer} from '@deck.gl/layers';
 import {Texture2D} from '@luma.gl/core';
 import GL from '@luma.gl/constants';
 import {parsePalette, colorRampCanvas} from 'cpt2js';
+import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
@@ -10,7 +11,7 @@ import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.gls
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
-  imageInterpolate: {type: 'boolean', value: true},
+  imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
@@ -40,7 +41,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolate, imageWeight, imageType, imageUnscale} = this.props;
+    const {imageTexture, imageTexture2, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
 
     if (!imageTexture || !paletteTexture) {
@@ -51,8 +52,8 @@ export class RasterBitmapLayer extends BitmapLayer {
       model.setUniforms({
         [fsTokens.imageTexture]: imageTexture,
         [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
-        [fsTokens.imageTexelSize]: [1 / imageTexture.width, 1 / imageTexture.height],
-        [fsTokens.imageInterpolate]: imageInterpolate,
+        [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+        [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],

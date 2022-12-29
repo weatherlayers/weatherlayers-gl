@@ -10,8 +10,8 @@ precision highp float;
 
 uniform sampler2D imageTexture;
 uniform sampler2D imageTexture2;
-uniform vec2 imageTexelSize;
-uniform bool imageInterpolate;
+uniform vec2 imageResolution;
+uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
@@ -21,7 +21,7 @@ uniform vec2 paletteBounds;
 void main(void) {
   @include "../../../_utils/deck-bitmap-layer-main-start.glsl"
   
-  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
+  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageResolution, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     discard;

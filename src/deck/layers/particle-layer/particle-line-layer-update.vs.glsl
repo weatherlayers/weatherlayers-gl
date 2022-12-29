@@ -19,8 +19,8 @@ uniform float viewportZoomChangeFactor;
 
 uniform sampler2D imageTexture;
 uniform sampler2D imageTexture2;
-uniform vec2 imageTexelSize;
-uniform bool imageInterpolate;
+uniform vec2 imageResolution;
+uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
@@ -180,7 +180,7 @@ void main() {
 
   vec2 uv = getUV(sourcePosition.xy);
 
-  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageTexelSize, imageInterpolate, imageWeight, uv);
+  vec4 pixel = getPixelInterpolate(imageTexture, imageTexture2, imageResolution, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;

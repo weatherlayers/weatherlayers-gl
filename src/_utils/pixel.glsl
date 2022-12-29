@@ -1,39 +1,28 @@
-// texture2D with software bilinear filtering
-// see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 getPixelBilinear(sampler2D image, vec2 imageTexelSize, vec2 uv) {
-  // Calculate pixels to sample and interpolating factor
-  uv -= imageTexelSize * 0.5;
-  vec2 factor = fract(uv / imageTexelSize);
+@include "./pixel-interpolate-cubic.glsl"
+@include "./pixel-interpolate-linear.glsl"
 
-  // Snap to corner of texel and then move to center
-  vec2 uvSnapped = uv - imageTexelSize * factor + imageTexelSize * 0.5;
+vec4 getPixelFilter(sampler2D image, vec2 imageResolution, int imageInterpolation, vec2 uv) {
+  vec2 imageTexelSize = 1. / imageResolution;
 
-  vec4 topLeft = texture2D(image, uvSnapped);
-  vec4 topRight = texture2D(image, uvSnapped + vec2(imageTexelSize.x, 0));
-  vec4 bottomLeft = texture2D(image, uvSnapped + vec2(0, imageTexelSize.y));
-  vec4 bottomRight = texture2D(image, uvSnapped + imageTexelSize);
-  vec4 top = mix(topLeft, topRight, factor.x);
-  vec4 bottom = mix(bottomLeft, bottomRight, factor.x);
-  return mix(top, bottom, factor.y);
-}
+  // Offset
+  // Test case: Gibraltar (36, -5.5)
+  uv.x += imageTexelSize.x * 0.5;
 
-vec4 getPixelFilter(sampler2D image, vec2 imageTexelSize, bool imageInterpolate, vec2 uv) {
-  // Offset (test case: Gibraltar)
-  uv += imageTexelSize * 0.5;
-
-  if (imageInterpolate) {
-    return getPixelBilinear(image, imageTexelSize, uv);
+  if (imageInterpolation == 2) {
+    return getPixelInterpolateCubic(image, imageResolution, uv);
+  } if (imageInterpolation == 1) {
+    return getPixelInterpolateLinear(image, imageResolution, uv);
   } else {
     return texture2D(image, uv);
   }
 }
 
-vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageTexelSize, bool imageInterpolate, float imageWeight, vec2 uv) {
+vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageResolution, int imageInterpolation, float imageWeight, vec2 uv) {
   if (imageWeight > 0.) {
-    vec4 pixel = getPixelFilter(image, imageTexelSize, imageInterpolate, uv);
-    vec4 pixel2 = getPixelFilter(image2, imageTexelSize, imageInterpolate, uv);
+    vec4 pixel = getPixelFilter(image, imageResolution, imageInterpolation, uv);
+    vec4 pixel2 = getPixelFilter(image2, imageResolution, imageInterpolation, uv);
     return mix(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, imageTexelSize, imageInterpolate, uv);
+    return getPixelFilter(image, imageResolution, imageInterpolation, uv);
   }
 }

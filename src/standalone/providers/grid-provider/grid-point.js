@@ -1,3 +1,4 @@
+import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import {getProjectFunction} from '../../../_utils/project.js';
 import {getPixelInterpolate} from '../../../_utils/pixel.js';
@@ -9,7 +10,7 @@ import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../
 /**
  * @param {TextureData} image
  * @param {TextureData | null} image2
- * @param {boolean} imageInterpolate
+ * @param {ImageInterpolation} imageInterpolation
  * @param {number} imageWeight
  * @param {ImageType} imageType
  * @param {[number, number] | null} imageUnscale
@@ -17,7 +18,7 @@ import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from '../
  * @param {GeoJSON.Position[]} positions
  * @returns {GeoJSON.FeatureCollection<GeoJSON.Point, GridPointProperties>}
  */
-export function getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds, positions) {
+export function getGridPoints(image, image2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, positions) {
   const {width, height} = image;
   const project = getProjectFunction(width, height, bounds);
 
@@ -25,7 +26,7 @@ export function getGridPoints(image, image2, imageInterpolate, imageWeight, imag
   for (let position of positions) {
     const point = project(position);
 
-    const pixel = getPixelInterpolate(image, image2, imageInterpolate, imageWeight, point);
+    const pixel = getPixelInterpolate(image, image2, imageInterpolation, imageWeight, point);
     if (!hasPixelValue(pixel, imageUnscale)) {
       continue;
     }

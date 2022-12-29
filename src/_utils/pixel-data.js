@@ -1,3 +1,4 @@
+import {ImageInterpolation} from './image-interpolation.js';
 import {ImageType} from './image-type.js';
 import {getPixelInterpolate} from './pixel.js';
 import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value.js';
@@ -20,7 +21,7 @@ export function getPixelMagnitudeData(image, imageType, imageUnscale) {
       const i = x + y * width;
 
       const point = [x, y];
-      const pixel = getPixelInterpolate(image, null, false, 0, point);
+      const pixel = getPixelInterpolate(image, null, ImageInterpolation.NEAREST, 0, point);
       if (!hasPixelValue(pixel, imageUnscale)) {
         magnitudeData[i] = NaN;
         continue;

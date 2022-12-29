@@ -1,6 +1,7 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer, IconLayer} from '@deck.gl/layers';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props.js';
+import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {getViewportGridPositions} from '../../../_utils/viewport-grid.js';
@@ -11,7 +12,7 @@ import {GRID_ICON_STYLES} from './grid-style.js';
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  imageInterpolate: {type: 'boolean', value: true},
+  imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
@@ -90,11 +91,11 @@ class GridCompositeLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageInterpolate, imageWeight} = props;
+    const {image, image2, imageInterpolation, imageWeight} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolate !== oldProps.imageInterpolate || imageWeight !== oldProps.imageWeight) {
+    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolation !== oldProps.imageInterpolation || imageWeight !== oldProps.imageWeight) {
       this.updateGridPoints();
     }
 
@@ -116,13 +117,13 @@ class GridCompositeLayer extends CompositeLayer {
   }
 
   updateGridPoints() {
-    const {image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds} = this.props;
+    const {image, image2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
     const {positions} = this.state;
     if (!image) {
       return;
     }
 
-    const gridPoints = getGridPoints(image, image2, imageInterpolate, imageWeight, imageType, imageUnscale, bounds, positions).features;
+    const gridPoints = getGridPoints(image, image2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, positions).features;
 
     this.setState({ gridPoints });
   }
