@@ -37,7 +37,7 @@ void main(void) {
   // https://forum.unity.com/threads/antialiased-grid-lines-fwidth.1010668/
   // https://www.shadertoy.com/view/Mlfyz2
   float factor = abs(fract(contourValue + 0.5) - 0.5); // contour position, min 0: contour, max 0.5: between contours
-  float dFactor = fwidth(contourValue); // contour derivation, consistent width in screen space
+  float dFactor = length(vec2(dFdx(contourValue), dFdy(contourValue))); // contour derivation, consistent width in screen space; dFdx, dFdy provides better constant thickness than fwidth
   float contour = 1. - clamp((factor / dFactor) + 0.5 - contourWidth, 0., 1.);
   if (dFactor == 0.) {
     // drop flat areas
