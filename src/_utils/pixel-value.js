@@ -1,5 +1,5 @@
 import {ImageType} from './image-type.js';
-import {mix} from './mix.js';
+import {mixOne} from './glsl.js';
 
 /**
  * @param {number[]} pixel
@@ -25,7 +25,7 @@ function getPixelScalarValue(pixel, imageType, imageUnscale) {
     return 0.;
   } else {
     if (imageUnscale) {
-      return mix(imageUnscale[0], imageUnscale[1], pixel[0] / 255);
+      return mixOne(imageUnscale[0], imageUnscale[1], pixel[0] / 255);
     } else {
       return pixel[0];
     }
@@ -42,8 +42,8 @@ function getPixelVectorValue(pixel, imageType, imageUnscale) {
   if (imageType === ImageType.VECTOR) {
     if (imageUnscale) {
       return [
-        mix(imageUnscale[0], imageUnscale[1], pixel[0] / 255),
-        mix(imageUnscale[0], imageUnscale[1], pixel[1] / 255)
+        mixOne(imageUnscale[0], imageUnscale[1], pixel[0] / 255),
+        mixOne(imageUnscale[0], imageUnscale[1], pixel[1] / 255)
       ];
     } else {
       return [pixel[0], pixel[1]];
