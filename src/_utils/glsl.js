@@ -1,4 +1,12 @@
 /**
+ * @param {number} x
+ * @returns {number}
+ */
+export function frac(x) { 
+  return x % 1;
+}
+
+/**
  * @param {number[]} x
  * @param {number[]} y
  * @returns {number[]}

@@ -11,6 +11,7 @@ import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.gls
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
@@ -41,7 +42,7 @@ export class RasterBitmapLayer extends BitmapLayer {
 
   draw(opts) {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
 
     if (!imageTexture || !paletteTexture) {
@@ -53,6 +54,7 @@ export class RasterBitmapLayer extends BitmapLayer {
         [fsTokens.imageTexture]: imageTexture,
         [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
         [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+        [fsTokens.imageSmoothing]: imageSmoothing,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,

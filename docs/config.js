@@ -41,6 +41,7 @@ export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
     datetime: new Date().toISOString(),
     ...(deckgl ? {
       datetimeInterpolate: true,
+      imageSmoothing: 0,
       imageInterpolation: WeatherLayers.ImageInterpolation.CUBIC,
     } : {}),
     ...(globe ? {
@@ -217,6 +218,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   if (deckgl) {
     gui.addInput(config, 'datetimeInterpolate').on('change', update);
+    gui.addInput(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
     gui.addInput(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
   }
 

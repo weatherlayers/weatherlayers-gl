@@ -1,21 +1,22 @@
-import {add, dot, mix, mul} from './glsl.js';
+import {frac, add, dot, mul, mix} from './glsl.js';
 import {ImageInterpolation} from './image-interpolation.js';
 
 /** @typedef {import('./data').TextureData} TextureData */
 
 /**
  * @param {TextureData} image
+ * @param {[number, number]} imageSmoothResolution
  * @param {number} iuvX
  * @param {number} iuvY
  * @param {number} offsetX
  * @param {number} offsetY
  * @return {number[]}
  */
-function getPixel(image, iuvX, iuvY, offsetX, offsetY) {
+function getPixel(image, imageSmoothResolution, iuvX, iuvY, offsetX, offsetY) {
   const { data, width, height } = image;
   const bandsCount = data.length / (width * height);
-  const x = iuvX + offsetX;
-  const y = iuvY + offsetY;
+  const x = Math.floor(((iuvX + offsetX + 0.5) / imageSmoothResolution[0]) * width);
+  const y = Math.floor(((iuvY + offsetY + 0.5) / imageSmoothResolution[1]) * height);
 
   return new Array(bandsCount).fill(undefined).map((_, band) => {
     return data[(x + y * width) * bandsCount + band];
@@ -58,21 +59,24 @@ function spline(c0, c1, c2, c3, a) {
 /**
  * see https://www.shadertoy.com/view/XsSXDy
  * @param {TextureData} image
- * @param {number} x
- * @param {number} y
+ * @param {[number, number]} imageSmoothResolution
+ * @param {number} uvX
+ * @param {number} uvY
  * @return {number[]}
  */
-function getPixelCubic(image, x, y) {
-  const iuvX = Math.floor(x);
-  const iuvY = Math.floor(y);
-  const fuvX = x % 1;
-  const fuvY = y % 1;
+function getPixelCubic(image, imageSmoothResolution, uvX, uvY) {
+  const tuvX = uvX * imageSmoothResolution[0] - 0.5;
+  const tuvY = uvY * imageSmoothResolution[1] - 0.5;
+  const iuvX = Math.floor(tuvX);
+  const iuvY = Math.floor(tuvY);
+  const fuvX = frac(tuvX);
+  const fuvY = frac(tuvY);
 
   return spline(
-    spline(getPixel(image, iuvX, iuvY, -1, -1), getPixel(image, iuvX, iuvY, 0, -1), getPixel(image, iuvX, iuvY, 1, -1), getPixel(image, iuvX, iuvY, 2, -1), fuvX),
-    spline(getPixel(image, iuvX, iuvY, -1,  0), getPixel(image, iuvX, iuvY, 0,  0), getPixel(image, iuvX, iuvY, 1,  0), getPixel(image, iuvX, iuvY, 2,  0), fuvX),
-    spline(getPixel(image, iuvX, iuvY, -1,  1), getPixel(image, iuvX, iuvY, 0,  1), getPixel(image, iuvX, iuvY, 1,  1), getPixel(image, iuvX, iuvY, 2,  1), fuvX),
-    spline(getPixel(image, iuvX, iuvY, -1,  2), getPixel(image, iuvX, iuvY, 0,  2), getPixel(image, iuvX, iuvY, 1,  2), getPixel(image, iuvX, iuvY, 2,  2), fuvX),
+    spline(getPixel(image, imageSmoothResolution, iuvX, iuvY, -1, -1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 0, -1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1, -1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 2, -1), fuvX),
+    spline(getPixel(image, imageSmoothResolution, iuvX, iuvY, -1,  0), getPixel(image, imageSmoothResolution, iuvX, iuvY, 0,  0), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1,  0), getPixel(image, imageSmoothResolution, iuvX, iuvY, 2,  0), fuvX),
+    spline(getPixel(image, imageSmoothResolution, iuvX, iuvY, -1,  1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 0,  1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1,  1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 2,  1), fuvX),
+    spline(getPixel(image, imageSmoothResolution, iuvX, iuvY, -1,  2), getPixel(image, imageSmoothResolution, iuvX, iuvY, 0,  2), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1,  2), getPixel(image, imageSmoothResolution, iuvX, iuvY, 2,  2), fuvX),
     fuvY
   );
 }
@@ -80,71 +84,99 @@ function getPixelCubic(image, x, y) {
 /**
  * see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
  * @param {TextureData} image
- * @param {number} x
- * @param {number} y
+ * @param {[number, number]} imageSmoothResolution
+ * @param {number} uvX
+ * @param {number} uvY
  * @return {number[]}
  */
-function getPixelLinear(image, x, y) {
-  const iuvX = Math.floor(x);
-  const iuvY = Math.floor(y);
-  const fuvX = x % 1;
-  const fuvY = y % 1;
+function getPixelLinear(image, imageSmoothResolution, uvX, uvY) {
+  const tuvX = uvX * imageSmoothResolution[0] - 0.5;
+  const tuvY = uvY * imageSmoothResolution[1] - 0.5;
+  const iuvX = Math.floor(tuvX);
+  const iuvY = Math.floor(tuvY);
+  const fuvX = frac(tuvX);
+  const fuvY = frac(tuvY);
 
   return mix(
-    mix(getPixel(image, iuvX, iuvY, 0, 0), getPixel(image, iuvX, iuvY, 1, 0), fuvX),
-    mix(getPixel(image, iuvX, iuvY, 0, 1), getPixel(image, iuvX, iuvY, 1, 1), fuvX),
+    mix(getPixel(image, imageSmoothResolution, iuvX, iuvY, 0, 0), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1, 0), fuvX),
+    mix(getPixel(image, imageSmoothResolution, iuvX, iuvY, 0, 1), getPixel(image, imageSmoothResolution, iuvX, iuvY, 1, 1), fuvX),
     fuvY
   );
 }
 
 /**
  * @param {TextureData} image
- * @param {number} x
- * @param {number} y
+ * @param {[number, number]} imageSmoothResolution
+ * @param {number} uvX
+ * @param {number} uvY
  * @return {number[]}
  */
-function getPixelNearest(image, x, y) {
-  const iuvX = Math.round(x);
-  const iuvY = Math.round(y);
+function getPixelNearest(image, imageSmoothResolution, uvX, uvY) {
+  const tuvX = uvX * imageSmoothResolution[0] - 0.5;
+  const tuvY = uvY * imageSmoothResolution[1] - 0.5;
+  const iuvX = Math.round(tuvX); // nearest
+  const iuvY = Math.round(tuvY); // nearest
   
-  return getPixel(image, iuvX, iuvY, 0, 0);
+  return getPixel(image, imageSmoothResolution, iuvX, iuvY, 0, 0);
 }
 
 /**
  * @param {TextureData} image
+ * @param {[number, number]} imageSmoothResolution
  * @param {ImageInterpolation} imageInterpolation
- * @param {GeoJSON.Position} point
+ * @param {number} uvX
+ * @param {number} uvY
  * @return {number[]}
  */
-function getPixelFilter(image, imageInterpolation, point) {
+function getPixelFilter(image, imageSmoothResolution, imageInterpolation, uvX, uvY) {
   // Offset
   // Test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
-  const x = point[0];
-  const y = point[1] - 0.5;
+  const uvWithOffsetX = uvX + 0.5 / imageSmoothResolution[0];
+  const uvWithOffsetY = uvY;
 
   if (imageInterpolation === ImageInterpolation.CUBIC) {
-    return getPixelCubic(image, x, y);
+    return getPixelCubic(image, imageSmoothResolution, uvWithOffsetX, uvWithOffsetY);
   } else if (imageInterpolation === ImageInterpolation.LINEAR) {
-    return getPixelLinear(image, x, y);
+    return getPixelLinear(image, imageSmoothResolution, uvWithOffsetX, uvWithOffsetY);
   } else {
-    return getPixelNearest(image, x, y);
+    return getPixelNearest(image, imageSmoothResolution, uvWithOffsetX, uvWithOffsetY);
   }
 }
 
 /**
  * @param {TextureData} image
  * @param {TextureData | null} image2
+ * @param {[number, number]} imageSmoothResolution
  * @param {ImageInterpolation} imageInterpolation
  * @param {number} imageWeight
- * @param {GeoJSON.Position} point
+ * @param {number} uvX
+ * @param {number} uvY
  * @return {number[]}
  */
-export function getPixelInterpolate(image, image2, imageInterpolation, imageWeight, point) {
+function getPixelInterpolate(image, image2, imageSmoothResolution, imageInterpolation, imageWeight, uvX, uvY) {
   if (image2 && imageWeight > 0) {
-    const pixel = getPixelFilter(image, imageInterpolation, point);
-    const pixel2 = getPixelFilter(image2, imageInterpolation, point);
+    const pixel = getPixelFilter(image, imageSmoothResolution, imageInterpolation, uvX, uvY);
+    const pixel2 = getPixelFilter(image2, imageSmoothResolution, imageInterpolation, uvX, uvY);
     return mix(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, imageInterpolation, point);
+    return getPixelFilter(image, imageSmoothResolution, imageInterpolation, uvX, uvY);
   }
+}
+
+/**
+ * @param {TextureData} image
+ * @param {TextureData | null} image2
+ * @param {number} imageSmoothing
+ * @param {ImageInterpolation} imageInterpolation
+ * @param {number} imageWeight
+ * @param {number} uvX
+ * @param {number} uvY
+ * @return {number[]}
+ */
+export function getPixelSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, uvX, uvY) {
+  const { width, height } = image;
+  const imageSmoothResolutionFactor = 1 + Math.max(0, imageSmoothing);
+  const imageSmoothResolution = /** @type {[number, number]} */ ([width / imageSmoothResolutionFactor, height / imageSmoothResolutionFactor]);
+
+  return getPixelInterpolate(image, image2, imageSmoothResolution, imageInterpolation, imageWeight, uvX, uvY);
 }

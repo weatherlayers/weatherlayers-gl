@@ -1,6 +1,6 @@
 import {ImageInterpolation} from './image-interpolation.js';
 import {ImageType} from './image-type.js';
-import {getPixelInterpolate} from './pixel.js';
+import {getPixelSmoothInterpolate} from './pixel.js';
 import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value.js';
 
 /** @typedef {import('./data').TextureData} TextureData */
@@ -20,8 +20,9 @@ export function getPixelMagnitudeData(image, imageType, imageUnscale) {
     for (let x = 0; x < width; x++) {
       const i = x + y * width;
 
-      const point = [x, y];
-      const pixel = getPixelInterpolate(image, null, ImageInterpolation.NEAREST, 0, point);
+      const uvX = x / width;
+      const uvY = y / height;
+      const pixel = getPixelSmoothInterpolate(image, null, 0, ImageInterpolation.NEAREST, 0, uvX, uvY);
       if (!hasPixelValue(pixel, imageUnscale)) {
         magnitudeData[i] = NaN;
         continue;

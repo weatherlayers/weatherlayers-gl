@@ -12,6 +12,7 @@ import {GRID_ICON_STYLES} from './grid-style.js';
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
@@ -91,11 +92,11 @@ class GridCompositeLayer extends CompositeLayer {
   }
 
   updateState({props, oldProps, changeFlags}) {
-    const {image, image2, imageInterpolation, imageWeight} = props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight} = props;
 
     super.updateState({props, oldProps, changeFlags});
 
-    if (image !== oldProps.image || image2 !== oldProps.image2 || imageInterpolation !== oldProps.imageInterpolation || imageWeight !== oldProps.imageWeight) {
+    if (image !== oldProps.image || image2 !== oldProps.image2 || imageSmoothing !== oldProps.imageSmoothing || imageInterpolation !== oldProps.imageInterpolation || imageWeight !== oldProps.imageWeight) {
       this.updateGridPoints();
     }
 
@@ -117,13 +118,13 @@ class GridCompositeLayer extends CompositeLayer {
   }
 
   updateGridPoints() {
-    const {image, image2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
     const {positions} = this.state;
     if (!image) {
       return;
     }
 
-    const gridPoints = getGridPoints(image, image2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, positions).features;
+    const gridPoints = getGridPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, positions).features;
 
     this.setState({ gridPoints });
   }

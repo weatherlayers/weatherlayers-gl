@@ -13,6 +13,7 @@ const TARGET_POSITION = 'targetPosition';
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.VECTOR},
@@ -184,7 +185,7 @@ export class ParticleLineLayer extends LineLayer {
     }
 
     const {viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {
@@ -212,6 +213,7 @@ export class ParticleLineLayer extends LineLayer {
       [updateVsTokens.imageTexture]: imageTexture,
       [updateVsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
       [updateVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+      [updateVsTokens.imageSmoothing]: imageSmoothing,
       [updateVsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
       [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,

@@ -1,5 +1,5 @@
-vec4 getPixel(sampler2D image, vec2 imageResolution, vec2 iuv, int offsetX, int offsetY) {
-  return texture2D(image, (iuv + vec2(offsetX, offsetY) + 0.5) / imageResolution);
+vec4 getPixel(sampler2D image, vec2 imageSmoothResolution, vec2 iuv, vec2 offset) {
+  return texture2D(image, (iuv + offset + 0.5) / imageSmoothResolution);
 }
 
 // cubic B-spline
@@ -24,60 +24,67 @@ vec4 spline(vec4 c0, vec4 c1, vec4 c2, vec4 c3, float a) {
 }
 
 // see https://www.shadertoy.com/view/XsSXDy
-vec4 getPixelCubic(sampler2D image, vec2 imageResolution, vec2 uv) {
-  vec2 tuv = uv * imageResolution - 0.5;
+vec4 getPixelCubic(sampler2D image, vec2 imageSmoothResolution, vec2 uv) {
+  vec2 tuv = uv * imageSmoothResolution - 0.5;
   vec2 iuv = floor(tuv);
   vec2 fuv = fract(tuv);
 
   return spline(
-    spline(getPixel(image, imageResolution, iuv, -1, -1), getPixel(image, imageResolution, iuv, 0, -1), getPixel(image, imageResolution, iuv, 1, -1), getPixel(image, imageResolution, iuv, 2, -1), fuv.x),
-    spline(getPixel(image, imageResolution, iuv, -1,  0), getPixel(image, imageResolution, iuv, 0,  0), getPixel(image, imageResolution, iuv, 1,  0), getPixel(image, imageResolution, iuv, 2,  0), fuv.x),
-    spline(getPixel(image, imageResolution, iuv, -1,  1), getPixel(image, imageResolution, iuv, 0,  1), getPixel(image, imageResolution, iuv, 1,  1), getPixel(image, imageResolution, iuv, 2,  1), fuv.x),
-    spline(getPixel(image, imageResolution, iuv, -1,  2), getPixel(image, imageResolution, iuv, 0,  2), getPixel(image, imageResolution, iuv, 1,  2), getPixel(image, imageResolution, iuv, 2,  2), fuv.x),
+    spline(getPixel(image, imageSmoothResolution, iuv, vec2(-1, -1)), getPixel(image, imageSmoothResolution, iuv, vec2(0, -1)), getPixel(image, imageSmoothResolution, iuv, vec2(1, -1)), getPixel(image, imageSmoothResolution, iuv, vec2(2, -1)), fuv.x),
+    spline(getPixel(image, imageSmoothResolution, iuv, vec2(-1,  0)), getPixel(image, imageSmoothResolution, iuv, vec2(0,  0)), getPixel(image, imageSmoothResolution, iuv, vec2(1,  0)), getPixel(image, imageSmoothResolution, iuv, vec2(2,  0)), fuv.x),
+    spline(getPixel(image, imageSmoothResolution, iuv, vec2(-1,  1)), getPixel(image, imageSmoothResolution, iuv, vec2(0,  1)), getPixel(image, imageSmoothResolution, iuv, vec2(1,  1)), getPixel(image, imageSmoothResolution, iuv, vec2(2,  1)), fuv.x),
+    spline(getPixel(image, imageSmoothResolution, iuv, vec2(-1,  2)), getPixel(image, imageSmoothResolution, iuv, vec2(0,  2)), getPixel(image, imageSmoothResolution, iuv, vec2(1,  2)), getPixel(image, imageSmoothResolution, iuv, vec2(2,  2)), fuv.x),
     fuv.y
   );
 }
 
 // see https://gamedev.stackexchange.com/questions/101953/low-quality-bilinear-sampling-in-webgl-opengl-directx
-vec4 getPixelLinear(sampler2D image, vec2 imageResolution, vec2 uv) {
-  vec2 tuv = uv * imageResolution - 0.5;
+vec4 getPixelLinear(sampler2D image, vec2 imageSmoothResolution, vec2 uv) {
+  vec2 tuv = uv * imageSmoothResolution - 0.5;
   vec2 iuv = floor(tuv);
   vec2 fuv = fract(tuv);
 
   return mix(
-    mix(getPixel(image, imageResolution, iuv, 0, 0), getPixel(image, imageResolution, iuv, 1, 0), fuv.x),
-    mix(getPixel(image, imageResolution, iuv, 0, 1), getPixel(image, imageResolution, iuv, 1, 1), fuv.x),
+    mix(getPixel(image, imageSmoothResolution, iuv, vec2(0, 0)), getPixel(image, imageSmoothResolution, iuv, vec2(1, 0)), fuv.x),
+    mix(getPixel(image, imageSmoothResolution, iuv, vec2(0, 1)), getPixel(image, imageSmoothResolution, iuv, vec2(1, 1)), fuv.x),
     fuv.y
   );
 }
 
-vec4 getPixelNearest(sampler2D image, vec2 imageResolution, vec2 uv) {
-  vec2 tuv = uv * imageResolution - 0.5;
-  vec2 iuv = floor(tuv + 0.5); // round
+vec4 getPixelNearest(sampler2D image, vec2 imageSmoothResolution, vec2 uv) {
+  vec2 tuv = uv * imageSmoothResolution - 0.5;
+  vec2 iuv = floor(tuv + 0.5); // nearest
 
-  return getPixel(image, imageResolution, iuv, 0, 0);
+  return getPixel(image, imageSmoothResolution, iuv, vec2(0, 0));
 }
 
-vec4 getPixelFilter(sampler2D image, vec2 imageResolution, int imageInterpolation, vec2 uv) {
+vec4 getPixelFilter(sampler2D image, vec2 imageSmoothResolution, int imageInterpolation, vec2 uv) {
   // Offset
   // Test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
-  uv.x += 0.5 / imageResolution.x;
+  vec2 uvWithOffset = vec2(uv.x + 0.5 / imageSmoothResolution.x, uv.y);
 
   if (imageInterpolation == 2) {
-    return getPixelCubic(image, imageResolution, uv);
+    return getPixelCubic(image, imageSmoothResolution, uvWithOffset);
   } if (imageInterpolation == 1) {
-    return getPixelLinear(image, imageResolution, uv);
+    return getPixelLinear(image, imageSmoothResolution, uvWithOffset);
   } else {
-    return getPixelNearest(image, imageResolution, uv);
+    return getPixelNearest(image, imageSmoothResolution, uvWithOffset);
   }
 }
 
-vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageResolution, int imageInterpolation, float imageWeight, vec2 uv) {
+vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageSmoothResolution, int imageInterpolation, float imageWeight, vec2 uv) {
   if (imageWeight > 0.) {
-    vec4 pixel = getPixelFilter(image, imageResolution, imageInterpolation, uv);
-    vec4 pixel2 = getPixelFilter(image2, imageResolution, imageInterpolation, uv);
+    vec4 pixel = getPixelFilter(image, imageSmoothResolution, imageInterpolation, uv);
+    vec4 pixel2 = getPixelFilter(image2, imageSmoothResolution, imageInterpolation, uv);
     return mix(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, imageResolution, imageInterpolation, uv);
+    return getPixelFilter(image, imageSmoothResolution, imageInterpolation, uv);
   }
+}
+
+vec4 getPixelSmoothInterpolate(sampler2D image, sampler2D image2, vec2 imageResolution, float imageSmoothing, int imageInterpolation, float imageWeight, vec2 uv) {
+  float imageSmoothResolutionFactor = 1. + max(0., imageSmoothing);
+  vec2 imageSmoothResolution = imageResolution / imageSmoothResolutionFactor;
+
+  return getPixelInterpolate(image, image2, imageSmoothResolution, imageInterpolation, imageWeight, uv);
 }

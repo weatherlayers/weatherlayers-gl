@@ -1,7 +1,7 @@
 import {parsePalette} from 'cpt2js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
-import {getPixelInterpolate} from '../../../_utils/pixel.js';
+import {getPixelSmoothInterpolate} from '../../../_utils/pixel.js';
 import {hasPixelValue, getPixelMagnitudeValue} from '../../../_utils/pixel-value.js';
 
 /** @typedef {import('cpt2js').Palette} Palette */
@@ -28,8 +28,9 @@ export function getRasterImage(image, imageType, imageUnscale, palette) {
     for (let x = 0; x < width; x++) {
       const i = (x + y * width) * 4;
 
-      const point = [x, y];
-      const pixel = getPixelInterpolate(image, null, ImageInterpolation.NEAREST, 0, point);
+      const uvX = x / width;
+      const uvY = y / height;
+      const pixel = getPixelSmoothInterpolate(image, null, 0, ImageInterpolation.NEAREST, 0, uvX, uvY);
       if (!hasPixelValue(pixel, imageUnscale)) {
         const color = paletteScale(null).rgba();
         imageData.data[i] = color[0];

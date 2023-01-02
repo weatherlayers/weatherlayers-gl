@@ -8,6 +8,7 @@ import {ImageType} from '../../../_utils/image-type.js';
 const defaultProps = {
   imageTexture: {type: 'object', value: null, required: true},
   imageTexture2: {type: 'object', value: null},
+  imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'string', value: ImageInterpolation.CUBIC},
   imageWeight: {type: 'number', value: 0},
   imageType: {type: 'string', value: ImageType.SCALAR},
@@ -39,7 +40,7 @@ export class ContourBitmapLayer extends BitmapLayer {
   draw(opts) {
     const {viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
 
     if (!imageTexture) {
       return;
@@ -54,6 +55,7 @@ export class ContourBitmapLayer extends BitmapLayer {
         [fsTokens.imageTexture]: imageTexture,
         [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
         [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
+        [fsTokens.imageSmoothing]: imageSmoothing,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
