@@ -1,16 +1,16 @@
 # WeatherLayers GL
 
-## License Terms of Use of the Front-End Library
+## License Terms of Use of the WeatherLayers GL Front-End Library
 
 ### 1. DEFINITIONS
 
-1.1. These License Terms of Use of the Front-End Library ("**Terms**") are part of the License contract ("**Contract**") concluded between Kamzek s.r.o. ("**Provider**") and a user ("**User**").
+1.1. These License Terms of Use of the WeatherLayers GL Front-End Library ("**Terms**") are part of the License contract ("**Contract**") concluded between Kamzek s.r.o. ("**Provider**") and a user ("**User**").
 
 1.2. Unless provided otherwise, the capitalized terms used in these Terms of Use have the following meanings:
 
 "**Library**" is a front-end library WeatherLayers GL which serve to interactively visualize weather data. While the web application WeatherLayers ("**Web Application**" that is provided as Software as a Service solution by the Provider from [https://weatherlayers.com](https://weatherlayers.com)) on its own (without use of the Library) can visualize **only** pre-processed weather data listed in Cloud Data table on the [https://weatherlayers.com](https://weatherlayers.com), the **Library** can visualize also data from other sources (self-hosted data).
 
-"**License** is non-exclusive authorization to use the Library granted by the Provider to the User in the scope and under conditions set by the Terms.
+"**License**" is non-exclusive authorization to use the Library granted by the Provider to the User in the scope and under conditions set by the Terms. There are different types of License with different scope and pricing which is set in Article 7.
 
 "**Provider**" means Kamzek s.r.o., business company with registered office at Strnadových 1015/6, Vysočany, 190 00 Prague 9, Czech Republic, ID No.: 10814591, incorporated under the laws of Czech Republic, registered in the commercial register kept by the Municipal Court in Prague under file No. C 348929, Provider's e-mail address: [mailto:support@weatherlayers.com](support@weatherlayers.com).
 
@@ -18,9 +18,9 @@
 
 "**Technical Documentation**" is Technical Documentation available at [https://docs.weatherlayers.com](https://docs.weatherlayers.com).
 
-"**User**" is a person intending to use or using the Library. The User declares he/she concludes the Contract only for purposes of its **business activity** and he/she is not in a position of consumer. Consumers may not conclude this Contract and may not use the Library on the basis of the Terms (in case of interest they shall contact the Provider individually).
+"**User**" is a person intending to use or using the Library that concluded the Contract with the Provider. The User declares he/she concludes the Contract only for purposes of its **business activity** and he/she is not in a position of consumer. Consumers may not conclude this Contract and may not use the Library on the basis of the Terms (in case of interest they shall contact the Provider individually).
 
-"**User Application**" is user's application in connection with which the User intends to use the Library (statically or dynamically link the Library to such application). For the purpose of these Terms, individual User Applications are determined, among others, by the full domain name, on which the User Application is available to its users (i.e., if the same User Application is available at www.firstapplication.com and also at www.secondapplication.com, it is considered to be 2 User Applications). For avoidance of any doubt, multiple User Applications may be available under the same domain name.
+"**User Application**" is an application developed by the User in connection with which the User intends to use the Library (statically or dynamically link the Library to such application). For the purpose of these Terms, individual User Application is determined, among others, by the full domain or subdomain name, on which the User Application is available to its users (i.e., if the same User Application is available at www.firstapplication.com and also at www.secondapplication.com, it is considered to be 2 User Applications). For avoidance of any doubt, multiple User Applications may be available under the same domain name.
 
 ### 2. SUBJECT OF THE CONTRACT
 
@@ -30,7 +30,7 @@
 
 ### 3. OBTAINING THE LIBRARY
 
-3.1. To use the Library the User shall firstly purchase the License, either by concluding the Contract per e-mail or via a user account in the Web Application (if this option is available). To create a user account (free of charge), the User must sign up via the form available on the [https://weatherlayers.com](https://weatherlayers.com) under the “Sign up” button or at [https://account.weatherlayers.com](https://account.weatherlayers.com). The User shall provide all the required information and confirm process by pressing the “SIGN UP” button. By signing up the User accepts the Terms of Use and Privacy Policy.
+3.1. To use the Library the User shall firstly purchase the License, either by concluding the Contract per e-mail or via a user account in the Web Application (if this option is available). To create a user account (free of charge), the User must sign up via the form available on the [https://weatherlayers.com](https://weatherlayers.com) under the “Sign up” button or at [https://account.weatherlayers.com](https://account.weatherlayers.com). The User shall select the desired type of the License, provide all the required information and confirm process by pressing the “SIGN UP” button. By signing up the User accepts the Terms of Use and Privacy Policy.
 
 3.2. The License is purchased (and the Contract is concluded) only when the price is fully paid to the Provider and the order is confirmed per e-mail by the Provider. The Provider reserves the right not to confirm any order and to return the price without stating the reason. If the Provider decides to confirm the purchase, it will provide the User with the Library per e-mail or, at Provider's discretion, will provide the User with link to website from which the Library can be downloaded (and login credentials if necessary), either of it at latest within 10 days after the purchase is confirmed.
 
@@ -52,13 +52,13 @@
 
 5.2. The Provider reserves the right, at the Provider's sole discretion and without the obligation to provide justification, at any time and without prior notice to the User, to:
 
-* a) modify the functions or the extent of Library by any means,  
+* a) modify the functions or the extent of Library by any means,
 * b) update or upgrade the Library,
-* c) modify the Technical Documentation. The changes of Technical Documentation do not represent change of the Contract and can be done unilaterally by the Provider.    
+* c) modify the Technical Documentation. The changes of Technical Documentation do not represent change of the Contract and can be done unilaterally by the Provider.
 
 ### 6. PRICE
 
-6.1. The User shall pay the price of the License before he/she starts using the Library. The price can be found at [https://weatherlayers.com](https://weatherlayers.com). The price includes:
+6.1. The User shall pay the price of the selected type of the License (except for Trial License, which is for free) before he/she starts using the Library. The price for each paid type of License can can be found at [https://weatherlayers.com](https://weatherlayers.com). The price includes:
 
 * a) payment for a License for the version of the Library that was available at the time of the download,
 * b) payment for 1 year of Services as specified below (the term starts on the day of provision of the License according to Article 3.2).
@@ -75,17 +75,15 @@
 
 ### 7. LICENSE TO USE THE LIBRARY
 
-7.1. The Library and Technical Documentation may be protected by copyright or other intellectual property rights.
+7.1. The Library and Technical Documentation may be protected by copyright or other intellectual property rights. Depending on the selected type of the License (Trial, Single Domain and Multiple Domain License), the scope of the License differs as follows.
 
-7.2. The Provider grants to the User a non-exclusive License to use the Library and Technical Documentation for the duration of intellectual property rights therein. The License is granted at the moment when the Provider sends the User the Library per e-mail or at the moment when the Provider sends the User the link (and login credentials if necessary). The License is not limited by territory but is limited for use in one User Application. Prior to purchasing the License, the User is obliged to inform the Provider in writing about the domain name of the User Application in connection with which the License is to be used. For this purpose, the User shall fill in all the required information in the order form. If the User intends to use the Library in connection with more User Applications, it shall first purchase additional License.
+7.2. The Provider grants to the User a non-exclusive License to use the Library and Technical Documentation for the duration of intellectual property rights therein. The License is granted at the moment when the Provider sends the User the Library per e-mail or at the moment when the Provider sends the User the link (and login credentials if necessary). The License is not limited by territory but is limited the number of User Applications and the number of domain names determined according to the type of license as indicated below.
 
-7.3. The User may change the domain name under which the User Application is available only if it notifies the Provider in writing about such change in advance and at the same time ceases to use the Library in connection with the User Application available under the previous domain name.
+7.3. The License is granted only for the use of the Library in line with Technical Documentation and Provider's written instructions (this includes optional integration with the Web Application, however, nothing in these Terms authorizes the User to use the Web Application – such authorization must be obtained separately by concluding separate contract with the Provider.
 
-7.4. The License is granted only for the use of the Library in line with Technical Documentation and Provider's written instructions (this includes optional integration with the Web Application, however, nothing in these Terms authorizes the User to use the Web Application – such authorization must be obtained separately by concluding separate contract with the Provider.
+7.4. The User shall use the Library and Technical Documentation only for internal purposes and shall not provide them to third persons (i.e. they can be used solely by the User, its employees and members of User's corporate bodies within the scope of the activities of the User). The User shall be liable for any actions taken by third persons to which it has made the Library and Documentation available. The User shall not assign nor sublicense the Library or Documentation to any third persons.
 
-7.5. The User shall use the Library and Technical Documentation only for internal purposes and shall not provide them to third persons (i.e. they can be used solely by the User, its employees and members of User's corporate bodies within the scope of the activities of the User). The User shall be liable for any actions taken by third persons to which it has made the Library and Documentation available. The User shall not assign nor sublicense the Library or Documentation to any third persons.
-
-7.6. The User undertakes not to use the Library (and Technical Documentation, if applicable) in any manner other than as specified in these Terms. In particular, the User shall not:
+7.5. The User undertakes not to use the Library (and Technical Documentation, if applicable) in any manner other than as specified in these Terms. In particular, the User shall not:
 
 * a) use the Library in an illegal manner, manner which could harm the Provider or be competitive towards the Provider;
 * b) interfere with the security measures of the Library or otherwise engage with them, in particular the User shall not insert malware (computer viruses, Trojan horses, ransomware, etc.) or other harmful content or code in the Library;
@@ -95,19 +93,38 @@
 * f) remove copyright notices of the Provider;
 * g) attempt to log into another User's account without authorization.
 
-7.7. For the purpose of checking compliance with these Terms, the User shall provide the Provider with all information and materials related to the User Application and User's use of the Library and provide the Provider with access to the User Application, all within 3 days from the Provider's request. All information, materials, and access data according to this Article shall be provided to the Provider's e-mail stipulated in Article 1.2. In case the Provider identifies any non-compliance of the User or the User Application with these Terms, especially with the limitation to the License, then the Provider may, in addition to any rights stipulated in these Terms or arising from applicable law, suspend User's access to the User account and withdraw from the Contract.
+7.6. For the purpose of checking compliance with these Terms, the User shall provide the Provider with all information and materials related to the User Application and User's use of the Library and provide the Provider with access to the User Application, all within 3 days from the Provider's request. All information, materials, and access data according to this Article shall be provided to the Provider's e-mail stipulated in Article 1.2. In case the Provider identifies any non-compliance of the User or the User Application with these Terms, especially with the limitation to the License, then the Provider may, in addition to any rights stipulated in these Terms or arising from applicable law, suspend User's access to the User account and withdraw from the Contract.
 
-7.8. The User may create screenshots of the visualized weather data, make their copies, distribute them, or communicate them to third persons.
+7.7. The User may create screenshots of the visualized weather data, make their copies, distribute them, or communicate them to third persons.
 
-7.9. The Library may contain objects protected by third-party intellectual property rights, including open-source components. As an exception to the preceding provisions of Article 7, the Provider grants the User only with a non-exclusive authorization to use these objects in the extent allowed by the license terms (mainly MIT license) to such objects.
+7.8. The Library may contain objects protected by third-party intellectual property rights, including open-source components. As an exception to the preceding provisions of Article 7, the Provider grants the User only with a non-exclusive authorization to use these objects in the extent allowed by the license terms (mainly MIT license) to such objects.
 
-7.10. Should the User (or any person to which the User has made the Library available to) violate any provision of this Article, the User shall pay the Provider a contractual penalty of EUR 4 000 for each individual violation.  The payment of contractual penalty does not affect the right to claim damages or compensation in full amount.
+7.9. **TRIAL LICENSE**. Trial License is an unpaid non-exclusive license for limited term of 30 days (as of granting the License as defined in Article 7.3. which can be used for limited purpose of testing the functionalities of the Library. Except for a different term and free use for limited purpose, all provisions governing Single Domain License apply to the Trial License.
 
-7.11. The remuneration for License is included in the price.
+7.10. **SINGLE DOMAIN LICENSE**. Single Domain License is a paid non-exclusive license for use of the Library in a single User Application under a single domain name only. The following rules apply to Single Domain License:
+
+* a) Prior to purchasing the License, the User is obliged to inform the Provider in writing of the domain name under which the User Application is hosted. For this purpose, the User shall fill in all the required information in the order form,
+* b) The User may change the domain name under which the User Application is available only if it notifies the Provider in writing about such change in advance. For this purpose, the User shall fill in all the required information in the order form. At the same time, the User shall cease to use the Library in connection with the User Application available under the previous domain name, and
+* c) If the User intends to use the Library in connection with more User Applications, the User shall purchase Multiple Domain License.
+
+7.11. **MULTIPLE DOMAIN LICENSE**. Multiple Domain License is a paid non-exclusive license for use of the Library in unlimited number of User Applications hosted under unlimited number of domain names. The domain names do not have to be notified to the Provider.
+
+7.12. **NON-COMMERCIAL VERSION**. In case the Contract includes indication that the license is for use of the Library in non-commercial User Applications, the User shall use the User Application only for non-profit purposes, which means the User Application shall have at least the following characteristics: the User Application
+
+* a) is provided free of charge,
+* b) may not contain any paid advertisement,
+* c) does not offer any in-app purchases,
+* d) does not include functions which are available for a fee,
+* e) is made available to wide public, for example from Google Play or App Store or from other platform/website with unrestricted access.,
+* f) and does not have any other characteristic which indicates it is provided to gain profit.
+
+7.13. Should the User (or any person to which the User has made the Library available to) violate any provision of this Article, the User shall pay the Provider a contractual penalty of EUR 4 000 for each individual violation.  The payment of contractual penalty does not affect the right to claim damages or compensation in full amount.
+
+7.14. The remuneration for License is included in the price, or alternatively there is no remuneration for Trial License.
 
 ### 8. SUPPORT AND MAINTENANCE SERVICES
 
-8.1. The Provider shall provide the Services (i.e. support and maintenance services according to this Article) for the term of 1 year after conclusion of the Contract ("**Service Term**"), upon written request. In case of any failure, fault or problem in the Library or Technical Documentation, the User may contact the Provider via [mailto:support@weatherlayers.com](support@weatherlayers.com). The Provider shall provide advice or help to solve the technical issue in the scope and manner determined by the Provider (it is possible also by providing work-around solution). The Provider does not guarantee any response or resolution times to the User. The Provider may also issue updates or upgrades of the Library.
+8.1. The Provider shall provide the Services (i.e. support and maintenance services according to this Article) for the term of 1 year after conclusion of the Contract ("**Service Term**"), upon written request. In case of any failure, fault or problem in the Library or Technical Documentation, the User may contact the Provider via [mailto:support@weatherlayers.com](support@weatherlayers.com). The Provider shall provide advice or help to solve the technical issue in the scope and manner determined by the Provider (it is possible also by providing work-around solution). The Provider does not guarantee any response or resolution times to the User. The User expressly agrees the Provider will not issue any updates or upgrades within the meaning of section 2389d of the Civil Code.
 
 8.2. Prior to the expiry of the Service Term, the Parties may conclude a separate support and maintenance agreement to ensure continuity of the Services. Continuity of the Services under such agreement may be subjected to further fees payable to the Provider. If the Parties do not conclude agreement on provision of the Services within the Service Term, the Provider may decide not to issue any further updates and upgrades for the downloaded version of the Library any time after the expiry of the Service Terms.
 
@@ -115,7 +132,7 @@
 
 ### 9. DISCLAIMER AND LIMITATION OF LIABILITY
 
-9.1. The Library and Services are provided "as are" and "as available". The Provider offers no warranty and excludes all liability for the quality, accuracy or completeness of the Library and the Documentation, the level of availability and/or uninterrupted provision of the License and Services. If the Library ceases to function or suffers by defects, it does not constitute a substantial breach of the Contract and the User may not withdraw from the Contract on the basis of such reason. However, the Provider shall endeavor to resolve problems according to clause 8.1.
+9.1. The Library and Services are provided "as are" and "as available". The Provider offers no warranty and excludes all liability for the quality, accuracy or completeness of the Library and the Documentation, the level of availability and/or uninterrupted provision of the License and Services. If the Library ceases to function or suffers by defects, it does not constitute a substantial breach of the Contract and the User may not withdraw from the Contract on the basis of such reason. However, the Provider shall endeavor to resolve problems according to Article 8.1.
 
 9.2. The Provider shall not be liable for any direct or indirect damage (including lost profits, special or incidental damages) caused to the User or third person to which the outputs were made available by outages, malfunctions, or errors of the Library or other performances provided on the basis of the Contract, such as software failures, technical failures, failures of networks or telecommunication systems, regardless of whether they are caused by the Provider, Users or third parties, or arise as a result of power failures, interruptions or interference of telecommunication services or circumstances excluding liability or events of force majeure (e.g. cyber-attack or strike). The Provider excludes liability for correctness of processing of the data input in the Library or Web Application or any issues or failures caused by such data, unsuitability of such data for use with the Library. The Provider further excludes liability for damages caused by configuring or integrating the Library to other software. This applies even if the User has notified the Provider in advance of the possibility of such damage.
 
@@ -164,4 +181,4 @@
 
 13.8. The User agrees that the Provider may refer to the User on the Provider's website and in the Provider's sales presentations and activities towards the acquisition of new Users to the extent of stating the User's business name and/or logo. Such User's consent is valid for the duration of the Contract and for a period of five years after its termination.
 
-13.9. These Terms of Use are effective as of the date 28 March 2022.
+13.9. These Terms of Use are effective as of the date 20 December 2022.
