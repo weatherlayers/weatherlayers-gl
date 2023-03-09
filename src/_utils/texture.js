@@ -110,3 +110,6 @@ export function createTextureCached(gl, image) {
   const texture = cache2.get(image);
   return texture;
 }
+
+// empty texture required instead of null since deck.gl 8.9 because of removal of null check in https://github.com/visgl/deck.gl/commit/b2a25b6b11a3c5197769a911a7482a7c987a12fb
+export const EMPTY_TEXTURE = {data: new Uint8Array(), width: 0, height: 0, mipmaps: false};

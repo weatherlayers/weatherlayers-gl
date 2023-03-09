@@ -1,5 +1,5 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
-import {createTextureCached} from '../../../_utils/texture.js';
+import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withCheckLicense} from '../../license.js';
 import {ParticleLineLayer} from './particle-line-layer.js';
 
@@ -26,8 +26,8 @@ class ParticleLayer extends CompositeLayer {
         id: 'line',
         imageTexture,
         imageTexture2,
-        image: undefined,
-        image2: undefined,
+        image: EMPTY_TEXTURE,
+        image2: EMPTY_TEXTURE,
 
         _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
       })),
