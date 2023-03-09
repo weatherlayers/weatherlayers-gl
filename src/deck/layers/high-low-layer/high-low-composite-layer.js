@@ -1,9 +1,9 @@
 import {CompositeLayer} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
+import {CollisionFilterExtension} from '@deck.gl/extensions';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport.js';
-import {getViewportVisiblePoints} from '../../../_utils/viewport-point.js';
 import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
 const defaultProps = {
@@ -26,7 +26,7 @@ const defaultProps = {
 class HighLowCompositeLayer extends CompositeLayer {
   renderLayers() {
     const {viewport} = this.context;
-    const {props, highLowPoints, visibleHighLowPoints} = this.state;
+    const {props, highLowPoints, minValue, maxValue} = this.state;
 
     if (!props || !highLowPoints) {
       return [];
@@ -37,7 +37,7 @@ class HighLowCompositeLayer extends CompositeLayer {
     return [
       new TextLayer(this.getSubLayerProps({
         id: 'type',
-        data: visibleHighLowPoints,
+        data: highLowPoints,
         getPixelOffset: [0, -getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
         getText: d => d.properties.type,
@@ -49,10 +49,14 @@ class HighLowCompositeLayer extends CompositeLayer {
         fontFamily: textFontFamily,
         fontSettings: { sdf: true },
         billboard: false,
+
+        extensions: [new CollisionFilterExtension()],
+        collisionTestProps: {sizeScale: 5},
+        getCollisionPriority: d => d.properties.type === 'H' ? Math.round((d.properties.value - maxValue) / maxValue * 100) : Math.round((minValue - d.properties.value) / minValue * 100),
       })),
       new TextLayer(this.getSubLayerProps({
         id: 'value',
-        data: visibleHighLowPoints,
+        data: highLowPoints,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates,
         getText: d => textFormatFunction(d.properties.value, unitFormat),
@@ -64,6 +68,10 @@ class HighLowCompositeLayer extends CompositeLayer {
         fontFamily: textFontFamily,
         fontSettings: { sdf: true },
         billboard: false,
+
+        extensions: [new CollisionFilterExtension()],
+        collisionTestProps: {sizeScale: 5},
+        getCollisionPriority: d => d.properties.type === 'H' ? Math.round((d.properties.value - maxValue) / maxValue * 100) : Math.round((minValue - d.properties.value) / minValue * 100),
       })),
     ];
   }
@@ -80,17 +88,14 @@ class HighLowCompositeLayer extends CompositeLayer {
     if (!radius) {
       this.setState({
         highLowPoints: undefined,
-        visibleHighLowPoints: undefined,
+        minValue: undefined,
+        maxValue: undefined,
       });
       return;
     }
 
     if (image !== oldProps.image || radius !== oldProps.radius) {
       this.updateHighLowPoints();
-    }
-
-    if (changeFlags.viewportChanged) {
-      this.updateVisibleHighLowPoints();
     }
 
     this.setState({ props });
@@ -103,22 +108,11 @@ class HighLowCompositeLayer extends CompositeLayer {
     }
 
     const highLowPoints = (await getHighLowPoints(image, imageType, imageUnscale, bounds, radius)).features;
+    const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
 
-    this.setState({ image, radius, highLowPoints });
-
-    this.updateVisibleHighLowPoints();
-  }
-
-  updateVisibleHighLowPoints() {
-    const {viewport} = this.context;
-    const {highLowPoints} = this.state;
-    if (!highLowPoints) {
-      return;
-    }
-
-    const visibleHighLowPoints = getViewportVisiblePoints(viewport, highLowPoints);
-
-    this.setState({ visibleHighLowPoints });
+    this.setState({ image, radius, highLowPoints, minValue, maxValue });
   }
 }
 
