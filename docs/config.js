@@ -31,7 +31,7 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
 export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const datasets = client ? await client.loadCatalog() : { datasets: [] };
+  const datasets = client ? await client.loadCatalog() : [];
 
   const config = {
     client,
@@ -55,7 +55,7 @@ export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
     },
     contour: {
       enabled: false,
-      interval: undefined, // dataset-specific
+      interval: 2, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
       // text config is used for labels in standalone demos
@@ -68,7 +68,7 @@ export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
     },
     highLow: {
       enabled: false,
-      radius: 0, // dataset-specific
+      radius: 2000, // dataset-specific
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
       textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
       textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
@@ -122,31 +122,16 @@ async function updateDataset(config, { deckgl, webgl2 } = {}) {
   const { client } = config;
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  if (config.dataset === NO_DATA) {
-    config.datetimes = [];
-    config.datetime = NO_DATA;
-    config.raster.enabled = false;
-    config.contour.enabled = false;
-    config.highLow.enabled = false;
-    if (deckgl) {
-      config.grid.enabled = false;
-    }
-    if (webgl2) {
-      config.particle.enabled = false;
-    }
-    return;
-  }
-
   config.datetimes = client ? (await client.loadDataset(config.dataset)).datetimes : [];
-  config.datetime = config.datetimes[0];
+  config.datetime = config.datetimes[0] ?? NO_DATA;
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
   config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : !!CONTOUR_LAYER_DATASET_CONFIG[config.dataset];
-  config.contour.interval = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.interval || 0;
+  config.contour.interval = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.interval || 2;
 
   config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset];
-  config.highLow.radius = HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]?.radius || 0;
+  config.highLow.radius = HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]?.radius || 2000;
 
   if (deckgl) {
     config.grid.enabled = urlConfig.has('grid') ? urlConfig.get('grid') === 'true' : !!GRID_LAYER_DATASET_CONFIG[config.dataset];

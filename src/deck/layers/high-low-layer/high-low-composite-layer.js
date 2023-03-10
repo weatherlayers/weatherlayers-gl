@@ -6,6 +6,22 @@ import {ImageType} from '../../../_utils/image-type.js';
 import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport.js';
 import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
+/** @typedef {import('../../../standalone/providers/high-low-provider/high-low-point.js').HighLowPointProperties} HighLowPointProperties */
+
+/**
+ * @param {GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>} highLowPoint
+ * @param {number} minValue
+ * @param {number} maxValue
+ * @returns {number}
+ */
+function getHighLowPointCollisionPriority(highLowPoint, minValue, maxValue) {
+  if (highLowPoint.properties.type === 'H') {
+    return Math.round((highLowPoint.properties.value - maxValue) / maxValue * 100);
+  } else {
+    return Math.round((minValue - highLowPoint.properties.value) / minValue * 100);
+  }
+}
+
 const defaultProps = {
   image: {type: 'object', value: null, required: true}, // object instead of image to allow reading raw data
   imageType: {type: 'string', value: ImageType.SCALAR},
@@ -52,7 +68,7 @@ class HighLowCompositeLayer extends CompositeLayer {
 
         extensions: [new CollisionFilterExtension()],
         collisionTestProps: {sizeScale: 5},
-        getCollisionPriority: d => d.properties.type === 'H' ? Math.round((d.properties.value - maxValue) / maxValue * 100) : Math.round((minValue - d.properties.value) / minValue * 100),
+        getCollisionPriority: d => getHighLowPointCollisionPriority(d, minValue, maxValue),
       })),
       new TextLayer(this.getSubLayerProps({
         id: 'value',
@@ -71,7 +87,7 @@ class HighLowCompositeLayer extends CompositeLayer {
 
         extensions: [new CollisionFilterExtension()],
         collisionTestProps: {sizeScale: 5},
-        getCollisionPriority: d => d.properties.type === 'H' ? Math.round((d.properties.value - maxValue) / maxValue * 100) : Math.round((minValue - d.properties.value) / minValue * 100),
+        getCollisionPriority: d => getHighLowPointCollisionPriority(d, minValue, maxValue),
       })),
     ];
   }
