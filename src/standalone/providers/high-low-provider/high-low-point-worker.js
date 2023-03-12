@@ -1,112 +1,10 @@
+// TODO: fix Rollup build config to use TS instead of JS
 import {expose, transfer} from 'comlink';
-import {getUnprojectFunction} from '../../../_utils/project.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import {blur} from '../../../_utils/blur.js';
-import {distance} from '../../../_utils/geodesy.js';
-import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
+import {getHighLowPointData} from './high-low-point-worker-inner.js';
 
-/** @typedef {import('../../../_utils/data').TextureDataArray} TextureDataArray */
-
-/**
- * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
- * @param {Float32Array} data
- * @param {number} width
- * @param {number} height
- * @param {GeoJSON.BBox} bounds
- * @param {number} radius
- * @returns {Float32Array}
- */
-function getHighLowPointData(data, width, height, bounds, radius) {
-  const radiusKm = radius * 1000;
-  const unproject = getUnprojectFunction(width, height, bounds);
-
-  // blur noisy data
-  data = blur(data, width, height);
-
-  // find highs and lows
-  /** @type {{ position: GeoJSON.Position, value: number }[]} */
-  let highs = [];
-  /** @type {{ position: GeoJSON.Position, value: number }[]} */
-  let lows = [];
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
-      const i = x + y * width;
-
-      const value = data[i];
-
-      if (
-        !isNaN(value) &&
-        value >= data[(x + 1) + (y    ) * width] &&
-        value >= data[(x + 1) + (y + 1) * width] &&
-        value >= data[(x    ) + (y + 1) * width] &&
-        value >= data[(x - 1) + (y + 1) * width] &&
-        value >  data[(x - 1) + (y    ) * width] &&
-        value >  data[(x - 1) + (y - 1) * width] &&
-        value >  data[(x    ) + (y - 1) * width] &&
-        value >  data[(x + 1) + (y - 1) * width]
-      ) {
-        const point = [x, y];
-        const position = unproject(point);
-        highs.push({ position, value });
-      }
-
-      if (
-        !isNaN(value) &&
-        value <= data[(x + 1) + (y    ) * width] &&
-        value <= data[(x + 1) + (y + 1) * width] &&
-        value <= data[(x    ) + (y + 1) * width] &&
-        value <= data[(x - 1) + (y + 1) * width] &&
-        value <  data[(x - 1) + (y    ) * width] &&
-        value <  data[(x - 1) + (y - 1) * width] &&
-        value <  data[(x    ) + (y - 1) * width] &&
-        value <  data[(x + 1) + (y - 1) * width]
-      ) {
-        const point = [x, y];
-        const position = unproject(point);
-        lows.push({ position, value });
-      }
-    }
-  }
-  highs = highs.sort((a, b) => b.value - a.value);
-  lows = lows.sort((a, b) => a.value - b.value);
-
-  // remove proximate highs
-  for (let i = 0; i < highs.length; i++) {
-    const high = highs[i];
-    if (high) {
-      for (let j = i + 1; j < highs.length; j++) {
-        const high2 = highs[j];
-        if (high2 && distance(high.position, high2.position) < radiusKm) {
-          highs[j] = undefined;
-        }
-      }
-    }
-  }
-  highs = highs.filter(x => !!x);
-
-  // remove proximate lows
-  for (let i = 0; i < lows.length; i++) {
-    const low = lows[i];
-    if (low) {
-      for (let j = i + 1; j < lows.length; j++) {
-        const low2 = lows[j];
-        if (low2 && distance(low.position, low2.position) < radiusKm) {
-          lows[j] = undefined;
-        }
-      }
-    }
-  }
-  lows = lows.filter(x => !!x);
-
-  const highLowPointData = new Float32Array([
-    highs.length,
-    ...highs.map(x => [...x.position, x.value]).flat(),
-    lows.length,
-    ...lows.map(x => [...x.position, x.value]).flat(),
-  ]);
-  
-  return highLowPointData;
-}
+/** @typedef {import('../../../_utils/data.js').TextureDataArray} TextureDataArray */
+/** @typedef {import('../../../_utils/image-type.js').ImageType} ImageType */
+/** @typedef {import('../../../_utils/image-unscale.js').ImageUnscale} ImageUnscale */
 
 expose({
   /**
@@ -114,14 +12,13 @@ expose({
    * @param {number} width
    * @param {number} height
    * @param {ImageType} imageType
-   * @param {[number, number] | null} imageUnscale
+   * @param {ImageUnscale | null} imageUnscale
    * @param {GeoJSON.BBox} bounds
    * @param {number} radius
    * @returns {Float32Array}
    */
   getHighLowPointData(data, width, height, imageType, imageUnscale, bounds, radius) {
-    const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
-    const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, bounds, radius);
+    const highLowPointData = getHighLowPointData(data, width, height, imageType, imageUnscale, bounds, radius);
     return transfer(highLowPointData, [highLowPointData.buffer]);
-  },
+  }
 });

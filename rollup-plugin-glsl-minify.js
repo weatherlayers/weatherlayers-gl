@@ -4,8 +4,8 @@
 // - mangleShader - mangle tokens
 // - generateCode - export code and tokens
 import { createFilter } from 'rollup-pluginutils';
-import { GlslMinify } from 'webpack-glsl-minify/build/minify';
-import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node';
+import { GlslMinify } from 'webpack-glsl-minify/build/minify.js';
+import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node.js';
 
 function minifyShader(code, id, minimize) {
   // don't mangle injected deck.gl names

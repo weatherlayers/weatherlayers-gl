@@ -3,7 +3,7 @@
         "@babel/preset-env"
     ],
     "plugins": [
-        ["@babel/plugin-proposal-decorators", { "version": "2021-12" }],
+        ["@babel/plugin-proposal-decorators", { "version": "2023-01" }],
         "@babel/plugin-transform-runtime"
     ]
 }

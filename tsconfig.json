@@ -8,7 +8,6 @@
     "declaration": true,
     "sourceMap": true,
     "allowJs": true,
-    "checkJs": true,
     "resolveJsonModule": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -16,5 +15,8 @@
   },
   "include": [
     "./src/**/*"
+  ],
+  "exclude": [
+    "node_modules" 
   ]
 }
