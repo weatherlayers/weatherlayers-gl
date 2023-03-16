@@ -76,13 +76,13 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
     if (iconStyle) {
       const {iconAtlas, iconMapping} = iconStyle;
       const iconBounds = iconStyle.iconBounds || props.iconBounds;
-      const delta = (iconBounds[1] - iconBounds[0]) / (iconMapping as unknown as any[]).length;
+      const delta = (iconBounds[1] - iconBounds[0]) / Object.values(iconMapping).length;
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
           data: gridPoints,
           getPosition: d => d.geometry.coordinates as Position,
-          getIcon: d => Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), (iconMapping as unknown as any[]).length - 1) as unknown as string,
+          getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
           getSize: iconSize,
           getColor: iconColor,
           getAngle: d => getViewportAngle(viewport, 360 - d.properties.direction),

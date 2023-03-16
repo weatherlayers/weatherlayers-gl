@@ -1,8 +1,7 @@
-import type {IconMapping} from '@deck.gl/layers/typed/icon-layer/icon-manager';
-import arrowIconAtlas from './arrow.png';
-import arrowIconMapping from './arrow.json';
-import windBarbIconAtlas from './wind-barb.png';
-import windBarbIconMapping from './wind-barb.json';
+import arrowAtlas from './arrow.atlas.png';
+import arrowMapping from './arrow.mapping.json';
+import windBarbAtlas from './wind-barb.atlas.png';
+import windBarbMapping from './wind-barb.mapping.json';
 
 export enum GridStyle {
   VALUE = 'VALUE',
@@ -12,12 +11,12 @@ export enum GridStyle {
 
 export const GRID_ICON_STYLES = new Map([
   [GridStyle.ARROW, {
-    iconAtlas: arrowIconAtlas,
-    iconMapping: arrowIconMapping as unknown as IconMapping,
+    iconAtlas: arrowAtlas,
+    iconMapping: arrowMapping,
   }],
   [GridStyle.WIND_BARB, {
-    iconAtlas: windBarbIconAtlas,
-    iconMapping: windBarbIconMapping as unknown as IconMapping,
+    iconAtlas: windBarbAtlas,
+    iconMapping: windBarbMapping,
     iconBounds: [0, 100 * 0.51444], // 100 kts to m/s
   }],
 ]);

@@ -1,4 +1,4 @@
 declare module '*.png' {
-  const image: string;
-  export default image;
+  const img: string;
+  export default img;
 }
