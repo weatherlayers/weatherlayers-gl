@@ -8,6 +8,7 @@ import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import glslMinify from './rollup-plugin-glsl-minify.js';
 import worker from 'rollup-plugin-worker-factory';
+import dts from 'rollup-plugin-dts';
 import postcss from 'rollup-plugin-postcss';
 import autoprefixer from 'autoprefixer';
 import assets from 'postcss-assets';
@@ -124,6 +125,19 @@ export default commandLineArgs => {
       bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
       bundle(entrypoint, filename, 'es', { resolve: true }),
       bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
+      {
+        input: entrypoint,
+        output: {
+          file: filename.replace('.js', '.d.ts'),
+          format: 'es',
+        },
+        plugins: [
+          dts(),
+          json(),
+          image(),
+          postcss({ inject: false }),
+        ],
+      },
     ] : []),
     bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
     bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),

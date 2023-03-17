@@ -19,7 +19,10 @@ export function formatDatetime(value: string): string {
   return formattedValue;
 }
 
-export function formatValue(value: number, unitFormat: UnitFormat): string {
+export function formatValue(value: number, unitFormat?: UnitFormat): string {
+  if (!unitFormat) {
+    return `${Math.round(value)}`;
+  }
   const { scale = 1, offset = 0, decimals = 0 } = unitFormat;
   const formattedValue = scale * value + offset;
   const roundedFormattedValue = decimals ? Math.round(formattedValue * 10 ** decimals) / 10 ** decimals : Math.round(formattedValue);

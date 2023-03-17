@@ -7,7 +7,7 @@ import type {Palette} from 'cpt2js';
 import GL from '../../../_utils/gl.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale';
+import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import {RasterPickingInfo} from '../../../_utils/raster-picking-info.js';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 

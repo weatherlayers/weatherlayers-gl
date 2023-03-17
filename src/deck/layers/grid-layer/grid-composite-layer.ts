@@ -7,7 +7,7 @@ import type {TextFormatFunction} from '../../../_utils/props.js';
 import type {TextureData} from '../../../_utils/data.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale';
+import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import type {UnitFormat} from '../../../_utils/unit-format.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {getViewportGridPositions} from '../../../_utils/viewport-grid.js';

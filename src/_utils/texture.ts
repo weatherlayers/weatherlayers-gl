@@ -1,7 +1,7 @@
 import {FEATURES, isWebGL2, hasFeatures, Texture2D} from '@luma.gl/core';
 import type {TextureProps} from '@luma.gl/core';
 import GL from './gl.js';
-import type {TextureData} from './data';
+import type {TextureData} from './data.js';
 
 const cache = new WeakMap<WebGLRenderingContext, WeakMap<TextureData, Texture2D>>();
 

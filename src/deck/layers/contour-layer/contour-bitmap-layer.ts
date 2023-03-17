@@ -7,7 +7,7 @@ import {sourceCode as fs, tokens as fsTokens} from './contour-bitmap-layer.fs.gl
 import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale';
+import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 
 export type ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
