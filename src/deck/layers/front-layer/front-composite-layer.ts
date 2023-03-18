@@ -5,6 +5,7 @@ import type {PathLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
 import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck.gl/extensions/typed';
 import {distance, destinationPoint, initialBearing} from '../../../_utils/geodesy.js';
+import {getViewportAngle} from '../../../_utils/viewport.js';
 import {FrontType, iconAtlas, iconMapping} from './front-type.js';
 
 const DEFAULT_WIDTH = 2;
@@ -48,6 +49,7 @@ const defaultProps = {
 
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
   renderLayers() {
+    const {viewport} = this.context;
     const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize} = this.props;
     if (!data || !getType || !getPath) {
       return [];
@@ -130,7 +132,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         getIcon: d => getType(d.d),
         getSize: iconSize,
         getColor: d => FrontTypeToColor[getType(d.d)],
-        getAngle: d => d.direction,
+        getAngle: d => getViewportAngle(viewport, d.direction),
         iconAtlas,
         iconMapping,
         billboard: false,
@@ -149,7 +151,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         getIcon: () => FrontType.COLD,
         getSize: iconSize,
         getColor: coldColor,
-        getAngle: d => d.direction,
+        getAngle: d => getViewportAngle(viewport, d.direction),
         iconAtlas,
         iconMapping,
         billboard: false,
@@ -168,7 +170,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         getIcon: () => FrontType.WARM,
         getSize: iconSize,
         getColor: warmColor,
-        getAngle: d => d.direction + 180,
+        getAngle: d => getViewportAngle(viewport, d.direction + 180),
         iconAtlas,
         iconMapping,
         billboard: false,

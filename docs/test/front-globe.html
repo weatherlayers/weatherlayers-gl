@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>WeatherLayers</title>
+  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
+  <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
+  <script src="https://unpkg.com/deck.gl@8.9.3/dist.min.js"></script>
+  <script src="https://unpkg.com/geotiff@2.0.5/dist-browser/geotiff.js"></script>
+  <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../info-control.css">
+  <link rel="stylesheet" href="../fps-control.css">
+  <script defer data-domain="demo.weatherlayers.com" data-api="/phq/api/event" src="/phq/js/script.js"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div id="deck"></div>
+  </div>
+  <div id="top-left"></div>
+  <div id="bottom-left"></div>
+  <div id="bottom-right"></div>
+
+  <script type="module">
+    import { initConfig, initGui, colorToArray } from '../config.js';
+    import { InfoControl } from '../info-control.js';
+    import { FpsControl } from '../fps-control.js';
+    import FRONT_DATA from './front-data.json' assert { type: 'json' };
+
+    const FrontDataTypeToFrontType = {
+      CFRONT: WeatherLayers.FrontType.COLD,
+      WFRONT: WeatherLayers.FrontType.WARM,
+      OFRONT: WeatherLayers.FrontType.OCCLUDED,
+      SFRONT: WeatherLayers.FrontType.STATIONARY,
+    };
+
+    function secToDeg(value) {
+      return value / 60 / 60;
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const config = await initConfig({ deckgl: true, webgl2: true });
+      let gui;
+
+      // deck.gl
+      const deckgl = window.deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {
+          longitude: 30,
+          latitude: 0,
+          zoom: 0,
+        },
+        controller: {
+          normalize: false,
+        },
+        views: [
+          new deck._GlobeView(),
+        ],
+        layers: [],
+      });
+
+      // info panels
+      const infoControl = new InfoControl();
+      infoControl.prependTo(document.getElementById('top-left'));
+      deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
+
+      // attribution
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      basemapAttributionControl.prependTo(document.getElementById('bottom-right'));
+
+      // FPS meter
+      const fpsControl = new FpsControl();
+      fpsControl.prependTo(document.getElementById('bottom-right'));
+
+      // config
+      async function update() {
+        const image = await WeatherLayers.loadTextureData('front-pressure.byte.png');
+        const imageType = WeatherLayers.ImageType.SCALAR;
+        const imageUnscale = [940, 1080];
+        const bounds = [-180, -90, 180, 90];
+        const palette = '940	238	238	238\n948	255	51	255\n956	157	19	157\n964	40	29	102\n973	88	82	163\n981	67	121	183\n989	80	173	131\n997	107	193	83\n1005	195	212	64\n1013	213	182	61\n1021	212	134	72\n1030	200	73	109\n1038	158	45	90\n1046	109	27	50\n1054	47	7	8\n1070	47	7	8';
+        const unitFormat = { unit: 'hPa' };
+        // const image = await WeatherLayers.loadTextureData('front-temperature.byte.png');
+        // const imageType = WeatherLayers.ImageType.SCALAR;
+        // const imageUnscale = [213.15, 325.15];
+        // const bounds = [-180, -90, 180, 90];
+        // const palette = '218.14999999999998	204	235	255\n228.14999999999998	179	205	227\n235.64999999999998	140	150	198\n240.64999999999998	140	150	198\n245.64999999999998	136	86	167\n250.64999999999998	129	15	124\n254.14999999999998	8	29	88\n256.15	19	39	120\n258.15	37	52	148\n260.15	35	71	158\n262.15	34	92	167\n264.15	31	118	180\n266.15	29	145	192\n268.15	44	167	197\n270.15	67	181	197\n272.15	99	200	197\n274.15	127	205	187\n276.15	152	220	166\n278.15	199	233	180\n280.15	220	242	198\n282.15	237	248	217\n284.15	245	252	211\n286.15	252	255	204\n288.15	255	249	182\n290.15	255	237	160\n292.15	255	228	139\n294.15	254	217	118\n296.15	254	199	97\n298.15	254	178	76\n300.15	254	160	68\n302.15	253	141	60\n304.15	253	110	51\n306.15	252	78	42\n308.15	242	49	32\n310.15	227	26	28\n312.15	210	11	32\n314.15	189	0	38\n316.15	159	0	39\n318.15	115	0	31\n320.15	76	0	25\n322.15	25	0	13\n324.15	76	0	153\n326.15	204	0	204';
+        // const unitFormat = { unit: '°C', offset: -273.15 };
+
+        deckgl.setProps({
+          layers: [
+            new deck.SolidPolygonLayer({
+              id: 'background',
+              data: [[[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]],
+              getPolygon: d => d,
+              stroked: false,
+              filled: true,
+              getFillColor: [26, 26, 26],
+            }),
+            new deck.TileLayer({
+              id: 'basemap',
+              data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
+              minZoom: 0,
+              maxZoom: 22,
+              tileSize: 256,
+              renderSubLayers: props => {
+                const {bbox: {west, south, east, north}} = props.tile;
+                return new deck.BitmapLayer(props, {
+                  data: null,
+                  image: props.data,
+                  bounds: [west, south, east, north],
+                });
+              },
+              parameters: {
+                cull: true,
+                depthTest: false,
+              },
+            }),
+            new WeatherLayers.RasterLayer({
+              id: 'raster',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.raster.enabled,
+              palette,
+              opacity: config.raster.opacity,
+            }),
+            new WeatherLayers.ContourLayer({
+              id: 'contour',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.contour.enabled,
+              interval: config.contour.interval,
+              width: config.contour.width,
+              color: colorToArray(config.contour.color),
+              opacity: config.contour.opacity,
+            }),
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.highLow.enabled,
+              unitFormat,
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: colorToArray(config.highLow.textColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              opacity: config.highLow.opacity,
+            }),
+            new WeatherLayers.FrontLayer({
+              id: 'front',
+              // data properties
+              data: FRONT_DATA.FT[6].obj, // 5, 6+, 10, 11, 12, 14+, 17+, 18
+              getType: d => FrontDataTypeToFrontType[d.TYPE],
+              getPath: d => d.point.map(point => [secToDeg(point.LON), secToDeg(point.LAT)]),
+              coldColor: [37, 99, 235], // Tailwind CSS blue-600
+              warmColor: [220, 38, 38], // Tailwind CSS red-600
+              occludedColor: [124, 58, 237], // Tailwind CSS violet-600
+              _debug: true,
+            }),
+          ],
+        });
+      }
+      update();
+      gui = initGui(config, update, { deckgl, webgl2: true });
+    });
+  </script>
+</body>
+
+</html>
