@@ -12,7 +12,7 @@ const DEFAULT_WIDTH = 2;
 const DEFAULT_COLD_COLOR: Color = [0, 0, 255];
 const DEFAULT_WARM_COLOR: Color = [255, 0, 0];
 const DEFAULT_OCCLUDED_COLOR: Color = [148, 0, 211];
-const DEFAULT_ICON_SIZE = 20;
+const DEFAULT_ICON_SIZE = 15;
 
 const ICON_DISTANCE = 10000;
 
