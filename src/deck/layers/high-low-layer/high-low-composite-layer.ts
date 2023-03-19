@@ -114,10 +114,6 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
     ];
   }
 
-  shouldUpdateState(params: UpdateParameters<this>): boolean {
-    return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
-  }
-
   updateState(params: UpdateParameters<this>): void {
     const {image, radius} = params.props;
 
