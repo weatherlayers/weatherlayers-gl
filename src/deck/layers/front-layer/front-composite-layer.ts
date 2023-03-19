@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, Layer} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, Layer} from '@deck.gl/core/typed';
 import {PathLayer, IconLayer} from '@deck.gl/layers/typed';
 import type {PathLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
@@ -44,7 +44,6 @@ const defaultProps = {
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
   renderLayers(): Layer[] {
     const {viewport} = this.context;
-    const {iconsVisible} = this.state;
     const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize} = this.props;
     if (!data || !getType || !getPath) {
       return [];
@@ -81,78 +80,37 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         getDashArray: [DEFAULT_ICON_SIZE * 3, DEFAULT_ICON_SIZE * 3],
       } satisfies PathLayerProps<DataT> & PathStyleExtensionProps<DataT>)),
 
-      ...(iconsVisible ? [
-        new IconLayer(this.getSubLayerProps({
-          id: 'icon',
-          data: frontIcons.filter(d => getType(d.d) !== FrontType.STATIONARY),
-          getPosition: d => d.position,
-          getIcon: d => getType(d.d),
-          getSize: iconSize,
-          getColor: d => FrontTypeToColor[getType(d.d)],
-          getAngle: d => getViewportAngle(viewport, d.direction),
-          iconAtlas,
-          iconMapping,
-          billboard: false,
+      new IconLayer(this.getSubLayerProps({
+        id: 'icon',
+        data: frontIcons,
+        getPosition: d => d.position,
+        getIcon: d => getType(d.d) === FrontType.OCCLUDED || getType(d.d) === FrontType.STATIONARY
+          ? (d.primary
+            ? FrontType.COLD
+            : FrontType.WARM)
+          : getType(d.d),
+        getSize: iconSize,
+        getColor: d => getType(d.d) === FrontType.STATIONARY
+          ? (d.primary
+            ? FrontTypeToColor[FrontType.COLD]
+            : FrontTypeToColor[FrontType.WARM])
+          : FrontTypeToColor[getType(d.d)],
+        getAngle: d => getType(d.d) === FrontType.STATIONARY
+          ? (d.primary
+            ? getViewportAngle(viewport, d.direction)
+            : getViewportAngle(viewport, d.direction + 180))
+          : getViewportAngle(viewport, d.direction),
+        iconAtlas,
+        iconMapping,
+        billboard: false,
 
-          extensions: [new CollisionFilterExtension()],
-          collisionEnabled: true,
-          collisionGroup: FRONT_ICON_COLLISION_GROUP,
-          collisionTestProps: { sizeScale: 10 },
-          getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
-        } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
-
-        new IconLayer(this.getSubLayerProps({
-          id: 'icon-stationary-cold',
-          data: frontIcons.filter((d, i) => getType(d.d) === FrontType.STATIONARY && i % 2 === 0),
-          getPosition: d => d.position,
-          getIcon: () => FrontType.COLD,
-          getSize: iconSize,
-          getColor: coldColor,
-          getAngle: d => getViewportAngle(viewport, d.direction),
-          iconAtlas,
-          iconMapping,
-          billboard: false,
-
-          extensions: [new CollisionFilterExtension()],
-          collisionEnabled: true,
-          collisionGroup: FRONT_ICON_COLLISION_GROUP,
-          collisionTestProps: { sizeScale: 10 },
-          getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
-        } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
-
-        new IconLayer(this.getSubLayerProps({
-          id: 'icon-stationary-warm',
-          data: frontIcons.filter((d, i) => getType(d.d) === FrontType.STATIONARY && i % 2 === 1),
-          getPosition: d => d.position,
-          getIcon: () => FrontType.WARM,
-          getSize: iconSize,
-          getColor: warmColor,
-          getAngle: d => getViewportAngle(viewport, d.direction + 180),
-          iconAtlas,
-          iconMapping,
-          billboard: false,
-
-          extensions: [new CollisionFilterExtension()],
-          collisionEnabled: true,
-          collisionGroup: FRONT_ICON_COLLISION_GROUP,
-          collisionTestProps: { sizeScale: 10 },
-          getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
-        } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
-      ] : []),
+        extensions: [new CollisionFilterExtension()],
+        collisionEnabled: true,
+        collisionGroup: FRONT_ICON_COLLISION_GROUP,
+        collisionTestProps: { sizeScale: 5 },
+        getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
+      } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
     ];
-  }
-
-  shouldUpdateState(params: UpdateParameters<this>): boolean {
-    return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
-  }
-
-  updateState(params: UpdateParameters<this>): void {
-    const {viewport} = this.context;
-
-    super.updateState(params);
-
-    // drop icons in high zoom because of incorrect position
-    this.setState({ iconsVisible: viewport.zoom < 10 });
   }
 }
 

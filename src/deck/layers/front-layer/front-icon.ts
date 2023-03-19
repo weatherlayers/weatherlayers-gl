@@ -1,7 +1,8 @@
 import type {Position} from '@deck.gl/core/typed';
 import {distance as measureDistance, destinationPoint, initialBearing} from '../../../_utils/geodesy.js';
 
-const ICON_DISTANCE = 5000;
+const ICON_MIN_DISTANCE = 5000;
+const ICON_FACTOR = 3;
 
 export interface TemporaryFrontIcon {
   distance: number;
@@ -12,7 +13,8 @@ export interface TemporaryFrontIcon {
 
 export interface FrontIcon<DataT> {
   d: DataT;
-  index: number;
+  primary: boolean;
+  distance: number;
   position: Position;
   direction: number;
   priority: number;
@@ -25,20 +27,20 @@ export function getFrontIcons<DataT>(d: DataT, path: Position[]): FrontIcon<Data
   const cummulativeDistances = distances.reduce((prev, curr, i) => [...prev, [i + 1, prev[prev.length - 1][1] + curr]], [[0, 0]]).reverse();
   const totalDistance = distances.reduce((prev, curr) => prev + curr, 0);
 
-  // add labels to minimize overlaps, pick odd values from each level
-  //        1       <- depth 1
-  //    1   2   3   <- depth 2
-  //  1 2 3 4 5 6 7 <- depth 3
-  let delta = 0.5 * totalDistance; // spacing between points at level
-  let depth = 1;
+  // add icons to minimize overlaps, alternate icon type
+  // depth = 1 -> |                 0                 1                 |
+  // depth = 2 -> |     0     1     0     1     0     1     0     1     |
+  // depth = 3 -> | 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 |
   let icons: TemporaryFrontIcon[] = [];
-  while (delta > ICON_DISTANCE) {
-    for (let i = 1; i < 2 ** depth; i += 2) {
-      const distance = i * delta;
-      // let offset = 1;
-      // if (distance > 0.5 * totalDistance) {
-      //   offset *= -1;
-      // }
+  for (let depth = 1, deltaDistance = totalDistance / ICON_FACTOR; deltaDistance > ICON_MIN_DISTANCE; depth++, deltaDistance /= ICON_FACTOR) {
+    const iconCountAtDepth = ICON_FACTOR ** depth;
+    for (let i = 1; i < iconCountAtDepth; i++) {
+      // skip already added icons
+      if (i % ICON_FACTOR === 0) {
+        continue;
+      }
+
+      const distance = i * deltaDistance;
       const [j, cummulativeDistance] = cummulativeDistances.find(([_, cummulativeDistance]) => distance >= cummulativeDistance)!;
       const currentPosition = positions[j];
       const nextPosition = positions[j + 1];
@@ -50,10 +52,9 @@ export function getFrontIcons<DataT>(d: DataT, path: Position[]): FrontIcon<Data
   
       icons.push({ distance, position, direction, priority });
     }
-    depth++;
-    delta /= 2;
   }
   icons = icons.sort((a, b) => a.distance - b.distance);
 
-  return icons.map((icon, i) => ({ d, index: i, ...icon, distance: undefined })) satisfies FrontIcon<DataT>[];
+  const alternatingIcons = icons.map((icon, i) => ({ d, primary: i % 2 === 0, ...icon })) satisfies FrontIcon<DataT>[];
+  return alternatingIcons;
 }
