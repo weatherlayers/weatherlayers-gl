@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters} from '@deck.gl/core/typed';
+import type {DefaultProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
 import {withCheckLicense} from '../../license.js';
 import {GridCompositeLayer} from './grid-composite-layer.js';
 import type {GridCompositeLayerProps} from './grid-composite-layer.js';
@@ -14,7 +14,7 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class GridLayer extends CompositeLayer<GridLayerProps> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {props} = this.state;
     if (!props) {
       return [];
@@ -27,7 +27,7 @@ export class GridLayer extends CompositeLayer<GridLayerProps> {
     ];
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {image, imageUnscale} = params.props;
 
     super.updateState(params);

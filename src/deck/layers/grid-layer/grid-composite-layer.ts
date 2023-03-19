@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps, Layer} from '@deck.gl/core/typed';
 import {TextLayer, IconLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props.js';
@@ -63,7 +63,7 @@ const defaultProps = {
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
 class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {props, gridPoints} = this.state;
     if (!props || !gridPoints) {
@@ -111,15 +111,15 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
     }
   }
 
-  shouldUpdateState(params: UpdateParameters<this>) {
+  shouldUpdateState(params: UpdateParameters<this>): boolean {
     return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
   }
 
-  initializeState() {
+  initializeState(): void {
     this.updatePositions();
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {image, image2, imageSmoothing, imageInterpolation, imageWeight} = params.props;
 
     super.updateState(params);
@@ -141,7 +141,7 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
     this.setState({ props: params.props });
   }
 
-  updatePositions() {
+  updatePositions(): void {
     const {viewport} = this.context;
 
     const positions = getViewportGridPositions(viewport, 3);
@@ -151,7 +151,7 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
     this.updateGridPoints();
   }
 
-  updateGridPoints() {
+  updateGridPoints(): void {
     const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
     const {positions} = this.state;
     if (!image) {

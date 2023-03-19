@@ -40,7 +40,7 @@ const defaultProps = {
 } satisfies DefaultProps<ContourBitmapLayerProps>;
 
 export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
-  getShaders() {
+  getShaders(): any {
     const {gl} = this.context;
     if (!hasFeatures(gl, FEATURES.GLSL_DERIVATIVES)) {
       throw new Error('Derivatives are required');
@@ -56,7 +56,7 @@ export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
     };
   }
 
-  draw(opts: any) {
+  draw(opts: any): void {
     const {viewport} = this.context;
     const {model} = this.state;
     const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;

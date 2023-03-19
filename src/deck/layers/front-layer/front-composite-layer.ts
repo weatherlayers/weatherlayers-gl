@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, Layer} from '@deck.gl/core/typed';
 import {PathLayer, IconLayer} from '@deck.gl/layers/typed';
 import type {PathLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
@@ -42,7 +42,7 @@ const defaultProps = {
 } satisfies DefaultProps<FrontCompositeLayerProps<any>>;
 
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize} = this.props;
     if (!data || !getType || !getPath) {
@@ -137,6 +137,16 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
     ];
+  }
+
+  draw(opts: any): void {
+    const {viewport} = this.context;
+    if (viewport.zoom > 10) {
+      // drop artifacts in high zoom
+      return;
+    }
+
+    super.draw(opts);
   }
 }
 

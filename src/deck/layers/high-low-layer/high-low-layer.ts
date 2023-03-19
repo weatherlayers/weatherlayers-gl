@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters} from '@deck.gl/core/typed';
+import type {DefaultProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
 import {withCheckLicense} from '../../license.js';
 import {HighLowCompositeLayer} from './high-low-composite-layer.js';
 import type {HighLowCompositeLayerProps} from './high-low-composite-layer.js';
@@ -13,7 +13,7 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {props} = this.state;
     if (!props) {
       return [];
@@ -26,7 +26,7 @@ export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
     ];
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {image, imageUnscale} = params.props;
 
     super.updateState(params);

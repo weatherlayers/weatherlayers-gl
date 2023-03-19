@@ -55,7 +55,7 @@ const defaultProps = {
 } satisfies DefaultProps<ParticleLineLayerProps<any>>;
 
 export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLineLayerProps<DataT>> {
-  getShaders() {
+  getShaders(): any {
     const parentShaders = super.getShaders();
 
     return {
@@ -79,7 +79,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     };
   }
 
-  initializeState() {
+  initializeState(): void {
     super.initializeState();
 
     this._setupTransformFeedback();
@@ -88,7 +88,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     attributeManager.remove(['instanceSourcePositions', 'instanceTargetPositions', 'instanceColors', 'instanceWidths']);
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {imageType, numParticles, maxAge, color, width} = params.props;
 
     super.updateState(params);
@@ -112,13 +112,13 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }
   }
 
-  finalizeState(context: LayerContext) {
+  finalizeState(context: LayerContext): void {
     this._deleteTransformFeedback();
 
     super.finalizeState(context);
   }
 
-  draw(opts: any) {
+  draw(opts: any): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -143,7 +143,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }
   }
 
-  _setupTransformFeedback() {
+  _setupTransformFeedback(): void {
     const {gl} = this.context;
     if (!isWebGL2(gl)) {
       throw new Error('WebGL 2 is required');
@@ -201,7 +201,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     });
   }
 
-  _runTransformFeedback() {
+  _runTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -271,7 +271,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     this.state.previousTime = time;
   }
 
-  _resetTransformFeedback() {
+  _resetTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -283,7 +283,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     targetPositions.subData({data: new Float32Array(numInstances * 3)});
   }
 
-  _deleteTransformFeedback() {
+  _deleteTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -308,7 +308,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     });
   }
 
-  requestStep() {
+  requestStep(): void {
     const {stepRequested} = this.state;
     if (stepRequested) {
       return;
@@ -321,13 +321,13 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }, 1000 / FPS);
   }
 
-  step() {
+  step(): void {
     this._runTransformFeedback();
 
     this.setNeedsRedraw();
   }
 
-  clear() {
+  clear(): void {
     this._resetTransformFeedback();
 
     this.setNeedsRedraw();

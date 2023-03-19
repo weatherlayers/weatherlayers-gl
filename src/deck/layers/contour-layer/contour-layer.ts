@@ -1,5 +1,5 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters} from '@deck.gl/core/typed';
+import type {DefaultProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withCheckLicense} from '../../license.js';
@@ -23,7 +23,7 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class ContourLayer extends CompositeLayer<ContourLayerProps> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -45,7 +45,7 @@ export class ContourLayer extends CompositeLayer<ContourLayerProps> {
     ];
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {image, image2, imageUnscale} = params.props;
 
     super.updateState(params);
@@ -61,7 +61,7 @@ export class ContourLayer extends CompositeLayer<ContourLayerProps> {
     this.setState({ props: params.props });
   }
 
-  updateTexture() {
+  updateTexture(): void {
     const {gl} = this.context;
     const {image, image2} = this.props;
 

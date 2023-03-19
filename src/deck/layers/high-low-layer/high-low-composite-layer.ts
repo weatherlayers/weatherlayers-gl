@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, UpdateParameters} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, CompositeLayerProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
 import {TextLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension} from '@deck.gl/extensions/typed';
@@ -59,7 +59,7 @@ const defaultProps = {
 } satisfies DefaultProps<HighLowCompositeLayerProps>;
 
 class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
-  renderLayers() {
+  renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {props, highLowPoints, minValue, maxValue} = this.state;
     if (!props || !highLowPoints) {
@@ -114,11 +114,11 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
     ];
   }
 
-  shouldUpdateState(params: UpdateParameters<this>) {
+  shouldUpdateState(params: UpdateParameters<this>): boolean {
     return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {image, radius} = params.props;
 
     super.updateState(params);
@@ -139,7 +139,7 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
     this.setState({ props: params.props });
   }
 
-  async updateHighLowPoints() {
+  async updateHighLowPoints(): Promise<void> {
     const {image, imageType, imageUnscale, bounds, radius} = this.props;
     if (!image) {
       return;

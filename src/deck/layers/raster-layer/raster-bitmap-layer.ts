@@ -38,7 +38,7 @@ const defaultProps = {
 } satisfies DefaultProps<RasterBitmapLayerProps>;
 
 export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
-  getShaders() {
+  getShaders(): any {
     const parentShaders = super.getShaders();
 
     return {
@@ -47,7 +47,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     };
   }
 
-  updateState(params: UpdateParameters<this>) {
+  updateState(params: UpdateParameters<this>): void {
     const {palette} = params.props;
 
     super.updateState(params);
@@ -57,7 +57,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     }
   }
 
-  draw(opts: any) {
+  draw(opts: any): void {
     const {model} = this.state;
     const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
@@ -85,7 +85,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     }
   }
 
-  updatePaletteTexture() {
+  updatePaletteTexture(): void {
     const {gl} = this.context;
     const {palette} = this.props;
     if (!palette) {
