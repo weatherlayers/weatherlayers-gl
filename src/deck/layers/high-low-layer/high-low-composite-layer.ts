@@ -14,6 +14,8 @@ import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport
 import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type {HighLowPointProperties} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
+const HIGH_LOW_LABEL_COLLISION_GROUP = 'high-low-label';
+
 function getHighLowPointCollisionPriority(highLowPoint: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>, minValue: number, maxValue: number): number {
   if (highLowPoint.properties.type === 'H') {
     return Math.round((highLowPoint.properties.value - maxValue) / maxValue * 100);
@@ -84,7 +86,8 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
 
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
-        collisionTestProps: {sizeScale: 5},
+        collisionGroup: HIGH_LOW_LABEL_COLLISION_GROUP,
+        collisionTestProps: { sizeScale: 5 },
         getCollisionPriority: (d: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>) => getHighLowPointCollisionPriority(d, minValue, maxValue),
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
       new TextLayer(this.getSubLayerProps({
@@ -104,7 +107,8 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
         
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
-        collisionTestProps: {sizeScale: 5},
+        collisionGroup: HIGH_LOW_LABEL_COLLISION_GROUP,
+        collisionTestProps: { sizeScale: 5 },
         getCollisionPriority: (d: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>) => getHighLowPointCollisionPriority(d, minValue, maxValue),
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
     ];

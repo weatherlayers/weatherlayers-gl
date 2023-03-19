@@ -15,6 +15,8 @@ const DEFAULT_WARM_COLOR: Color = [255, 0, 0];
 const DEFAULT_OCCLUDED_COLOR: Color = [148, 0, 211];
 const DEFAULT_ICON_SIZE = 15;
 
+const FRONT_ICON_COLLISION_GROUP = 'front-icon';
+
 export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   data: DataT[];
 
@@ -92,7 +94,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
 
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
-        collisionGroup: 'icon',
+        collisionGroup: FRONT_ICON_COLLISION_GROUP,
         collisionTestProps: { sizeScale: 10 },
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
@@ -111,7 +113,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
 
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
-        collisionGroup: 'icon',
+        collisionGroup: FRONT_ICON_COLLISION_GROUP,
         collisionTestProps: { sizeScale: 10 },
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
@@ -130,7 +132,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
 
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
-        collisionGroup: 'icon',
+        collisionGroup: FRONT_ICON_COLLISION_GROUP,
         collisionTestProps: { sizeScale: 10 },
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
