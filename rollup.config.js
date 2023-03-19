@@ -98,6 +98,7 @@ function bundle(entrypoint, filename, format, options = {}) {
             clean: options.stats,
           }),
         ],
+        type: 'browser',
       }),
       postcss({ plugins: [autoprefixer(), assets()], minimize: options.minimize }),
       ...(options.minimize ? [terser({ output: { comments: false } })] : []),
