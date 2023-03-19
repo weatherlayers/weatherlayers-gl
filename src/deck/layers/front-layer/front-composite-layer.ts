@@ -1,9 +1,10 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
 import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, Layer} from '@deck.gl/core/typed';
-import {PathLayer, IconLayer} from '@deck.gl/layers/typed';
-import type {PathLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
+import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers/typed';
+import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
 import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck.gl/extensions/typed';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {FrontType, iconAtlas, iconMapping} from './front-type.js';
 import {getFrontIcons} from './front-icon.js';
@@ -17,6 +18,12 @@ const DEFAULT_ICON_SIZE = 15;
 
 const FRONT_ICON_COLLISION_GROUP = 'front-icon';
 
+interface FrontPoint<DataT> {
+  d: DataT;
+  position: Position;
+  index: number;
+}
+
 export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   data: DataT[];
 
@@ -27,6 +34,8 @@ export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   warmColor: Color;
   occludedColor: Color;
   iconSize: number;
+
+  _debug: boolean;
 }
 
 const defaultProps = {
@@ -39,12 +48,14 @@ const defaultProps = {
   warmColor: {type: 'color', value: DEFAULT_WARM_COLOR},
   occludedColor: {type: 'color', value: DEFAULT_OCCLUDED_COLOR},
   iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
+
+  _debug: {type: 'boolean', value: false},
 } satisfies DefaultProps<FrontCompositeLayerProps<any>>;
 
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
   renderLayers(): Layer[] {
     const {viewport} = this.context;
-    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize} = this.props;
+    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = this.props;
     if (!data || !getType || !getPath) {
       return [];
     }
@@ -57,6 +68,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
     } satisfies {[key in FrontType]: Color};
 
     const frontIcons = data.flatMap(d => getFrontIcons(d, getPath(d)));
+    const frontPoints = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index }))) satisfies FrontPoint<DataT>[];
 
     return [
       new PathLayer(this.getSubLayerProps({
@@ -110,6 +122,22 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
         collisionTestProps: { sizeScale: 5 },
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
+
+      ...(debug ? [
+        new TextLayer(this.getSubLayerProps({
+          id: 'text',
+          data: frontPoints,
+          getPosition: d => d.position,
+          getText: d => `${d.index}`,
+           getSize: DEFAULT_TEXT_SIZE,
+          getColor: DEFAULT_TEXT_COLOR,
+          outlineWidth: DEFAULT_TEXT_OUTLINE_WIDTH,
+          outlineColor: DEFAULT_TEXT_OUTLINE_COLOR,
+          fontFamily: DEFAULT_TEXT_FONT_FAMILY,
+          fontSettings: { sdf: true },
+          billboard: false,
+        } satisfies TextLayerProps<FrontPoint<DataT>>)),
+      ] : []),
     ];
   }
 }
