@@ -6,10 +6,7 @@ export interface ContourLabelProperties {
   angle: number;
 }
 
-/**
- * see L.PolylineDecorator._getDirectionPoints
- * https://github.com/bbecquet/Leaflet.PolylineDecorator/blob/master/src/L.PolylineDecorator.js#L129
- */
+// see https://github.com/bbecquet/Leaflet.PolylineDecorator/blob/master/src/L.PolylineDecorator.js#L129
 export function getContourLabels(contourLines: GeoJSON.Feature<GeoJSON.LineString, ContourLineProperties>[]): GeoJSON.Feature<GeoJSON.Point, ContourLabelProperties>[] {
   const contourLabels = contourLines.map(contour => {
     const points = contour.geometry.coordinates.map(coordinate => {
