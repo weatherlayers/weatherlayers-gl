@@ -26,7 +26,7 @@ function bundle(entrypoint, filename, format, options = {}) {
   const bundleGl = filename.includes('deck') || filename.includes('standalone');
   const bundleClient = filename.includes('client');
   const banner = [
-    'Copyright (c) 2021-2022 WeatherLayers.com',
+    'Copyright (c) 2021-2023 WeatherLayers.com',
     '',
     ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? ['WeatherLayers GL'] : []),
     ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
