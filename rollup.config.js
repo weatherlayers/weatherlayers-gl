@@ -82,7 +82,13 @@ function bundle(entrypoint, filename, format, options = {}) {
       babel({ babelHelpers: 'runtime' }),
       commonjs(),
       glslMinify({ minimize: options.minimize }),
-      worker({ plugins: [resolve(), commonjs()] }),
+      worker({
+        plugins: [
+          resolve(),
+          commonjs(),
+        ],
+        type: 'browser',
+      }),
       postcss({ plugins: [autoprefixer(), assets()], minimize: options.minimize }),
       ...(options.minimize ? [terser({ output: { comments: false } })] : []),
       license({
