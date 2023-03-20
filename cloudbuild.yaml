@@ -9,6 +9,7 @@ steps:
       - run
       - build
     env:
+      - 'NODE_OPTIONS=--max-old-space-size=4096'
       - 'LICENSE_DOMAIN=weatherlayers.com'
     entrypoint: npm
   - name: bash
