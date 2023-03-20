@@ -162,7 +162,7 @@
             new WeatherLayers.FrontLayer({
               id: 'front',
               // data properties
-              data: FRONT_DATA.FT[6].obj, // 5, 6+, 10, 11, 12, 14+, 17+, 18
+              data: FRONT_DATA.FT[6].obj, // indexes with all front types: 5, 6+, 10, 11, 12, 14+, 17+, 18
               getType: d => FrontDataTypeToFrontType[d.TYPE],
               getPath: d => d.point.map(point => [secToDeg(point.LON), secToDeg(point.LAT)]),
               coldColor: [37, 99, 235], // Tailwind CSS blue-600
