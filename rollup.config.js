@@ -28,9 +28,9 @@ function bundle(entrypoint, filename, format, options = {}) {
   const banner = [
     'Copyright (c) 2021-2023 WeatherLayers.com',
     '',
-    ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? ['WeatherLayers GL'] : []),
-    ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
-    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL, Project License, valid for ${LICENSE_DOMAIN}`] : []),
+    ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}`] : []),
+    ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
+    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, Project License, valid for ${LICENSE_DOMAIN}`] : []),
     ...(bundleClient ? ['WeatherLayers Client'] : []),
     '',
     'Demo - https://demo.weatherlayers.com/',
