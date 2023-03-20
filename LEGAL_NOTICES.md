@@ -6,9 +6,9 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 
 | Name | Version | Homepage | License | Link |
 |---|---|---|---|---|
-| @deck.gl/core | 8.9.1 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/extensions | 8.9.1 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/layers | 8.9.1 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/core | 8.9.3 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/extensions | 8.9.3 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/layers | 8.9.3 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
 | @mapbox/sphericalmercator | 1.2.0 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
 | @luma.gl/core | 8.5.18 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
 | comlink | 4.4.1 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
