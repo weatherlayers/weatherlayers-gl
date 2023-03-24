@@ -152,7 +152,8 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
   }
 
   updateGridPoints(): void {
-    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
+    // TODO: ensure defaultProps if undefined is passed from outside
+    const {image, image2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
     const {positions} = this.state;
     if (!image) {
       return;

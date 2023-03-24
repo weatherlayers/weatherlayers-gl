@@ -59,7 +59,8 @@ export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
   draw(opts: any): void {
     const {viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
+    // TODO: ensure defaultProps if undefined is passed from outside
+    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
     if (!imageTexture) {
       return;
     }

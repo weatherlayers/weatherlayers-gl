@@ -59,7 +59,8 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
 
   draw(opts: any): void {
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
+    // TODO: ensure defaultProps if undefined is passed from outside
+    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture || !paletteTexture) {
       return;

@@ -208,7 +208,8 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }
 
     const {viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
+    // TODO: ensure defaultProps if undefined is passed from outside
+    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {
