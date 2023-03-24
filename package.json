@@ -33,10 +33,10 @@
     "@babel/plugin-transform-runtime": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "@babel/runtime": "^7.21.0",
-    "@deck.gl/core": "^8.9.3",
-    "@deck.gl/extensions": "^8.9.3",
-    "@deck.gl/layers": "^8.9.3",
-    "@luma.gl/core": "^8.5.18",
+    "@deck.gl/core": "^8.9.4",
+    "@deck.gl/extensions": "^8.9.4",
+    "@deck.gl/layers": "^8.9.4",
+    "@luma.gl/core": "^8.5.19",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-image": "^3.0.2",
@@ -56,9 +56,9 @@
     "gnirts": "^1.1.7",
     "postcss": "^8.4.21",
     "postcss-assets": "^6.0.0",
-    "rimraf": "^4.4.0",
-    "rollup": "^3.19.1",
-    "rollup-plugin-dts": "^5.2.0",
+    "rimraf": "^4.4.1",
+    "rollup": "^3.20.2",
+    "rollup-plugin-dts": "^5.3.0",
     "rollup-plugin-license": "^3.0.1",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-typescript2": "^0.34.1",
@@ -68,10 +68,10 @@
     "webpack-glsl-minify": "^1.5.0"
   },
   "peerDependencies": {
-    "@deck.gl/core": "^8.9.3",
-    "@deck.gl/extensions": "^8.9.3",
-    "@deck.gl/layers": "^8.9.3",
-    "@luma.gl/core": "^8.5.18",
+    "@deck.gl/core": "^8.9.4",
+    "@deck.gl/extensions": "^8.9.4",
+    "@deck.gl/layers": "^8.9.4",
+    "@luma.gl/core": "^8.5.19",
     "geotiff": "^2.0.7"
   }
 }
