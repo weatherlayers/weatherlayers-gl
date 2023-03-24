@@ -20,6 +20,7 @@ import gnirts from 'gnirts';
 
 const LICENSE_DATE = process.env.LICENSE_DAYS ? new Date(new Date().valueOf() + parseInt(process.env.LICENSE_DAYS, 10) * 24 * 60 * 60 * 1000) : undefined;
 const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
+const LICENSE_NON_COMMERCIAL = process.env.LICENSE_NON_COMMERCIAL;
 const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
 function bundle(entrypoint, filename, format, options = {}) {
@@ -32,7 +33,7 @@ function bundle(entrypoint, filename, format, options = {}) {
     '',
     ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}`] : []),
     ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
-    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, Project License, valid for ${LICENSE_DOMAIN}`] : []),
+    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, ${LICENSE_NON_COMMERCIAL ? 'Non-Commercial ' : ''}Single Domain License, valid for ${LICENSE_DOMAIN}`] : []),
     ...(bundleClient ? ['WeatherLayers Client'] : []),
     '',
     'Demo - https://demo.weatherlayers.com/',
