@@ -10,18 +10,20 @@ import {getContourLineData} from './contour-line-worker-inner';
 expose({
   /**
    * @param {TextureDataArray} data
+   * @param {TextureDataArray | null} data2
    * @param {number} width
    * @param {number} height
    * @param {number} imageSmoothing
    * @param {ImageInterpolation} imageInterpolation
+   * @param {number} imageWeight
    * @param {ImageType} imageType
    * @param {ImageUnscale} imageUnscale
    * @param {GeoJSON.BBox} bounds
    * @param {number} interval
    * @returns {Float32Array}
    */
-  getContourLineData(data, width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, interval) {
-    const contourLineData = getContourLineData(data, width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, interval);
+  getContourLineData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval) {
+    const contourLineData = getContourLineData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval);
     return transfer(contourLineData, [contourLineData.buffer]);
   }
 });

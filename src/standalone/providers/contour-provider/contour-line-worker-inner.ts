@@ -119,8 +119,10 @@ function getContourLineDataMain(data: Float32Array, width: number, height: numbe
   return contourLineData;
 }
 
-export function getContourLineData(data: TextureDataArray, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Float32Array {
-  const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageSmoothing, imageInterpolation, imageType, imageUnscale);
+export function getContourLineData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Float32Array {
+  const image = { data, width, height };
+  const image2 = data2 ? { data: data2, width, height } : null;
+  const magnitudeData = getPixelMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const contourLineData = getContourLineDataMain(magnitudeData.data, width, height, bounds, interval);
   return contourLineData;
 }

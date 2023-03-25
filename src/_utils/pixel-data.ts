@@ -5,7 +5,7 @@ import {TextureData, FloatData} from './data.js';
 import {getPixelSmoothInterpolate} from './pixel.js';
 import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value.js';
 
-export function getPixelMagnitudeData(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale): FloatData {
+export function getPixelMagnitudeData(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale): FloatData {
   const {width, height} = image;
 
   const magnitudeData = new Float32Array(width * height);
@@ -15,7 +15,7 @@ export function getPixelMagnitudeData(image: TextureData, imageSmoothing: number
 
       const uvX = x / width;
       const uvY = y / height;
-      const pixel = getPixelSmoothInterpolate(image, null, imageSmoothing, imageInterpolation, 0, uvX, uvY);
+      const pixel = getPixelSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, uvX, uvY);
       if (!hasPixelValue(pixel, imageUnscale)) {
         magnitudeData[i] = NaN;
         continue;

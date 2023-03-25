@@ -27,8 +27,10 @@ function getHighLowPointCollisionPriority(highLowPoint: GeoJSON.Feature<GeoJSON.
 
 export type HighLowCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
+  image2: TextureData | null;
   imageSmoothing: number;
   imageInterpolation: ImageInterpolation;
+  imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
@@ -46,8 +48,10 @@ export type HighLowCompositeLayerProps = CompositeLayerProps & {
 
 const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
   imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
+  imageWeight: {type: 'number', value: 0},
   imageType: {type: 'object', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
@@ -123,7 +127,7 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, imageSmoothing, imageInterpolation, radius} = params.props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, radius} = params.props;
 
     super.updateState(params);
 
@@ -138,8 +142,10 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
 
     if (
       image !== params.oldProps.image ||
+      image2 !== params.oldProps.image2 ||
       imageSmoothing !== params.oldProps.imageSmoothing ||
       imageInterpolation !== params.oldProps.imageInterpolation ||
+      imageWeight !== params.oldProps.imageWeight ||
       radius !== params.oldProps.radius
     ) {
       this.updateHighLowPoints();
@@ -149,7 +155,7 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
   }
 
   async updateHighLowPoints(): Promise<void> {
-    const {image, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
+    const {image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
     }
@@ -158,7 +164,7 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
     // TODO: move getPixelMagnitudeData to GPU
     const effectiveImageInterpolation = imageInterpolation === ImageInterpolation.CUBIC ? ImageInterpolation.LINEAR : imageInterpolation;
 
-    const highLowPoints = (await getHighLowPoints(image, imageSmoothing, effectiveImageInterpolation, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+    const highLowPoints = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
     const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);

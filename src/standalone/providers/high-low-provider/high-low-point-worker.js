@@ -10,18 +10,20 @@ import {getHighLowPointData} from './high-low-point-worker-inner.js';
 expose({
   /**
    * @param {TextureDataArray} data
+   * @param {TextureDataArray | null} data2
    * @param {number} width
    * @param {number} height
    * @param {number} imageSmoothing
    * @param {ImageInterpolation} imageInterpolation
+   * @param {number} imageWeight
    * @param {ImageType} imageType
    * @param {ImageUnscale} imageUnscale
    * @param {GeoJSON.BBox} bounds
    * @param {number} radius
    * @returns {Float32Array}
    */
-  getHighLowPointData(data, width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, radius) {
-    const highLowPointData = getHighLowPointData(data, width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, radius);
+  getHighLowPointData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, radius) {
+    const highLowPointData = getHighLowPointData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, radius);
     return transfer(highLowPointData, [highLowPointData.buffer]);
   }
 });

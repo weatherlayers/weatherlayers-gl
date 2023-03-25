@@ -98,8 +98,10 @@ function getHighLowPointDataMain(data: Float32Array, width: number, height: numb
   return highLowPointData;
 }
 
-export function getHighLowPointData(data: TextureDataArray, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
-  const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageSmoothing, imageInterpolation, imageType, imageUnscale);
+export function getHighLowPointData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
+  const image = { data, width, height };
+  const image2 = data2 ? { data: data2, width, height } : null;
+  const magnitudeData = getPixelMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const highLowPointData = getHighLowPointDataMain(magnitudeData.data, width, height, bounds, radius);
   return highLowPointData;
 }

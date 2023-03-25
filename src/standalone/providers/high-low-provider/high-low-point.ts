@@ -38,11 +38,13 @@ function getHighLowPointsFromData(highLowPointData: Float32Array): GeoJSON.Featu
   return highLowPoints;
 }
 
-export async function getHighLowPoints(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Promise<GeoJSON.FeatureCollection<GeoJSON.Point, HighLowPointProperties>> {
+export async function getHighLowPoints(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Promise<GeoJSON.FeatureCollection<GeoJSON.Point, HighLowPointProperties>> {
   const {data, width, height} = image;
+  const {data: data2} = image2 || {};
 
   const dataCopy = data.slice(0);
-  const highLowPointData = await highLowPointWorkerProxy.getHighLowPointData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, radius);
+  const data2Copy = data2 ? data2.slice(0) : null;
+  const highLowPointData = await highLowPointWorkerProxy.getHighLowPointData(transfer(dataCopy, [dataCopy.buffer]), data2Copy ? transfer(data2Copy, [data2Copy.buffer]) : null, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, radius);
   const highLowPoints = getHighLowPointsFromData(highLowPointData);
 
   return { type: 'FeatureCollection', features: highLowPoints };
