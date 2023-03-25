@@ -7,8 +7,8 @@ import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck
 import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {FrontType, iconAtlas, iconMapping} from './front-type.js';
-import {getFrontIcons} from './front-icon.js';
-import type {FrontIcon} from './front-icon.js';
+import {getFrontLine} from './front-line.js';
+import type {FrontLine, FrontIcon} from './front-line.js';
 
 const DEFAULT_WIDTH = 2;
 const DEFAULT_COLD_COLOR: Color = [0, 0, 255];
@@ -18,7 +18,7 @@ const DEFAULT_ICON_SIZE = 15;
 
 const FRONT_ICON_COLLISION_GROUP = 'front-icon';
 
-interface FrontPoint<DataT> {
+interface DebugFrontPoint<DataT> {
   d: DataT;
   position: Position;
   index: number;
@@ -63,55 +63,56 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
       return [];
     }
 
-    const FrontTypeToColor = {
+    const FrontTypeToColor: {[key in FrontType]: Color} = {
       [FrontType.COLD]: coldColor,
       [FrontType.WARM]: warmColor,
       [FrontType.OCCLUDED]: occludedColor,
       [FrontType.STATIONARY]: coldColor,
-    } satisfies {[key in FrontType]: Color};
+    };
 
-    const frontIcons = data.flatMap(d => getFrontIcons(d, getPath(d)));
-    const frontPoints = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index }))) satisfies FrontPoint<DataT>[];
+    const frontLines = data.map(d => getFrontLine(d, getPath(d)));
+    const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index })));
 
+    // render front line from front points instead of the original path, to workaround for front points detaching from the front line when over-zooming
     return [
       new PathLayer(this.getSubLayerProps({
         id: 'path',
-        data,
-        getPath,
-        getColor: d => FrontTypeToColor[getType(d)],
+        data: frontLines,
+        getPath: d => [d.startPosition, ...d.icons.map(point => point.position), d.endPosition],
+        getColor: d => FrontTypeToColor[getType(d.d)],
         getWidth: width,
         widthUnits: 'pixels',
-      } satisfies PathLayerProps<DataT>)),
+      } satisfies PathLayerProps<FrontLine<DataT>>)),
 
       new PathLayer(this.getSubLayerProps({
         id: 'path-stationary-warm',
-        data: data.filter(d => getType(d) === FrontType.STATIONARY),
-        getPath,
+        data: frontLines.filter(d => getType(d.d) === FrontType.STATIONARY),
+        getPath: d => [d.startPosition, ...d.icons.map(point => point.position), d.endPosition],
         getColor: warmColor,
         getWidth: width,
         widthUnits: 'pixels',
 
         extensions: [new PathStyleExtension({ dash: true, highPrecisionDash: true })] as LayerExtension<any>[],
         getDashArray: [DEFAULT_ICON_SIZE * 3, DEFAULT_ICON_SIZE * 3],
-      } satisfies PathLayerProps<DataT> & PathStyleExtensionProps<DataT>)),
+      } satisfies PathLayerProps<FrontLine<DataT>> & PathStyleExtensionProps<FrontLine<DataT>>)),
 
       new IconLayer(this.getSubLayerProps({
         id: 'icon',
-        data: frontIcons,
+        data: frontLines.flatMap(d => d.icons),
         getPosition: d => d.position,
         getIcon: d => getType(d.d) === FrontType.OCCLUDED || getType(d.d) === FrontType.STATIONARY
-          ? (d.primary
+          ? (d.alternate
             ? FrontType.COLD
             : FrontType.WARM)
           : getType(d.d),
         getSize: iconSize,
         getColor: d => getType(d.d) === FrontType.STATIONARY
-          ? (d.primary
+          ? (d.alternate
             ? FrontTypeToColor[FrontType.COLD]
             : FrontTypeToColor[FrontType.WARM])
           : FrontTypeToColor[getType(d.d)],
         getAngle: d => getType(d.d) === FrontType.STATIONARY
-          ? (d.primary
+          ? (d.alternate
             ? getViewportAngle(viewport, d.direction)
             : getViewportAngle(viewport, d.direction + 180))
           : getViewportAngle(viewport, d.direction),
@@ -129,7 +130,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
       ...(debug ? [
         new TextLayer(this.getSubLayerProps({
           id: 'text',
-          data: frontPoints,
+          data: debugFrontPoints,
           getPosition: d => d.position,
           getText: d => `${d.index}`,
           getSize: DEFAULT_TEXT_SIZE,
@@ -140,7 +141,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
           fontFamily: DEFAULT_TEXT_FONT_FAMILY,
           fontSettings: { sdf: true },
           billboard: false,
-        } satisfies TextLayerProps<FrontPoint<DataT>>)),
+        } satisfies TextLayerProps<DebugFrontPoint<DataT>>)),
       ] : []),
     ];
   }

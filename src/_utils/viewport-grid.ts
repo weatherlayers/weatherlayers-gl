@@ -88,7 +88,7 @@ function generateGrid(bounds: GeoJSON.BBox, zoom: number): GeoJSON.Position[] {
     for (let x = 0; x < lngCount; x++) {
       const i = gridBounds[0] + x;
       const j = gridBounds[1] + y + (i % 2 === 1 ? 0.5 : 0); // triangle grid
-      const point = [i, j] satisfies GeoJSON.Position;
+      const point: GeoJSON.Position = [i, j];
 
       // avoid duplicate grid points at the antimeridian
       if (point[0] === 0) {

@@ -21,7 +21,7 @@ export function wrapBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const mercatorBounds = [minLng, minLat, maxLng, maxLat] satisfies GeoJSON.BBox;
+  const mercatorBounds: GeoJSON.BBox = [minLng, minLat, maxLng, maxLat];
   return mercatorBounds;
 }
 
@@ -33,6 +33,6 @@ export function clipBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const clipBounds = [minLng, minLat, maxLng, maxLat] satisfies GeoJSON.BBox;
+  const clipBounds: GeoJSON.BBox = [minLng, minLat, maxLng, maxLat];
   return clipBounds;
 }

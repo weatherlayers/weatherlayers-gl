@@ -31,7 +31,7 @@ function getLineBbox(line: GeoJSON.Position[]): GeoJSON.BBox {
     Math.ceil(Math.max(...line.map(x => x[0]))),
     Math.ceil(Math.max(...line.map(x => x[1]))),
   ];
-  const bbox = [southWest[0], southWest[1], northEast[0], northEast[1]] satisfies GeoJSON.BBox;
+  const bbox: GeoJSON.BBox = [southWest[0], southWest[1], northEast[0], northEast[1]];
   return bbox;
 }
 
@@ -56,7 +56,7 @@ function computeContours(data: Float32Array, width: number, height: number, inte
 
   // unframe contours by cutting the lines by data borders minus epsilon
   const epsilon = 0.000001; // anything > 0, < 1
-  const unframeBounds = [epsilon, epsilon, width - epsilon, height - epsilon] satisfies GeoJSON.BBox;
+  const unframeBounds: GeoJSON.BBox = [epsilon, epsilon, width - epsilon, height - epsilon];
   contours = contours.map(contour => {
     const lines = lineclip.polyline(contour.coordinates, unframeBounds);
     return lines.map(line => {

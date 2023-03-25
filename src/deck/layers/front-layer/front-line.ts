@@ -11,17 +11,24 @@ export interface TemporaryFrontIcon {
   priority: number;
 }
 
+export interface FrontLine<DataT> {
+  d: DataT;
+  startPosition: Position;
+  endPosition: Position;
+  icons: FrontIcon<DataT>[];
+}
+
 export interface FrontIcon<DataT> {
   d: DataT;
-  primary: boolean;
   distance: number;
   position: Position;
   direction: number;
   priority: number;
+  alternate: boolean;
 }
 
 // see https://github.com/visgl/deck.gl/blob/master/examples/website/collision-filter/calculateLabels.js
-export function getFrontIcons<DataT>(d: DataT, path: Position[]): FrontIcon<DataT>[] {
+export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT> {
   const positions = path as GeoJSON.Position[];
   const distances = positions.slice(0, -1).map((_, i) => measureDistance(positions[i], positions[i + 1]));
   const cummulativeDistances = distances.reduce((prev, curr, i) => [...prev, [i + 1, prev[prev.length - 1][1] + curr]], [[0, 0]]).reverse();
@@ -36,12 +43,13 @@ export function getFrontIcons<DataT>(d: DataT, path: Position[]): FrontIcon<Data
     const iconCountAtDepth = ICON_FACTOR ** depth;
     for (let i = 1; i < iconCountAtDepth; i++) {
       // skip already added icons
-      if (i % ICON_FACTOR === 0) {
+      if (depth > 1 && i % ICON_FACTOR === 0) {
         continue;
       }
 
       const distance = i * deltaDistance;
       const [j, cummulativeDistance] = cummulativeDistances.find(([_, cummulativeDistance]) => distance >= cummulativeDistance)!;
+
       const currentPosition = positions[j];
       const nextPosition = positions[j + 1];
   
@@ -55,6 +63,7 @@ export function getFrontIcons<DataT>(d: DataT, path: Position[]): FrontIcon<Data
   }
   icons = icons.sort((a, b) => a.distance - b.distance);
 
-  const alternatingIcons = icons.map((icon, i) => ({ d, primary: i % 2 === 0, ...icon })) satisfies FrontIcon<DataT>[];
-  return alternatingIcons;
+  const alternatingIcons: FrontIcon<DataT>[] = icons.map((icon, i) => ({ d, ...icon, alternate: i % 2 === 0 }));
+  const line = { d, startPosition: path[0], endPosition: path[path.length - 1], icons: alternatingIcons };
+  return line;
 }
