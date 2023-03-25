@@ -23,6 +23,9 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class ContourLayer extends CompositeLayer<ContourLayerProps> {
+  static layerName = 'ContourLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
@@ -71,6 +74,3 @@ export class ContourLayer extends CompositeLayer<ContourLayerProps> {
     this.setState({ imageTexture, imageTexture2 });
   }
 }
-
-ContourLayer.layerName = 'ContourLayer';
-ContourLayer.defaultProps = defaultProps;

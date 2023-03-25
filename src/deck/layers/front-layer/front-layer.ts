@@ -14,6 +14,9 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class FrontLayer<DataT = any> extends CompositeLayer<FrontLayerProps<DataT>> {
+  static layerName = 'FrontLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     return [
       new FrontCompositeLayer(this.props, this.getSubLayerProps({
@@ -22,8 +25,5 @@ export class FrontLayer<DataT = any> extends CompositeLayer<FrontLayerProps<Data
     ];
   }
 }
-
-FrontLayer.layerName = 'FrontLayer';
-FrontLayer.defaultProps = defaultProps;
 
 export {FrontType};

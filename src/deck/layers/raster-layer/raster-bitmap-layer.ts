@@ -38,6 +38,9 @@ const defaultProps = {
 } satisfies DefaultProps<RasterBitmapLayerProps>;
 
 export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
+  static layerName = 'RasterBitmapLayer';
+  static defaultProps = defaultProps;
+
   getShaders(): any {
     const parentShaders = super.getShaders();
 
@@ -146,6 +149,3 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     return info;
   }
 }
-
-RasterBitmapLayer.layerName = 'RasterBitmapLayer';
-RasterBitmapLayer.defaultProps = defaultProps;

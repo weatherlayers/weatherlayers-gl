@@ -22,7 +22,10 @@ const defaultProps = {
 
 // @ts-ignore
 @withCheckLicense(defaultProps)
-class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
+export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
+  static layerName = 'ParticleLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
@@ -70,8 +73,3 @@ class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT
     this.setState({ imageTexture, imageTexture2 });
   }
 }
-
-ParticleLayer.layerName = 'ParticleLayer';
-ParticleLayer.defaultProps = defaultProps;
-
-export {ParticleLayer};

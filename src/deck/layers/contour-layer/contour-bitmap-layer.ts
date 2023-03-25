@@ -40,6 +40,9 @@ const defaultProps = {
 } satisfies DefaultProps<ContourBitmapLayerProps>;
 
 export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
+  static layerName = 'ContourBitmapLayer';
+  static defaultProps = defaultProps;
+
   getShaders(): any {
     const {gl} = this.context;
     if (!hasFeatures(gl, FEATURES.GLSL_DERIVATIVES)) {
@@ -90,6 +93,3 @@ export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
     }
   }
 }
-
-ContourBitmapLayer.layerName = 'ContourBitmapLayer';
-ContourBitmapLayer.defaultProps = defaultProps;

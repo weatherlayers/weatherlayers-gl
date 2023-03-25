@@ -53,6 +53,9 @@ const defaultProps = {
 } satisfies DefaultProps<FrontCompositeLayerProps<any>>;
 
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
+  static layerName = 'FrontCompositeLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = this.props;
@@ -142,6 +145,3 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
     ];
   }
 }
-
-FrontCompositeLayer.layerName = 'FrontCompositeLayer';
-FrontCompositeLayer.defaultProps = defaultProps;

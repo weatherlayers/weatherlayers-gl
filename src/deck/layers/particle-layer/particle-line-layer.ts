@@ -55,6 +55,9 @@ const defaultProps = {
 } satisfies DefaultProps<ParticleLineLayerProps<any>>;
 
 export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLineLayerProps<DataT>> {
+  static layerName = 'ParticleLineLayer';
+  static defaultProps = defaultProps;
+
   getShaders(): any {
     const parentShaders = super.getShaders();
 
@@ -334,6 +337,3 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     this.setNeedsRedraw();
   }
 }
-
-ParticleLineLayer.layerName = 'ParticleLineLayer';
-ParticleLineLayer.defaultProps = defaultProps;

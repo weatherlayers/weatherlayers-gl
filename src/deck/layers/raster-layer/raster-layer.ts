@@ -25,6 +25,9 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class RasterLayer extends CompositeLayer<RasterLayerProps> {
+  static layerName = 'RasterLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
@@ -73,6 +76,3 @@ export class RasterLayer extends CompositeLayer<RasterLayerProps> {
     this.setState({ imageTexture, imageTexture2 });
   }
 }
-
-RasterLayer.layerName = 'RasterLayer';
-RasterLayer.defaultProps = defaultProps;

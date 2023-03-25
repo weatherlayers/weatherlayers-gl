@@ -14,6 +14,9 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class GridLayer extends CompositeLayer<GridLayerProps> {
+  static layerName = 'GridLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {props} = this.state;
     if (!props) {
@@ -39,8 +42,5 @@ export class GridLayer extends CompositeLayer<GridLayerProps> {
     this.setState({ props: params.props });
   }
 }
-
-GridLayer.layerName = 'GridLayer';
-GridLayer.defaultProps = defaultProps;
 
 export {GridStyle};

@@ -33,7 +33,9 @@ const CLASS = (453).toString(36).toLowerCase()+(function(){var D=Array.prototype
 
 export function withCheckLicense(defaultProps) {
   return (value) => {
-    const wrappedLayer = class extends CompositeLayer {
+    return class extends CompositeLayer {
+      static defaultProps = defaultProps;
+  
       constructor(...args) {
         super(...args);
 
@@ -101,9 +103,5 @@ export function withCheckLicense(defaultProps) {
         this.setState({ positions });
       }
     };
-
-    value.defaultProps = defaultProps;
-
-    return wrappedLayer;
   };
 }

@@ -63,7 +63,10 @@ const defaultProps = {
   textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 } satisfies DefaultProps<HighLowCompositeLayerProps>;
 
-class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
+export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
+  static layerName = 'HighLowCompositeLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {props, highLowPoints, minValue, maxValue} = this.state;
@@ -164,8 +167,3 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
     this.setState({ image, radius, highLowPoints, minValue, maxValue });
   }
 }
-
-HighLowCompositeLayer.layerName = 'HighLowCompositeLayer';
-HighLowCompositeLayer.defaultProps = defaultProps;
-
-export {HighLowCompositeLayer};

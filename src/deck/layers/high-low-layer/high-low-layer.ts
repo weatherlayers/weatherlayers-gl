@@ -13,6 +13,9 @@ const defaultProps = {
 // @ts-ignore
 @withCheckLicense(defaultProps)
 export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
+  static layerName = 'HighLowLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {props} = this.state;
     if (!props) {
@@ -38,6 +41,3 @@ export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
     this.setState({ props: params.props });
   }
 }
-
-HighLowLayer.layerName = 'HighLowLayer';
-HighLowLayer.defaultProps = defaultProps;

@@ -62,7 +62,10 @@ const defaultProps = {
 } satisfies DefaultProps<GridCompositeLayerProps>;
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
-class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
+export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
+  static layerName = 'GridCompositeLayer';
+  static defaultProps = defaultProps;
+
   renderLayers(): Layer[] {
     const {viewport} = this.context;
     const {props, gridPoints} = this.state;
@@ -164,8 +167,3 @@ class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
     this.setState({ gridPoints });
   }
 }
-
-GridCompositeLayer.layerName = 'GridCompositeLayer';
-GridCompositeLayer.defaultProps = defaultProps;
-
-export {GridCompositeLayer};
