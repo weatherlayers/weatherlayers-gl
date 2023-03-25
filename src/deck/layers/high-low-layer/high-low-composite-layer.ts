@@ -7,17 +7,18 @@ import type {CollisionFilterExtensionProps} from '@deck.gl/extensions/typed';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
 import type {TextFormatFunction} from '../../../_utils/props.js';
 import type {TextureData} from '../../../_utils/data.js';
+import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import type {UnitFormat} from '../../../_utils/unit-format.js';
 import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport.js';
-import {getHighLowPoints} from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import {getHighLowPoints, HighLowType} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type {HighLowPointProperties} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
 const HIGH_LOW_LABEL_COLLISION_GROUP = 'high-low-label';
 
 function getHighLowPointCollisionPriority(highLowPoint: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>, minValue: number, maxValue: number): number {
-  if (highLowPoint.properties.type === 'H') {
+  if (highLowPoint.properties.type === HighLowType.HIGH) {
     return Math.round((highLowPoint.properties.value - maxValue) / maxValue * 100);
   } else {
     return Math.round((minValue - highLowPoint.properties.value) / minValue * 100);
@@ -26,6 +27,8 @@ function getHighLowPointCollisionPriority(highLowPoint: GeoJSON.Feature<GeoJSON.
 
 export type HighLowCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
+  imageSmoothing: number;
+  imageInterpolation: ImageInterpolation;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
@@ -43,6 +46,8 @@ export type HighLowCompositeLayerProps = CompositeLayerProps & {
 
 const defaultProps = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageSmoothing: {type: 'number', value: 0},
+  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
   imageType: {type: 'object', value: ImageType.SCALAR},
   imageUnscale: {type: 'array', value: null},
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
@@ -115,7 +120,7 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, radius} = params.props;
+    const {image, imageSmoothing, imageInterpolation, radius} = params.props;
 
     super.updateState(params);
 
@@ -128,7 +133,12 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
       return;
     }
 
-    if (image !== params.oldProps.image || radius !== params.oldProps.radius) {
+    if (
+      image !== params.oldProps.image ||
+      imageSmoothing !== params.oldProps.imageSmoothing ||
+      imageInterpolation !== params.oldProps.imageInterpolation ||
+      radius !== params.oldProps.radius
+    ) {
       this.updateHighLowPoints();
     }
 
@@ -136,12 +146,17 @@ class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
   }
 
   async updateHighLowPoints(): Promise<void> {
-    const {image, imageType, imageUnscale, bounds, radius} = this.props;
+    // TODO: ensure defaultProps if undefined is passed from outside
+    const {image, imageSmoothing = 0, imageInterpolation, imageType, imageUnscale, bounds, radius} = this.props;
     if (!image) {
       return;
     }
 
-    const highLowPoints = (await getHighLowPoints(image, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+    // CUBIC interpolation is slow on CPU, fallback to LINEAR
+    // TODO: move getPixelMagnitudeData to GPU
+    const effectiveImageInterpolation = imageInterpolation === ImageInterpolation.CUBIC ? ImageInterpolation.LINEAR : imageInterpolation;
+
+    const highLowPoints = (await getHighLowPoints(image, imageSmoothing, effectiveImageInterpolation, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
     const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);

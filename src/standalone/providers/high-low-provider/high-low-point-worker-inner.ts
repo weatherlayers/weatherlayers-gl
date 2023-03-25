@@ -1,8 +1,8 @@
 import {TextureDataArray} from '../../../_utils/data.js';
 import {getUnprojectFunction} from '../../../_utils/project.js';
+import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {blur} from '../../../_utils/blur.js';
 import {distance} from '../../../_utils/geodesy.js';
 import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
 
@@ -12,9 +12,6 @@ import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
 function getHighLowPointDataMain(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
-
-  // blur noisy data
-  data = blur(data, width, height);
 
   // find highs and lows
   let highs: { position: GeoJSON.Position, value: number }[] = [];
@@ -101,8 +98,8 @@ function getHighLowPointDataMain(data: Float32Array, width: number, height: numb
   return highLowPointData;
 }
 
-export function getHighLowPointData(data: TextureDataArray, width: number, height: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
-  const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageType, imageUnscale);
+export function getHighLowPointData(data: TextureDataArray, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
+  const magnitudeData = getPixelMagnitudeData({ data, width, height }, imageSmoothing, imageInterpolation, imageType, imageUnscale);
   const highLowPointData = getHighLowPointDataMain(magnitudeData.data, width, height, bounds, radius);
   return highLowPointData;
 }

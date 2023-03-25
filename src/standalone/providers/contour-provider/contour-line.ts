@@ -2,6 +2,7 @@ import {transfer, wrap} from 'comlink';
 import createContourLineWorker from 'worker!./contour-line-worker.js';
 import {ContourLineWorker} from './contour-line-worker.js';
 import type {TextureData} from '../../../_utils/data.js';
+import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 
@@ -30,11 +31,11 @@ function getContourLinesFromData(contourLineData: Float32Array): GeoJSON.Feature
   return contourLines;
 }
 
-export async function getContourLines(image: TextureData, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Promise<GeoJSON.FeatureCollection<GeoJSON.LineString, ContourLineProperties>> {
+export async function getContourLines(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Promise<GeoJSON.FeatureCollection<GeoJSON.LineString, ContourLineProperties>> {
   const {data, width, height} = image;
   
   const dataCopy = data.slice(0);
-  const contourLineData = await contourLineWorkerProxy.getContourLineData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageType, imageUnscale, bounds, interval);
+  const contourLineData = await contourLineWorkerProxy.getContourLineData(transfer(dataCopy, [dataCopy.buffer]), width, height, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, interval);
   const contourLines = getContourLinesFromData(contourLineData);
 
   return { type: 'FeatureCollection', features: contourLines };
