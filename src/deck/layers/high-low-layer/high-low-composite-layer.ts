@@ -160,9 +160,13 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
       return;
     }
 
-    // CUBIC interpolation is slow on CPU, fallback to LINEAR
-    // TODO: move getPixelMagnitudeData to GPU
-    const effectiveImageInterpolation = imageInterpolation === ImageInterpolation.CUBIC ? ImageInterpolation.LINEAR : imageInterpolation;
+    // interpolation for entire data is slow, fallback to NEAREST interpolation + blur in worker
+    // CPU speed (image 1440x721):
+    // - NEAREST - 100 ms
+    // - LINEAR - 600 ms
+    // - CUBIC - 6 s
+    // TODO: move getMagnitudeDataSmoothInterpolate to GPU, remove blur
+    const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
 
     const highLowPoints = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
     const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);

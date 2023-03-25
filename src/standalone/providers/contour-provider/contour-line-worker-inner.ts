@@ -1,10 +1,11 @@
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
+import {blur} from '../../../_utils/blur.js';
 import {TextureDataArray} from '../../../_utils/data.js';
 import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
+import {getMagnitudeDataSmoothInterpolate} from '../../../_utils/pixel.js';
 import {getUnprojectFunction} from '../../../_utils/project.js';
 
 /**
@@ -89,6 +90,9 @@ function getContourLineDataMain(data: Float32Array, width: number, height: numbe
     width += bufferWest + bufferEast;
   }
 
+  // blur noisy data, TODO: replace by imageInterpolation on GPU
+  data = blur(data, width, height);
+
   // compute contours
   let contours = computeContours(data, width, height, interval);
 
@@ -122,7 +126,7 @@ function getContourLineDataMain(data: Float32Array, width: number, height: numbe
 export function getContourLineData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Float32Array {
   const image = { data, width, height };
   const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getPixelMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
+  const magnitudeData = getMagnitudeDataSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const contourLineData = getContourLineDataMain(magnitudeData.data, width, height, bounds, interval);
   return contourLineData;
 }

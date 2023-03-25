@@ -1,6 +1,9 @@
 import {frac, add, dot, mul, mix} from './glsl.js';
 import {ImageInterpolation} from './image-interpolation.js';
-import type {TextureData} from './data.js';
+import type {ImageType} from './image-type.js';
+import type {ImageUnscale} from './image-unscale.js';
+import type {TextureData, FloatData} from './data.js';
+import {hasPixelValue, getPixelMagnitudeValue} from './pixel-value.js';
 
 type ImageDownscaleResolution = readonly [number, number];
 
@@ -97,26 +100,57 @@ function getPixelFilter(image: TextureData, imageDownscaleResolution: ImageDowns
 }
 
 function getPixelInterpolate(image: TextureData, image2: TextureData | null, imageDownscaleResolution: ImageDownscaleResolution, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
-  if (image2 && imageWeight > 0) {
-    const pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvX, uvY);
-    const pixel2 = getPixelFilter(image2, imageDownscaleResolution, imageInterpolation, uvX, uvY);
-    return mix(pixel, pixel2, imageWeight);
-  } else {
-    return getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvX, uvY);
-  }
-}
-
-export function getPixelSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
-  const { width, height } = image;
-
-  // smooth by downscaling resolution
-  const imageDownscaleResolutionFactor = 1 + Math.max(0, imageSmoothing);
-  const imageDownscaleResolution = [width / imageDownscaleResolutionFactor, height / imageDownscaleResolutionFactor] satisfies ImageDownscaleResolution;
-
   // offset
   // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
   const uvWithOffsetX = uvX + 0.5 / imageDownscaleResolution[0];
   const uvWithOffsetY = uvY;
 
-  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvWithOffsetX, uvWithOffsetY);
+  if (image2 && imageWeight > 0) {
+    const pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffsetX, uvWithOffsetY);
+    const pixel2 = getPixelFilter(image2, imageDownscaleResolution, imageInterpolation, uvWithOffsetX, uvWithOffsetY);
+    return mix(pixel, pixel2, imageWeight);
+  } else {
+    return getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffsetX, uvWithOffsetY);
+  }
+}
+
+function getImageDownscaleResolution(width: number, height: number, imageSmoothing: number): ImageDownscaleResolution {
+  const imageDownscaleResolutionFactor = 1 + Math.max(0, imageSmoothing);
+  return [width / imageDownscaleResolutionFactor, height / imageDownscaleResolutionFactor];
+}
+
+export function getPixelSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
+  const {width, height} = image;
+
+  // smooth by downscaling resolution
+  const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
+
+  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+}
+
+export function getMagnitudeDataSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale): FloatData {
+  const {width, height} = image;
+
+  // smooth by downscaling resolution
+  const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
+
+  const magnitudeData = new Float32Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = x + y * width;
+
+      const uvX = x / width;
+      const uvY = y / height;
+      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+      if (!hasPixelValue(pixel, imageUnscale)) {
+        magnitudeData[i] = NaN;
+        continue;
+      }
+
+      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+      magnitudeData[i] = value;
+    }
+  }
+
+  return { data: magnitudeData, width, height };
 }

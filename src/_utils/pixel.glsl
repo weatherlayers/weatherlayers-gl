@@ -71,12 +71,16 @@ vec4 getPixelFilter(sampler2D image, vec2 imageDownscaleResolution, int imageInt
 }
 
 vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleResolution, int imageInterpolation, float imageWeight, vec2 uv) {
+  // offset
+  // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
+  vec2 uvWithOffset = vec2(uv.x + 0.5 / imageDownscaleResolution.x, uv.y);
+
   if (imageWeight > 0.) {
-    vec4 pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uv);
-    vec4 pixel2 = getPixelFilter(image2, imageDownscaleResolution, imageInterpolation, uv);
+    vec4 pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffset);
+    vec4 pixel2 = getPixelFilter(image2, imageDownscaleResolution, imageInterpolation, uvWithOffset);
     return mix(pixel, pixel2, imageWeight);
   } else {
-    return getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uv);
+    return getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffset);
   }
 }
 
@@ -85,9 +89,5 @@ vec4 getPixelSmoothInterpolate(sampler2D image, sampler2D image2, vec2 imageReso
   float imageDownscaleResolutionFactor = 1. + max(0., imageSmoothing);
   vec2 imageDownscaleResolution = imageResolution / imageDownscaleResolutionFactor;
 
-  // offset
-  // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
-  vec2 uvWithOffset = vec2(uv.x + 0.5 / imageDownscaleResolution.x, uv.y);
-
-  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvWithOffset);
+  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uv);
 }

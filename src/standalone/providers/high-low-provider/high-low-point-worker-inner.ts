@@ -3,8 +3,9 @@ import {getUnprojectFunction} from '../../../_utils/project.js';
 import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
+import {blur} from '../../../_utils/blur.js';
 import {distance} from '../../../_utils/geodesy.js';
-import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
+import {getMagnitudeDataSmoothInterpolate} from '../../../_utils/pixel.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
@@ -12,6 +13,9 @@ import {getPixelMagnitudeData} from '../../../_utils/pixel-data.js';
 function getHighLowPointDataMain(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
+
+  // blur noisy data, TODO: replace by imageInterpolation on GPU
+  data = blur(data, width, height);
 
   // find highs and lows
   let highs: { position: GeoJSON.Position, value: number }[] = [];
@@ -101,7 +105,7 @@ function getHighLowPointDataMain(data: Float32Array, width: number, height: numb
 export function getHighLowPointData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const image = { data, width, height };
   const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getPixelMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
+  const magnitudeData = getMagnitudeDataSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const highLowPointData = getHighLowPointDataMain(magnitudeData.data, width, height, bounds, radius);
   return highLowPointData;
 }
