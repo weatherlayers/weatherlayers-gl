@@ -1,4 +1,5 @@
 import {Animation} from '../../_utils/animation.js';
+import type {AnimationConfig} from '../../_utils/animation.js';
 import {interpolateDatetime} from '../../_utils/datetime.js';
 import {formatDatetime} from '../../_utils/format.js';
 import {randomString} from '../../_utils/random-string.js';
@@ -24,151 +25,86 @@ const LOADING_CLASS = 'loading';
 const RUNNING_CLASS = 'running';
 
 export class TimelineControl extends Control<TimelineControlConfig> {
-  config: TimelineControlConfig;
-  container: HTMLElement | undefined = undefined;
-  animation: Animation;
+  #config: TimelineControlConfig;
+  #container: HTMLElement | undefined = undefined;
+  #loading: boolean = false;
+  #animation: Animation;
 
   constructor(config: TimelineControlConfig = {} as TimelineControlConfig) {
     super();
-    this.config = config;
-    this.animation = new Animation(() => this.animationUpdated(), FPS);
+    this.#config = config;
+    this.#animation = new Animation({
+      onUpdate: () => this.#animationUpdated(),
+      fps: FPS
+    } satisfies AnimationConfig);
   }
 
-  onAdd(): HTMLElement {
-    this.container = document.createElement('div');
-    this.container.className = 'weatherlayers-timeline-control';
+  protected onAdd(): HTMLElement {
+    this.#container = document.createElement('div');
+    this.#container.className = 'weatherlayers-timeline-control';
 
-    this.setConfig(this.config);
+    this.setConfig(this.#config);
 
-    return this.container;
+    return this.#container;
   }
 
-  onRemove(): void {
-    if (this.container && this.container.parentNode) {
-      this.container.parentNode.removeChild(this.container);
-      this.container = undefined;
+  protected onRemove(): void {
+    if (this.#container && this.#container.parentNode) {
+      this.#container.parentNode.removeChild(this.#container);
+      this.#container = undefined;
     }
   }
 
   get loading(): boolean {
-    if (!this.container) {
-      return false;
-    }
-
-    return this.container.classList.contains(LOADING_CLASS);
-  }
-
-  set loading(value: boolean) {
-    if (!this.container) {
-      return;
-    }
-
-    this.container.classList.toggle(LOADING_CLASS, value);
+    return this.#loading;
   }
 
   get running(): boolean {
-    if (!this.container) {
-      return false;
-    }
-
-    return this.container.classList.contains(RUNNING_CLASS);
+    return this.#running;
   }
 
-  set running(value: boolean) {
-    if (!this.container) {
-      return;
-    }
-
-    this.container.classList.toggle(RUNNING_CLASS, value);
+  get #running(): boolean {
+    return this.#animation.running;
   }
 
-  get startEndDatetimes(): string[] {
-    if (!this.container) {
-      return [];
-    }
-
-    const progressInput = this.container.querySelector('input');
-    if (!progressInput) {
-      return [];
-    }
-
-    const startDatetime = this.config.datetimes[Math.floor(progressInput.valueAsNumber)];
-    const endDatetime = this.config.datetimes[Math.ceil(progressInput.valueAsNumber)];
-    if (startDatetime === endDatetime) {
-      return [startDatetime];
+  toggle(running: boolean = !this.#running): Promise<void> {
+    if (running) {
+      return this.start();
     } else {
-      return [startDatetime, endDatetime];
+      return this.stop();
     }
   }
 
-  updateProgress(): void {
-    if (!this.container) {
+  async start(): Promise<void> {
+    if (!this.#container || this.#loading || this.#running) {
       return;
     }
 
-    const currentDatetime = this.container.querySelector('.current-datetime');
-    const progressInput = this.container.querySelector('input');
-    if (!currentDatetime || !progressInput) {
-      return;
-    }
-    
-    const startDatetime = this.config.datetimes[Math.floor(progressInput.valueAsNumber)];
-    const endDatetime = this.config.datetimes[Math.ceil(progressInput.valueAsNumber)];
-    const ratio = progressInput.valueAsNumber % 1;
-    const datetime = interpolateDatetime(startDatetime, endDatetime, ratio);
-    
-    this.config.datetime = datetime;
-    currentDatetime.innerHTML = formatDatetime(datetime);
+    await this.#preload(this.#config.datetimes);
 
-    if (this.config.onUpdate) {
-      this.config.onUpdate(datetime);
-    }
+    this.#animation.start();
+    this.#container.classList.add(RUNNING_CLASS);
+
+    this.#updateProgress();
   }
 
-  async playButtonClicked(): Promise<void> {
-    if (this.loading || this.running) {
+  async stop(): Promise<void> {
+    if (!this.#container || this.#loading || !this.#running) {
       return;
     }
 
-    await this.preload(this.config.datetimes);
+    this.#animation.stop();
+    this.#container.classList.remove(RUNNING_CLASS);
 
-    this.animation.start();
-    this.running = true;
-
-    this.updateProgress();
+    this.#updateProgress();
   }
 
-  pauseButtonClicked(): void {
-    if (this.loading || !this.running) {
+  async stepBackward(): Promise<void> {
+    if (!this.#container || this.#loading || this.#running) {
       return;
     }
 
-    this.animation.stop();
-    this.running = false;
-
-    this.updateProgress();
-  }
-
-  async progressInputClicked(): Promise<void> {
-    if (this.loading || this.running) {
-      return;
-    }
-
-    await this.preload(this.startEndDatetimes);
-
-    this.updateProgress();
-  }
-
-  async stepBackwardButtonClicked(): Promise<void> {
-    if (this.loading || this.running) {
-      return;
-    }
-
-    if (!this.container) {
-      return;
-    }
-
-    const progressInput = this.container.querySelector('input');
+    const progressInput = this.#container.querySelector('input');
     if (!progressInput) {
       return;
     }
@@ -179,21 +115,17 @@ export class TimelineControl extends Control<TimelineControlConfig> {
       progressInput.value = progressInput.max;
     }
 
-    await this.preload(this.startEndDatetimes);
+    await this.#preload(this.#startEndDatetimes);
 
-    this.updateProgress();
+    this.#updateProgress();
   }
 
-  async stepForwardButtonClicked(): Promise<void> {
-    if (this.loading || this.running) {
+  async stepForward(): Promise<void> {
+    if (!this.#container || this.#loading || this.#running) {
       return;
     }
 
-    if (!this.container) {
-      return;
-    }
-
-    const progressInput = this.container.querySelector('input');
+    const progressInput = this.#container.querySelector('input');
     if (!progressInput) {
       return;
     }
@@ -204,21 +136,70 @@ export class TimelineControl extends Control<TimelineControlConfig> {
       progressInput.value = progressInput.min;
     }
 
-    await this.preload(this.startEndDatetimes);
+    await this.#preload(this.#startEndDatetimes);
 
-    this.updateProgress();
+    this.#updateProgress();
   }
 
-  animationUpdated(): void {
-    if (this.loading || !this.running) {
+  get #startEndDatetimes(): string[] {
+    if (!this.#container) {
+      return [];
+    }
+
+    const progressInput = this.#container.querySelector('input');
+    if (!progressInput) {
+      return [];
+    }
+
+    const startDatetime = this.#config.datetimes[Math.floor(progressInput.valueAsNumber)];
+    const endDatetime = this.#config.datetimes[Math.ceil(progressInput.valueAsNumber)];
+    if (startDatetime === endDatetime) {
+      return [startDatetime];
+    } else {
+      return [startDatetime, endDatetime];
+    }
+  }
+
+  #updateProgress(): void {
+    if (!this.#container) {
       return;
     }
 
-    if (!this.container) {
+    const currentDatetime = this.#container.querySelector('.current-datetime');
+    const progressInput = this.#container.querySelector('input');
+    if (!currentDatetime || !progressInput) {
+      return;
+    }
+    
+    const startDatetime = this.#config.datetimes[Math.floor(progressInput.valueAsNumber)];
+    const endDatetime = this.#config.datetimes[Math.ceil(progressInput.valueAsNumber)];
+    const ratio = progressInput.valueAsNumber % 1;
+    const datetime = interpolateDatetime(startDatetime, endDatetime, ratio);
+    
+    this.#config.datetime = datetime;
+    currentDatetime.innerHTML = formatDatetime(datetime);
+
+    if (this.#config.onUpdate) {
+      this.#config.onUpdate(datetime);
+    }
+  }
+
+  async #progressInputClicked(): Promise<void> {
+    if (this.#loading || this.#running) {
       return;
     }
 
-    const progressInput = this.container.querySelector('input');
+    await this.#preload(this.#startEndDatetimes);
+
+    this.#updateProgress();
+  }
+
+  #animationUpdated(): void {
+    if (!this.#container || this.#loading || !this.#running) {
+      return;
+    }
+
+    const progressInput = this.#container.querySelector('input');
     if (!progressInput) {
       return;
     }
@@ -229,24 +210,27 @@ export class TimelineControl extends Control<TimelineControlConfig> {
       progressInput.value = progressInput.min;
     }
 
-    this.updateProgress();
+    this.#updateProgress();
   }
 
-  async preload(datetimes: string[]): Promise<void> {
-    if (!this.container) {
-      return;
-    }
-    if (!this.config.onPreload) {
+  async #preload(datetimes: string[]): Promise<void> {
+    if (!this.#container || !this.#config.onPreload) {
       return;
     }
 
-    this.loading = true;
-    await this.config.onPreload(datetimes);
-    this.loading = false;
+    this.#loading = true;
+    this.#container.classList.add(LOADING_CLASS);
+    await this.#config.onPreload(datetimes);
+    this.#loading = false;
+    this.#container.classList.remove(LOADING_CLASS);
+  }
+
+  getConfig(): TimelineControlConfig {
+    return { ...this.#config };
   }
 
   setConfig(config: TimelineControlConfig): void {
-    if (!this.container) {
+    if (!this.#container) {
       return;
     }
 
@@ -257,29 +241,29 @@ export class TimelineControl extends Control<TimelineControlConfig> {
 
     // prevent update if no config changed
     if (
-      this.container.children.length > 0 &&
-      this.config.width === config.width &&
-      this.config.datetimes.length === config.datetimes.length &&
-      this.config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
-      this.config.datetime === config.datetime &&
-      this.config.datetimeInterpolate === config.datetimeInterpolate &&
-      this.config.onPreload === config.onPreload &&
-      this.config.onUpdate === config.onUpdate
+      this.#container.children.length > 0 &&
+      this.#config.width === config.width &&
+      this.#config.datetimes.length === config.datetimes.length &&
+      this.#config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
+      this.#config.datetime === config.datetime &&
+      this.#config.datetimeInterpolate === config.datetimeInterpolate &&
+      this.#config.onPreload === config.onPreload &&
+      this.#config.onUpdate === config.onUpdate
     ) {
       return;
     }
 
-    this.config = config;
-    const width = this.config.width ?? DEFAULT_WIDTH;
-    const datetimes = this.config.datetimes;
-    const datetime = this.config.datetime;
-    const datetimeInterpolate = this.config.datetimeInterpolate;
+    this.#config = config;
+    const width = this.#config.width ?? DEFAULT_WIDTH;
+    const datetimes = this.#config.datetimes;
+    const datetime = this.#config.datetime;
+    const datetimeInterpolate = this.#config.datetimeInterpolate;
 
-    this.container.innerHTML = '';
-    this.container.style.width = `${width}px`;
+    this.#container.innerHTML = '';
+    this.#container.style.width = `${width}px`;
 
     const div = document.createElement('div');
-    this.container.appendChild(div);
+    this.#container.appendChild(div);
 
     const header = document.createElement('header');
     div.appendChild(header);
@@ -301,7 +285,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     progressInput.step = `${datetimeInterpolate ? STEP_INTERPOLATE : STEP}`;
     progressInput.valueAsNumber = datetimes.findIndex(x => x >= datetime);
     progressInput.setAttribute('list', progressInputTicksId);
-    progressInput.addEventListener('input', () => this.progressInputClicked());
+    progressInput.addEventListener('input', () => this.#progressInputClicked());
     main.appendChild(progressInput);
 
     const progressInputTicks = document.createElement('datalist');
@@ -334,25 +318,25 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const stepBackwardButton = document.createElement('a');
     stepBackwardButton.href = 'javascript:void(0)';
     stepBackwardButton.className = 'button step-backward-button';
-    stepBackwardButton.addEventListener('click', () => this.stepBackwardButtonClicked());
+    stepBackwardButton.addEventListener('click', () => this.stepBackward());
     buttons.appendChild(stepBackwardButton);
 
     const playButton = document.createElement('a');
     playButton.href = 'javascript:void(0)';
     playButton.className = 'button play-button';
-    playButton.addEventListener('click', () => this.playButtonClicked());
+    playButton.addEventListener('click', () => this.start());
     buttons.appendChild(playButton);
 
     const pauseButton = document.createElement('a');
     pauseButton.href = 'javascript:void(0)';
     pauseButton.className = 'button pause-button';
-    pauseButton.addEventListener('click', () => this.pauseButtonClicked());
+    pauseButton.addEventListener('click', () => this.stop());
     buttons.appendChild(pauseButton);
 
     const stepForwardButton = document.createElement('a');
     stepForwardButton.href = 'javascript:void(0)';
     stepForwardButton.className = 'button step-forward-button';
-    stepForwardButton.addEventListener('click', () => this.stepForwardButtonClicked());
+    stepForwardButton.addEventListener('click', () => this.stepForward());
     buttons.appendChild(stepForwardButton);
   }
 }

@@ -190,8 +190,8 @@
           map.setPaintProperty('highLow', 'text-opacity', config.highLow.opacity);
         }
 
-        legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
-        attributionControl.setConfig({ attribution });
+        legendControl.updateConfig({ title, unitFormat, palette });
+        attributionControl.updateConfig({ attribution });
       }
       update();
       gui = initGui(config, update);

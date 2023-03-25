@@ -25,7 +25,7 @@ export type RasterBitmapLayerProps = BitmapLayerProps & {
   palette: Palette | null;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   imageTexture: {type: 'object', value: null},
   imageTexture2: {type: 'object', value: null},
   imageSmoothing: {type: 'number', value: 0},
@@ -36,7 +36,7 @@ const defaultProps = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 
   palette: {type: 'object', value: null},
-} satisfies DefaultProps<RasterBitmapLayerProps>;
+};
 
 export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
   static layerName = 'RasterBitmapLayer';

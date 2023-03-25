@@ -230,7 +230,7 @@
         }
 
         rotateAnimation.toggle(config.rotate);
-        legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
+        legendControl.updateConfig({ title, unitFormat, palette });
       }
       update();
       gui = initGui(config, update, { globe: true });

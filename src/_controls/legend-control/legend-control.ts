@@ -17,32 +17,36 @@ const DEFAULT_WIDTH = 300;
 const DEFAULT_TICKS_COUNT = 6;
 
 export class LegendControl extends Control<LegendControlConfig> {
-  config: LegendControlConfig;
-  container: HTMLElement | undefined = undefined;
+  #config: LegendControlConfig;
+  #container: HTMLElement | undefined = undefined;
 
   constructor(config: LegendControlConfig = {} as LegendControlConfig) {
     super();
-    this.config = config;
+    this.#config = config;
   }
 
-  onAdd(): HTMLElement {
-    this.container = document.createElement('div');
-    this.container.className = 'weatherlayers-legend-control';
+  protected onAdd(): HTMLElement {
+    this.#container = document.createElement('div');
+    this.#container.className = 'weatherlayers-legend-control';
 
-    this.setConfig(this.config);
+    this.setConfig(this.#config);
 
-    return this.container;
+    return this.#container;
   }
 
-  onRemove(): void {
-    if (this.container && this.container.parentNode) {
-      this.container.parentNode.removeChild(this.container);
-      this.container = undefined;
+  protected onRemove(): void {
+    if (this.#container && this.#container.parentNode) {
+      this.#container.parentNode.removeChild(this.#container);
+      this.#container = undefined;
     }
   }
 
+  getConfig(): LegendControlConfig {
+    return { ...this.#config };
+  }
+
   setConfig(config: LegendControlConfig): void {
-    if (!this.container) {
+    if (!this.#container) {
       return;
     }
 
@@ -53,33 +57,33 @@ export class LegendControl extends Control<LegendControlConfig> {
 
     // prevent update if no config changed
     if (
-      this.container.children.length > 0 &&
-      this.config.width === config.width &&
-      this.config.ticksCount === config.ticksCount &&
-      this.config.title === config.title &&
-      this.config.unitFormat === config.unitFormat &&
-      this.config.palette === config.palette
+      this.#container.children.length > 0 &&
+      this.#config.width === config.width &&
+      this.#config.ticksCount === config.ticksCount &&
+      this.#config.title === config.title &&
+      this.#config.unitFormat === config.unitFormat &&
+      this.#config.palette === config.palette
     ) {
       return;
     }
 
-    this.config = config;
-    const width = this.config.width ?? DEFAULT_WIDTH;
-    const ticksCount = this.config.ticksCount ?? DEFAULT_TICKS_COUNT;
-    const title = this.config.title;
-    const unitFormat = this.config.unitFormat;
-    const palette = this.config.palette;
+    this.#config = config;
+    const width = this.#config.width ?? DEFAULT_WIDTH;
+    const ticksCount = this.#config.ticksCount ?? DEFAULT_TICKS_COUNT;
+    const title = this.#config.title;
+    const unitFormat = this.#config.unitFormat;
+    const palette = this.#config.palette;
     const paletteScale = parsePalette(palette);
     const paletteDomain = paletteScale.domain() as unknown as number[];
     const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
     const paletteCanvas = colorRampCanvas(paletteScale);
     const paletteCanvasDataUrl = paletteCanvas.toDataURL();
 
-    this.container.innerHTML = '';
-    this.container.style.width = `${width}px`;
+    this.#container.innerHTML = '';
+    this.#container.style.width = `${width}px`;
 
     const div = document.createElement('div');
-    this.container.appendChild(div);
+    this.#container.appendChild(div);
 
     const header = document.createElement('header');
     div.appendChild(header);

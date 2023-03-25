@@ -33,7 +33,7 @@ export type ParticleLineLayerProps<DataT> = LineLayerProps<DataT> & {
   animate: boolean;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps<ParticleLineLayerProps<any>> = {
   imageTexture: {type: 'object', value: null},
   imageTexture2: {type: 'object', value: null},
   imageSmoothing: {type: 'number', value: 0},
@@ -52,7 +52,7 @@ const defaultProps = {
   animate: true,
 
   wrapLongitude: true,
-} satisfies DefaultProps<ParticleLineLayerProps<any>>;
+};
 
 export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLineLayerProps<DataT>> {
   static layerName = 'ParticleLineLayer';
@@ -85,7 +85,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
   initializeState(): void {
     super.initializeState();
 
-    this._setupTransformFeedback();
+    this.#setupTransformFeedback();
 
     const attributeManager = this.getAttributeManager()!;
     attributeManager.remove(['instanceSourcePositions', 'instanceTargetPositions', 'instanceColors', 'instanceWidths']);
@@ -97,7 +97,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     super.updateState(params);
 
     if (imageType !== ImageType.VECTOR || !numParticles || !maxAge || !width) {
-      this._deleteTransformFeedback();
+      this.#deleteTransformFeedback();
       return;
     }
 
@@ -111,12 +111,12 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
       color[3] !== params.oldProps.color[3] ||
       width !== params.oldProps.width
     ) {
-      this._setupTransformFeedback();
+      this.#setupTransformFeedback();
     }
   }
 
   finalizeState(context: LayerContext): void {
-    this._deleteTransformFeedback();
+    this.#deleteTransformFeedback();
 
     super.finalizeState(context);
   }
@@ -146,7 +146,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }
   }
 
-  _setupTransformFeedback(): void {
+  #setupTransformFeedback(): void {
     const {gl} = this.context;
     if (!isWebGL2(gl)) {
       throw new Error('WebGL 2 is required');
@@ -154,7 +154,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
 
     const {initialized} = this.state;
     if (initialized) {
-      this._deleteTransformFeedback();
+      this.#deleteTransformFeedback();
     }
 
     const {numParticles, maxAge, color, width} = ensureDefaultProps(this.props, defaultProps);
@@ -204,7 +204,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     });
   }
 
-  _runTransformFeedback(): void {
+  #runTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -274,7 +274,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     this.state.previousTime = time;
   }
 
-  _resetTransformFeedback(): void {
+  #resetTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -286,7 +286,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     targetPositions.subData({data: new Float32Array(numInstances * 3)});
   }
 
-  _deleteTransformFeedback(): void {
+  #deleteTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -325,13 +325,13 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
   }
 
   step(): void {
-    this._runTransformFeedback();
+    this.#runTransformFeedback();
 
     this.setNeedsRedraw();
   }
 
   clear(): void {
-    this._resetTransformFeedback();
+    this.#resetTransformFeedback();
 
     this.setNeedsRedraw();
   }

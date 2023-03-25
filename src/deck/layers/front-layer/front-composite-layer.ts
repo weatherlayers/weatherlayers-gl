@@ -38,7 +38,7 @@ export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   _debug: boolean;
 }
 
-const defaultProps = {
+const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
   data: {type: 'array', value: []},
 
   getType: {type: 'function', value: null},
@@ -50,7 +50,7 @@ const defaultProps = {
   iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
 
   _debug: {type: 'boolean', value: false},
-} satisfies DefaultProps<FrontCompositeLayerProps<any>>;
+};
 
 export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
   static layerName = 'FrontCompositeLayer';

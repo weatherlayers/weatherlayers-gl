@@ -6,9 +6,9 @@ import type {HighLowCompositeLayerProps} from './high-low-composite-layer.js';
 
 export type HighLowLayerProps = HighLowCompositeLayerProps;
 
-const defaultProps = {
+const defaultProps: DefaultProps<HighLowLayerProps> = {
   ...HighLowCompositeLayer.defaultProps,
-} satisfies DefaultProps<HighLowLayerProps>;
+};
 
 // @ts-ignore
 @withCheckLicense(defaultProps)

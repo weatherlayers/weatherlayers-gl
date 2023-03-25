@@ -11,7 +11,7 @@ export type RasterLayerProps = RasterBitmapLayerProps & {
   image2: TextureData | null;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps<RasterLayerProps> = {
   ...RasterBitmapLayer.defaultProps,
 
   imageTexture: undefined,
@@ -20,7 +20,7 @@ const defaultProps = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
-} satisfies DefaultProps<RasterLayerProps>;
+};
 
 // @ts-ignore
 @withCheckLicense(defaultProps)

@@ -155,7 +155,7 @@
               imageUnscale,
               bounds,
               // style properties
-              visible: config.highLow.enabled && !timelineControl.animation.running,
+              visible: config.highLow.enabled && !timelineControl.running,
               unitFormat,
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
@@ -213,10 +213,10 @@
           ],
         });
 
-        legendControl.setConfig({ ...legendControl.config, title, unitFormat, palette });
-        timelineControl.setConfig({ ...timelineControl.config, datetimes, datetime, datetimeInterpolate: config.datetimeInterpolate });
-        tooltipControl.setConfig({ ...tooltipControl.config, unitFormat });
-        attributionControl.setConfig({ attribution });
+        legendControl.updateConfig({ title, unitFormat, palette });
+        timelineControl.updateConfig({ datetimes, datetime, datetimeInterpolate: config.datetimeInterpolate });
+        tooltipControl.updateConfig({ unitFormat });
+        attributionControl.updateConfig({ attribution });
       }
       update();
       gui = initGui(config, update, { deckgl, webgl2: true });

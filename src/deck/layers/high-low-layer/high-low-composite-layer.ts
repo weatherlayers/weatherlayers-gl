@@ -44,7 +44,7 @@ export type HighLowCompositeLayerProps = CompositeLayerProps & {
   textOutlineColor: Color;
 }
 
-const defaultProps = {
+const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
   imageSmoothing: {type: 'number', value: 0},
   imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
@@ -61,7 +61,7 @@ const defaultProps = {
   textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
   textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
   textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
-} satisfies DefaultProps<HighLowCompositeLayerProps>;
+};
 
 export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
   static layerName = 'HighLowCompositeLayer';

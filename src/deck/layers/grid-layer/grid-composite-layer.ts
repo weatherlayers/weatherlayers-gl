@@ -38,7 +38,7 @@ export type GridCompositeLayerProps = CompositeLayerProps & {
   iconColor: Color;
 }
 
-const defaultProps = {
+const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
   imageSmoothing: {type: 'number', value: 0},
@@ -59,7 +59,7 @@ const defaultProps = {
   iconBounds: {type: 'array', value: null},
   iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
   iconColor: {type: 'color', value: DEFAULT_ICON_COLOR},
-} satisfies DefaultProps<GridCompositeLayerProps>;
+};
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
 export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {

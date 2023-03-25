@@ -9,32 +9,36 @@ export interface TooltipControlConfig {
 }
 
 export class TooltipControl extends Control<TooltipControlConfig> {
-  config: TooltipControlConfig;
-  container: HTMLElement | undefined = undefined;
+  #config: TooltipControlConfig;
+  #container: HTMLElement | undefined = undefined;
 
   constructor(config: TooltipControlConfig = {} as TooltipControlConfig) {
     super();
-    this.config = config;
+    this.#config = config;
   }
 
-  onAdd(): HTMLElement {
-    this.container = document.createElement('div');
-    this.container.className = 'weatherlayers-tooltip-control';
+  protected onAdd(): HTMLElement {
+    this.#container = document.createElement('div');
+    this.#container.className = 'weatherlayers-tooltip-control';
 
-    this.setConfig(this.config);
+    this.setConfig(this.#config);
 
-    return this.container;
+    return this.#container;
   }
 
-  onRemove(): void {
-    if (this.container && this.container.parentNode) {
-      this.container.parentNode.removeChild(this.container);
-      this.container = undefined;
+  protected onRemove(): void {
+    if (this.#container && this.#container.parentNode) {
+      this.#container.parentNode.removeChild(this.#container);
+      this.#container = undefined;
     }
   }
 
+  getConfig(): TooltipControlConfig {
+    return { ...this.#config };
+  }
+
   setConfig(config: TooltipControlConfig): void {
-    if (!this.container) {
+    if (!this.#container) {
       return;
     }
     
@@ -45,28 +49,28 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     // prevent update if no config changed
     if (
-      this.container.children.length > 0 &&
-      this.config.unitFormat === config.unitFormat
+      this.#container.children.length > 0 &&
+      this.#config.unitFormat === config.unitFormat
     ) {
       return;
     }
     
-    this.config = config;
+    this.#config = config;
 
-    this.container.innerHTML = '';
+    this.#container.innerHTML = '';
   }
 
   update(rasterPickingInfo?: RasterPickingInfo): void {
-    if (!this.container) {
+    if (!this.#container) {
       return;
     }
 
     if (!rasterPickingInfo) {
-      this.container.innerHTML = '';
+      this.#container.innerHTML = '';
       return;
     }
     
-    const unitFormat = this.config.unitFormat;
+    const unitFormat = this.#config.unitFormat;
 
     const {value, direction} = rasterPickingInfo;
     let tooltip = formatValueWithUnit(value, unitFormat);
@@ -74,6 +78,6 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       tooltip += `, ${formatDirection(direction)}`
     }
 
-    this.container.innerHTML = `<div>${tooltip}</div>`;
+    this.#container.innerHTML = `<div>${tooltip}</div>`;
   }
 }

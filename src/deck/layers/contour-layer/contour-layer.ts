@@ -11,14 +11,14 @@ export type ContourLayerProps = ContourBitmapLayerProps & {
   image2: TextureData | null;
 };
 
-const defaultProps = {
+const defaultProps: DefaultProps<ContourLayerProps> = {
   ...ContourBitmapLayer.defaultProps,
 
   imageTexture: undefined,
   imageTexture2: undefined,
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-} satisfies DefaultProps<ContourLayerProps>;
+};
 
 // @ts-ignore
 @withCheckLicense(defaultProps)

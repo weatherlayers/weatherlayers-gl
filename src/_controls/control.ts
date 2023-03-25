@@ -11,9 +11,15 @@ export abstract class Control<ControlConfig> {
     this.onRemove();
   }
 
+  updateConfig(config: Partial<ControlConfig>): void {
+    this.setConfig({ ...this.getConfig(), ...config });
+  }
+
+  abstract getConfig(): ControlConfig;
+
   abstract setConfig(config: ControlConfig): void;
 
-  abstract onAdd(): HTMLElement;
+  protected abstract onAdd(): HTMLElement;
 
-  abstract onRemove(): void;
+  protected abstract onRemove(): void;
 }

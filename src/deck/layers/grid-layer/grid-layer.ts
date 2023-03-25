@@ -7,9 +7,9 @@ import {GridStyle} from './grid-style.js';
 
 export type GridLayerProps = GridCompositeLayerProps;
 
-const defaultProps = {
+const defaultProps: DefaultProps<GridLayerProps> = {
   ...GridCompositeLayer.defaultProps,
-} satisfies DefaultProps<GridLayerProps>;
+};
 
 // @ts-ignore
 @withCheckLicense(defaultProps)

@@ -1,59 +1,78 @@
 const DEFAULT_FPS = 30;
 
-export type AnimationUpdateFunction = () => void;
+export interface AnimationConfig {
+  onUpdate: () => void;
+  fps?: number;
+}
 
 export class Animation {
-  updateFunction: AnimationUpdateFunction;
-  fps: number;
-  running: boolean = false;
-  raf: ReturnType<typeof window.requestAnimationFrame> | undefined = undefined;
-  lastFrameTime: number = 0;
+  #config: AnimationConfig;
+  #running: boolean = false;
+  #raf: ReturnType<typeof window.requestAnimationFrame> | undefined = undefined;
+  #lastFrameTime: number = 0;
 
-  constructor(updateFunction: AnimationUpdateFunction, fps: number = DEFAULT_FPS) {
-    this.updateFunction = updateFunction;
-    this.fps = fps;
+  constructor(config: AnimationConfig) {
+    this.#config = config;
   }
 
-  frame(): void {
-    const now = Date.now();
-    const elapsed = now - this.lastFrameTime;
-    const fpsInterval = 1000 / this.fps;
-    if (elapsed > fpsInterval) {
-      this.lastFrameTime = now - (elapsed % fpsInterval);
-      this.updateFunction();
-    }
-
-    if (this.running) {
-      this.raf = window.requestAnimationFrame(() => this.frame());
-    }
+  getConfig(): AnimationConfig {
+    return { ...this.#config };
   }
 
-  start(): void {
-    if (this.running) {
-      return;
-    }
-
-    this.running = true;
-    this.raf = window.requestAnimationFrame(() => this.frame());
+  setConfig(config: AnimationConfig): void {
+    this.#config = config;
   }
 
-  stop(): void {
-    if (!this.running) {
-      return;
-    }
-
-    this.running = false;
-    if (this.raf) {
-      window.cancelAnimationFrame(this.raf);
-      this.raf = undefined;
-    }
+  updateConfig(config: Partial<AnimationConfig>): void {
+    this.setConfig({ ...this.#config, ...config });
   }
 
-  toggle(running: boolean = !this.running): void {
+  get running(): boolean {
+    return this.#running;
+  }
+
+  toggle(running: boolean = !this.#running): void {
     if (running) {
       this.start();
     } else {
       this.stop();
+    }
+  }
+
+  start(): void {
+    if (this.#running) {
+      return;
+    }
+
+    this.#running = true;
+    this.#raf = window.requestAnimationFrame(() => this.step());
+  }
+
+  stop(): void {
+    if (!this.#running) {
+      return;
+    }
+
+    this.#running = false;
+    if (this.#raf) {
+      window.cancelAnimationFrame(this.#raf);
+      this.#raf = undefined;
+    }
+  }
+
+  step(): void {
+    const fps = this.#config.fps ?? DEFAULT_FPS;
+    const fpsInterval = 1000 / fps;
+
+    const now = Date.now();
+    const elapsed = now - this.#lastFrameTime;
+    if (elapsed > fpsInterval) {
+      this.#lastFrameTime = now - (elapsed % fpsInterval);
+      this.#config.onUpdate();
+    }
+
+    if (this.#running) {
+      this.#raf = window.requestAnimationFrame(() => this.step());
     }
   }
 }

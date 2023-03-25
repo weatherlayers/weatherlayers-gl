@@ -24,7 +24,7 @@ export type ContourBitmapLayerProps = BitmapLayerProps & {
   color: Color;
 }
 
-const defaultProps = {
+const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   imageTexture: {type: 'object', value: null},
   imageTexture2: {type: 'object', value: null},
   imageSmoothing: {type: 'number', value: 0},
@@ -37,7 +37,7 @@ const defaultProps = {
   interval: {type: 'number', value: 0},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
-} satisfies DefaultProps<ContourBitmapLayerProps>;
+};
 
 export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
   static layerName = 'ContourBitmapLayer';

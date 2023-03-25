@@ -7,9 +7,9 @@ import {FrontType} from './front-type.js';
 
 export type FrontLayerProps<DataT> = FrontCompositeLayerProps<DataT>;
 
-const defaultProps = {
+const defaultProps: DefaultProps<FrontLayerProps<any>> = {
   ...FrontCompositeLayer.defaultProps,
-} satisfies DefaultProps<FrontLayerProps<any>>;
+};
 
 // @ts-ignore
 @withCheckLicense(defaultProps)
