@@ -2,7 +2,7 @@ import {CompositeLayer} from '@deck.gl/core/typed';
 import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps, Layer} from '@deck.gl/core/typed';
 import {TextLayer, IconLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR} from '../../../_utils/props.js';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import type {TextFormatFunction} from '../../../_utils/props.js';
 import type {TextureData} from '../../../_utils/data.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
@@ -73,7 +73,7 @@ export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> 
       return [];
     }
 
-    const {style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = props;
+    const {style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = ensureDefaultProps(props, defaultProps);
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
@@ -155,8 +155,7 @@ export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> 
   }
 
   updateGridPoints(): void {
-    // TODO: ensure defaultProps if undefined is passed from outside
-    const {image, image2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = this.props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = ensureDefaultProps(this.props, defaultProps);
     const {positions} = this.state;
     if (!image) {
       return;

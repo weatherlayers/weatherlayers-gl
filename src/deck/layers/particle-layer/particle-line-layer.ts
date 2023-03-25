@@ -3,7 +3,7 @@ import {LineLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {LineLayerProps} from '@deck.gl/layers/typed';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
 import type {Texture2D} from '@luma.gl/core';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props.js';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
@@ -127,7 +127,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
       return;
     }
 
-    const {animate} = this.props;
+    const {animate} = ensureDefaultProps(this.props, defaultProps);
     const {sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, model} = this.state;
 
     model.setAttributes({
@@ -157,7 +157,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
       this._deleteTransformFeedback();
     }
 
-    const {numParticles, maxAge, color, width} = this.props;
+    const {numParticles, maxAge, color, width} = ensureDefaultProps(this.props, defaultProps);
 
     // sourcePositions/targetPositions buffer layout:
     // |          age0             |          age1             |          age2             |...|          age(N-1)         |
@@ -211,8 +211,7 @@ export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLin
     }
 
     const {viewport, timeline} = this.context;
-    // TODO: ensure defaultProps if undefined is passed from outside
-    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = ensureDefaultProps(this.props, defaultProps);
     const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {

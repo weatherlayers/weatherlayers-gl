@@ -4,7 +4,7 @@ import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers/typed';
 import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
 import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck.gl/extensions/typed';
-import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {FrontType, iconAtlas, iconMapping} from './front-type.js';
 import {getFrontIcons} from './front-icon.js';
@@ -58,7 +58,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
 
   renderLayers(): Layer[] {
     const {viewport} = this.context;
-    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = this.props;
+    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps(this.props, defaultProps);
     if (!data || !getType || !getPath) {
       return [];
     }

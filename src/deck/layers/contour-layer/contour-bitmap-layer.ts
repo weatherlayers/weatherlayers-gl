@@ -4,7 +4,7 @@ import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import {FEATURES, isWebGL2, hasFeatures} from '@luma.gl/core';
 import type {Texture2D} from '@luma.gl/core';
 import {sourceCode as fs, tokens as fsTokens} from './contour-bitmap-layer.fs.glsl';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR} from '../../../_utils/props.js';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
@@ -62,8 +62,7 @@ export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
   draw(opts: any): void {
     const {viewport} = this.context;
     const {model} = this.state;
-    // TODO: ensure defaultProps if undefined is passed from outside
-    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = ensureDefaultProps(this.props, defaultProps);
     if (!imageTexture) {
       return;
     }

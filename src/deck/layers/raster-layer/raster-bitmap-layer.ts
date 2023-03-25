@@ -5,6 +5,7 @@ import {Texture2D} from '@luma.gl/core';
 import {parsePalette, colorRampCanvas} from 'cpt2js';
 import type {Palette} from 'cpt2js';
 import GL from '../../../_utils/gl.js';
+import {ensureDefaultProps} from '../../../_utils/props.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
@@ -62,8 +63,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
 
   draw(opts: any): void {
     const {model} = this.state;
-    // TODO: ensure defaultProps if undefined is passed from outside
-    const {imageTexture, imageTexture2, imageSmoothing = 0, imageInterpolation, imageWeight, imageType, imageUnscale} = this.props;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture || !paletteTexture) {
       return;
@@ -91,7 +91,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
 
   updatePaletteTexture(): void {
     const {gl} = this.context;
-    const {palette} = this.props;
+    const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
       return;
     }
@@ -120,7 +120,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
   }
 
   getRasterDirection(color: Uint8Array): number {
-    const {imageType} = this.props;
+    const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (imageType === ImageType.VECTOR) {
       return color[1] / 255 * 360;
     } else {
@@ -130,7 +130,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
 
   getPickingInfo(params: GetPickingInfoParams): PickingInfo {
     const info: PickingInfo & {raster?: RasterPickingInfo} = params.info;
-    const {imageType} = this.props;
+    const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (!info.color) {
       return info;
     }

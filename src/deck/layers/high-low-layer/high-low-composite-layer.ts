@@ -4,7 +4,7 @@ import {TextLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension} from '@deck.gl/extensions/typed';
 import type {CollisionFilterExtensionProps} from '@deck.gl/extensions/typed';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../../_utils/props.js';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
 import type {TextFormatFunction} from '../../../_utils/props.js';
 import type {TextureData} from '../../../_utils/data.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
@@ -74,7 +74,7 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
       return [];
     }
 
-    const {unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = props;
+    const {unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = ensureDefaultProps(props, defaultProps);
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -149,8 +149,7 @@ export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerP
   }
 
   async updateHighLowPoints(): Promise<void> {
-    // TODO: ensure defaultProps if undefined is passed from outside
-    const {image, imageSmoothing = 0, imageInterpolation, imageType, imageUnscale, bounds, radius} = this.props;
+    const {image, imageSmoothing, imageInterpolation, imageType, imageUnscale, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
     }
