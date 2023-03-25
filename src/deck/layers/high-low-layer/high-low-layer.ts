@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
+import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import {withCheckLicense} from '../../license.js';
 import {HighLowCompositeLayer} from './high-low-composite-layer.js';
 import type {HighLowCompositeLayerProps} from './high-low-composite-layer.js';
@@ -10,13 +10,12 @@ const defaultProps: DefaultProps<HighLowLayerProps> = {
   ...HighLowCompositeLayer.defaultProps,
 };
 
-// @ts-ignore
 @withCheckLicense('HighLowLayer', defaultProps)
 export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
   static layerName = 'HighLowLayer';
   static defaultProps = defaultProps;
 
-  renderLayers(): Layer[] {
+  renderLayers(): LayersList {
     const {props} = this.state;
     if (!props) {
       return [];

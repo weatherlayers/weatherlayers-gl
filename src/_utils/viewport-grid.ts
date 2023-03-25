@@ -83,7 +83,7 @@ function generateGrid(bounds: GeoJSON.BBox, zoom: number): GeoJSON.Position[] {
   const lngCount = gridBounds[2] - gridBounds[0] + 1;
   const latCount = gridBounds[3] - gridBounds[1] + 1;
 
-  const positions = [];
+  const positions: GeoJSON.Position[] = [];
   for (let y = 0; y < latCount; y++) {
     for (let x = 0; x < lngCount; x++) {
       const i = gridBounds[0] + x;

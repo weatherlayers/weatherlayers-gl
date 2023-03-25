@@ -57,7 +57,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     super.updateState(params);
 
     if (palette !== params.oldProps.palette) {
-      this.updatePaletteTexture();
+      this.#updatePaletteTexture();
     }
   }
 
@@ -89,7 +89,7 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     }
   }
 
-  updatePaletteTexture(): void {
+  #updatePaletteTexture(): void {
     const {gl} = this.context;
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
@@ -113,13 +113,13 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
     this.setState({ paletteTexture, paletteBounds });
   }
 
-  getRasterValue(color: Uint8Array): number {
+  #getRasterValue(color: Uint8Array): number {
     const {paletteBounds} = this.state;
 
     return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
-  getRasterDirection(color: Uint8Array): number {
+  #getRasterDirection(color: Uint8Array): number {
     const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (imageType === ImageType.VECTOR) {
       return color[1] / 255 * 360;
@@ -137,9 +137,9 @@ export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
 
 
     let rasterPickingInfo: RasterPickingInfo;
-    const value = this.getRasterValue(info.color);
+    const value = this.#getRasterValue(info.color);
     if (imageType === ImageType.VECTOR) {
-      const direction = this.getRasterDirection(info.color);
+      const direction = this.#getRasterDirection(info.color);
       rasterPickingInfo = { value, direction };
     } else {
       rasterPickingInfo = { value };

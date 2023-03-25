@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, Layer} from '@deck.gl/core/typed';
+import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withCheckLicense} from '../../license.js';
@@ -20,13 +20,12 @@ const defaultProps = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 } as DefaultProps<ParticleLayerProps<any>>;
 
-// @ts-ignore
 @withCheckLicense('ParticleLayer', defaultProps)
 export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
   static layerName = 'ParticleLayer';
   static defaultProps = defaultProps;
 
-  renderLayers(): Layer[] {
+  renderLayers(): LayersList {
     const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -57,19 +56,15 @@ export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProp
     }
 
     if (image !== params.oldProps.image || image2 !== params.oldProps.image2) {
-      this.updateTexture();
+      const {gl} = this.context;
+      const {image, image2} = this.props;
+  
+      const imageTexture = image ? createTextureCached(gl, image) : null;
+      const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
+  
+      this.setState({ imageTexture, imageTexture2 });
     }
 
     this.setState({ props: params.props });
-  }
-
-  updateTexture(): void {
-    const {gl} = this.context;
-    const {image, image2} = this.props;
-
-    const imageTexture = image ? createTextureCached(gl, image) : null;
-    const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
-
-    this.setState({ imageTexture, imageTexture2 });
   }
 }

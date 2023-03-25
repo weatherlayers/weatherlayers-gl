@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, Layer} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, LayersList} from '@deck.gl/core/typed';
 import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers/typed';
 import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
@@ -56,7 +56,7 @@ export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompos
   static layerName = 'FrontCompositeLayer';
   static defaultProps = defaultProps;
 
-  renderLayers(): Layer[] {
+  renderLayers(): LayersList {
     const {viewport} = this.context;
     const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps(this.props, defaultProps);
     if (!data || !getType || !getPath) {

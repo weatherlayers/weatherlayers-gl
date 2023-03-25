@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps, Layer} from '@deck.gl/core/typed';
+import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList} from '@deck.gl/core/typed';
 import {TextLayer, IconLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
@@ -66,7 +66,7 @@ export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> 
   static layerName = 'GridCompositeLayer';
   static defaultProps = defaultProps;
 
-  renderLayers(): Layer[] {
+  renderLayers(): LayersList {
     const {viewport} = this.context;
     const {props, gridPoints} = this.state;
     if (!props || !gridPoints) {
@@ -119,7 +119,7 @@ export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> 
   }
 
   initializeState(): void {
-    this.updatePositions();
+    this.#updatePositions();
   }
 
   updateState(params: UpdateParameters<this>): void {
@@ -134,27 +134,27 @@ export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> 
       imageInterpolation !== params.oldProps.imageInterpolation ||
       imageWeight !== params.oldProps.imageWeight
     ) {
-      this.updateGridPoints();
+      this.#updateGridPoints();
     }
 
     if (params.changeFlags.viewportChanged) {
-      this.updatePositions();
+      this.#updatePositions();
     }
 
     this.setState({ props: params.props });
   }
 
-  updatePositions(): void {
+  #updatePositions(): void {
     const {viewport} = this.context;
 
     const positions = getViewportGridPositions(viewport, 3);
 
     this.setState({ positions });
 
-    this.updateGridPoints();
+    this.#updateGridPoints();
   }
 
-  updateGridPoints(): void {
+  #updateGridPoints(): void {
     const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = ensureDefaultProps(this.props, defaultProps);
     const {positions} = this.state;
     if (!image) {
