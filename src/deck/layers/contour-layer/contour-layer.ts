@@ -21,7 +21,7 @@ const defaultProps: DefaultProps<ContourLayerProps> = {
 };
 
 // @ts-ignore
-@withCheckLicense(defaultProps)
+@withCheckLicense('ContourLayer', defaultProps)
 export class ContourLayer extends CompositeLayer<ContourLayerProps> {
   static layerName = 'ContourLayer';
   static defaultProps = defaultProps;

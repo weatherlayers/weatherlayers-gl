@@ -21,7 +21,7 @@ const defaultProps = {
 } as DefaultProps<ParticleLayerProps<any>>;
 
 // @ts-ignore
-@withCheckLicense(defaultProps)
+@withCheckLicense('ParticleLayer', defaultProps)
 export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
   static layerName = 'ParticleLayer';
   static defaultProps = defaultProps;

@@ -11,7 +11,7 @@ const defaultProps: DefaultProps<HighLowLayerProps> = {
 };
 
 // @ts-ignore
-@withCheckLicense(defaultProps)
+@withCheckLicense('HighLowLayer', defaultProps)
 export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
   static layerName = 'HighLowLayer';
   static defaultProps = defaultProps;

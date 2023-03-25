@@ -31,9 +31,11 @@ const WATERMARK_LAYER_ENABLED = BASE_LAYER_ENABLED && (!!LICENSE_DATE || !LICENS
 const WEATHER_LAYERS = (13).toString(36).toLowerCase().split('').map(function(S){return String.fromCharCode(S.charCodeAt()+(-13))}).join('')+(514).toString(36).toLowerCase()+(function(){var C=Array.prototype.slice.call(arguments),H=C.shift();return C.reverse().map(function(O,p){return String.fromCharCode(O-H-59-p)}).join('')})(41,216)+(17).toString(36).toLowerCase()+(function(){var w=Array.prototype.slice.call(arguments),s=w.shift();return w.reverse().map(function(o,k){return String.fromCharCode(o-s-24-k)}).join('')})(32,171,157)+(28).toString(36).toLowerCase().split('').map(function(F){return String.fromCharCode(F.charCodeAt()+(-39))}).join('')+(function(){var p=Array.prototype.slice.call(arguments),c=p.shift();return p.reverse().map(function(s,F){return String.fromCharCode(s-c-15-F)}).join('')})(10,144,142,128,147,122);
 const CLASS = (453).toString(36).toLowerCase()+(function(){var D=Array.prototype.slice.call(arguments),W=D.shift();return D.reverse().map(function(g,i){return String.fromCharCode(g-W-54-i)}).join('')})(58,228,209)+(28).toString(36).toLowerCase();
 
-export function withCheckLicense(defaultProps) {
-  return (value) => {
+export function withCheckLicense(layerName, defaultProps) {
+  return (layerClass) => {
     return class extends CompositeLayer {
+      // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet, they contain CompositeLayer static field values
+      static layerName = layerName;
       static defaultProps = defaultProps;
   
       constructor(...args) {
@@ -50,7 +52,7 @@ export function withCheckLicense(defaultProps) {
         let baseLayer;
         if (BASE_LAYER_ENABLED) {
           // create base layer without calling this.getSubLayerProps, so that base layer id uses original id from this.props.id
-          baseLayer = new value(this.props);
+          baseLayer = new layerClass(this.props);
         }
 
         let watermarkLayer;

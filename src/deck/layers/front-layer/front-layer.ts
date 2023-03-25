@@ -12,7 +12,7 @@ const defaultProps: DefaultProps<FrontLayerProps<any>> = {
 };
 
 // @ts-ignore
-@withCheckLicense(defaultProps)
+@withCheckLicense('FrontLayer', defaultProps)
 export class FrontLayer<DataT = any> extends CompositeLayer<FrontLayerProps<DataT>> {
   static layerName = 'FrontLayer';
   static defaultProps = defaultProps;

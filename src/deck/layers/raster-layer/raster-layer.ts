@@ -23,7 +23,7 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
 };
 
 // @ts-ignore
-@withCheckLicense(defaultProps)
+@withCheckLicense('RasterLayer', defaultProps)
 export class RasterLayer extends CompositeLayer<RasterLayerProps> {
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;
