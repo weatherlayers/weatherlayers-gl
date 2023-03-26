@@ -2,7 +2,7 @@ import {CompositeLayer} from '@deck.gl/core/typed';
 import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
-import {withCheckLicense} from '../../license.js';
+import {withVerifyLicense} from '../../with-verify-license.js';
 import {ParticleLineLayer} from './particle-line-layer.js';
 import type {ParticleLineLayerProps} from './particle-line-layer.js';
 
@@ -20,7 +20,7 @@ const defaultProps = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 } as DefaultProps<ParticleLayerProps<any>>;
 
-@withCheckLicense('ParticleLayer', defaultProps)
+@withVerifyLicense('ParticleLayer', defaultProps)
 export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
   static layerName = 'ParticleLayer';
   static defaultProps = defaultProps;

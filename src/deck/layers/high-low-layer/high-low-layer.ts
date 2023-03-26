@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
 import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
-import {withCheckLicense} from '../../license.js';
+import {withVerifyLicense} from '../../with-verify-license.js';
 import {HighLowCompositeLayer} from './high-low-composite-layer.js';
 import type {HighLowCompositeLayerProps} from './high-low-composite-layer.js';
 
@@ -10,7 +10,7 @@ const defaultProps: DefaultProps<HighLowLayerProps> = {
   ...HighLowCompositeLayer.defaultProps,
 };
 
-@withCheckLicense('HighLowLayer', defaultProps)
+@withVerifyLicense('HighLowLayer', defaultProps)
 export class HighLowLayer extends CompositeLayer<HighLowLayerProps> {
   static layerName = 'HighLowLayer';
   static defaultProps = defaultProps;

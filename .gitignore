@@ -1,4 +1,6 @@
 /node_modules
 /dist
+/src/license/private.jwk
+/src/license/license.json
 
 .env

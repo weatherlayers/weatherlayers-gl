@@ -17,6 +17,7 @@ export const DEFAULT_ICON_COLOR: Color = [255, 255, 255, 102];
 
 // prefer default values over provided undefined values
 // see https://github.com/visgl/deck.gl/blob/24dd30dbf32e10a40df9c57f1a5e85923f1ce785/modules/core/src/lifecycle/create-props.ts#L50
+// TODO: report deck.gl bug
 export function ensureDefaultProps<PropsT extends {}>(props: PropsT, defaultProps: DefaultProps<PropsT>): PropsT {
   const propsInstance = Object.create(props);
   for (const key in props) {

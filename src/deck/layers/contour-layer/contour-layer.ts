@@ -2,7 +2,7 @@ import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
 import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
-import {withCheckLicense} from '../../license.js';
+import {withVerifyLicense} from '../../with-verify-license.js';
 import {ContourBitmapLayer} from './contour-bitmap-layer.js';
 import type {ContourBitmapLayerProps} from './contour-bitmap-layer.js';
 
@@ -20,7 +20,7 @@ const defaultProps: DefaultProps<ContourLayerProps> = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
-@withCheckLicense('ContourLayer', defaultProps)
+@withVerifyLicense('ContourLayer', defaultProps)
 export class ContourLayer extends CompositeLayer<ContourLayerProps> {
   static layerName = 'ContourLayer';
   static defaultProps = defaultProps;

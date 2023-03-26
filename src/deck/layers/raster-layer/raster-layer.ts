@@ -2,7 +2,7 @@ import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
 import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
-import {withCheckLicense} from '../../license.js';
+import {withVerifyLicense} from '../../with-verify-license.js';
 import {RasterBitmapLayer} from './raster-bitmap-layer.js';
 import type {RasterBitmapLayerProps} from './raster-bitmap-layer.js';
 
@@ -22,7 +22,7 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-@withCheckLicense('RasterLayer', defaultProps)
+@withVerifyLicense('RasterLayer', defaultProps)
 export class RasterLayer extends CompositeLayer<RasterLayerProps> {
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;

@@ -1,6 +1,6 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
 import type {DefaultProps, LayersList} from '@deck.gl/core/typed';
-import {withCheckLicense} from '../../license.js';
+import {withVerifyLicense} from '../../with-verify-license.js';
 import {FrontCompositeLayer} from './front-composite-layer.js';
 import type {FrontCompositeLayerProps} from './front-composite-layer.js';
 import {FrontType} from './front-type.js';
@@ -11,7 +11,7 @@ const defaultProps: DefaultProps<FrontLayerProps<any>> = {
   ...FrontCompositeLayer.defaultProps,
 };
 
-@withCheckLicense('FrontLayer', defaultProps)
+@withVerifyLicense('FrontLayer', defaultProps)
 export class FrontLayer<DataT = any> extends CompositeLayer<FrontLayerProps<DataT>> {
   static layerName = 'FrontLayer';
   static defaultProps = defaultProps;

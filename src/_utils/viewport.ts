@@ -39,12 +39,14 @@ export function getViewportBounds(viewport: WebMercatorViewport): GeoJSON.BBox {
   return wrapBounds(viewport.getBounds());
 }
 
+// TODO: report deck.gl bug
 export function getViewportPixelOffset(viewport: Viewport, offset: number): number {
-  return offset * (isViewportGlobe(viewport) ? -1 : 1); // TODO: report globe bug
+  return offset * (isViewportGlobe(viewport) ? -1 : 1);
 }
 
+// TODO: report deck.gl bug
 export function getViewportAngle(viewport: Viewport, angle: number): number {
-  return angle + (isViewportGlobe(viewport) ? 180 : 0); // TODO: report globe bug
+  return angle + (isViewportGlobe(viewport) ? 180 : 0);
 }
 
 // remove or use?
