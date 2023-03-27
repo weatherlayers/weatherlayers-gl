@@ -25,7 +25,7 @@ async function main(options: Options): Promise<void> {
   const id = randomUUID();
   const expires = options.expireDays ? new Date(new Date().valueOf() + options.expireDays * 24 * 60 * 60 * 1000).toISOString() : undefined;
   const created = new Date().toISOString();
-  const license = await generateLicense(webcrypto, privateKeyJwk, id, options.type, options.name, expires, options.domain, options.nonCommercial, created);
+  const license = await generateLicense(webcrypto as Crypto, privateKeyJwk, id, options.type, options.name, expires, options.domain, options.nonCommercial, created);
   
   // export license
   fs.writeFileSync(options.licenseFile, JSON.stringify(license, undefined, 2));

@@ -20,7 +20,7 @@ export function setLicense(currentLicense: License): void {
 }
 
 export function withVerifyLicense<PropsT extends {}>(layerName: string, defaultProps: DefaultProps<PropsT>) {
-  return <LayerT extends typeof CompositeLayer<PropsT>>(layerClass: LayerT, _context: ClassDecoratorContext<LayerT>) => {
+  return <LayerT extends typeof CompositeLayer<PropsT>>(layerClass: LayerT, _context: ClassDecoratorContext<LayerT>): LayerT => {
     return class extends CompositeLayer<PropsT> {
       // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet, they contain CompositeLayer static field values
       static layerName = layerName;
@@ -103,6 +103,6 @@ export function withVerifyLicense<PropsT extends {}>(layerName: string, defaultP
           this.setState({});
         }
       }
-    };
+    } as unknown as LayerT;
   };
 }

@@ -1,5 +1,4 @@
 import stringify from 'json-stable-stringify';
-import type {webcrypto} from 'node:crypto';
 import {CONTENT, SIGNATURE, SUBTLE, IMPORT_KEY, VERIFY, RAW, NAME, NAMED_CURVE, HASH, ECDSA, P_384, SHA_384, UINT8_ARRAY, FROM, ATOB, CHAR_CODE_AT, TEXT_ENCODER, ENCODE, EXPIRES, DOMAINS, LENGTH, ASTERISK, SOME, ENDS_WITH, DOT, LOCALHOST, LOCALHOST_IPV4, LOCALHOST_IPV6} from './license-build.js';
 
 export enum LicenseType {
@@ -19,7 +18,7 @@ export interface LicenseContent {
 
 export type License = { content: LicenseContent, signature: string };
 
-export async function generateKeypair(crypto: Crypto | webcrypto.Crypto): Promise<{ privateKeyJwk: JsonWebKey, publicKeyRaw: string }> {
+export async function generateKeypair(crypto: Crypto): Promise<{ privateKeyJwk: JsonWebKey, publicKeyRaw: string }> {
   const {privateKey, publicKey} = await crypto.subtle.generateKey(
     { name: 'ECDSA', namedCurve: 'P-384' },
     true,
@@ -31,7 +30,7 @@ export async function generateKeypair(crypto: Crypto | webcrypto.Crypto): Promis
   return { privateKeyJwk, publicKeyRaw };
 }
 
-async function signLicenseContent(crypto: Crypto | webcrypto.Crypto, privateKeyJwk: JsonWebKey, content: LicenseContent): Promise<string> {
+async function signLicenseContent(crypto: Crypto, privateKeyJwk: JsonWebKey, content: LicenseContent): Promise<string> {
   const privateKey = await crypto.subtle.importKey(
     'jwk',
     privateKeyJwk,
@@ -52,7 +51,7 @@ async function signLicenseContent(crypto: Crypto | webcrypto.Crypto, privateKeyJ
   return signature;
 }
 
-export async function generateLicense(crypto: Crypto | webcrypto.Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, expires: string | undefined, domains: string[], nonCommercial: true | undefined, created: string): Promise<License> {
+export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, expires: string | undefined, domains: string[], nonCommercial: true | undefined, created: string): Promise<License> {
   const content: LicenseContent = { id, type, name, expires, domains, nonCommercial, created };
   const signature = await signLicenseContent(crypto, privateKeyJwk, content);
   return { content, signature };
@@ -67,7 +66,7 @@ function bufferFromBase64(base64String: string): ArrayBuffer {
   return globalThis[UINT8_ARRAY][FROM](globalThis[ATOB](base64String), c => c[CHAR_CODE_AT](0));
 }
 
-async function verifyLicenseSignature(crypto: Crypto | webcrypto.Crypto, publicKeyRaw: string, content: LicenseContent, signature: string): Promise<boolean> {
+async function verifyLicenseSignature(crypto: Crypto, publicKeyRaw: string, content: LicenseContent, signature: string): Promise<boolean> {
   const publicKey = await crypto[SUBTLE][IMPORT_KEY](
     RAW,
     bufferFromBase64(publicKeyRaw),
@@ -102,7 +101,7 @@ function verifyLicenseDomain(content: LicenseContent, currentDomain: string): bo
   );
 }
 
-export async function verifyLicense(crypto: Crypto | webcrypto.Crypto, publicKeyRaw: string, license: License | null, currentDate: string, currentDomain: string): Promise<boolean> {
+export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, license: License | null, currentDate: string, currentDomain: string): Promise<boolean> {
   if (!license) {
     return false;
   }
