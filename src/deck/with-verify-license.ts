@@ -26,7 +26,7 @@ export function withVerifyLicense<PropsT extends {}>(layerName: string, defaultP
       static layerName = layerName;
       static defaultProps = defaultProps;
 
-      // use private fields instead of state so that it's not accessible from outside in any way
+      // use private fields instead of state so that they are not accessible from outside in any way
       #isWatermarkEnabled = false;
       #watermarkPositions: GeoJSON.Position[] = [];
   
