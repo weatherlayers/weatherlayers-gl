@@ -36,7 +36,7 @@ async function main(options: Options): Promise<void> {
 }
 
 program
-  .addOption(new Option('--privateKeyFile <private-key-file>').makeOptionMandatory())
-  .addOption(new Option('--publicKeyFile <public-key-file>').makeOptionMandatory());
+  .addOption(new Option('--privateKeyFile <private-key-file>').env('LICENSE_PRIVATE_KEY_FILE'))
+  .addOption(new Option('--publicKeyFile <public-key-file>').env('LICENSE_PUBLIC_KEY_FILE'));
 program.parse();
 main(program.opts());

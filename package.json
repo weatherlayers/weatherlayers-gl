@@ -13,10 +13,7 @@
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
-    "test": "node --test",
-    "generate-keypair": "ts-node-esm src/license/generate-keypair.ts --privateKeyFile \"${LICENSE_PRIVATE_KEY_FILE}\" --publicKeyFile \"${LICENSE_PUBLIC_KEY_FILE}\"",
-    "generate-license": "ts-node-esm src/license/generate-license.ts --privateKeyFile \"${LICENSE_PRIVATE_KEY_FILE}\" --licenseFile \"${LICENSE_FILE}\"",
-    "verify-license": "ts-node-esm src/license/verify-license.ts --publicKeyFile \"${LICENSE_PUBLIC_KEY_FILE}\" --licenseFile \"${LICENSE_FILE}\""
+    "test": "node --test"
   },
   "dependencies": {
     "@mapbox/sphericalmercator": "^1.2.0",

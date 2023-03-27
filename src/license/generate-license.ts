@@ -35,8 +35,8 @@ async function main(options: Options): Promise<void> {
 }
 
 program
-  .addOption(new Option('--privateKeyFile <private-key-file>').makeOptionMandatory())
-  .addOption(new Option('--licenseFile <license-file>').makeOptionMandatory())
+  .addOption(new Option('--privateKeyFile <private-key-file>').env('LICENSE_PRIVATE_KEY_FILE'))
+  .addOption(new Option('--licenseFile <license-file>').env('LICENSE_FILE'))
   .addOption(new Option('--type <type>').choices(Object.values(LicenseType)).makeOptionMandatory())
   .addOption(new Option('--name <name>').makeOptionMandatory())
   .addOption(new Option('--expire-days <expire-days>'))
