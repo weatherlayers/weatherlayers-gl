@@ -1,7 +1,7 @@
 {
-  "name": "@weatherlayers/weatherlayers-gl",
+  "name": "weatherlayers-gl",
   "version": "2023.2.0",
-  "description": "WeatherLayers.com visualization layers and controls",
+  "description": "WeatherLayers GL - weather visualization layers for deck.gl",
   "keywords": [],
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "license": "SEE LICENSE IN LICENSE.md",
