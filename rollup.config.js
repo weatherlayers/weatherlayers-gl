@@ -18,9 +18,6 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import tsc from 'typescript';
 import gnirts from 'gnirts';
 
-const LICENSE_DATE = process.env.LICENSE_DAYS ? new Date(new Date().valueOf() + parseInt(process.env.LICENSE_DAYS, 10) * 24 * 60 * 60 * 1000) : undefined;
-const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN;
-const LICENSE_NON_COMMERCIAL = process.env.LICENSE_NON_COMMERCIAL;
 const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
 function bundle(entrypoint, filename, format, options = {}) {
@@ -31,10 +28,8 @@ function bundle(entrypoint, filename, format, options = {}) {
   const banner = [
     'Copyright (c) 2021-2023 WeatherLayers.com',
     '',
-    ...(bundleGl && !LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}`] : []),
-    ...(bundleGl && LICENSE_DATE && !LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, Trial License, valid until ${LICENSE_DATE.toISOString().replace('T', ' ').replace(/\.[\d]+Z$/, '')}`] : []),
-    ...(bundleGl && !LICENSE_DATE && LICENSE_DOMAIN ? [`WeatherLayers GL ${pkg.version}, ${LICENSE_NON_COMMERCIAL ? 'Non-Commercial ' : ''}Single Domain License, valid for ${LICENSE_DOMAIN}`] : []),
-    ...(bundleClient ? ['WeatherLayers Client'] : []),
+    ...(bundleGl ? [`WeatherLayers GL ${pkg.version}`, '', 'Valid license file is required to use the library.'] : []),
+    ...(bundleClient ? [`WeatherLayers Client ${pkg.version}`] : []),
     '',
     'Demo - https://demo.weatherlayers.com/',
     'Docs - https://docs.weatherlayers.com/',
@@ -76,8 +71,6 @@ function bundle(entrypoint, filename, format, options = {}) {
       replace({
         preventAssignment: true,
         __PACKAGE_VERSION__: `"${pkg.version}"`,
-        __LICENSE_DATE__: LICENSE_DATE ? gnirts.getCode(LICENSE_DATE.valueOf().toString(36)) : '""',
-        __LICENSE_DOMAIN__: LICENSE_DOMAIN ? gnirts.getCode(LICENSE_DOMAIN) : '""',
         __CATALOG_URL__: `"${CATALOG_URL}"`,
       }),
       json(),
