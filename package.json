@@ -7,7 +7,8 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": "github:weatherlayers/weatherlayers-gl",
   "files": [
-    "dist/**/*.min.js"
+    "dist/**/*.min.js",
+    "dist/**/*.d.ts"
   ],
   "type": "module",
   "scripts": {
