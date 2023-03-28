@@ -28,7 +28,10 @@
     import { initConfig, initGui, colorToArray } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
+    import license from '../license.json' assert { type: 'json' };
     import FRONT_DATA from './front-data.json' assert { type: 'json' };
+
+    WeatherLayers.setLicense(license);
 
     const FrontDataTypeToFrontType = {
       CFRONT: WeatherLayers.FrontType.COLD,

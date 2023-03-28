@@ -30,6 +30,7 @@
     import { NO_DATA, initConfig, initGui, colorToCss, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
+    import license from '../license.json' assert { type: 'json' };
 
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
@@ -38,6 +39,7 @@
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       dataFormat: 'mercator.byte.png',
     });
+    WeatherLayers.setLicense(license);
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ client });

@@ -28,10 +28,12 @@
   <script type="module">
     import { NO_DATA, initConfig, initGui, colorToCss } from '../config.js';
     import { FpsControl } from '../fps-control.js';
+    import license from '../license.json' assert { type: 'json' };
 
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
     });
+    WeatherLayers.setLicense(license);
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ client, globe: true });

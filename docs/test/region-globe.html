@@ -28,6 +28,9 @@
     import { initConfig, colorToArray } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
+    import license from '../license.json' assert { type: 'json' };
+
+    WeatherLayers.setLicense(license);
 
     window.addEventListener('DOMContentLoaded', async () => {
       const config = await initConfig({ deckgl: true, webgl2: true });
