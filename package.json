@@ -1,16 +1,35 @@
 {
   "name": "weatherlayers-gl",
   "version": "2023.2.0",
-  "description": "WeatherLayers GL - weather visualization layers for deck.gl",
+  "description": "WeatherLayers GL - Weather Visualization Layers for deck.gl",
   "keywords": [],
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": "github:weatherlayers/weatherlayers-gl",
   "files": [
+    "LEGAL_NOTICES.md",
+    "dist/**/*.min.cjs",
     "dist/**/*.min.js",
     "dist/**/*.d.ts"
   ],
   "type": "module",
+  "exports": {
+    "./client": {
+      "require": "./dist/weatherlayers-client.min.cjs",
+      "import": "./dist/weatherlayers-client.min.js",
+      "types": "./dist/weatherlayers-client.d.ts"
+    },
+    "./deck": {
+      "require": "./dist/weatherlayers-deck.min.cjs",
+      "import": "./dist/weatherlayers-deck.min.js",
+      "types": "./dist/weatherlayers-deck.d.ts"
+    },
+    "./standalone": {
+      "require": "./dist/weatherlayers-standalone.min.cjs",
+      "import": "./dist/weatherlayers-standalone.min.js",
+      "types": "./dist/weatherlayers-standalone.d.ts"
+    }
+  },
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
@@ -60,7 +79,6 @@
     "cli-color": "^2.0.3",
     "commander": "^10.0.0",
     "geotiff": "^2.0.7",
-    "gnirts": "^1.1.7",
     "postcss": "^8.4.21",
     "postcss-assets": "^6.0.0",
     "rimraf": "^4.4.1",

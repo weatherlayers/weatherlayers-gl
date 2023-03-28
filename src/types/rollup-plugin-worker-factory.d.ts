@@ -1,4 +1,4 @@
-declare module 'rollup-plugin-worker-factory/src/universal.js' {
+declare module 'rollup-plugin-worker-factory/src/browser.js' {
   export const transform: any;
   export const factory: any;
 }

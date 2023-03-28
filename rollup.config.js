@@ -16,24 +16,38 @@ import terser from '@rollup/plugin-terser';
 import license from 'rollup-plugin-license';
 import { visualizer } from 'rollup-plugin-visualizer';
 import tsc from 'typescript';
-import gnirts from 'gnirts';
 
 const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
 function bundle(entrypoint, filename, format, options = {}) {
-  filename = filename.replace('.js', `.${format}${options.minimize ? '.min' : ''}.js`);
+  if (format === 'cjs') {
+    filename = filename.replace('.js', `${options.minimize ? '.min' : ''}.cjs`);
+  } else if (format === 'es') {
+    filename = filename.replace('.js', `${options.minimize ? '.min' : ''}.js`);
+  } else if (format === 'umd') {
+    filename = filename.replace('.js', `.umd${options.minimize ? '.min' : ''}.js`);
+  }
 
-  const bundleGl = filename.includes('deck') || filename.includes('standalone');
   const bundleClient = filename.includes('client');
+  const bundleGl = filename.includes('deck') || filename.includes('standalone');
   const banner = [
-    'Copyright (c) 2021-2023 WeatherLayers.com',
+    `Copyright (c) 2021-${new Date().getFullYear()} WeatherLayers.com`,
     '',
-    ...(bundleGl ? [`WeatherLayers GL ${pkg.version}`, '', 'Valid license file is required to use the library.'] : []),
-    ...(bundleClient ? [`WeatherLayers Client ${pkg.version}`] : []),
+    ...(bundleClient ? [
+      `WeatherLayers GL Client ${pkg.version}`,
+      '',
+      'Valid access token is required to use the library.',
+    ] : []),
+    ...(bundleGl ? [
+      `WeatherLayers GL ${pkg.version}`,
+      '',
+      'Valid license file is required to use the library.',
+    ] : []),
     '',
     'Demo - https://demo.weatherlayers.com/',
     'Docs - https://docs.weatherlayers.com/',
-    ...(bundleGl ? ['License Terms of Use - https://weatherlayers.com/license-terms-of-use.html'] : []),
+    'Terms of Use - https://weatherlayers.com/terms-of-use.html',
+    'License Terms of Use - https://weatherlayers.com/license-terms-of-use.html',
   ].join('\n');
 
   return {
@@ -62,7 +76,7 @@ function bundle(entrypoint, filename, format, options = {}) {
       ...(!options.resolve ? [
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
-        'rollup-plugin-worker-factory/src/universal.js',
+        'rollup-plugin-worker-factory/src/browser.js',
         'geodesy-fn/src/spherical.js',
         'leaflet-polylinedecorator/src/patternUtils.js',
       ] : []),
@@ -111,16 +125,16 @@ function bundle(entrypoint, filename, format, options = {}) {
 
 export default commandLineArgs => {
   return [
-    ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
     ['src/client/index.ts', 'dist/weatherlayers-client.js'],
+    ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
     // standalone build disabled because it doesn't finish on Cloudbuild
     // ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch ? [
-      bundle(entrypoint, filename, 'cjs', { resolve: true }),
-      bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
-      bundle(entrypoint, filename, 'es', { resolve: true }),
-      bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
+      bundle(entrypoint, filename, 'cjs', { stats: true }),
+      bundle(entrypoint, filename, 'cjs', { minimize: true }),
+      bundle(entrypoint, filename, 'es', { stats: true }),
+      bundle(entrypoint, filename, 'es', { minimize: true }),
       {
         input: entrypoint,
         output: {
