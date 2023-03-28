@@ -29,7 +29,6 @@
   <script type="module">
     import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { FpsControl } from '../fps-control.js';
-    import license from '../license.json' assert { type: 'json' };
 
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
@@ -38,9 +37,11 @@
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
       dataFormat: 'mercator.byte.png',
     });
-    WeatherLayers.setLicense(license);
 
     window.addEventListener('DOMContentLoaded', async () => {
+      const LICENSE = await (await fetch('../license.json')).json();
+      WeatherLayers.setLicense(LICENSE);
+      
       const config = await initConfig({ client, globe: true });
       let gui;
 

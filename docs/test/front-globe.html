@@ -28,10 +28,6 @@
     import { initConfig, initGui, colorToArray } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
-    import license from '../license.json' assert { type: 'json' };
-    import FRONT_DATA from './front-data.json' assert { type: 'json' };
-
-    WeatherLayers.setLicense(license);
 
     const FrontDataTypeToFrontType = {
       CFRONT: WeatherLayers.FrontType.COLD,
@@ -45,6 +41,11 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      const LICENSE = await (await fetch('../license.json')).json();
+      WeatherLayers.setLicense(LICENSE);
+
+      const FRONT_DATA = await (await fetch('./front-data.json')).json();
+      
       const config = await initConfig({ deckgl: true, webgl2: true });
       let gui;
 
