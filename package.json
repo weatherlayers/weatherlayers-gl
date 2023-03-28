@@ -2,7 +2,10 @@
   "name": "weatherlayers-gl",
   "version": "2023.3.0-rc.0",
   "description": "WeatherLayers GL - Weather Visualization Layers for deck.gl",
-  "keywords": [],
+  "keywords": [
+    "weather",
+    "deck.gl"
+  ],
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "license": "SEE LICENSE IN LICENSE.md",
   "repository": "github:weatherlayers/weatherlayers-gl",
@@ -14,6 +17,11 @@
   ],
   "type": "module",
   "exports": {
+    ".": {
+      "require": "./dist/weatherlayers-deck.min.cjs",
+      "import": "./dist/weatherlayers-deck.min.js",
+      "types": "./dist/weatherlayers-deck.d.ts"
+    },
     "./client": {
       "require": "./dist/weatherlayers-client.min.cjs",
       "import": "./dist/weatherlayers-client.min.js",
