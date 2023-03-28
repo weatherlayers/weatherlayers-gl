@@ -107,5 +107,8 @@
     "@deck.gl/layers": "^8.9.4",
     "@luma.gl/core": "^8.5.19",
     "geotiff": "^2.0.7"
+  },
+  "scarfSettings": {
+    "allowTopLevel": true
   }
 }
