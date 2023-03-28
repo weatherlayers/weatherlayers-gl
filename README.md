@@ -2,7 +2,7 @@
 
 Weather Visualization Layers for deck.gl
 
-<img src="docs/screenshot@2x.jpg" alt="Screenshot" width="640" height="320">
+Valid license file is required to use the library.
 
 * [Demo](https://demo.weatherlayers.com/)
 * [Docs](https://docs.weatherlayers.com/)
