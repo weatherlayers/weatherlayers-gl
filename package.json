@@ -3,12 +3,21 @@
   "version": "2023.3.0-rc.1",
   "description": "WeatherLayers GL - Weather Visualization Layers for deck.gl",
   "keywords": [
+    "deck.gl",
     "weather",
-    "deck.gl"
+    "raster",
+    "contour",
+    "high-low",
+    "front",
+    "grid",
+    "particle"
   ],
   "author": "WeatherLayers.com <info@weatherlayers.com>",
   "license": "SEE LICENSE IN LICENSE.md",
-  "repository": "github:weatherlayers/weatherlayers-gl",
+  "homepage": "https://weatherlayers.com/",
+  "bugs": {
+    "email": "support@weatherlayers.com"
+  },
   "files": [
     "LEGAL_NOTICES.md",
     "dist/**/*.min.cjs",
@@ -26,22 +35,15 @@
       "require": "./dist/weatherlayers-client.min.cjs",
       "import": "./dist/weatherlayers-client.min.js",
       "types": "./dist/weatherlayers-client.d.ts"
-    },
-    "./deck": {
-      "require": "./dist/weatherlayers-deck.min.cjs",
-      "import": "./dist/weatherlayers-deck.min.js",
-      "types": "./dist/weatherlayers-deck.d.ts"
-    },
-    "./standalone": {
-      "require": "./dist/weatherlayers-standalone.min.cjs",
-      "import": "./dist/weatherlayers-standalone.min.js",
-      "types": "./dist/weatherlayers-standalone.d.ts"
     }
   },
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
-    "test": "node --test"
+    "test": "node --test",
+    "generate-keypair": "ts-node-esm src/license/generate-keypair.ts",
+    "generate-license": "ts-node-esm src/license/generate-license.ts",
+    "verify-license": "ts-node-esm src/license/verify-license.ts"
   },
   "dependencies": {
     "@mapbox/sphericalmercator": "^1.2.0",

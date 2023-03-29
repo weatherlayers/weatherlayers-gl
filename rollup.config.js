@@ -30,24 +30,23 @@ function bundle(entrypoint, filename, format, options = {}) {
 
   const bundleClient = filename.includes('client');
   const bundleGl = filename.includes('deck') || filename.includes('standalone');
+  if (!bundleClient && !bundleGl) {
+    throw new Error('Invalid state');
+  }
   const banner = [
     `Copyright (c) 2021-${new Date().getFullYear()} WeatherLayers.com`,
     '',
-    ...(bundleClient ? [
-      `WeatherLayers GL Client ${pkg.version}`,
-      '',
-      'Valid access token is required to use the library.',
-    ] : []),
-    ...(bundleGl ? [
-      `WeatherLayers GL ${pkg.version}`,
-      '',
-      'Valid license file is required to use the library.',
-    ] : []),
+    ...(bundleClient ? [`WeatherLayers Cloud Client ${pkg.version}`] : []),
+    ...(bundleGl ? [`WeatherLayers GL ${pkg.version}`] : []),
     '',
+    ...(bundleClient ? ['Valid access token is required to use the library. Contact support@weatherlayers.com for details.'] : []),
+    ...(bundleGl ? ['Valid license file is required to use the library. Contact support@weatherlayers.com for details.'] : []),
+    '',
+    'Homepage - https://weatherlayers.com/',
     'Demo - https://demo.weatherlayers.com/',
     'Docs - https://docs.weatherlayers.com/',
-    'Terms of Use - https://weatherlayers.com/terms-of-use.html',
-    'License Terms of Use - https://weatherlayers.com/license-terms-of-use.html',
+    ...(bundleClient ? ['WeatherLayers Cloud Terms of Use - https://weatherlayers.com/terms-of-use.html'] : []),
+    ...(bundleGl ? ['WeatherLayers GL License Terms of Use - https://weatherlayers.com/license-terms-of-use.html'] : []),
   ].join('\n');
 
   return {
@@ -131,10 +130,10 @@ export default commandLineArgs => {
     // ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch ? [
-      bundle(entrypoint, filename, 'cjs', { stats: true }),
-      bundle(entrypoint, filename, 'cjs', { minimize: true }),
-      bundle(entrypoint, filename, 'es', { stats: true }),
-      bundle(entrypoint, filename, 'es', { minimize: true }),
+      bundle(entrypoint, filename, 'cjs', { resolve: true }),
+      bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
+      bundle(entrypoint, filename, 'es', { resolve: true }),
+      bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
       {
         input: entrypoint,
         output: {
