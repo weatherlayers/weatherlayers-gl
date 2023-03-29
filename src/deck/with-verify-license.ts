@@ -85,7 +85,9 @@ export function withVerifyLicense<PropsT extends {}>(layerName: string, defaultP
       }
 
       async #verifyLicense(): Promise<void> {
-        const isLicenseValid = await verifyLicense(globalThis[CRYPTO], publicKeyRaw, license, new globalThis[DATE]()[TO_ISO_STRING](), globalThis[LOCATION][HOSTNAME]);
+        const currentDate = new globalThis[DATE]()[TO_ISO_STRING]();
+        const currentDomain = globalThis[LOCATION][HOSTNAME];
+        const isLicenseValid = await verifyLicense(globalThis[CRYPTO], publicKeyRaw, license, currentDate, currentDomain);
         const isLicenseInvalid = !isLicenseValid;
 
         this.#isWatermarkEnabled = isLicenseInvalid;

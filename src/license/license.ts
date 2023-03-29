@@ -3,6 +3,7 @@ import {CONTENT, SIGNATURE, SUBTLE, IMPORT_KEY, VERIFY, RAW, NAME, NAMED_CURVE, 
 
 export enum LicenseType {
   TRIAL = 'trial',
+  NONCOMMERCIAL = 'noncommercial',
   PRODUCTION = 'production',
 }
 
@@ -12,7 +13,6 @@ export interface LicenseContent {
   name: string;
   expires: string | undefined;
   domains: string[];
-  nonCommercial: true | undefined;
   created: string;
 }
 
@@ -51,8 +51,8 @@ async function signLicenseContent(crypto: Crypto, privateKeyJwk: JsonWebKey, con
   return signature;
 }
 
-export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, expires: string | undefined, domains: string[], nonCommercial: true | undefined, created: string): Promise<License> {
-  const content: LicenseContent = { id, type, name, expires, domains, nonCommercial, created };
+export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, expires: string | undefined, domains: string[], created: string): Promise<License> {
+  const content: LicenseContent = { id, type, name, expires, domains, created };
   const signature = await signLicenseContent(crypto, privateKeyJwk, content);
   return { content, signature };
 }
