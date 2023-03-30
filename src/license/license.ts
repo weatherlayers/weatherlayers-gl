@@ -1,8 +1,6 @@
 import stringify from 'json-stable-stringify';
-import {CONTENT, SIGNATURE, SUBTLE, IMPORT_KEY, VERIFY, RAW, NAME, NAMED_CURVE, HASH, ECDSA, P_384, SHA_384, UINT8_ARRAY, FROM, ATOB, CHAR_CODE_AT, TEXT_ENCODER, ENCODE, EXPIRES, DOMAINS, LENGTH, ASTERISK, SOME, ENDS_WITH, DOT, LOCALHOST, LOCALHOST_IPV4, LOCALHOST_IPV6} from './license-build.js';
 
 export enum LicenseType {
-  TRIAL = 'trial',
   NONCOMMERCIAL = 'noncommercial',
   PRODUCTION = 'production',
 }
@@ -11,12 +9,16 @@ export interface LicenseContent {
   id: string;
   type: LicenseType,
   name: string;
-  expires: string | undefined;
   domains: string[];
   created: string;
 }
 
 export type License = { content: LicenseContent, signature: string };
+
+export interface LicenseResult {
+  isValid: boolean;
+  warning?: string;
+}
 
 export async function generateKeypair(crypto: Crypto): Promise<{ privateKeyJwk: JsonWebKey, publicKeyRaw: string }> {
   const {privateKey, publicKey} = await crypto.subtle.generateKey(
@@ -51,8 +53,8 @@ async function signLicenseContent(crypto: Crypto, privateKeyJwk: JsonWebKey, con
   return signature;
 }
 
-export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, expires: string | undefined, domains: string[], created: string): Promise<License> {
-  const content: LicenseContent = { id, type, name, expires, domains, created };
+export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, domains: string[], created: string): Promise<License> {
+  const content: LicenseContent = { id, type, name, domains, created };
   const signature = await signLicenseContent(crypto, privateKeyJwk, content);
   return { content, signature };
 }
@@ -63,54 +65,65 @@ export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey,
 // Buffer.from(signature, 'base64')
 // deprecated atob seems to be safe to use, no issues have been detected
 function bufferFromBase64(base64String: string): ArrayBuffer {
-  return globalThis[UINT8_ARRAY][FROM](globalThis[ATOB](base64String), c => c[CHAR_CODE_AT](0));
+  return Uint8Array.from(atob(base64String), c => c.charCodeAt(0));
 }
 
 async function verifyLicenseSignature(crypto: Crypto, publicKeyRaw: string, content: LicenseContent, signature: string): Promise<boolean> {
-  const publicKey = await crypto[SUBTLE][IMPORT_KEY](
-    RAW,
+  const publicKey = await crypto.subtle.importKey(
+    'raw',
     bufferFromBase64(publicKeyRaw),
-    { [NAME]: ECDSA, [NAMED_CURVE]: P_384 },
+    { name: 'ECDSA', namedCurve: 'P-384' },
     true,
-    [VERIFY]
+    ['verify']
   );
 
-  return crypto[SUBTLE][VERIFY](
-    { [NAME]: ECDSA, [HASH]: { [NAME]: SHA_384 } },
+  return crypto.subtle.verify(
+    { name: 'ECDSA', hash: { name: 'SHA-384' } },
     publicKey,
     bufferFromBase64(signature),
-    new globalThis[TEXT_ENCODER]()[ENCODE](stringify(content))
+    new TextEncoder().encode(stringify(content))
   );
 }
 
-function verifyLicenseDate(content: LicenseContent, currentDate: string): boolean {
-  return (
-    !content[EXPIRES] ||
-    currentDate <= content[EXPIRES]
-  );
+function verifyLicenseDatetime(content: LicenseContent, packageDatetime: string): boolean {
+  const supportValidUntil = new Date(content.created);
+  supportValidUntil.setFullYear(supportValidUntil.getFullYear() + 1);
+  return supportValidUntil.toISOString() >= packageDatetime;
 }
 
 function verifyLicenseDomain(content: LicenseContent, currentDomain: string): boolean {
   return (
-    !content[DOMAINS] ||
-    content[DOMAINS][LENGTH] === 0 ||
-    content[DOMAINS][SOME](domain => domain === ASTERISK) ||
-    content[DOMAINS][SOME](domain => currentDomain === domain) ||
-    content[DOMAINS][SOME](domain => currentDomain[ENDS_WITH](DOT + domain)) ||
-    [LOCALHOST, LOCALHOST_IPV4, LOCALHOST_IPV6][SOME](domain => currentDomain === domain)
+    !content.domains ||
+    content.domains.length === 0 ||
+    content.domains.some(domain => domain === '*') ||
+    content.domains.some(domain => currentDomain === domain) ||
+    content.domains.some(domain => currentDomain.endsWith(`.${domain}`)) ||
+    ['localhost', '127.0.0.1', '::1'].some(domain => currentDomain === domain)
   );
 }
 
-export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, license: License | null, currentDate: string, currentDomain: string): Promise<boolean> {
+function getLicenseWarning(partialMessage: string): string {
+  return `WeatherLayers GL license file ${partialMessage}. A valid license file is required to use the library in production. Contact support@weatherlayers.com for details.`;
+}
+
+export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, license: License | null, packageDatetime: string, currentDomain: string): Promise<LicenseResult> {
   if (!license) {
-    return false;
+    return { isValid: false, warning: getLicenseWarning('is missing') };
   }
 
-  const {[CONTENT]: content, [SIGNATURE]: signature} = license;
+  const { content, signature } = license;
 
-  return (
-    await verifyLicenseSignature(crypto, publicKeyRaw, content, signature) &&
-    verifyLicenseDate(content, currentDate) &&
-    verifyLicenseDomain(content, currentDomain)
-  );
+  if (!await verifyLicenseSignature(crypto, publicKeyRaw, content, signature)) {
+    return { isValid: false, warning: getLicenseWarning('is corrupted') };
+  }
+
+  if (!verifyLicenseDatetime(content, packageDatetime)) {
+    return { isValid: false, warning: getLicenseWarning('support has expired. Renew the support or downgrade to an earlier library version') };
+  }
+
+  if (!verifyLicenseDomain(content, currentDomain)) {
+    return { isValid: false, warning: getLicenseWarning('is used on an unauthorised domain') };
+  }
+
+  return { isValid: true };
 }

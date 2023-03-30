@@ -2,16 +2,18 @@ import {CompositeLayer, CompositeLayerProps} from '@deck.gl/core/typed';
 import type {Position, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import {TextLayer} from '@deck.gl/layers/typed';
 import type {TextLayerProps} from '@deck.gl/layers/typed';
+import {wrap} from 'comlink';
 import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../_utils/props.js';
 import {randomString} from '../_utils/random-string.js';
 import {getViewportAngle} from '../_utils/viewport.js';
 import {getViewportGridPositions} from '../_utils/viewport-grid.js';
-import {CRYPTO, DATE, TO_ISO_STRING, LOCATION, HOSTNAME, WEATHER_LAYERS_COM} from '../license/license-build.js';
-import {verifyLicense} from '../license/license.js';
+import createLicenseWorker from 'worker!../license/license-worker.js';
+import {LicenseWorker} from '../license/license-worker.js';
 import type {License} from '../license/license.js';
 
-// keypair generated at 2023-03-27 21:36
-const publicKeyRaw = 'BB8crVfPRTepHZWydXQMymaEETZzVkYylbuIxPkXyk8jnQrx5QBa5qWV/c8JdXoLcLhlRETQ73Heaz/aIngMioLUyiX6EE9HzDbuiUw84V49ETANUiJcyZuzEMZ/2OumpA==';
+// https://anseki.github.io/gnirts/
+// @ts-ignore
+export const WEATHER_LAYERS_COM = (13).toString(36).toLowerCase().split('').map(function(G){return String.fromCharCode(G.charCodeAt()+(-13))}).join('')+(14).toString(36).toLowerCase()+(function(){var H=Array.prototype.slice.call(arguments),u=H.shift();return H.reverse().map(function(E,h){return String.fromCharCode(E-u-12-h)}).join('')})(55,184,164)+(17).toString(36).toLowerCase()+(function(){var r=Array.prototype.slice.call(arguments),e=r.shift();return r.reverse().map(function(G,K){return String.fromCharCode(G-e-54-K)}).join('')})(5,159,137,174,160)+(1605448).toString(36).toLowerCase()+(30).toString(36).toLowerCase().split('').map(function(F){return String.fromCharCode(F.charCodeAt()+(-71))}).join('')+(12).toString(36).toLowerCase()+(function(){var w=Array.prototype.slice.call(arguments),M=w.shift();return w.reverse().map(function(R,y){return String.fromCharCode(R-M-62-y)}).join('')})(61,234)+(22).toString(36).toLowerCase();
 
 let license: License | null = null;
 
@@ -85,12 +87,12 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       async #verifyLicense(): Promise<void> {
-        const currentDate = new globalThis[DATE]()[TO_ISO_STRING]();
-        const currentDomain = globalThis[LOCATION][HOSTNAME];
-        const isLicenseValid = await verifyLicense(globalThis[CRYPTO], publicKeyRaw, license, currentDate, currentDomain);
-        const isLicenseInvalid = !isLicenseValid;
+        const licenseWorker = createLicenseWorker();
+        const licenseWorkerProxy = wrap<LicenseWorker>(licenseWorker);
+        const isLicenseValid = await licenseWorkerProxy.verifyLicense(license, location.hostname);
+        licenseWorker.terminate();
 
-        this.#isWatermarkEnabled = isLicenseInvalid;
+        this.#isWatermarkEnabled = !isLicenseValid;
 
         this.#updateWatermarkPositions();
       }

@@ -10,7 +10,7 @@ import {getMagnitudeDataSmoothInterpolate} from '../../../_utils/pixel.js';
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
  */
-function getHighLowPointDataMain(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, radius: number): Float32Array {
+function getHighLowPointData(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -102,10 +102,10 @@ function getHighLowPointDataMain(data: Float32Array, width: number, height: numb
   return highLowPointData;
 }
 
-export function getHighLowPointData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
+export function getHighLowPointDataMain(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const image = { data, width, height };
   const image2 = data2 ? { data: data2, width, height } : null;
   const magnitudeData = getMagnitudeDataSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
-  const highLowPointData = getHighLowPointDataMain(magnitudeData.data, width, height, bounds, radius);
+  const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, bounds, radius);
   return highLowPointData;
 }

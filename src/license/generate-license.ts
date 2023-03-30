@@ -9,7 +9,6 @@ interface Options {
   licenseFile: string;
   type: LicenseType;
   name: string;
-  expireDays: number | undefined;
   domain: string[];
 }
 
@@ -22,9 +21,8 @@ async function main(options: Options): Promise<void> {
 
   // generate license
   const id = randomUUID();
-  const expires = options.expireDays ? new Date(new Date().valueOf() + options.expireDays * 24 * 60 * 60 * 1000).toISOString() : undefined;
   const created = new Date().toISOString();
-  const license = await generateLicense(webcrypto as Crypto, privateKeyJwk, id, options.type, options.name, expires, options.domain, created);
+  const license = await generateLicense(webcrypto as Crypto, privateKeyJwk, id, options.type, options.name, options.domain, created);
   
   // export license
   fs.writeFileSync(options.licenseFile, JSON.stringify(license, undefined, 2));
@@ -38,7 +36,6 @@ program
   .addOption(new Option('--licenseFile <license-file>').env('LICENSE_FILE'))
   .addOption(new Option('--type <type>').choices(Object.values(LicenseType)).makeOptionMandatory())
   .addOption(new Option('--name <name>').makeOptionMandatory())
-  .addOption(new Option('--expire-days <expire-days>'))
   .addOption(new Option('--domain <domain>').default([]).argParser<string[]>((curr, prev) => prev.concat([curr])))
 program.parse();
 main(program.opts());

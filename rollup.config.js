@@ -7,6 +7,7 @@ import typescript from 'rollup-plugin-typescript2';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import glslMinify from './rollup-plugin-glsl-minify.js';
+import obfuscator from 'rollup-plugin-obfuscator';
 import worker from 'rollup-plugin-worker-factory';
 import dts from 'rollup-plugin-dts';
 import postcss from 'rollup-plugin-postcss';
@@ -39,8 +40,8 @@ function bundle(entrypoint, filename, format, options = {}) {
     ...(bundleClient ? [`WeatherLayers Cloud Client ${pkg.version}`] : []),
     ...(bundleGl ? [`WeatherLayers GL ${pkg.version}`] : []),
     '',
-    ...(bundleClient ? ['Valid access token is required to use the library. Contact support@weatherlayers.com for details.'] : []),
-    ...(bundleGl ? ['Valid license file is required to use the library in production. Contact support@weatherlayers.com for details.'] : []),
+    ...(bundleClient ? ['A valid access token is required to use the library. Contact support@weatherlayers.com for details.'] : []),
+    ...(bundleGl ? ['A valid license file is required to use the library in production. Contact support@weatherlayers.com for details.'] : []),
     '',
     'Homepage - https://weatherlayers.com/',
     'Demo - https://demo.weatherlayers.com/',
@@ -84,6 +85,7 @@ function bundle(entrypoint, filename, format, options = {}) {
       replace({
         preventAssignment: true,
         __PACKAGE_VERSION__: `"${pkg.version}"`,
+        __PACKAGE_DATETIME__: `"${new Date().toISOString()}"`,
         __CATALOG_URL__: `"${CATALOG_URL}"`,
       }),
       json(),
@@ -104,6 +106,15 @@ function bundle(entrypoint, filename, format, options = {}) {
             typescript: tsc,
             clean: options.stats,
           }),
+          ...(options.minimize ? [
+            obfuscator({
+              include: ['src/license/license.ts'],
+              options: {
+                optionsPreset: 'medium-obfuscation',
+                disableConsoleOutput: false,
+              },
+            }),
+          ] : []),
         ],
         type: 'browser',
       }),

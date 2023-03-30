@@ -1,6 +1,6 @@
 // TODO: fix Rollup build config to use TS instead of JS
 import {expose, transfer} from 'comlink';
-import {getContourLineData} from './contour-line-worker-inner';
+import {getContourLineDataMain} from './contour-line-worker-main.js';
 
 /** @typedef {import('../../../_utils/data.js').TextureDataArray} TextureDataArray */
 /** @typedef {import('../../../_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */
@@ -23,7 +23,7 @@ expose({
    * @returns {Float32Array}
    */
   getContourLineData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval) {
-    const contourLineData = getContourLineData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval);
+    const contourLineData = getContourLineDataMain(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval);
     return transfer(contourLineData, [contourLineData.buffer]);
   }
 });
