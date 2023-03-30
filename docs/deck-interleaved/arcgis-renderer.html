@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.9.4/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.9.4/dist/dist.dev.js"></script>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
+  <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css">
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
@@ -40,7 +40,7 @@
       const LICENSE = await (await fetch('../license.json')).json();
       WeatherLayers.setLicense(LICENSE);
       
-      const config = await initConfig({ client, deckgl: true });
+      const config = await initConfig({ client, deckgl: true, webgl2: true });
       let gui;
 
       // ArcGIS
@@ -49,7 +49,7 @@
         'esri/views/SceneView',
         'esri/views/3d/externalRenderers',
         'esri/core/reactiveUtils',
-      ], { version: '4.24' });
+      ], { version: '4.26' });
       const map = new Map({
         basemap: 'dark-gray-vector',
         layers: [],
@@ -177,6 +177,28 @@
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
             }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
             new WeatherLayers.GridLayer({
               id: 'grid',
               // data properties
@@ -210,7 +232,7 @@
         attributionControl.updateConfig({ attribution });
       }
       update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

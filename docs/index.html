@@ -267,7 +267,7 @@
         <td><img src="./assets/check.svg" class="icon"></td>
         <td><img src="./assets/check.svg" class="icon"></td>
         <td><img src="./assets/check.svg" class="icon"></td>
-        <td><img src="./assets/x.svg" class="icon"><sup>3</sup></td>
+        <td><img src="./assets/check.svg" class="icon"><sup>2</sup></td>
         <td><img src="./assets/check.svg" class="icon"></td>
       </tr>
       <!--
@@ -345,7 +345,7 @@
   <p>
     <sup>1</sup> Overlaid vs. interleaved deck.gl is explained at <a href="https://deck.gl/docs/get-started/using-with-map">deck.gl base maps</a>.
     <br>
-    <sup>2</sup> Sub-optimal performance because of re-rendering the basemap during the animation. Use overlaid deck.gl instead.
+    <sup>2</sup> Basemap library is WebGL 2, but doesn't work well with animated Particle layer yet. Use overlaid deck.gl instead.
     <br>
     <sup>3</sup> Basemap library is WebGL 1 only, but Particle layer requires <a href="https://caniuse.com/webgl2">WebGL 2</a> (Chrome, Firefox, Edge, Safari 15). Use overlaid deck.gl instead.
   </p>
