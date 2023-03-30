@@ -1,15 +1,17 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withVerifyLicense} from '../../with-verify-license.js';
 import {ContourBitmapLayer} from './contour-bitmap-layer.js';
 import type {ContourBitmapLayerProps} from './contour-bitmap-layer.js';
 
-export type ContourLayerProps = ContourBitmapLayerProps & {
+type _ContourLayerProps = ContourBitmapLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
 };
+
+export type ContourLayerProps = _ContourLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<ContourLayerProps> = {
   ...ContourBitmapLayer.defaultProps,
@@ -21,7 +23,7 @@ const defaultProps: DefaultProps<ContourLayerProps> = {
 };
 
 @withVerifyLicense('ContourLayer', defaultProps)
-export class ContourLayer extends CompositeLayer<ContourLayerProps> {
+export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_ContourLayerProps>> {
   static layerName = 'ContourLayer';
   static defaultProps = defaultProps;
 

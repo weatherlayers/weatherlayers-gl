@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList} from '@deck.gl/core/typed';
+import type {Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList} from '@deck.gl/core/typed';
 import {TextLayer, IconLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
 import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
@@ -15,7 +15,7 @@ import {getGridPoints} from '../../../standalone/providers/grid-provider/grid-po
 import type {GridPointProperties} from '../../../standalone/providers/grid-provider/grid-point.js';
 import {GridStyle, GRID_ICON_STYLES} from './grid-style.js';
 
-export type GridCompositeLayerProps = CompositeLayerProps & {
+type _GridCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
   imageSmoothing: number;
@@ -37,6 +37,8 @@ export type GridCompositeLayerProps = CompositeLayerProps & {
   iconSize: number;
   iconColor: Color;
 }
+
+export type GridCompositeLayerProps = _GridCompositeLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
@@ -62,7 +64,7 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
 };
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
-export class GridCompositeLayer extends CompositeLayer<GridCompositeLayerProps> {
+export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_GridCompositeLayerProps>> {
   static layerName = 'GridCompositeLayer';
   static defaultProps = defaultProps;
 

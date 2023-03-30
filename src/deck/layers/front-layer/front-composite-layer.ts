@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, LayerExtension, LayersList} from '@deck.gl/core/typed';
+import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, LayersList} from '@deck.gl/core/typed';
 import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers/typed';
 import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
@@ -24,7 +24,7 @@ interface DebugFrontPoint<DataT> {
   index: number;
 }
 
-export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
+type _FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   data: DataT[];
 
   getType: ((d: DataT) => FrontType) | null;
@@ -37,6 +37,8 @@ export type FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
 
   _debug: boolean;
 }
+
+export type FrontCompositeLayerProps<DataT> = _FrontCompositeLayerProps<DataT> & LayerProps;
 
 const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
   data: {type: 'array', value: []},
@@ -52,13 +54,13 @@ const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
   _debug: {type: 'boolean', value: false},
 };
 
-export class FrontCompositeLayer<DataT = any> extends CompositeLayer<FrontCompositeLayerProps<DataT>> {
+export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_FrontCompositeLayerProps<DataT>>> {
   static layerName = 'FrontCompositeLayer';
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
     const {viewport} = this.context;
-    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps(this.props, defaultProps);
+    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     if (!data || !getType || !getPath) {
       return [];
     }

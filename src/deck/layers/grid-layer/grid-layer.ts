@@ -1,18 +1,20 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import {withVerifyLicense} from '../../with-verify-license.js';
 import {GridCompositeLayer} from './grid-composite-layer.js';
 import type {GridCompositeLayerProps} from './grid-composite-layer.js';
 import {GridStyle} from './grid-style.js';
 
-export type GridLayerProps = GridCompositeLayerProps;
+type _GridLayerProps = GridCompositeLayerProps;
 
 const defaultProps: DefaultProps<GridLayerProps> = {
   ...GridCompositeLayer.defaultProps,
 };
 
+export type GridLayerProps = _GridLayerProps & LayerProps;
+
 @withVerifyLicense('GridLayer', defaultProps)
-export class GridLayer extends CompositeLayer<GridLayerProps> {
+export class GridLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_GridLayerProps>> {
   static layerName = 'GridLayer';
   static defaultProps = defaultProps;
 

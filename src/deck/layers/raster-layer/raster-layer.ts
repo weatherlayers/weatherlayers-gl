@@ -1,15 +1,17 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withVerifyLicense} from '../../with-verify-license.js';
 import {RasterBitmapLayer} from './raster-bitmap-layer.js';
 import type {RasterBitmapLayerProps} from './raster-bitmap-layer.js';
 
-export type RasterLayerProps = RasterBitmapLayerProps & {
+type _RasterLayerProps = RasterBitmapLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
 };
+
+export type RasterLayerProps = _RasterLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<RasterLayerProps> = {
   ...RasterBitmapLayer.defaultProps,
@@ -23,7 +25,7 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
 };
 
 @withVerifyLicense('RasterLayer', defaultProps)
-export class RasterLayer extends CompositeLayer<RasterLayerProps> {
+export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_RasterLayerProps>> {
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;
 

@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
+import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import {TextLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {TextLayerProps} from '@deck.gl/layers/typed';
 import {CollisionFilterExtension} from '@deck.gl/extensions/typed';
@@ -25,7 +25,7 @@ function getHighLowPointCollisionPriority(highLowPoint: GeoJSON.Feature<GeoJSON.
   }
 }
 
-export type HighLowCompositeLayerProps = CompositeLayerProps & {
+type _HighLowCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
   imageSmoothing: number;
@@ -45,6 +45,8 @@ export type HighLowCompositeLayerProps = CompositeLayerProps & {
   textOutlineWidth: number;
   textOutlineColor: Color;
 }
+
+export type HighLowCompositeLayerProps = _HighLowCompositeLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
@@ -67,7 +69,7 @@ const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 };
 
-export class HighLowCompositeLayer extends CompositeLayer<HighLowCompositeLayerProps> {
+export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_HighLowCompositeLayerProps>> {
   static layerName = 'HighLowCompositeLayer';
   static defaultProps = defaultProps;
 

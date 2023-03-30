@@ -1,4 +1,4 @@
-import type {Color, DefaultProps} from '@deck.gl/core/typed';
+import type {Color, LayerProps, DefaultProps} from '@deck.gl/core/typed';
 import {BitmapLayer} from '@deck.gl/layers/typed';
 import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import {FEATURES, isWebGL2, hasFeatures} from '@luma.gl/core';
@@ -9,7 +9,7 @@ import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 
-export type ContourBitmapLayerProps = BitmapLayerProps & {
+type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
   imageTexture2: Texture2D | null;
   imageSmoothing: number;
@@ -23,6 +23,8 @@ export type ContourBitmapLayerProps = BitmapLayerProps & {
   width: number;
   color: Color;
 }
+
+export type ContourBitmapLayerProps = _ContourBitmapLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   imageTexture: {type: 'object', value: null},
@@ -39,7 +41,7 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   color: {type: 'color', value: DEFAULT_LINE_COLOR},
 };
 
-export class ContourBitmapLayer extends BitmapLayer<ContourBitmapLayerProps> {
+export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_ContourBitmapLayerProps>> {
   static layerName = 'ContourBitmapLayer';
   static defaultProps = defaultProps;
 

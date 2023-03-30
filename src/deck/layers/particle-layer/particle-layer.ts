@@ -1,27 +1,29 @@
 import {CompositeLayer} from '@deck.gl/core/typed';
-import type {DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
 import type {TextureData} from '../../../_utils/data.js';
 import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
 import {withVerifyLicense} from '../../with-verify-license.js';
 import {ParticleLineLayer} from './particle-line-layer.js';
 import type {ParticleLineLayerProps} from './particle-line-layer.js';
 
-export type ParticleLayerProps<DataT> = ParticleLineLayerProps<DataT> & {
+type _ParticleLayerProps = ParticleLineLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
 };
 
-const defaultProps = {
+export type ParticleLayerProps = _ParticleLayerProps & LayerProps;
+
+const defaultProps: DefaultProps<ParticleLayerProps> = {
   ...ParticleLineLayer.defaultProps,
 
   imageTexture: undefined,
   imageTexture2: undefined,
   image: {type: 'object', value: null}, // object instead of image to allow reading raw data
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-} as DefaultProps<ParticleLayerProps<any>>;
+};
 
 @withVerifyLicense('ParticleLayer', defaultProps)
-export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProps<DataT>> {
+export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_ParticleLayerProps>> {
   static layerName = 'ParticleLayer';
   static defaultProps = defaultProps;
 
@@ -38,7 +40,7 @@ export class ParticleLayer<DataT = any> extends CompositeLayer<ParticleLayerProp
           data: [],
           imageTexture,
           imageTexture2,
-        } satisfies Partial<ParticleLineLayerProps<DataT>>,
+        } satisfies Partial<ParticleLineLayerProps>,
 
         image: EMPTY_TEXTURE,
         image2: EMPTY_TEXTURE,

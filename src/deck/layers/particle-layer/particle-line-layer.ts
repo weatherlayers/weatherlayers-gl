@@ -1,4 +1,4 @@
-import type {Color, DefaultProps, UpdateParameters, LayerContext} from '@deck.gl/core/typed';
+import type {Color, LayerProps, DefaultProps, UpdateParameters, LayerContext} from '@deck.gl/core/typed';
 import {LineLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
 import type {LineLayerProps} from '@deck.gl/layers/typed';
 import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
@@ -14,7 +14,7 @@ const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
 const TARGET_POSITION = 'targetPosition';
 
-export type ParticleLineLayerProps<DataT> = LineLayerProps<DataT> & {
+type _ParticleLineLayerProps = LineLayerProps<{}> & {
   imageTexture: Texture2D | null;
   imageTexture2: Texture2D | null;
   imageSmoothing: number;
@@ -33,7 +33,9 @@ export type ParticleLineLayerProps<DataT> = LineLayerProps<DataT> & {
   animate: boolean;
 };
 
-const defaultProps: DefaultProps<ParticleLineLayerProps<any>> = {
+export type ParticleLineLayerProps = _ParticleLineLayerProps & LayerProps;
+
+const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   imageTexture: {type: 'object', value: null},
   imageTexture2: {type: 'object', value: null},
   imageSmoothing: {type: 'number', value: 0},
@@ -54,7 +56,7 @@ const defaultProps: DefaultProps<ParticleLineLayerProps<any>> = {
   wrapLongitude: true,
 };
 
-export class ParticleLineLayer<DataT = any> extends LineLayer<DataT, ParticleLineLayerProps<DataT>> {
+export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}, ExtraPropsT & Required<_ParticleLineLayerProps>> {
   static layerName = 'ParticleLineLayer';
   static defaultProps = defaultProps;
 

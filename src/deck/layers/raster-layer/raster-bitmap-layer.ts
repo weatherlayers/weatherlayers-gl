@@ -1,4 +1,4 @@
-import type {DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo} from '@deck.gl/core/typed';
+import type {LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo} from '@deck.gl/core/typed';
 import {BitmapLayer} from '@deck.gl/layers/typed';
 import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers/typed'
 import {Texture2D} from '@luma.gl/core';
@@ -12,7 +12,7 @@ import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import {RasterPickingInfo} from '../../../_utils/raster-picking-info.js';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
-export type RasterBitmapLayerProps = BitmapLayerProps & {
+type _RasterBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
   imageTexture2: Texture2D | null;
   imageSmoothing: number;
@@ -24,6 +24,8 @@ export type RasterBitmapLayerProps = BitmapLayerProps & {
 
   palette: Palette | null;
 };
+
+export type RasterBitmapLayerProps = _RasterBitmapLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   imageTexture: {type: 'object', value: null},
@@ -38,7 +40,7 @@ const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   palette: {type: 'object', value: null},
 };
 
-export class RasterBitmapLayer extends BitmapLayer<RasterBitmapLayerProps> {
+export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_RasterBitmapLayerProps>> {
   static layerName = 'RasterBitmapLayer';
   static defaultProps = defaultProps;
 
