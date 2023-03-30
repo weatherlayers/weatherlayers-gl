@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/deck.gl@8.9.4/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/mapbox@8.9.4/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -41,7 +41,7 @@
       const LICENSE = await (await fetch('../license.json')).json();
       WeatherLayers.setLicense(LICENSE);
       
-      const config = await initConfig({ client, deckgl: true });
+      const config = await initConfig({ client, deckgl: true, webgl2: true });
       let gui;
 
       // Mapbox
@@ -51,6 +51,7 @@
         style: 'mapbox://styles/mapbox/dark-v10',
         center: [30, 10],
         zoom: 1,
+        useWebGL2: true,
       });
       await new Promise(resolve => map.on('load', resolve));
 
@@ -163,6 +164,28 @@
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
             }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
             new WeatherLayers.GridLayer({
               id: 'grid',
               // data properties
@@ -196,7 +219,7 @@
         attributionControl.updateConfig({ attribution });
       }
       update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

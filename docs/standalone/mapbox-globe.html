@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-standalone.umd.min.js"></script>
@@ -43,7 +43,7 @@
       const LICENSE = await (await fetch('../license.json')).json();
       WeatherLayers.setLicense(LICENSE);
       
-      const config = await initConfig({ client, globe: true });
+      const config = await initConfig({ client, webgl2: true, globe: true });
       let gui;
 
       // Mapbox
@@ -54,6 +54,7 @@
         center: [30, 10],
         zoom: 3,
         projection: 'globe',
+        useWebGL2: true,
       });
       let rasterLayer;
       let contourLayer;
@@ -200,7 +201,7 @@
         attributionControl.updateConfig({ attribution });
       }
       update();
-      gui = initGui(config, update, { globe: true });
+      gui = initGui(config, update, { webgl2: true, globe: true });
     });
   </script>
 </body>
