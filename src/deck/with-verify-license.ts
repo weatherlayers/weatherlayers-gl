@@ -19,8 +19,8 @@ export function setLicense(currentLicense: License): void {
   license = currentLicense;
 }
 
-export function withVerifyLicense<PropsT extends {}>(layerName: string, defaultProps: DefaultProps<PropsT>) {
-  return <LayerT extends typeof CompositeLayer<PropsT>>(layerClass: LayerT, _context: ClassDecoratorContext<LayerT>): LayerT => {
+export function withVerifyLicense<PropsT extends {}, LayerT extends typeof CompositeLayer<PropsT>>(layerName: string, defaultProps: DefaultProps<PropsT>) {
+  return (layerClass: LayerT, _context: ClassDecoratorContext<LayerT>): LayerT => {
     return class extends CompositeLayer<PropsT> {
       // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet, they contain CompositeLayer static field values
       static layerName = layerName;
