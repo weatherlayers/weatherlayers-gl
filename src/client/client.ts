@@ -3,6 +3,7 @@ import {VERSION, CATALOG_URL} from '../_utils/build.js';
 import {TextureData, loadTextureData, loadJson, loadText} from '../_utils/data.js';
 import type {ImageType} from '../_utils/image-type.js';
 import type {ImageUnscale} from '../_utils/image-unscale.js';
+import type {DatetimeISOString} from '../_utils/datetime.js';
 import type {UnitFormat} from '../_utils/unit-format.js';
 import {StacCatalog, StacCollection, StacProviderRole, StacAssetRole, StacItem} from '../_utils/stac.js';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
@@ -21,7 +22,7 @@ export interface Dataset {
   title: string;
   unitFormat: UnitFormat;
   attribution: string;
-  datetimes: string[];
+  datetimes: DatetimeISOString[];
   palette: Palette;
 }
 
@@ -109,7 +110,7 @@ export class Client {
     return loadText(authenticatedUrl, this.#cache);
   }
 
-  async #loadStacItem(dataset: string, datetime: string, config: ClientConfig = {}): Promise<StacItem> {
+  async #loadStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
     const stacCollection = await this.#loadStacCollection(dataset, config);
     const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
     if (!link) {
@@ -119,7 +120,7 @@ export class Client {
     return loadJson(authenticatedUrl, this.#cache);
   }
 
-  async #loadStacItemData(dataset: string, datetime: string, config: ClientConfig = {}): Promise<TextureData> {
+  async #loadStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<TextureData> {
     const dataFormat = config.dataFormat ?? this.#config.dataFormat ?? DEFAULT_DATA_FORMAT;
     const stacItem = await this.#loadStacItem(dataset, datetime);
     const authenticatedUrl = this.#getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.#config);
@@ -150,7 +151,7 @@ export class Client {
     };
   }
 
-  async loadDatasetData(dataset: string, datetime: string, config: ClientConfig = {}): Promise<DatasetData> {
+  async loadDatasetData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
     const stacCollection = await this.#loadStacCollection(dataset, config);
     const datetimes = (await this.loadDataset(dataset, config)).datetimes;

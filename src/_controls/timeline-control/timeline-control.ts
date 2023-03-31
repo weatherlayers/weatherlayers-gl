@@ -1,18 +1,19 @@
 import {Animation} from '../../_utils/animation.js';
 import type {AnimationConfig} from '../../_utils/animation.js';
-import {interpolateDatetime, getDatetimeWeight} from '../../_utils/datetime.js';
-import {formatDatetime} from '../../_utils/format.js';
+import {interpolateDatetime, getDatetimeWeight, formatDatetime} from '../../_utils/datetime.js';
+import type {DatetimeISOString, DatetimeFormatFunction} from '../../_utils/datetime.js';
 import {randomString} from '../../_utils/random-string.js';
 import {Control} from '../control.js';
 import './timeline-control.css';
 
 export interface TimelineControlConfig {
   width: number;
-  datetimes: string[];
-  datetime: string;
+  datetimes: DatetimeISOString[];
+  datetime: DatetimeISOString;
   datetimeInterpolate: boolean;
-  onPreload?: (datetimes: string[]) => Promise<void>;
-  onUpdate?: (datetime: string) => void;
+  datetimeFormatFunction?: DatetimeFormatFunction;
+  onPreload?: (datetimes: DatetimeISOString[]) => Promise<void>;
+  onUpdate?: (datetime: DatetimeISOString) => void;
 }
 
 const DEFAULT_WIDTH = 300;
@@ -141,7 +142,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     this.#updateProgress();
   }
 
-  get #startEndDatetimes(): string[] {
+  get #startEndDatetimes(): DatetimeISOString[] {
     if (!this.#container) {
       return [];
     }
@@ -177,7 +178,9 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const datetime = interpolateDatetime(startDatetime, endDatetime, ratio);
     
     this.#config.datetime = datetime;
-    currentDatetime.innerHTML = formatDatetime(datetime);
+
+    const datetimeFormatFunction = this.#config.datetimeFormatFunction ?? formatDatetime;
+    currentDatetime.innerHTML = datetimeFormatFunction(datetime);
 
     if (this.#config.onUpdate) {
       this.#config.onUpdate(datetime);
@@ -213,7 +216,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     this.#updateProgress();
   }
 
-  async #preload(datetimes: string[]): Promise<void> {
+  async #preload(datetimes: DatetimeISOString[]): Promise<void> {
     if (!this.#container || !this.#config.onPreload) {
       return;
     }
@@ -253,6 +256,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
       this.#config.datetimes.every((datetime, i) => datetime === config.datetimes[i]) &&
       this.#config.datetime === config.datetime &&
       this.#config.datetimeInterpolate === config.datetimeInterpolate &&
+      this.#config.datetimeFormatFunction === config.datetimeFormatFunction &&
       this.#config.onPreload === config.onPreload &&
       this.#config.onUpdate === config.onUpdate
     ) {
@@ -264,6 +268,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const datetimes = this.#config.datetimes;
     const datetime = this.#config.datetime;
     const datetimeInterpolate = this.#config.datetimeInterpolate;
+    const datetimeFormatFunction = this.#config.datetimeFormatFunction ?? formatDatetime;
 
     const datetimeStartIndex = datetimes.findLastIndex(x => x <= datetime);
     if (datetimeStartIndex < 0) {
@@ -288,7 +293,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
 
     const currentDatetime = document.createElement('span');
     currentDatetime.className = 'current-datetime';
-    currentDatetime.innerHTML = formatDatetime(datetime);
+    currentDatetime.innerHTML = datetimeFormatFunction(datetime);
     header.appendChild(currentDatetime);
 
     const main = document.createElement('main');
@@ -321,7 +326,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
 
     const startDatetime = document.createElement('span');
     startDatetime.className = 'start-datetime';
-    startDatetime.innerHTML = formatDatetime(datetimes[0]);
+    startDatetime.innerHTML = datetimeFormatFunction(datetimes[0]);
     footer.appendChild(startDatetime);
 
     const buttons = document.createElement('span');
@@ -330,7 +335,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
 
     const endDatetime = document.createElement('span');
     endDatetime.className = 'end-datetime';
-    endDatetime.innerHTML = formatDatetime(datetimes[datetimes.length - 1]);
+    endDatetime.innerHTML = datetimeFormatFunction(datetimes[datetimes.length - 1]);
     footer.appendChild(endDatetime);
 
     const stepBackwardButton = document.createElement('a');

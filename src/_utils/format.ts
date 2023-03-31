@@ -1,24 +1,5 @@
 import type {UnitFormat} from './unit-format.js';
 
-export function formatDatetime(value: string): string {
-  if (!value) {
-    return value;
-  }
-
-  const date = new Date(value);
-  if (!date.getDate()) {
-    return value;
-  }
-
-  const year = date.getUTCFullYear();
-  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getUTCDate()}`.padStart(2, '0');
-  const hour = `${date.getUTCHours()}`.padStart(2, '0');
-  const minute = `${date.getUTCMinutes()}`.padStart(2, '0');
-  const formattedValue = `${year}/${month}/${day} ${hour}:${minute}\xa0UTC`;
-  return formattedValue;
-}
-
 export function formatValue(value: number, unitFormat?: UnitFormat): string {
   if (!unitFormat) {
     return `${Math.round(value)}`;
