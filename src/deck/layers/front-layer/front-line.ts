@@ -31,8 +31,8 @@ export interface FrontIcon<DataT> {
 export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT> {
   const positions = path as GeoJSON.Position[];
   const distances = positions.slice(0, -1).map((_, i) => measureDistance(positions[i], positions[i + 1]));
-  const cummulativeDistances = distances.reduce((prev, curr, i) => [...prev, [i + 1, prev[prev.length - 1][1] + curr]], [[0, 0]]).reverse();
-  const totalDistance = distances.reduce((prev, curr) => prev + curr, 0);
+  const cummulativeDistances = distances.reduce((prev, curr) => [...prev, prev[prev.length - 1] + curr], [0]);
+  const totalDistance = cummulativeDistances[cummulativeDistances.length - 1];
 
   // add icons to minimize overlaps, alternate icon type
   // depth = 1 -> |                 0                 1                 |
@@ -48,13 +48,18 @@ export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT
       }
 
       const distance = i * deltaDistance;
-      const [j, cummulativeDistance] = cummulativeDistances.find(([_, cummulativeDistance]) => distance >= cummulativeDistance)!;
-
-      const currentPosition = positions[j];
-      const nextPosition = positions[j + 1];
+      const positionStartIndex = cummulativeDistances.findLastIndex(x => x <= distance);
+      if (positionStartIndex === -1 || positionStartIndex === positions.length - 1) {
+        // both overflows are handled by `i % ICON_FACTOR === 0` above
+        throw new Error('Invalid state');
+      }
+      const positionEndIndex = positionStartIndex + 1;
+      const positionStart = positions[positionStartIndex];
+      const positionEnd = positions[positionEndIndex];
+      const cummulativeDistance = cummulativeDistances[positionStartIndex];
   
-      const bearing = initialBearing(currentPosition, nextPosition);
-      const position = destinationPoint(currentPosition, distance - cummulativeDistance, bearing) as Position;
+      const bearing = initialBearing(positionStart, positionEnd);
+      const position = destinationPoint(positionStart, distance - cummulativeDistance, bearing) as Position;
       const direction = 90 - bearing;
       const priority = 100 - depth; // top levels have highest priority
   

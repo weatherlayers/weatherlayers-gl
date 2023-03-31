@@ -1,4 +1,12 @@
-export function interpolateDatetime(start: string, end: string, ratio: number): string {
+export function interpolateDatetime(start: string, end: string | null, ratio: number): string {
+  if (!end) {
+    if (ratio === 0) {
+      return start;
+    } else {
+      throw new Error('Invalid state');
+    }
+  }
+
   if (ratio <= 0) {
     return start;
   } else if (ratio >= 1) {
@@ -11,7 +19,15 @@ export function interpolateDatetime(start: string, end: string, ratio: number): 
   }
 }
 
-export function getDatetimeWeight(start: string, end: string, middle: string): number {
+export function getDatetimeWeight(start: string, end: string | null, middle: string): number {
+  if (!end) {
+    if (start === middle) {
+      return 0;
+    } else {
+      throw new Error('Invalid state');
+    }
+  }
+
   if (middle <= start) {
     return 0;
   } else if (middle >= end) {

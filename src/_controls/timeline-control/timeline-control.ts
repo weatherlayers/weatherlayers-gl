@@ -1,6 +1,6 @@
 import {Animation} from '../../_utils/animation.js';
 import type {AnimationConfig} from '../../_utils/animation.js';
-import {interpolateDatetime} from '../../_utils/datetime.js';
+import {interpolateDatetime, getDatetimeWeight} from '../../_utils/datetime.js';
 import {formatDatetime} from '../../_utils/format.js';
 import {randomString} from '../../_utils/random-string.js';
 import {Control} from '../control.js';
@@ -235,7 +235,13 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     }
 
     // validate config
-    if (!config.datetimes || config.datetimes.length < 2 || !config.datetime) {
+    if (
+      !config.datetimes ||
+      config.datetimes.length < 2 ||
+      !config.datetime ||
+      config.datetime < config.datetimes[0] ||
+      config.datetime > config.datetimes[config.datetimes.length - 1]
+    ) {
       return;
     }
 
@@ -258,6 +264,18 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const datetimes = this.#config.datetimes;
     const datetime = this.#config.datetime;
     const datetimeInterpolate = this.#config.datetimeInterpolate;
+
+    const datetimeStartIndex = datetimes.findLastIndex(x => x <= datetime);
+    if (datetimeStartIndex < 0) {
+      // overflow is handled by the validation above
+      throw new Error('Invalid state');
+    }
+    const datetimeEndIndex = datetimeStartIndex < datetimes.length - 1 ? datetimeStartIndex + 1 : null;
+    const datetimeStart = datetimes[datetimeStartIndex];
+    const datetimeEnd = typeof datetimeEndIndex === 'number' ? datetimes[datetimeStartIndex + 1] : null;
+    const datetimeWeight = getDatetimeWeight(datetimeStart, datetimeEnd, datetime);
+    const progressInputStep = datetimeInterpolate ? STEP_INTERPOLATE : STEP;
+    const progressInputValue = datetimeStartIndex + Math.floor(datetimeWeight / progressInputStep) * progressInputStep;
 
     this.#container.innerHTML = '';
     this.#container.style.width = `${width}px`;
@@ -282,8 +300,8 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     progressInput.type = 'range';
     progressInput.min = '0';
     progressInput.max = `${datetimes.length - 1}`;
-    progressInput.step = `${datetimeInterpolate ? STEP_INTERPOLATE : STEP}`;
-    progressInput.valueAsNumber = datetimes.findIndex(x => x >= datetime);
+    progressInput.step = `${progressInputStep}`;
+    progressInput.valueAsNumber = progressInputValue;
     progressInput.setAttribute('list', progressInputTicksId);
     progressInput.addEventListener('input', () => this.#progressInputClicked());
     main.appendChild(progressInput);
