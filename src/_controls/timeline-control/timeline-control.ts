@@ -68,11 +68,11 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     return this.#animation.running;
   }
 
-  toggle(running: boolean = !this.#running): Promise<void> {
+  async toggle(running: boolean = !this.#running): Promise<void> {
     if (running) {
-      return this.start();
+      return await this.start();
     } else {
-      return this.stop();
+      return this.pause();
     }
   }
 
@@ -89,13 +89,46 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     this.#updateProgress();
   }
 
-  async stop(): Promise<void> {
+  pause(): void {
     if (!this.#container || this.#loading || !this.#running) {
       return;
     }
 
     this.#animation.stop();
     this.#container.classList.remove(RUNNING_CLASS);
+
+    this.#updateProgress();
+  }
+
+  stop(): void {
+    if (!this.#container || this.#loading || !this.#running) {
+      return;
+    }
+
+    const progressInput = this.#container.querySelector('input');
+    if (!progressInput) {
+      return;
+    }
+
+    this.#animation.stop();
+    this.#container.classList.remove(RUNNING_CLASS);
+
+    progressInput.valueAsNumber = 0;
+
+    this.#updateProgress();
+  }
+
+  reset(): void {
+    if (!this.#container || this.#loading || this.#running) {
+      return;
+    }
+
+    const progressInput = this.#container.querySelector('input');
+    if (!progressInput) {
+      return;
+    }
+
+    progressInput.valueAsNumber = 0;
 
     this.#updateProgress();
   }
@@ -353,7 +386,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const pauseButton = document.createElement('a');
     pauseButton.href = 'javascript:void(0)';
     pauseButton.className = 'button pause-button';
-    pauseButton.addEventListener('click', () => this.stop());
+    pauseButton.addEventListener('click', () => this.pause());
     buttons.appendChild(pauseButton);
 
     const stepForwardButton = document.createElement('a');
