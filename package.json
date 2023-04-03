@@ -71,9 +71,9 @@
     "@babel/plugin-transform-runtime": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "@babel/runtime": "^7.21.0",
-    "@deck.gl/core": "^8.9.4",
-    "@deck.gl/extensions": "^8.9.4",
-    "@deck.gl/layers": "^8.9.4",
+    "@deck.gl/core": "^8.9.6",
+    "@deck.gl/extensions": "^8.9.6",
+    "@deck.gl/layers": "^8.9.6",
     "@luma.gl/core": "^8.5.19",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
@@ -112,9 +112,9 @@
     "webpack-glsl-minify": "^1.5.0"
   },
   "peerDependencies": {
-    "@deck.gl/core": "^8.9.4",
-    "@deck.gl/extensions": "^8.9.4",
-    "@deck.gl/layers": "^8.9.4",
+    "@deck.gl/core": "^8.9.6",
+    "@deck.gl/extensions": "^8.9.6",
+    "@deck.gl/layers": "^8.9.6",
     "@luma.gl/core": "^8.5.19",
     "geotiff": "^2.0.7"
   },
