@@ -28,8 +28,6 @@ const OBFUSCATOR_OPTIONS = {
     // obfuscate strings
     splitStrings: true,
     stringArray: true,
-    stringArrayCallsTransform: true,
-    stringArrayCallsTransformThreshold: 1,
     stringArrayEncoding: ['rc4'],
     stringArrayWrappersType: 'variable',
     stringArrayThreshold: 1,
