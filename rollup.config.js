@@ -20,6 +20,25 @@ import tsc from 'typescript';
 
 const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
+const OBFUSCATOR_OPTIONS = {
+  include: ['src/license/license.ts'],
+  options: {
+    optionsPreset: 'default',
+    target: 'browser-no-eval',
+    // obfuscate strings
+    splitStrings: true,
+    stringArray: true,
+    stringArrayCallsTransform: true,
+    stringArrayCallsTransformThreshold: 1,
+    stringArrayEncoding: ['rc4'],
+    stringArrayWrappersType: 'variable',
+    stringArrayThreshold: 1,
+    // obfuscate object keys
+    // renameProperties can't be used because breaks crypto params
+    transformObjectKeys: true,
+  },
+};
+
 function bundle(entrypoint, filename, format, options = {}) {
   if (format === 'cjs') {
     filename = filename.replace('.js', `${options.minimize ? '.min' : ''}.cjs`);
@@ -97,6 +116,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         typescript: tsc,
         clean: options.stats,
       }),
+      obfuscator(OBFUSCATOR_OPTIONS),
       glslMinify({ minimize: options.minimize }),
       worker({
         plugins: [
@@ -106,15 +126,7 @@ function bundle(entrypoint, filename, format, options = {}) {
             typescript: tsc,
             clean: options.stats,
           }),
-          ...(options.minimize ? [
-            obfuscator({
-              include: ['src/license/license.ts'],
-              options: {
-                optionsPreset: 'medium-obfuscation',
-                disableConsoleOutput: false,
-              },
-            }),
-          ] : []),
+          obfuscator(OBFUSCATOR_OPTIONS),
         ],
         type: 'browser',
       }),

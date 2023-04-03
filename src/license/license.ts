@@ -17,8 +17,10 @@ export type License = { content: LicenseContent, signature: string };
 
 export interface LicenseResult {
   isValid: boolean;
-  warning?: string;
+  message?: string;
 }
+
+export const WEATHER_LAYERS_COM = 'WeatherLayers.com';
 
 export async function generateKeypair(crypto: Crypto): Promise<{ privateKeyJwk: JsonWebKey, publicKeyRaw: string }> {
   const {privateKey, publicKey} = await crypto.subtle.generateKey(
@@ -60,7 +62,6 @@ export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey,
 }
 
 // code for both Node.js and browser follows
-// property keys are encoded by gnirts to harden against breaking the license
 
 // Buffer.from(signature, 'base64')
 // deprecated atob seems to be safe to use, no issues have been detected
@@ -102,28 +103,46 @@ function verifyLicenseDomain(content: LicenseContent, currentDomain: string): bo
   );
 }
 
-function getLicenseWarning(partialMessage: string): string {
+function getLicenseMessage(partialMessage: string): string {
   return `WeatherLayers GL license file ${partialMessage}. A valid license file is required to use the library in production. Contact support@weatherlayers.com for details.`;
+}
+
+function getInvalidLicenseResult(partialMessage: string): LicenseResult {
+  return { isValid: false, message: getLicenseMessage(partialMessage) };
+}
+
+function getValidLicenseResult(): LicenseResult {
+  return { isValid: true };
 }
 
 export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, license: License | null, packageDatetime: string, currentDomain: string): Promise<LicenseResult> {
   if (!license) {
-    return { isValid: false, warning: getLicenseWarning('is missing') };
+    return getInvalidLicenseResult('is missing');
   }
 
   const { content, signature } = license;
 
   if (!await verifyLicenseSignature(crypto, publicKeyRaw, content, signature)) {
-    return { isValid: false, warning: getLicenseWarning('is corrupted') };
+    return getInvalidLicenseResult('is corrupted');
   }
 
   if (!verifyLicenseDatetime(content, packageDatetime)) {
-    return { isValid: false, warning: getLicenseWarning('support has expired. Renew the support or downgrade to an earlier library version') };
+    return getInvalidLicenseResult('support has expired. Renew the support or downgrade to an earlier library version');
   }
 
   if (!verifyLicenseDomain(content, currentDomain)) {
-    return { isValid: false, warning: getLicenseWarning('is used on an unauthorised domain') };
+    return getInvalidLicenseResult('is used on an unauthorised domain');
   }
 
-  return { isValid: true };
+  return getValidLicenseResult();
+}
+
+export async function verifyLicenseAndLog(crypto: Crypto, publicKeyRaw: string, license: License | null, packageDatetime: string, currentDomain: string): Promise<boolean> {
+  const licenseResult = await verifyLicense(crypto, publicKeyRaw, license, packageDatetime, currentDomain);
+
+  if (licenseResult.message) {
+    console.warn(licenseResult.message);
+  }
+  
+  return licenseResult.isValid;
 }

@@ -29,8 +29,8 @@ async function main(options: Options): Promise<void> {
   const licenseResult = await verifyLicense(webcrypto as Crypto, publicKeyRaw, license, packageDatetime, options.domain);
   console.log('License verification result:');
   console.log(licenseResult.isValid ? clc.green('VALID ✔') : clc.red('INVALID ✘'));
-  if (licenseResult.warning) {
-    console.log(clc.yellow(licenseResult.warning));
+  if (licenseResult.message) {
+    console.log(clc.yellow(licenseResult.message));
   }
   console.log();
 }
