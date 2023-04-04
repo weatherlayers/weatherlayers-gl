@@ -2,7 +2,6 @@ steps:
   - name: node
     args:
       - install
-      - '--legacy-peer-deps'
     entrypoint: npm
   - name: node
     args:
@@ -10,7 +9,6 @@ steps:
       - build
     env:
       - 'NODE_OPTIONS=--max-old-space-size=4096'
-      - 'LICENSE_DOMAIN=weatherlayers.com'
     entrypoint: npm
   - name: bash
     args:

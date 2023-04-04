@@ -9,8 +9,13 @@ import {getViewportAngle} from '../_utils/viewport.js';
 import {getViewportGridPositions} from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
 import {LicenseWorker} from '../license/license-worker.js';
-import {WEATHER_LAYERS_COM} from '../license/license-build.js';
 import type {License} from '../license/license.js';
+
+// https://anseki.github.io/gnirts/
+// @ts-ignore
+const WEATHER_LAYERS_COM: 'WeatherLayers.com' = (13).toString(36).toLowerCase().split('').map(function(G){return String.fromCharCode(G.charCodeAt()+(-13))}).join('')+(14).toString(36).toLowerCase()+(function(){var H=Array.prototype.slice.call(arguments),u=H.shift();return H.reverse().map(function(E,h){return String.fromCharCode(E-u-12-h)}).join('')})(55,184,164)+(17).toString(36).toLowerCase()+(function(){var r=Array.prototype.slice.call(arguments),e=r.shift();return r.reverse().map(function(G,K){return String.fromCharCode(G-e-54-K)}).join('')})(5,159,137,174,160)+(1605448).toString(36).toLowerCase()+(30).toString(36).toLowerCase().split('').map(function(F){return String.fromCharCode(F.charCodeAt()+(-71))}).join('')+(12).toString(36).toLowerCase()+(function(){var w=Array.prototype.slice.call(arguments),M=w.shift();return w.reverse().map(function(R,y){return String.fromCharCode(R-M-62-y)}).join('')})(61,234)+(22).toString(36).toLowerCase();
+// @ts-ignore
+const VERIFY_LICENSE: 'verifyLicense' = (1130).toString(36).toLowerCase()+(function(){var y=Array.prototype.slice.call(arguments),v=y.shift();return y.reverse().map(function(e,c){return String.fromCharCode(e-v-41-c)}).join('')})(25,146,190,170,172,180)+(30811960).toString(36).toLowerCase()+(function(){var J=Array.prototype.slice.call(arguments),K=J.shift();return J.reverse().map(function(b,n){return String.fromCharCode(b-K-20-n)}).join('')})(49,170);
 
 let license: License | null = null;
 
@@ -84,9 +89,10 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       async #verifyLicense(): Promise<void> {
+        // license is verified in a worker to split the stacktrace
         const licenseWorker = createLicenseWorker();
         const licenseWorkerProxy = wrap<LicenseWorker>(licenseWorker);
-        const isLicenseValid = await licenseWorkerProxy.verifyLicense(license, location.hostname);
+        const isLicenseValid = await licenseWorkerProxy[VERIFY_LICENSE](license, location.hostname);
         licenseWorker.terminate();
 
         this.#isWatermarkEnabled = !isLicenseValid;
