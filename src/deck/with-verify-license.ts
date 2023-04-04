@@ -9,7 +9,7 @@ import {getViewportAngle} from '../_utils/viewport.js';
 import {getViewportGridPositions} from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
 import {LicenseWorker} from '../license/license-worker.js';
-import {WEATHER_LAYERS_COM} from '../license/license.js';
+import {WEATHER_LAYERS_COM} from '../license/license-build.js';
 import type {License} from '../license/license.js';
 
 let license: License | null = null;

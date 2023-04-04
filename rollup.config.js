@@ -6,8 +6,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
-import glslMinify from './rollup-plugin-glsl-minify.js';
 import obfuscator from 'rollup-plugin-obfuscator';
+import glslMinify from './rollup-plugin-glsl-minify.js';
 import worker from 'rollup-plugin-worker-factory';
 import dts from 'rollup-plugin-dts';
 import postcss from 'rollup-plugin-postcss';
@@ -21,7 +21,7 @@ import tsc from 'typescript';
 const CATALOG_URL = process.env.CATALOG_URL ?? 'https://catalog.weatherlayers.com';
 
 const OBFUSCATOR_OPTIONS = {
-  include: ['src/license/license.ts'],
+  include: ['src/license/license-build.ts'],
   options: {
     optionsPreset: 'default',
     target: 'browser-no-eval',
@@ -31,9 +31,6 @@ const OBFUSCATOR_OPTIONS = {
     stringArrayEncoding: ['rc4'],
     stringArrayWrappersType: 'variable',
     stringArrayThreshold: 1,
-    // obfuscate object keys
-    // renameProperties can't be used because breaks crypto params
-    transformObjectKeys: true,
   },
 };
 
