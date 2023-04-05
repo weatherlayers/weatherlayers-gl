@@ -68,6 +68,10 @@ function bufferFromBase64(base64String: string): ArrayBuffer {
 }
 
 async function verifyLicenseSignature(crypto: Crypto, publicKeyRaw: string, content: LicenseContent, signature: string): Promise<boolean> {
+  if (!crypto.subtle) {
+    return false;
+  }
+
   const publicKey = await crypto.subtle.importKey(
     'raw',
     bufferFromBase64(publicKeyRaw),
@@ -101,12 +105,12 @@ function verifyLicenseDomain(content: LicenseContent, currentDomain: string): bo
   );
 }
 
-function getLicenseMessage(partialMessage: string): string {
-  return `WeatherLayers GL license file ${partialMessage}. A valid license file is required to use the library in production. Contact support@weatherlayers.com for details.`;
+function getInvalidLicenseMessage(partialMessage: string): string {
+  return `${partialMessage} A valid license file is required to use the library in production. Contact support@weatherlayers.com for details.`;
 }
 
-function getInvalidLicenseResult(partialMessage: string): LicenseResult {
-  return { isValid: false, message: getLicenseMessage(partialMessage) };
+function getInvalidLicenseResult(message: string): LicenseResult {
+  return { isValid: false, message };
 }
 
 function getValidLicenseResult(): LicenseResult {
@@ -115,21 +119,21 @@ function getValidLicenseResult(): LicenseResult {
 
 export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, license: License | null, packageDatetime: string, currentDomain: string): Promise<LicenseResult> {
   if (!license) {
-    return getInvalidLicenseResult('is missing');
+    return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file is missing.'));
   }
 
   const { content, signature } = license;
 
   if (!await verifyLicenseSignature(crypto, publicKeyRaw, content, signature)) {
-    return getInvalidLicenseResult('is corrupted');
+    return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file can\'t be verified.'));
   }
 
   if (!verifyLicenseDatetime(content, packageDatetime)) {
-    return getInvalidLicenseResult('support has expired. Renew the support or downgrade to an earlier library version');
+    return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file support has expired.'));
   }
 
   if (!verifyLicenseDomain(content, currentDomain)) {
-    return getInvalidLicenseResult('is used on an unauthorised domain');
+    return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file is used on an unauthorised domain.'));
   }
 
   return getValidLicenseResult();
