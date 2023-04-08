@@ -1,3 +1,4 @@
+import { ModelAvailability } from './model-availability.js';
 import { ImageType } from './image-type.js';
 import { UnitFormat } from './unit-format.js';
 
@@ -78,6 +79,7 @@ export interface StacCollection {
   };
   links: StacLink[];
   assets: { [key: string]: StacAsset };
+  'weatherLayers:availability': ModelAvailability,
   'weatherLayers:imageType': ImageType; // custom
   'weatherLayers:imageUnscale': [number, number]; // custom
   'weatherLayers:units': UnitFormat[]; // custom
