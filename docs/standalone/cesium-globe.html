@@ -34,10 +34,8 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const LICENSE = await (await fetch('../license.json')).json();
-      WeatherLayers.setLicense(LICENSE);
-      
-      const config = await initConfig({ client, globe: true });
+      const datasets = await client.loadCatalog();
+      const config = await initConfig({ datasets, globe: true });
       let gui;
 
       // Cesium
@@ -76,9 +74,16 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unitFormat, attribution, datetimes, palette} = await client.loadDataset(dataset);
-        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime);
+        const {title, unitFormat, attribution, referenceDatetimeRange, palette} = await client.loadDataset(dataset);
+        const datetimeRange = [referenceDatetimeRange[1], WeatherLayers.addHoursToDatetime(referenceDatetimeRange[1], 24)];
+        const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
+        const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
+        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetSliceData(dataset, datetimeRange, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+        const {image: mercatorImage} = await mercatorClient.loadDatasetSliceData(dataset, datetimeRange, datetime);
+
+        config.datetimeRange = datetimeRange;
+        config.datetimes = datetimes;
+        config.datetime = datetime;
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
           const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(image, imageType, imageUnscale, palette) : undefined;
@@ -89,11 +94,11 @@
             rasterLayer = viewer.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
               url: rasterImage.toDataURL(),
               rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-              credit: attribution,
+              credit: config.attribution,
             }));
             rasterLayer.name = 'raster';
-            rasterLayer.dataset = dataset;
-            rasterLayer.datetime = datetime;
+            rasterLayer.dataset = config.dataset;
+            rasterLayer.datetime = config.datetime;
             Cesium.knockout.track(rasterLayer, ['show', 'alpha']);
           }
         }
@@ -110,8 +115,8 @@
           if (contourLines) {
             contourLayer = new Cesium.CustomDataSource();
             contourLayer.name = 'contour';
-            contourLayer.dataset = dataset;
-            contourLayer.datetime = datetime;
+            contourLayer.dataset = config.dataset;
+            contourLayer.datetime = config.datetime;
             for (let contourLine of contourLines.features) {
               contourLayer.entities.add({
                 polyline: {
@@ -139,8 +144,8 @@
           if (highLowPoints) {
             highLowLayer = new Cesium.CustomDataSource();
             highLowLayer.name = 'highLow';
-            highLowLayer.dataset = dataset;
-            highLowLayer.datetime = datetime;
+            highLowLayer.dataset = config.dataset;
+            highLowLayer.datetime = config.datetime;
             for (let highLowPoint of highLowPoints.features) {
               highLowLayer.entities.add({
                 position: Cesium.Cartesian3.fromDegrees(highLowPoint.geometry.coordinates[0], highLowPoint.geometry.coordinates[1]),
@@ -168,7 +173,7 @@
         rotateAnimation.toggle(config.rotate);
         legendControl.updateConfig({ title, unitFormat, palette });
       }
-      update();
+      await update();
       gui = initGui(config, update, { globe: true });
     });
   </script>

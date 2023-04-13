@@ -79,7 +79,8 @@ export interface StacCollection {
   };
   links: StacLink[];
   assets: { [key: string]: StacAsset };
-  'weatherLayers:availability': ModelAvailability,
+  'weatherLayers:referenceDatetimeRange': [string, string]; // custom
+  'weatherLayers:availability': ModelAvailability; // custom
   'weatherLayers:imageType': ImageType; // custom
   'weatherLayers:imageUnscale': [number, number]; // custom
   'weatherLayers:units': UnitFormat[]; // custom
@@ -103,4 +104,9 @@ export interface StacItem {
   links: StacLink[];
   assets: { [key: string]: StacAsset };
   collection: string;
+}
+
+export interface StacItemCollection {
+  type: 'FeatureCollection';
+  features: StacItem[];
 }

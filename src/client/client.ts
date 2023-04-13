@@ -3,17 +3,15 @@ import {VERSION, CATALOG_URL} from '../_utils/build.js';
 import {TextureData, loadTextureData, loadJson, loadText} from '../_utils/data.js';
 import type {ImageType} from '../_utils/image-type.js';
 import type {ImageUnscale} from '../_utils/image-unscale.js';
-import type {DatetimeISOString} from '../_utils/datetime.js';
+import type {DatetimeISOString, DatetimeISOStringRange} from '../_utils/datetime.js';
 import type {UnitFormat} from '../_utils/unit-format.js';
-import {StacCatalog, StacCollection, StacProviderRole, StacAssetRole, StacItem} from '../_utils/stac.js';
+import {StacCatalog, StacCollection, StacProviderRole, StacAssetRole, StacItem, StacItemCollection, StacLinkRel} from '../_utils/stac.js';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
 
 export interface ClientConfig {
   url?: string;
   accessToken?: string;
   dataFormat?: string;
-  hindcastDays?: number;
-  forecastDays?: number;
   attributionLinkClass?: string;
   datetimeInterpolate?: boolean;
 }
@@ -22,14 +20,20 @@ export interface Dataset {
   title: string;
   unitFormat: UnitFormat;
   attribution: string;
-  datetimes: DatetimeISOString[];
+  datetimeRange: DatetimeISOStringRange,
+  referenceDatetimeRange: DatetimeISOStringRange,
+  datetimes: DatetimeISOString[]; // deprecated, use `loadDatasetSlice` instead
   palette: Palette;
+}
+
+export interface DatasetSlice {
+  datetimes: DatetimeISOString[];
 }
 
 export interface DatasetData {
   image: TextureData;
-  image2: TextureData | null; // applicable only if datetimeInterpolate is enabled
-  imageWeight: number; // applicable only if datetimeInterpolate is enabled
+  image2: TextureData | null; // applicable only if `datetimeInterpolate` is enabled
+  imageWeight: number; // applicable only if `datetimeInterpolate` is enabled
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: [number, number, number, number];
@@ -46,6 +50,15 @@ function getStacCollectionAttribution(stacCollection: StacCollection, attributio
     ...(processor ? [`<a href="${processor.url}"${attributionLinkClass ? ` class="${attributionLinkClass}"`: ''}>${processor.name}</a>`] : []),
   ].join(' via ');
   return attribution;
+}
+
+function serializeDatetimeISOStringRange(datetime: DatetimeISOStringRange): string {
+  if (Array.isArray(datetime)) {
+    const [from, to] = datetime;
+    return `${from ?? '..'}/${to ?? '..'}`;
+  } else {
+    return datetime ?? '..';
+  }
 }
 
 export class Client {
@@ -70,17 +83,9 @@ export class Client {
 
   #getAuthenticatedUrl(path: string, config: ClientConfig = {}): string {
     const accessToken = config.accessToken ?? this.#config.accessToken ?? null;
-    const hindcastDays = config.hindcastDays ?? this.#config.hindcastDays ?? null;
-    const forecastDays = config.forecastDays ?? this.#config.forecastDays ?? null;
     const url = new URL(path);
     if (!url.searchParams.has('access_token') && accessToken != null) {
       url.searchParams.set('access_token', accessToken);
-    }
-    if (!url.searchParams.has('hindcast_days') && hindcastDays != null) {
-      url.searchParams.set('hindcast_days', hindcastDays.toString());
-    }
-    if (!url.searchParams.has('forecast_days') && forecastDays != null) {
-      url.searchParams.set('forecast_days', forecastDays.toString());
     }
     if (!url.searchParams.has('version')) {
       url.searchParams.set('version', VERSION);
@@ -110,29 +115,36 @@ export class Client {
     return loadText(authenticatedUrl, this.#cache);
   }
 
-  async #loadStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
-    const stacCollection = await this.#loadStacCollection(dataset, config);
-    const link = stacCollection.links.find(x => x.rel === 'item' && x.datetime === datetime);
-    if (!link) {
-      throw new Error(`Item ${datetime} not found`);
-    }
-    const authenticatedUrl = this.#getAuthenticatedUrl(link.href, this.#config);
-    return loadJson(authenticatedUrl, this.#cache);
+  async #searchStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<StacItem[]> {
+    const url = config.url ?? this.#config.url ?? DEFAULT_URL;
+    const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/search?collections=${dataset}&datetime=${serializeDatetimeISOStringRange(datetimeRange)}`, config);
+    const stacItemCollection: StacItemCollection = await loadJson(authenticatedUrl, this.#cache);
+    const {features: stacItems} = stacItemCollection;
+    return stacItems;
   }
 
-  async #loadStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<TextureData> {
+  async #loadStacItem(dataset: string, datetimeRange: DatetimeISOStringRange, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
+    const stacItems = await this.#searchStacItems(dataset, datetimeRange, config);
+    const stacItem = stacItems.find(x => x.properties.datetime === datetime);
+    if (!stacItem) {
+      throw new Error(`Item ${datetime} not found`);
+    }
+    return stacItem;
+  }
+
+  async #loadStacItemData(dataset: string, datetimeRange: DatetimeISOStringRange, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<TextureData> {
     const dataFormat = config.dataFormat ?? this.#config.dataFormat ?? DEFAULT_DATA_FORMAT;
-    const stacItem = await this.#loadStacItem(dataset, datetime);
+    const stacItem = await this.#loadStacItem(dataset, datetimeRange, datetime);
     const authenticatedUrl = this.#getAuthenticatedUrl(stacItem.assets[`data.${dataFormat}`].href, this.#config);
     return loadTextureData(authenticatedUrl, this.#cache);
   }
 
   async loadCatalog(config: ClientConfig = {}): Promise<string[]> {
     const stacCatalog = await this.#loadStacCatalog(config);
-    const modelIds = stacCatalog.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x) as string[];
+    const modelIds = stacCatalog.links.filter(x => x.rel === StacLinkRel.CHILD).map(x => x.id).filter(x => !!x) as string[];
     const datasetIds = (await Promise.all(modelIds.map(async modelId => {
       const stacCollection = await this.#loadStacCollection(modelId);
-      const datasetIds = stacCollection.links.filter(x => x.rel === 'child').map(x => x.id).filter(x => !!x) as string[];
+      const datasetIds = stacCollection.links.filter(x => x.rel === StacLinkRel.CHILD).map(x => x.id).filter(x => !!x) as string[];
       return datasetIds;
     }))).flat();
     return datasetIds;
@@ -146,15 +158,44 @@ export class Client {
       title: stacCollection.title,
       unitFormat: stacCollection['weatherLayers:units'][0],
       attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
-      datetimes: stacCollection.links.filter(x => x.rel === 'item').map(x => x.datetime).filter(x => !!x) as string[],
+      datetimeRange: stacCollection.extent.temporal.interval[0],
+      referenceDatetimeRange: stacCollection['weatherLayers:referenceDatetimeRange'],
+      datetimes: stacCollection.links.filter(x => x.rel === StacLinkRel.ITEM).map(x => x.datetime).filter(x => !!x) as DatetimeISOString[],
       palette: await this.#loadStacCollectionPalette(dataset)
     };
   }
 
+  async loadDatasetSlice(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<DatasetSlice> {
+    const stacItems = await this.#searchStacItems(dataset, datetimeRange, config);
+    const datetimes = stacItems.map(x => x.properties.datetime);
+    return { datetimes };
+  }
+
   async loadDatasetData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
+    const stacCollection = await this.#loadStacCollection(dataset, config);
+    const {datetimes} = await this.loadDatasetSlice(dataset, datetime, config);
+    const startDatetime = getClosestStartDatetime(datetimes, datetime);
+
+    if (!startDatetime) {
+      throw new Error('No data found');
+    }
+
+    const image = await this.#loadStacItemData(dataset, datetime, startDatetime, config);
+
+    return {
+      image,
+      image2: null,
+      imageWeight: 0,
+      imageType: stacCollection['weatherLayers:imageType'],
+      imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null,
+      bounds: stacCollection.extent.spatial.bbox[0]
+    };
+  }
+
+  async loadDatasetSliceData(dataset: string, datetimeRange: DatetimeISOStringRange, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
     const stacCollection = await this.#loadStacCollection(dataset, config);
-    const datetimes = (await this.loadDataset(dataset, config)).datetimes;
+    const {datetimes} = await this.loadDatasetSlice(dataset, datetimeRange, config);
     const startDatetime = getClosestStartDatetime(datetimes, datetime);
     const endDatetime = datetimeInterpolate ? getClosestEndDatetime(datetimes, datetime) : null;
 
@@ -163,8 +204,8 @@ export class Client {
     }
 
     const [image, image2] = await Promise.all([
-      this.#loadStacItemData(dataset, startDatetime, config),
-      datetimeInterpolate && endDatetime ? this.#loadStacItemData(dataset, endDatetime, config) : null,
+      this.#loadStacItemData(dataset, datetimeRange, startDatetime, config),
+      datetimeInterpolate && endDatetime ? this.#loadStacItemData(dataset, datetimeRange, endDatetime, config) : null,
     ]);
 
     return {

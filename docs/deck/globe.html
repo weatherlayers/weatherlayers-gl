@@ -38,7 +38,8 @@
       const LICENSE = await (await fetch('../license.json')).json();
       WeatherLayers.setLicense(LICENSE);
       
-      const config = await initConfig({ client, deckgl: true, webgl2: true, globe: true });
+      const datasets = await client.loadCatalog();
+      const config = await initConfig({ datasets, deckgl: true, webgl2: true, globe: true });
       let gui;
 
       // deck.gl
@@ -80,7 +81,7 @@
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetData(config.dataset, datetime))),
+        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetSliceData(config.dataset, config.datetimeRange, datetime))),
         onUpdate: datetime => {
           config.datetime = datetime || NO_DATA;
           update();
@@ -106,9 +107,15 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unitFormat, attribution, datetimes, palette} = await client.loadDataset(dataset);
-        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+        const {title, unitFormat, attribution, referenceDatetimeRange, palette} = await client.loadDataset(dataset);
+        const datetimeRange = [referenceDatetimeRange[1], WeatherLayers.addHoursToDatetime(referenceDatetimeRange[1], 24)];
+        const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
+        const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetSliceData(dataset, datetimeRange, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+
+        config.datetimeRange = datetimeRange;
+        config.datetimes = datetimes;
+        config.datetime = datetime;
 
         deckgl.setProps({
           layers: [
@@ -255,7 +262,7 @@
         tooltipControl.updateConfig({ unitFormat });
         attributionControl.updateConfig({ attribution });
       }
-      update();
+      await update();
       gui = initGui(config, update, { deckgl, webgl2: true, globe: true });
     });
   </script>

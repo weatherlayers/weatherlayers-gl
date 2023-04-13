@@ -40,10 +40,8 @@
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const LICENSE = await (await fetch('../license.json')).json();
-      WeatherLayers.setLicense(LICENSE);
-      
-      const config = await initConfig({ client, webgl2: true, globe: true });
+      const datasets = await client.loadCatalog();
+      const config = await initConfig({ datasets, webgl2: true, globe: true });
       let gui;
 
       // Mapbox
@@ -81,10 +79,16 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        const datetime = config.datetime !== NO_DATA ? config.datetime : undefined;
-        const {title, unitFormat, attribution, datetimes, palette} = await client.loadDataset(dataset);
-        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime);
-        const {image: mercatorImage} = await mercatorClient.loadDatasetData(dataset, datetime);
+        const {title, unitFormat, attribution, referenceDatetimeRange, palette} = await client.loadDataset(dataset);
+        const datetimeRange = [referenceDatetimeRange[1], WeatherLayers.addHoursToDatetime(referenceDatetimeRange[1], 24)];
+        const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
+        const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
+        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetSliceData(dataset, datetimeRange, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+        const {image: mercatorImage} = await mercatorClient.loadDatasetSliceData(dataset, datetimeRange, datetime);
+
+        config.datetimeRange = datetimeRange;
+        config.datetimes = datetimes;
+        config.datetime = datetime;
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
           const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(mercatorImage, imageType, imageUnscale, palette) : undefined;
@@ -108,8 +112,8 @@
               type: 'raster',
               source: 'raster',
             });
-            rasterLayer.dataset = dataset;
-            rasterLayer.datetime = datetime;
+            rasterLayer.dataset = config.dataset;
+            rasterLayer.datetime = config.datetime;
           }
         }
         if (rasterLayer) {
@@ -134,8 +138,8 @@
               source: 'contour',
               type: 'line',
             });
-            contourLayer.dataset = dataset;
-            contourLayer.datetime = datetime;
+            contourLayer.dataset = config.dataset;
+            contourLayer.datetime = config.datetime;
             map.addLayer({
               id: 'contourLabel',
               source: 'contour',
@@ -183,8 +187,8 @@
                 ],
               },
             });
-            highLowLayer.dataset = dataset;
-            highLowLayer.datetime = datetime;
+            highLowLayer.dataset = config.dataset;
+            highLowLayer.datetime = config.datetime;
           }
         }
         if (highLowLayer) {
@@ -200,7 +204,7 @@
         legendControl.updateConfig({ title, unitFormat, palette });
         attributionControl.updateConfig({ attribution });
       }
-      update();
+      await update();
       gui = initGui(config, update, { webgl2: true, globe: true });
     });
   </script>

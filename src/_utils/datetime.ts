@@ -1,5 +1,7 @@
 export type DatetimeISOString = string;
 
+export type DatetimeISOStringRange = [DatetimeISOString, DatetimeISOString] | DatetimeISOString;
+
 export type DatetimeFormatFunction = (value: DatetimeISOString) => DatetimeISOString;
 
 export function interpolateDatetime(start: DatetimeISOString, end: DatetimeISOString | null, ratio: number): string {
@@ -53,6 +55,12 @@ export function getClosestStartDatetime(datetimes: DatetimeISOString[], datetime
 export function getClosestEndDatetime(datetimes: DatetimeISOString[], datetime: DatetimeISOString): DatetimeISOString | undefined {
   const closestDatetime = datetimes.find(x => x >= datetime);
   return closestDatetime;
+}
+
+export function addHoursToDatetime(datetime: DatetimeISOString, hour: number): DatetimeISOString {
+  const datetimeDate = new Date(datetime);
+  const updatedDatetimeDate = new Date(datetimeDate.getTime() + hour * 1000 * 60 * 60);
+  return updatedDatetimeDate.toISOString();
 }
 
 export function formatDatetime(value: DatetimeISOString): string {

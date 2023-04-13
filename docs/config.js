@@ -28,17 +28,15 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
 };
 
-export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
+export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
-  const datasets = client ? await client.loadCatalog() : [];
-
   const config = {
-    client,
-    datasets,
+    datasets: datasets ?? [],
     dataset: urlConfig.get('dataset') ?? DEFAULT_DATASET,
     datetimes: [],
-    datetime: new Date().toISOString(),
+    datetime: NO_DATA,
+
     ...(deckgl ? {
       datetimeInterpolate: true,
       imageSmoothing: 0,
@@ -105,7 +103,7 @@ export async function initConfig({ client, deckgl, webgl2, globe } = {}) {
     } : {}),
   };
 
-  await updateDataset(config, { deckgl, webgl2, globe });
+  loadUrlConfig(config, { deckgl, webgl2, globe });
 
   return config;
 }
@@ -118,12 +116,8 @@ function getDatetimeOptions(datetimes) {
   return datetimes.map(x => ({ value: x, text: WeatherLayers.formatDatetime(x) }));
 }
 
-async function updateDataset(config, { deckgl, webgl2 } = {}) {
-  const { client } = config;
+function loadUrlConfig(config, { deckgl, webgl2 } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
-
-  config.datetimes = client ? (await client.loadDataset(config.dataset)).datetimes : [];
-  config.datetime = config.datetimes[0] ?? NO_DATA;
 
   config.raster.enabled = urlConfig.has('raster') ? urlConfig.get('raster') === 'true' : true;
 
@@ -192,7 +186,8 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   let datetime;
   gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
-    await updateDataset(config, { deckgl, webgl2, globe });
+    await update();
+    loadUrlConfig(config, { deckgl, webgl2, globe });
     datetime.dispose();
     datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     gui.refresh();
