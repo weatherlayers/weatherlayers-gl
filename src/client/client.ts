@@ -54,8 +54,8 @@ function getStacCollectionAttribution(stacCollection: StacCollection, attributio
 
 function serializeDatetimeISOStringRange(datetime: DatetimeISOStringRange): string {
   if (Array.isArray(datetime)) {
-    const [from, to] = datetime;
-    return `${from ?? '..'}/${to ?? '..'}`;
+    const [start, end] = datetime;
+    return `${start ?? '..'}/${end ?? '..'}`;
   } else {
     return datetime ?? '..';
   }
