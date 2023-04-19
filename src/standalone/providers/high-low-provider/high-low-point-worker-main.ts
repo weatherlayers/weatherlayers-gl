@@ -5,7 +5,7 @@ import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import {blur} from '../../../_utils/blur.js';
 import {distance} from '../../../_utils/geodesy.js';
-import {getMagnitudeDataSmoothInterpolate} from '../../../_utils/pixel.js';
+import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
@@ -105,7 +105,7 @@ function getHighLowPointData(data: Float32Array, width: number, height: number, 
 export function getHighLowPointDataMain(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
   const image = { data, width, height };
   const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getMagnitudeDataSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
+  const magnitudeData = getRasterMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, bounds, radius);
   return highLowPointData;
 }

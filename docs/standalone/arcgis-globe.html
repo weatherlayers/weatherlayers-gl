@@ -127,7 +127,7 @@
         config.datetime = datetime;
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(mercatorImage, imageType, imageUnscale, palette) : undefined;
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(mercatorImage, config.imageSmoothing, config.imageInterpolation, imageType, imageUnscale, palette) : undefined;
           if (rasterLayer) {
             map.remove(rasterLayer);
           }

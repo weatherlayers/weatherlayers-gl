@@ -1,6 +1,6 @@
 import {formatValueWithUnit, formatDirection} from '../../_utils/format.js';
 import type {UnitFormat} from '../../_utils/unit-format.js';
-import {RasterPickingInfo} from '../../_utils/raster-picking-info.js';
+import {RasterPointProperties} from '../../_utils/raster-data.js';
 import {Control} from '../control.js';
 import './tooltip-control.css';
 
@@ -60,19 +60,19 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.#container.innerHTML = '';
   }
 
-  update(rasterPickingInfo?: RasterPickingInfo): void {
+  update(rasterPointProperties?: RasterPointProperties): void {
     if (!this.#container) {
       return;
     }
 
-    if (!rasterPickingInfo) {
+    if (!rasterPointProperties) {
       this.#container.innerHTML = '';
       return;
     }
     
     const unitFormat = this.#config.unitFormat;
 
-    const {value, direction} = rasterPickingInfo;
+    const {value, direction} = rasterPointProperties;
     let tooltip = formatValueWithUnit(value, unitFormat);
     if (typeof direction !== 'undefined') {
       tooltip += `, ${formatDirection(direction)}`

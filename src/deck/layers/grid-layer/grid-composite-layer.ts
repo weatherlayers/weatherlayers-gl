@@ -11,9 +11,9 @@ import type {ImageUnscale} from '../../../_utils/image-unscale.js';
 import type {UnitFormat} from '../../../_utils/unit-format.js';
 import {getViewportAngle} from '../../../_utils/viewport.js';
 import {getViewportGridPositions} from '../../../_utils/viewport-grid.js';
-import {getGridPoints} from '../../../standalone/providers/grid-provider/grid-point.js';
-import type {GridPointProperties} from '../../../standalone/providers/grid-provider/grid-point.js';
 import {GridStyle, GRID_ICON_STYLES} from './grid-style.js';
+import {getRasterPoints} from '../../../_utils/raster-data.js';
+import type {RasterPointProperties} from '../../../_utils/raster-data.js';
 
 type _GridCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
@@ -70,8 +70,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
   renderLayers(): LayersList {
     const {viewport} = this.context;
-    const {props, gridPoints} = this.state;
-    if (!props || !gridPoints) {
+    const {props, rasterPoints} = this.state;
+    if (!props || !rasterPoints) {
       return [];
     }
 
@@ -85,22 +85,22 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
-          data: gridPoints,
+          data: rasterPoints,
           getPosition: d => d.geometry.coordinates as Position,
           getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
           getSize: iconSize,
           getColor: iconColor,
-          getAngle: d => getViewportAngle(viewport, 360 - d.properties.direction),
+          getAngle: d => getViewportAngle(viewport, d.properties.direction ? 360 - d.properties.direction : 0),
           iconAtlas,
           iconMapping,
           billboard: false,
-        } satisfies IconLayerProps<GeoJSON.Feature<GeoJSON.Point, GridPointProperties>>)),
+        } satisfies IconLayerProps<GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>>)),
       ];
     } else {
       return [
         new TextLayer(this.getSubLayerProps({
           id: 'text',
-          data: gridPoints,
+          data: rasterPoints,
           getPosition: d => d.geometry.coordinates as Position,
           getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
@@ -111,7 +111,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           fontFamily: textFontFamily,
           fontSettings: { sdf: true },
           billboard: false,
-        } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, GridPointProperties>>)),
+        } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>>)),
       ];
     }
   }
@@ -163,8 +163,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return;
     }
 
-    const gridPoints = getGridPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features;
+    const {features: rasterPoints} = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions);
 
-    this.setState({ gridPoints });
+    this.setState({ rasterPoints });
   }
 }

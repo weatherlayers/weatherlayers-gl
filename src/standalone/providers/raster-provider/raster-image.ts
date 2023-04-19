@@ -4,12 +4,12 @@ import type {TextureData} from '../../../_utils/data.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {getPixelSmoothInterpolate} from '../../../_utils/pixel.js';
-import {hasPixelValue, getPixelMagnitudeValue} from '../../../_utils/pixel-value.js';
+import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
 
-export function getRasterImage(image: TextureData, imageType: ImageType, imageUnscale: ImageUnscale, palette: Palette): HTMLCanvasElement {
+export function getRasterImage(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, palette: Palette): HTMLCanvasElement {
   const {width, height} = image;
 
+  const magnitudeData = getRasterMagnitudeData(image, null, imageSmoothing, imageInterpolation, 0, imageType, imageUnscale);
   const paletteScale = parsePalette(palette);
 
   const canvas = document.createElement('canvas');
@@ -19,27 +19,25 @@ export function getRasterImage(image: TextureData, imageType: ImageType, imageUn
   const imageData = context.createImageData(width, height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const i = (x + y * width) * 4;
+      const i = x + y * width;
+      const j = (x + y * width) * 4;
 
-      const uvX = x / width;
-      const uvY = y / height;
-      const pixel = getPixelSmoothInterpolate(image, null, 0, ImageInterpolation.NEAREST, 0, uvX, uvY);
-      if (!hasPixelValue(pixel, imageUnscale)) {
+      const value = magnitudeData.data[i];
+      if (isNaN(value)) {
         const color = paletteScale(null as unknown as number).rgba();
-        imageData.data[i] = color[0];
-        imageData.data[i + 1] = color[1];
-        imageData.data[i + 2] = color[2];
-        imageData.data[i + 3] = color[3] * 255;
+        imageData.data[j] = color[0];
+        imageData.data[j + 1] = color[1];
+        imageData.data[j + 2] = color[2];
+        imageData.data[j + 3] = color[3] * 255;
         continue;
       }
 
-      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
       const color = paletteScale(value).rgba();
 
-      imageData.data[i] = color[0];
-      imageData.data[i + 1] = color[1];
-      imageData.data[i + 2] = color[2];
-      imageData.data[i + 3] = color[3] * 255;
+      imageData.data[j] = color[0];
+      imageData.data[j + 1] = color[1];
+      imageData.data[j + 2] = color[2];
+      imageData.data[j + 3] = color[3] * 255;
     }
   }
   context.putImageData(imageData, 0, 0);

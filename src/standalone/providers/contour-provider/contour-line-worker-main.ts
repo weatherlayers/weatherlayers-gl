@@ -5,7 +5,7 @@ import {TextureDataArray} from '../../../_utils/data.js';
 import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import type {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {getMagnitudeDataSmoothInterpolate} from '../../../_utils/pixel.js';
+import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
 import {getUnprojectFunction} from '../../../_utils/project.js';
 
 /**
@@ -126,7 +126,7 @@ function getContourLineData(data: Float32Array, width: number, height: number, b
 export function getContourLineDataMain(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Float32Array {
   const image = { data, width, height };
   const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getMagnitudeDataSmoothInterpolate(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
+  const magnitudeData = getRasterMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
   const contourLineData = getContourLineData(magnitudeData.data, width, height, bounds, interval);
   return contourLineData;
 }

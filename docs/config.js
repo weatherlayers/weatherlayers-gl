@@ -39,9 +39,11 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     ...(deckgl ? {
       datetimeInterpolate: true,
-      imageSmoothing: 0,
-      imageInterpolation: WeatherLayers.ImageInterpolation.CUBIC,
     } : {}),
+
+    imageSmoothing: 0,
+    imageInterpolation: deckgl ? WeatherLayers.ImageInterpolation.CUBIC : WeatherLayers.ImageInterpolation.NEAREST,
+
     ...(globe ? {
       rotate: false,
     } : {}),
@@ -198,9 +200,10 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   if (deckgl) {
     gui.addInput(config, 'datetimeInterpolate').on('change', update);
-    gui.addInput(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
-    gui.addInput(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
   }
+
+  gui.addInput(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
+  gui.addInput(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
 
   if (globe) {
     gui.addInput(config, 'rotate').on('change', update);

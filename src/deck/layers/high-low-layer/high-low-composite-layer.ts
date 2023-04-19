@@ -167,10 +167,10 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     // - NEAREST - 100 ms
     // - LINEAR - 600 ms
     // - CUBIC - 6 s
-    // TODO: move getMagnitudeDataSmoothInterpolate to GPU, remove blur
+    // TODO: move getRasterMagnitudeData to GPU, remove blur
     const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
 
-    const highLowPoints = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+    const {features: highLowPoints} = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius));
     const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);

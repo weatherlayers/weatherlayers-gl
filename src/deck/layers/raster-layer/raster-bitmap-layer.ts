@@ -9,7 +9,7 @@ import {ensureDefaultProps} from '../../../_utils/props.js';
 import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
 import {ImageType} from '../../../_utils/image-type.js';
 import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {RasterPickingInfo} from '../../../_utils/raster-picking-info.js';
+import {RasterPointProperties} from '../../../_utils/raster-data.js';
 import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {
@@ -115,13 +115,13 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     this.setState({ paletteTexture, paletteBounds });
   }
 
-  #getRasterValue(color: Uint8Array): number {
+  #getRasterMagnitudeValue(color: Uint8Array): number {
     const {paletteBounds} = this.state;
 
     return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
-  #getRasterDirection(color: Uint8Array): number {
+  #getRasterDirectionValue(color: Uint8Array): number {
     const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (imageType === ImageType.VECTOR) {
       return color[1] / 255 * 360;
@@ -131,22 +131,21 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   getPickingInfo(params: GetPickingInfoParams): PickingInfo {
-    const info: PickingInfo & {raster?: RasterPickingInfo} = params.info;
+    const info: PickingInfo & {raster?: RasterPointProperties} = params.info;
     const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (!info.color) {
       return info;
     }
 
-
-    let rasterPickingInfo: RasterPickingInfo;
-    const value = this.#getRasterValue(info.color);
+    let rasterPointProperties: RasterPointProperties;
+    const value = this.#getRasterMagnitudeValue(info.color);
     if (imageType === ImageType.VECTOR) {
-      const direction = this.#getRasterDirection(info.color);
-      rasterPickingInfo = { value, direction };
+      const direction = this.#getRasterDirectionValue(info.color);
+      rasterPointProperties = { value, direction };
     } else {
-      rasterPickingInfo = { value };
+      rasterPointProperties = { value };
     }
-    info.raster = rasterPickingInfo;
+    info.raster = rasterPointProperties;
 
     return info;
   }
