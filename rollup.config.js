@@ -128,7 +128,7 @@ export default commandLineArgs => {
     ['src/client/index.ts', 'dist/weatherlayers-client.js'],
     ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
     // standalone build disabled because it doesn't finish on Cloudbuild
-    ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
+    // ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),
