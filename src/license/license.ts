@@ -68,7 +68,7 @@ function bufferFromBase64(base64String: string): ArrayBuffer {
 }
 
 async function verifyLicenseSignature(crypto: Crypto, publicKeyRaw: string, content: LicenseContent, signature: string): Promise<boolean> {
-  if (!crypto.subtle) {
+  if (!crypto.subtle || !publicKeyRaw || !content || !signature) {
     return false;
   }
 
