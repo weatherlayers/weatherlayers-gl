@@ -111,7 +111,3 @@ export const loadTextureData = loadCached(url => {
 export const loadJson = loadCached(async url => {
   return (await fetch(url)).json();
 });
-
-export const loadText = loadCached(async url => {
-  return (await fetch(url)).text();
-});

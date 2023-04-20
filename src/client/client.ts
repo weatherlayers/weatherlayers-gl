@@ -1,6 +1,6 @@
 import {Palette} from 'cpt2js';
 import {VERSION, CATALOG_URL} from '../_utils/build.js';
-import {TextureData, loadTextureData, loadJson, loadText} from '../_utils/data.js';
+import {TextureData, loadTextureData, loadJson} from '../_utils/data.js';
 import type {ImageType} from '../_utils/image-type.js';
 import type {ImageUnscale} from '../_utils/image-unscale.js';
 import type {DatetimeISOString, DatetimeISOStringRange} from '../_utils/datetime.js';
@@ -104,12 +104,12 @@ export class Client {
 
   async #loadStacCollectionPalette(dataset: string, config: ClientConfig = {}): Promise<Palette> {
     const stacCollection = await this.#loadStacCollection(dataset, config);
-    const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(StacAssetRole.PALETTE) && x.type === 'text/plain');
+    const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(StacAssetRole.PALETTE) && x.type === 'application/json');
     if (!asset) {
       throw new Error(`Palette asset not found`);
     }
     const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.#config);
-    return loadText(authenticatedUrl, this.#cache);
+    return loadJson(authenticatedUrl, this.#cache);
   }
 
   async #searchStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<StacItem[]> {
