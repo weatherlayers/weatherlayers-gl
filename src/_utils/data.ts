@@ -46,8 +46,8 @@ async function loadImage(url: string): Promise<TextureData> {
   image.src = URL.createObjectURL(blob);
   try {
     await image.decode();
-  } catch {
-    throw new Error(`Image ${url} can't be decoded.`);
+  } catch (e) {
+    throw new Error(`Image ${url} can't be decoded.`, { cause: e });
   }
 
   const canvas = document.createElement('canvas');
@@ -63,8 +63,13 @@ async function loadImage(url: string): Promise<TextureData> {
 }
 
 async function loadGeotiff(url: string): Promise<TextureData> {
-  // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
-  const geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: 10*1024*1024 });
+  let geotiff;
+  try {
+    // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
+    geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: 10*1024*1024 });
+  } catch (e) {
+    throw new Error(`Image ${url} can't be decoded.`, { cause: e });
+  }
   const geotiffImage = await geotiff.getImage(0);
 
   const sourceData = await geotiffImage.readRasters({ interleave: true }) as GeoTIFF.TypedArray;
