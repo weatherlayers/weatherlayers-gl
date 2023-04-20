@@ -60,6 +60,7 @@ export interface StacCatalog {
   stac_extensions?: string[];
   id: string;
   title: string;
+  conformsTo?: string[];
   links: StacLink[];
 }
 
