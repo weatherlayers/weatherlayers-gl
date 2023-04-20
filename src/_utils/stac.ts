@@ -22,6 +22,7 @@ export enum StacLinkRel {
   CHILD = 'child',
   ITEM = 'item',
   LICENSE = 'license',
+  SEARCH = 'search',
 }
 
 export interface StacLink {

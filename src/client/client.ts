@@ -113,8 +113,12 @@ export class Client {
   }
 
   async #searchStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<StacItem[]> {
-    const url = config.url ?? this.#config.url ?? DEFAULT_URL;
-    const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/search?collections=${dataset}&datetime=${serializeDatetimeISOStringRange(datetimeRange)}`, config);
+    const stacCatalog = await this.#loadStacCatalog(config);
+    const link = stacCatalog.links.find(x => x.rel === StacLinkRel.SEARCH);
+    if (!link) {
+      throw new Error(`Catalog search not found`);
+    }
+    const authenticatedUrl = this.#getAuthenticatedUrl(`${link.href}&collections=${dataset}&datetime=${serializeDatetimeISOStringRange(datetimeRange)}`, config);
     const stacItemCollection: StacItemCollection = await loadJson(authenticatedUrl, this.#cache);
     const {features: stacItems} = stacItemCollection;
     return stacItems;
