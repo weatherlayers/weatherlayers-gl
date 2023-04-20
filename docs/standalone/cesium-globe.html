@@ -78,10 +78,9 @@
         const datetimeRange = [referenceDatetimeRange[1], WeatherLayers.addHoursToDatetime(referenceDatetimeRange[1], 24)];
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
         const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
-        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetSliceData(dataset, datetimeRange, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+        const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
         const {image: mercatorImage} = await mercatorClient.loadDatasetSliceData(dataset, datetimeRange, datetime);
 
-        config.datetimeRange = datetimeRange;
         config.datetimes = datetimes;
         config.datetime = datetime;
 

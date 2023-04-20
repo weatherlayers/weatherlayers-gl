@@ -20,8 +20,8 @@ export interface Dataset {
   title: string;
   unitFormat: UnitFormat;
   attribution: string;
-  datetimeRange: DatetimeISOStringRange,
-  referenceDatetimeRange: DatetimeISOStringRange,
+  datetimeRange: DatetimeISOStringRange;
+  referenceDatetimeRange: DatetimeISOStringRange;
   datetimes: DatetimeISOString[]; // deprecated, use `loadDatasetSlice` instead
   palette: Palette;
 }
@@ -53,17 +53,14 @@ function getStacCollectionAttribution(stacCollection: StacCollection, attributio
 }
 
 function serializeDatetimeISOStringRange(datetime: DatetimeISOStringRange): string {
-  if (Array.isArray(datetime)) {
-    const [start, end] = datetime;
-    return `${start ?? '..'}/${end ?? '..'}`;
-  } else {
-    return datetime ?? '..';
-  }
+  const [start, end] = datetime;
+  return `${start ?? '..'}/${end ?? '..'}`;
 }
 
 export class Client {
   #config: ClientConfig;
   #cache = new Map<string, any>();
+  #loadedDatasetSlices = new Map<string, DatetimeISOStringRange[]>();
 
   constructor(config: ClientConfig) {
     this.#config = config;
@@ -166,34 +163,20 @@ export class Client {
   }
 
   async loadDatasetSlice(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<DatasetSlice> {
+    // set datetime slice as loaded
+    this.#loadedDatasetSlices.set(dataset, [...(this.#loadedDatasetSlices.get(dataset) ?? []), datetimeRange]);
+
     const stacItems = await this.#searchStacItems(dataset, datetimeRange, config);
     const datetimes = stacItems.map(x => x.properties.datetime);
     return { datetimes };
   }
 
   async loadDatasetData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
-    const stacCollection = await this.#loadStacCollection(dataset, config);
-    const {datetimes} = await this.loadDatasetSlice(dataset, datetime, config);
-    const startDatetime = getClosestStartDatetime(datetimes, datetime);
-
-    if (!startDatetime) {
-      throw new Error('No data found');
-    }
-
-    const image = await this.#loadStacItemData(dataset, datetime, startDatetime, config);
-
-    return {
-      image,
-      image2: null,
-      imageWeight: 0,
-      imageType: stacCollection['weatherLayers:imageType'],
-      imageUnscale: image.data instanceof Uint8Array || image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null,
-      bounds: stacCollection.extent.spatial.bbox[0]
-    };
-  }
-
-  async loadDatasetSliceData(dataset: string, datetimeRange: DatetimeISOStringRange, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
+    
+    // get a loaded datetime slice, to avoid duplicate loading
+    const datetimeRange = this.#loadedDatasetSlices.get(dataset)?.find(datetimeRange => datetimeRange[0] <= datetime && datetime <= datetimeRange[1]) ?? [datetime, datetime] as DatetimeISOStringRange;
+
     const stacCollection = await this.#loadStacCollection(dataset, config);
     const {datetimes} = await this.loadDatasetSlice(dataset, datetimeRange, config);
     const startDatetime = getClosestStartDatetime(datetimes, datetime);

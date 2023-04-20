@@ -1,6 +1,6 @@
 export type DatetimeISOString = string;
 
-export type DatetimeISOStringRange = [start: DatetimeISOString, end: DatetimeISOString] | DatetimeISOString;
+export type DatetimeISOStringRange = readonly [start: DatetimeISOString, end: DatetimeISOString];
 
 export type DatetimeFormatFunction = (value: DatetimeISOString) => DatetimeISOString;
 

@@ -75,7 +75,7 @@
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetSliceData(config.dataset, config.datetimeRange, datetime))),
+        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetData(config.dataset, datetime))),
         onUpdate: datetime => {
           config.datetime = datetime || NO_DATA;
           update();
@@ -103,9 +103,8 @@
         const datetimeRange = [referenceDatetimeRange[1], WeatherLayers.addHoursToDatetime(referenceDatetimeRange[1], 24)];
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
         const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
-        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetSliceData(dataset, datetimeRange, datetime, { datetimeInterpolate: config.datetimeInterpolate });
+        const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
-        config.datetimeRange = datetimeRange;
         config.datetimes = datetimes;
         config.datetime = datetime;
 

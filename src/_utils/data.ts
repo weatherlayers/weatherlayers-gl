@@ -44,7 +44,11 @@ async function loadImage(url: string): Promise<TextureData> {
 
   const image = new Image();
   image.src = URL.createObjectURL(blob);
-  await image.decode();
+  try {
+    await image.decode();
+  } catch {
+    throw new Error(`Image ${url} can't be decoded.`);
+  }
 
   const canvas = document.createElement('canvas');
   canvas.width = image.width;
