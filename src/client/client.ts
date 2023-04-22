@@ -5,7 +5,7 @@ import type {ImageType} from '../_utils/image-type.js';
 import type {ImageUnscale} from '../_utils/image-unscale.js';
 import type {DatetimeISOString, DatetimeISOStringRange} from '../_utils/datetime.js';
 import type {UnitFormat} from '../_utils/unit-format.js';
-import {StacCatalog, StacCollection, StacProviderRole, StacAssetRole, StacItem, StacItemCollection, StacLinkRel} from '../_utils/stac.js';
+import {StacCatalog, StacCollection, StacProviderRole, StacAssetRole, StacItem, StacItemCollection, StacLinkRel, StacCollections} from '../_utils/stac.js';
 import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
 
 export interface ClientConfig {
@@ -52,9 +52,13 @@ function getStacCollectionAttribution(stacCollection: StacCollection, attributio
   return attribution;
 }
 
-function serializeDatetimeISOStringRange(datetime: DatetimeISOStringRange): string {
-  const [start, end] = datetime;
-  return `${start ?? '..'}/${end ?? '..'}`;
+function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange): string {
+  if (Array.isArray(datetimeRange)) {
+    const [start, end] = datetimeRange as readonly [start: DatetimeISOString, end: DatetimeISOString];
+    return `${start ?? '..'}/${end ?? '..'}`;
+  } else {
+    return `${datetimeRange ?? '..'}`;
+  }
 }
 
 export class Client {
@@ -96,6 +100,17 @@ export class Client {
     return loadJson(authenticatedUrl, this.#cache);
   }
 
+  async #loadStacCollections(config: ClientConfig = {}): Promise<StacCollection[]> {
+    const stacCatalog = await this.#loadStacCatalog(config);
+    const link = stacCatalog.links.find(x => x.rel === StacLinkRel.DATA);
+    if (!link) {
+      throw new Error(`Catalog data not found`);
+    }
+    const authenticatedUrl = this.#getAuthenticatedUrl(link.href, config);
+    const {collections: stacCollections} = await loadJson(authenticatedUrl, this.#cache) as StacCollections;
+    return stacCollections;
+  }
+
   async #loadStacCollection(dataset: string, config: ClientConfig = {}): Promise<StacCollection> {
     const url = config.url ?? this.#config.url ?? DEFAULT_URL;
     const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog/${dataset}`, config);
@@ -119,8 +134,7 @@ export class Client {
       throw new Error(`Catalog search not found`);
     }
     const authenticatedUrl = this.#getAuthenticatedUrl(`${link.href}&collections=${dataset}&datetime=${serializeDatetimeISOStringRange(datetimeRange)}`, config);
-    const stacItemCollection: StacItemCollection = await loadJson(authenticatedUrl, this.#cache);
-    const {features: stacItems} = stacItemCollection;
+    const {features: stacItems} = await loadJson(authenticatedUrl, this.#cache) as StacItemCollection;
     return stacItems;
   }
 
@@ -141,13 +155,8 @@ export class Client {
   }
 
   async loadCatalog(config: ClientConfig = {}): Promise<string[]> {
-    const stacCatalog = await this.#loadStacCatalog(config);
-    const modelIds = stacCatalog.links.filter(x => x.rel === StacLinkRel.CHILD).map(x => x.id).filter(x => !!x) as string[];
-    const datasetIds = (await Promise.all(modelIds.map(async modelId => {
-      const stacCollection = await this.#loadStacCollection(modelId);
-      const datasetIds = stacCollection.links.filter(x => x.rel === StacLinkRel.CHILD).map(x => x.id).filter(x => !!x) as string[];
-      return datasetIds;
-    }))).flat();
+    const stacCollections = await this.#loadStacCollections(config);
+    const datasetIds = stacCollections.map(stacCollection => stacCollection.id);
     return datasetIds;
   }
 
@@ -179,7 +188,7 @@ export class Client {
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
     
     // get a loaded datetime slice, to avoid duplicate loading
-    const datetimeRange = this.#loadedDatasetSlices.get(dataset)?.find(datetimeRange => datetimeRange[0] <= datetime && datetime <= datetimeRange[1]) ?? [datetime, datetime] as DatetimeISOStringRange;
+    const datetimeRange = this.#loadedDatasetSlices.get(dataset)?.find(datetimeRange => datetimeRange[0] <= datetime && datetime <= datetimeRange[1]) ?? datetime;
 
     const stacCollection = await this.#loadStacCollection(dataset, config);
     const {datetimes} = await this.loadDatasetSlice(dataset, datetimeRange, config);

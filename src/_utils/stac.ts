@@ -1,4 +1,3 @@
-import { ModelAvailability } from './model-availability.js';
 import { ImageType } from './image-type.js';
 import { UnitFormat } from './unit-format.js';
 
@@ -22,6 +21,8 @@ export enum StacLinkRel {
   CHILD = 'child',
   ITEM = 'item',
   LICENSE = 'license',
+  CONFORMANCE = 'conformance',
+  DATA = 'data',
   SEARCH = 'search',
 }
 
@@ -64,6 +65,11 @@ export interface StacCatalog {
   links: StacLink[];
 }
 
+export interface StacCollections {
+  collections: StacCollection[];
+  links: StacLink[];
+}
+
 export interface StacCollection {
   type: 'Collection';
   stac_version: '1.0.0';
@@ -82,10 +88,15 @@ export interface StacCollection {
   links: StacLink[];
   assets: { [key: string]: StacAsset };
   'weatherLayers:referenceDatetimeRange': [string, string]; // custom
-  'weatherLayers:availability': ModelAvailability; // custom
   'weatherLayers:imageType': ImageType; // custom
   'weatherLayers:imageUnscale': [number, number]; // custom
   'weatherLayers:units': UnitFormat[]; // custom
+}
+
+export interface StacItemCollection {
+  type: 'FeatureCollection';
+  features: StacItem[];
+  links: StacLink[];
 }
 
 export interface StacItem {
@@ -106,9 +117,4 @@ export interface StacItem {
   links: StacLink[];
   assets: { [key: string]: StacAsset };
   collection: string;
-}
-
-export interface StacItemCollection {
-  type: 'FeatureCollection';
-  features: StacItem[];
 }
