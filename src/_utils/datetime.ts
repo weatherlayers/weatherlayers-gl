@@ -1,31 +1,31 @@
 export type DatetimeISOString = string;
 
-export type DatetimeISOStringRange = readonly [start: DatetimeISOString, end: DatetimeISOString] | DatetimeISOString;
+export type DatetimeISOStringRange = [start: DatetimeISOString, end: DatetimeISOString];
 
 export type DatetimeFormatFunction = (value: DatetimeISOString) => DatetimeISOString;
 
-export function interpolateDatetime(start: DatetimeISOString, end: DatetimeISOString | null, ratio: number): string {
+export function interpolateDatetime(start: DatetimeISOString, end: DatetimeISOString | null, weight: number): string {
   if (!end) {
-    if (ratio === 0) {
+    if (weight === 0) {
       return start;
     } else {
       throw new Error('Invalid state');
     }
   }
 
-  if (ratio <= 0) {
+  if (weight <= 0) {
     return start;
-  } else if (ratio >= 1) {
+  } else if (weight >= 1) {
     return end;
   } else {
     const startDate = new Date(start);
     const endDate = new Date(end);
-    const date = new Date(startDate.getTime() + (endDate.getTime() - startDate.getTime()) * ratio);
+    const date = new Date(startDate.getTime() + (endDate.getTime() - startDate.getTime()) * weight);
     return date.toISOString();
   }
 }
 
-export function getDatetimeWeight(start: DatetimeISOString, end: DatetimeISOString | null, middle: string): number {
+export function getDatetimeWeight(start: DatetimeISOString, end: DatetimeISOString | null, middle: DatetimeISOString): number {
   if (!end) {
     if (start === middle) {
       return 0;
@@ -57,10 +57,14 @@ export function getClosestEndDatetime(datetimes: DatetimeISOString[], datetime: 
   return closestDatetime;
 }
 
-export function addHoursToDatetime(datetime: DatetimeISOString, hour: number): DatetimeISOString {
+export function offsetDatetime(datetime: DatetimeISOString, hour: number): DatetimeISOString {
   const datetimeDate = new Date(datetime);
   const updatedDatetimeDate = new Date(datetimeDate.getTime() + hour * 1000 * 60 * 60);
   return updatedDatetimeDate.toISOString();
+}
+
+export function offsetDatetimeRange(datetime: DatetimeISOString, start: number, end: number): DatetimeISOStringRange {
+  return [offsetDatetime(datetime, start), offsetDatetime(datetime, end)];
 }
 
 export function formatDatetime(value: DatetimeISOString): string {

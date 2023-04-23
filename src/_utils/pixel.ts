@@ -2,7 +2,7 @@ import {frac, add, dot, mul, mix} from './glsl.js';
 import {ImageInterpolation} from './image-interpolation.js';
 import type {TextureData} from './data.js';
 
-type ImageDownscaleResolution = readonly [number, number];
+type ImageDownscaleResolution = [width: number, height: number];
 
 function getPixel(image: TextureData, imageDownscaleResolution: ImageDownscaleResolution, iuvX: number, iuvY: number, offsetX: number, offsetY: number): number[] {
   const { data, width, height } = image;
@@ -23,7 +23,7 @@ const BS_A = [ 3, -6,   0, 4].map(x => x / 6);
 const BS_B = [-1,  6, -12, 8].map(x => x / 6);
 
 function powers(x: number): number[] { 
-  return [x*x*x, x*x, x, 1]; 
+  return [x * x * x, x * x, x, 1]; 
 }
 
 function spline(c0: number[], c1: number[], c2: number[], c3: number[], a: number): number[] {

@@ -15,12 +15,13 @@ export interface StacProvider {
 }
 
 export enum StacLinkRel {
+  LICENSE = 'license',
   SELF = 'self',
   ROOT = 'root',
   PARENT = 'parent',
   CHILD = 'child',
   ITEM = 'item',
-  LICENSE = 'license',
+  COLLECTION = 'collection',
   CONFORMANCE = 'conformance',
   DATA = 'data',
   SEARCH = 'search',
@@ -30,15 +31,7 @@ export interface StacLink {
   href: string;
   rel: StacLinkRel;
   type: string;
-  id?: string; // custom
-  datetime?: string; // custom
-}
-
-export interface StacRasterBand {
-  data_type: string;
-  unit: string;
-  scale?: number;
-  offset?: number;
+  datetime?: string; // deprecated, used by Virtual Gaia and WatchDuty
 }
 
 export enum StacAssetRole {
@@ -51,32 +44,33 @@ export interface StacAsset {
   href: string;
   type: string;
   roles: StacAssetRole[];
-  'proj:epsg'?: number;
-  'raster:bands'?: StacRasterBand[];
 }
 
 export interface StacCatalog {
   type: 'Catalog';
-  stac_version: '1.0.0';
+  stac_version: string;
   stac_extensions?: string[];
   id: string;
   title: string;
+  description: string;
   conformsTo?: string[];
   links: StacLink[];
 }
 
-export interface StacCollections {
-  collections: StacCollection[];
+export interface StacCollections<StacCollectionT extends StacCollection = StacCollection> {
+  collections: StacCollectionT[];
   links: StacLink[];
 }
 
 export interface StacCollection {
   type: 'Collection';
-  stac_version: '1.0.0';
+  stac_version: string;
   stac_extensions?: string[];
   id: string;
   title: string;
+  description: string;
   providers: StacProvider[];
+  license: string;
   extent: {
     spatial: {
       bbox: [[number, number, number, number]];
@@ -85,23 +79,20 @@ export interface StacCollection {
       interval: [[string, string]];
     };
   };
+  summaries?: unknown; // deprecated, used by Virtual Gaia
   links: StacLink[];
   assets: { [key: string]: StacAsset };
-  'weatherLayers:referenceDatetimeRange': [string, string]; // custom
-  'weatherLayers:imageType': ImageType; // custom
-  'weatherLayers:imageUnscale': [number, number]; // custom
-  'weatherLayers:units': UnitFormat[]; // custom
 }
 
-export interface StacItemCollection {
+export interface StacItemCollection<StacItemT extends StacItem = StacItem> {
   type: 'FeatureCollection';
-  features: StacItem[];
+  features: StacItemT[];
   links: StacLink[];
 }
 
-export interface StacItem {
+export interface StacItem<ExtraPropertiesT extends {} = {}, StacAssetT extends StacAsset = StacAsset> {
   type: 'Feature';
-  stac_version: '1.0.0';
+  stac_version: string;
   stac_extensions?: string[];
   id: string;
   geometry: {
@@ -111,10 +102,33 @@ export interface StacItem {
   bbox: [number, number, number, number];
   properties: {
     datetime: string;
-    'forecast:reference_datetime': string;
-    'forecast:horizon': string;
-  };
+  } & ExtraPropertiesT;
   links: StacLink[];
-  assets: { [key: string]: StacAsset };
+  assets: { [key: string]: StacAssetT };
   collection: string;
+}
+
+export type DatasetStacCollections = StacCollections<DatasetStacCollection>;
+
+export interface DatasetStacCollection extends StacCollection {
+  'weatherLayers:imageType': ImageType; // custom
+  'weatherLayers:imageUnscale': [number, number] | null; // custom
+  'weatherLayers:units': UnitFormat[]; // custom
+}
+
+export type DatasetDataStacItemCollection = StacItemCollection<DatasetDataStacItem>;
+
+export type DatasetDataStacItem = StacItem<{
+  'forecast:reference_datetime': string;
+  'forecast:horizon': string;
+}, DatasetDataStacAsset>;
+
+export interface DatasetDataStacAsset extends StacAsset {
+  'proj:epsg': number;
+  'raster:bands'?: {
+    data_type: string;
+    unit: string;
+    scale?: number;
+    offset?: number;
+  }[];
 }

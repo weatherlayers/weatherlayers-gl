@@ -19,28 +19,28 @@ export function getRasterPoints(image: TextureData, image2: TextureData | null, 
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
-  const rasterPoints: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[] = [];
-  for (let position of positions) {
+  const rasterPoints = positions.map(position => {
     const point = project(position);
 
     const uvX = point[0] / width;
     const uvY = point[1] / height;
     const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
-    if (!hasPixelValue(pixel, imageUnscale)) {
-      continue;
-    }
 
-    const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
-    let rasterPointProperties: RasterPointProperties;
-    if (imageType === ImageType.VECTOR) {
-      const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
-      rasterPointProperties = { value, direction };
+    let rasterPointProperties;
+    if (hasPixelValue(pixel, imageUnscale)) {
+      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+      if (imageType === ImageType.VECTOR) {
+        const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
+        rasterPointProperties = { value, direction };
+      } else {
+        rasterPointProperties = { value };
+      }
     } else {
-      rasterPointProperties = { value };
+      rasterPointProperties = { value: NaN };
     }
 
-    rasterPoints.push({ type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: rasterPointProperties});
-  }
+    return { type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: rasterPointProperties} as GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>;
+  });
 
   return { type: 'FeatureCollection', features: rasterPoints };
 }
@@ -59,12 +59,14 @@ export function getRasterMagnitudeData(image: TextureData, image2: TextureData |
       const uvX = x / width;
       const uvY = y / height;
       const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
-      if (!hasPixelValue(pixel, imageUnscale)) {
-        magnitudeData[i] = NaN;
-        continue;
+
+      let value;
+      if (hasPixelValue(pixel, imageUnscale)) {
+        value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+      } else {
+        value = NaN;
       }
 
-      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
       magnitudeData[i] = value;
     }
   }

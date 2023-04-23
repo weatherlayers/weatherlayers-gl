@@ -2,7 +2,7 @@ import {ImageType} from './image-type.js';
 import type {ImageUnscale} from './image-unscale.js';
 import {mixOne} from './glsl.js';
 
-type VectorValue = readonly [u: number, v: number];
+type VectorValue = [u: number, v: number];
 
 export function hasPixelValue(pixel: number[], imageUnscale: ImageUnscale): boolean {
   if (imageUnscale) {

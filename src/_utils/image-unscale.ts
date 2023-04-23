@@ -1,1 +1,1 @@
-export type ImageUnscale = readonly [min: number, max: number] | null;
+export type ImageUnscale = [min: number, max: number] | null;

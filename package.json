@@ -46,7 +46,7 @@
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
-    "test": "node --test",
+    "test": "TEST_EXTENSIONS=.test.ts ts-node-test src",
     "generate-keypair": "ts-node-esm src/license/generate-keypair.ts",
     "generate-license": "ts-node-esm src/license/generate-license.ts",
     "verify-license": "ts-node-esm src/license/verify-license.ts"
@@ -106,6 +106,8 @@
     "rollup-plugin-typescript2": "^0.34.1",
     "rollup-plugin-visualizer": "^5.9.0",
     "rollup-plugin-worker-factory": "^0.5.7",
+    "ts-node": "^10.9.1",
+    "ts-node-test": "^0.4.1",
     "typescript": "^5.0.4",
     "webpack-glsl-minify": "^1.5.0"
   },
