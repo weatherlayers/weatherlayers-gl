@@ -29,8 +29,13 @@ export function setLicense(currentLicense: License): void {
 
 export function withVerifyLicense<PropsT extends {}, LayerT extends typeof CompositeLayer<PropsT>>(layerName: string, defaultProps: DefaultProps<PropsT>) {
   return (layerClass: LayerT, _context: ClassDecoratorContext<LayerT>): LayerT => {
+    // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet
+    // otherwise deck.gl logs a warning, see https://github.com/visgl/deck.gl/pull/7813
+    layerClass.layerName = layerName;
+    layerClass.defaultProps = defaultProps;
+
     return class extends CompositeLayer<PropsT> {
-      // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet, they contain CompositeLayer static field values
+      // use layerName and defaultProps passed by arguments, because layerClass static fields are not assigned yet
       static layerName = layerName;
       static defaultProps = defaultProps;
 
@@ -47,7 +52,6 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
 
       renderLayers(): LayersList {
         const {viewport} = this.context;
-
         // create base layer without calling this.getSubLayerProps, so that base layer id uses original id from this.props.id
         // @ts-ignore
         const baseLayer: CompositeLayer<PropsT> = new layerClass(this.props);
