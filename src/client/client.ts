@@ -118,7 +118,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(link.href, config);
-    const {collections: stacCollections} = await loadJson(authenticatedUrl, this.#cache) as DatasetStacCollections;
+    const stacCollections = (await loadJson(authenticatedUrl, this.#cache) as DatasetStacCollections).collections;
 
     // cache
     for (const stacCollection of stacCollections) {
@@ -169,7 +169,7 @@ export class Client {
     url.searchParams.set('collections', dataset);
     url.searchParams.set('datetime', serializeDatetimeISOStringRange(datetimeRange));
     const authenticatedUrl = this.#getAuthenticatedUrl(url.toString(), config);
-    const {features: stacItems} = await loadJson(authenticatedUrl, this.#cache) as DatasetDataStacItemCollection;
+    const stacItems = (await loadJson(authenticatedUrl, this.#cache) as DatasetDataStacItemCollection).features;
 
     // cache
     for (const stacItem of stacItems) {

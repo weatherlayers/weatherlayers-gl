@@ -163,7 +163,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return;
     }
 
-    const {features: rasterPoints} = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions);
+    const rasterPoints = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
 
     this.setState({ rasterPoints });
   }
