@@ -55,6 +55,10 @@ export interface StacCatalog {
   description: string;
   conformsTo?: string[];
   links: StacLink[];
+  stac_browser: {
+    crossOriginMedia: string;
+    apiCatalogPriority: string;
+  };
 }
 
 export interface StacCollections<StacCollectionT extends StacCollection = StacCollection> {
