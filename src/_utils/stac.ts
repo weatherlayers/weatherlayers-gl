@@ -37,6 +37,7 @@ export interface StacLink {
 export enum StacAssetRole {
   DATA = 'data',
   OVERVIEW = 'overview',
+  THUMBNAIL = 'thumbnail',
   PALETTE = 'palette',
 }
 
