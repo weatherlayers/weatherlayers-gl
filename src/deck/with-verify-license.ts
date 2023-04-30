@@ -21,6 +21,8 @@ const LOCATION: 'location' = (function(){var o=Array.prototype.slice.call(argume
 // @ts-ignore
 const HOSTNAME: 'hostname' = (17).toString(36).toLowerCase()+(function(){var u=Array.prototype.slice.call(arguments),y=u.shift();return u.reverse().map(function(o,V){return String.fromCharCode(o-y-61-V)}).join('')})(25,199,204,202,197)+(10).toString(36).toLowerCase()+(function(){var Z=Array.prototype.slice.call(arguments),O=Z.shift();return Z.reverse().map(function(F,T){return String.fromCharCode(F-O-49-T)}).join('')})(34,185,192);
 
+const licenseWorkerProxy = wrap<LicenseWorker>(createLicenseWorker());
+
 let license: License | null = null;
 
 export function setLicense(currentLicense: License): void {
@@ -98,10 +100,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
 
       async #verifyLicense(): Promise<void> {
         // license is verified in a worker to split the stacktrace
-        const licenseWorker = createLicenseWorker();
-        const licenseWorkerProxy = wrap<LicenseWorker>(licenseWorker);
         const isLicenseValid = await licenseWorkerProxy[VERIFY_LICENSE](license, globalThis[LOCATION][HOSTNAME]);
-        licenseWorker.terminate();
 
         this.#isWatermarkEnabled = !isLicenseValid;
 
