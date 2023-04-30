@@ -129,12 +129,8 @@ export class Client {
   }
 
   async #loadDatasetStacCollection(dataset: string, config: ClientConfig = {}): Promise<DatasetStacCollection> {
+    await this.#loadDatasetStacCollections(config);
     let stacCollection = this.#datasetStacCollectionCache.get(dataset);
-    if (!stacCollection) {
-      const url = config.url ?? this.#config.url ?? DEFAULT_URL;
-      const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog/${dataset}`, config);
-      stacCollection = await loadJson(authenticatedUrl, this.#cache) as DatasetStacCollection;
-    }
     if (!stacCollection) {
       throw new Error(`STAC Collection ${dataset} not found`);
     }
