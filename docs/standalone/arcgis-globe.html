@@ -30,6 +30,7 @@
     import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
+    const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
     });
@@ -118,7 +119,7 @@
         const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset);
         const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
-        const datetime = config.datetime !== NO_DATA ? config.datetime : datetimes[0];
+        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
         const {image: mercatorImage} = await mercatorClient.loadDatasetSliceData(dataset, datetimeRange, datetime);
 

@@ -105,7 +105,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
     } : {}),
   };
 
-  loadUrlConfig(config, { deckgl, webgl2, globe });
+  loadUrlConfig(config, { deckgl, webgl2 });
 
   return config;
 }
@@ -181,19 +181,25 @@ function debounce(callback, wait) {
 
 export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   const originalUpdate = update;
-  update = debounce(() => { updateUrlConfig(config, { deckgl }); originalUpdate() }, 100);
+  update = debounce(() => { updateUrlConfig(config, { deckgl, webgl2 }); originalUpdate() }, 100);
   const updateLast = event => event.last && update();
 
   const gui = new Tweakpane.Pane();
 
   let datetime;
   gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
-    await update();
-    loadUrlConfig(config, { deckgl, webgl2, globe });
+    // force update dataset
+    await originalUpdate();
+    loadUrlConfig(config, { deckgl, webgl2 });
+    updateUrlConfig(config, { deckgl, webgl2 });
+
+    // refresh datetimes
     datetime.dispose();
     datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     gui.refresh();
-    update();
+
+    // force update datetime
+    originalUpdate();
   });
 
   datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
