@@ -1,12 +1,12 @@
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
-import {blur} from '../../../_utils/blur.js';
-import {TextureDataArray} from '../../../_utils/data.js';
-import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import type {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
-import {getUnprojectFunction} from '../../../_utils/project.js';
+import { blur } from '../../../_utils/blur.js';
+import { TextureDataArray } from '../../../_utils/data.js';
+import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import type { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
+import { getUnprojectFunction } from '../../../_utils/project.js';
 
 /**
  * wrap data around the world by repeating the data in the west and east

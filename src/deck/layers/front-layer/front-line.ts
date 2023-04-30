@@ -1,5 +1,5 @@
-import type {Position} from '@deck.gl/core/typed';
-import {distance as measureDistance, destinationPoint, initialBearing} from '../../../_utils/geodesy.js';
+import type { Position } from '@deck.gl/core/typed';
+import { distance as measureDistance, destinationPoint, initialBearing } from '../../../_utils/geodesy.js';
 
 const ICON_MIN_DISTANCE = 5000;
 const ICON_FACTOR = 3;

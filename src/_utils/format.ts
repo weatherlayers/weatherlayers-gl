@@ -1,4 +1,4 @@
-import type {UnitFormat} from './unit-format.js';
+import type { UnitFormat } from './unit-format.js';
 
 export function formatValue(value: number, unitFormat?: UnitFormat): string {
   if (!unitFormat) {

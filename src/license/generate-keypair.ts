@@ -1,8 +1,8 @@
 import fs from 'node:fs';
-import {webcrypto} from 'node:crypto';
-import {program, Option} from 'commander';
+import { webcrypto } from 'node:crypto';
+import { program, Option } from 'commander';
 import clc from 'cli-color';
-import {generateKeypair} from './license.js';
+import { generateKeypair } from './license.js';
 
 interface Options {
   privateKeyFile: string;
@@ -20,7 +20,7 @@ async function main(options: Options): Promise<void> {
   }
 
   // generate keypair
-  const {privateKeyJwk, publicKeyRaw} = await generateKeypair(webcrypto as Crypto);
+  const { privateKeyJwk, publicKeyRaw } = await generateKeypair(webcrypto as Crypto);
 
   // export private key
   fs.writeFileSync(options.privateKeyFile, JSON.stringify(privateKeyJwk, undefined, 2));

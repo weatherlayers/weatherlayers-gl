@@ -1,5 +1,5 @@
-import {projectPatternOnPointPath} from 'leaflet-polylinedecorator/src/patternUtils.js';
-import {ContourLineProperties} from './contour-line.js';
+import { projectPatternOnPointPath } from 'leaflet-polylinedecorator/src/patternUtils.js';
+import { ContourLineProperties } from './contour-line.js';
 
 export interface ContourLabelProperties {
   value: number;
@@ -20,7 +20,7 @@ export function getContourLabels(contourLines: GeoJSON.Feature<GeoJSON.LineStrin
     });
 
     return directionPoints.map(directionPoint => {
-      const {pt, heading} = directionPoint;
+      const { pt, heading } = directionPoint;
       const coordinate = [pt.x, pt.y];
       const angle = heading - 90 + (heading > 180 ? -180 : 0); // auto-flip
 

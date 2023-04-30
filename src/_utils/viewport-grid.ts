@@ -1,10 +1,10 @@
-import type {Viewport} from '@deck.gl/core/typed';
+import type { Viewport } from '@deck.gl/core/typed';
 import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import geokdbush from 'geokdbush';
-import {isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport.js';
-import {wrapLongitude} from './bounds.js';
+import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from './viewport.js';
+import { wrapLongitude } from './bounds.js';
 
 const ICOMESH_INDEX_AT_ZOOM_CACHE = new Map<number, KDBush<GeoJSON.Position>>();
 
@@ -42,7 +42,7 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
   zoom = Math.min(Math.max(zoom - 2, 0), MAX_ICOMESH_ZOOM);
 
   const globalIndex = ICOMESH_INDEX_AT_ZOOM_CACHE.get(zoom) ?? (() => {
-    const {uv} = icomesh(zoom, true);
+    const { uv } = icomesh(zoom, true);
 
     let i = 0;
     const positions: GeoJSON.Position[] = [];

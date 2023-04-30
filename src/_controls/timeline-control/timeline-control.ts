@@ -1,9 +1,9 @@
-import {Animation} from '../../_utils/animation.js';
-import type {AnimationConfig} from '../../_utils/animation.js';
-import {interpolateDatetime, getDatetimeWeight, formatDatetime} from '../../_utils/datetime.js';
-import type {DatetimeISOString, DatetimeFormatFunction} from '../../_utils/datetime.js';
-import {randomString} from '../../_utils/random-string.js';
-import {Control} from '../control.js';
+import { Animation } from '../../_utils/animation.js';
+import type { AnimationConfig } from '../../_utils/animation.js';
+import { interpolateDatetime, getDatetimeWeight, formatDatetime } from '../../_utils/datetime.js';
+import type { DatetimeISOString, DatetimeFormatFunction } from '../../_utils/datetime.js';
+import { randomString } from '../../_utils/random-string.js';
+import { Control } from '../control.js';
 import './timeline-control.css';
 
 export interface TimelineControlConfig {

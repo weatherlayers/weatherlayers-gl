@@ -8,4 +8,4 @@ export * from './layers/front-layer/front-layer.js';
 export * from './layers/grid-layer/grid-layer.js';
 export * from './layers/particle-layer/particle-layer.js';
 
-export {setLicense} from './with-verify-license.js';
+export { setLicense } from './with-verify-license.js';

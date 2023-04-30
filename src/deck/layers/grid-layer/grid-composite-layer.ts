@@ -1,19 +1,19 @@
-import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList} from '@deck.gl/core/typed';
-import {TextLayer, IconLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
-import type {TextLayerProps, IconLayerProps} from '@deck.gl/layers/typed';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
-import type {TextFormatFunction} from '../../../_utils/props.js';
-import type {TextureData} from '../../../_utils/data.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import type {UnitFormat} from '../../../_utils/unit-format.js';
-import {getViewportAngle} from '../../../_utils/viewport.js';
-import {getViewportGridPositions} from '../../../_utils/viewport-grid.js';
-import {GridStyle, GRID_ICON_STYLES} from './grid-style.js';
-import {getRasterPoints} from '../../../_utils/raster-data.js';
-import type {RasterPointProperties} from '../../../_utils/raster-data.js';
+import { CompositeLayer } from '@deck.gl/core/typed';
+import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList } from '@deck.gl/core/typed';
+import { TextLayer, IconLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
+import type { TextLayerProps, IconLayerProps } from '@deck.gl/layers/typed';
+import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import type { TextFormatFunction } from '../../../_utils/props.js';
+import type { TextureData } from '../../../_utils/data.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import type { UnitFormat } from '../../../_utils/unit-format.js';
+import { getViewportAngle } from '../../../_utils/viewport.js';
+import { getViewportGridPositions } from '../../../_utils/viewport-grid.js';
+import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
+import { getRasterPoints } from '../../../_utils/raster-data.js';
+import type { RasterPointProperties } from '../../../_utils/raster-data.js';
 
 type _GridCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
@@ -41,26 +41,26 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
 export type GridCompositeLayerProps = _GridCompositeLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<GridCompositeLayerProps> = {
-  image: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  imageSmoothing: {type: 'number', value: 0},
-  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'object', value: ImageType.SCALAR},
-  imageUnscale: {type: 'array', value: null},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  image: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  image2: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  imageSmoothing: { type: 'number', value: 0 },
+  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
+  imageWeight: { type: 'number', value: 0 },
+  imageType: { type: 'object', value: ImageType.SCALAR },
+  imageUnscale: { type: 'array', value: null },
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 
-  style: {type: 'object', value: GridStyle.VALUE},
-  unitFormat: {type: 'object', value: null},
-  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
-  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
-  textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
-  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
-  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
-  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
-  iconBounds: {type: 'array', value: null},
-  iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
-  iconColor: {type: 'color', value: DEFAULT_ICON_COLOR},
+  style: { type: 'object', value: GridStyle.VALUE },
+  unitFormat: { type: 'object', value: null },
+  textFormatFunction: { type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION },
+  textFontFamily: { type: 'object', value: DEFAULT_TEXT_FONT_FAMILY },
+  textSize: { type: 'number', value: DEFAULT_TEXT_SIZE },
+  textColor: { type: 'color', value: DEFAULT_TEXT_COLOR },
+  textOutlineWidth: { type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH },
+  textOutlineColor: { type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR },
+  iconBounds: { type: 'array', value: null },
+  iconSize: { type: 'number', value: DEFAULT_ICON_SIZE },
+  iconColor: { type: 'color', value: DEFAULT_ICON_COLOR },
 };
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
@@ -69,17 +69,17 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const {viewport} = this.context;
-    const {props, rasterPoints} = this.state;
+    const { viewport } = this.context;
+    const { props, rasterPoints } = this.state;
     if (!props || !rasterPoints) {
       return [];
     }
 
-    const {style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor} = ensureDefaultProps(props, defaultProps);
+    const { style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor } = ensureDefaultProps(props, defaultProps);
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
-      const {iconAtlas, iconMapping} = iconStyle;
+      const { iconAtlas, iconMapping } = iconStyle;
       const iconBounds = iconStyle.iconBounds || props.iconBounds;
       const delta = (iconBounds[1] - iconBounds[0]) / Object.values(iconMapping).length;
       return [
@@ -125,7 +125,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, image2, imageSmoothing, imageInterpolation, imageWeight} = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight } = params.props;
 
     super.updateState(params);
 
@@ -147,7 +147,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   #updatePositions(): void {
-    const {viewport} = this.context;
+    const { viewport } = this.context;
 
     const positions = getViewportGridPositions(viewport, 3);
 
@@ -157,8 +157,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   #updateGridPoints(): void {
-    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds} = ensureDefaultProps(this.props, defaultProps);
-    const {positions} = this.state;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds } = ensureDefaultProps(this.props, defaultProps);
+    const { positions } = this.state;
     if (!image) {
       return;
     }

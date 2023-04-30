@@ -1,7 +1,7 @@
 declare module '@luma.gl/core' {
   export type Device = WebGLRenderingContext | WebGL2RenderingContext;
 
-  export const FEATURES: {[key: string]: string};
+  export const FEATURES: { [key: string]: string };
   export function isWebGL2(device: Device): boolean;
   export function hasFeatures(device: Device, features: string | string[]): boolean;
 

@@ -1,6 +1,6 @@
-import type {Color, DefaultProps} from '@deck.gl/core/typed';
-import type {UnitFormat} from './unit-format.js';
-import {formatValue} from './format.js';
+import type { Color, DefaultProps } from '@deck.gl/core/typed';
+import type { UnitFormat } from './unit-format.js';
+import { formatValue } from './format.js';
 
 export type TextFormatFunction = (value: number, unitFormat?: UnitFormat) => string;
 

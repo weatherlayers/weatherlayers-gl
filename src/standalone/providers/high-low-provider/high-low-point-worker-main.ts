@@ -1,11 +1,11 @@
-import {TextureDataArray} from '../../../_utils/data.js';
-import {getUnprojectFunction} from '../../../_utils/project.js';
-import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import type {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {blur} from '../../../_utils/blur.js';
-import {distance} from '../../../_utils/geodesy.js';
-import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
+import { TextureDataArray } from '../../../_utils/data.js';
+import { getUnprojectFunction } from '../../../_utils/project.js';
+import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import type { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { blur } from '../../../_utils/blur.js';
+import { distance } from '../../../_utils/geodesy.js';
+import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F

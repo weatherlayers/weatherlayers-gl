@@ -1,15 +1,15 @@
-import {CompositeLayer, CompositeLayerProps} from '@deck.gl/core/typed';
-import type {Position, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
-import {TextLayer} from '@deck.gl/layers/typed';
-import type {TextLayerProps} from '@deck.gl/layers/typed';
-import {wrap} from 'comlink';
-import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../_utils/props.js';
-import {randomString} from '../_utils/random-string.js';
-import {getViewportAngle} from '../_utils/viewport.js';
-import {getViewportGridPositions} from '../_utils/viewport-grid.js';
+import { CompositeLayer, CompositeLayerProps } from '@deck.gl/core/typed';
+import type { Position, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
+import { TextLayer } from '@deck.gl/layers/typed';
+import type { TextLayerProps } from '@deck.gl/layers/typed';
+import { wrap } from 'comlink';
+import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../_utils/props.js';
+import { randomString } from '../_utils/random-string.js';
+import { getViewportAngle } from '../_utils/viewport.js';
+import { getViewportGridPositions } from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
-import {LicenseWorker} from '../license/license-worker.js';
-import type {License} from '../license/license.js';
+import { LicenseWorker } from '../license/license-worker.js';
+import type { License } from '../license/license.js';
 
 // https://anseki.github.io/gnirts/
 // @ts-ignore
@@ -53,7 +53,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       renderLayers(): LayersList {
-        const {viewport} = this.context;
+        const { viewport } = this.context;
         // create base layer without calling this.getSubLayerProps, so that base layer id uses original id from this.props.id
         // @ts-ignore
         const baseLayer: CompositeLayer<PropsT> = new layerClass(this.props);
@@ -108,7 +108,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       #updateWatermarkPositions(): void {
-        const {viewport} = this.context;
+        const { viewport } = this.context;
     
         if (this.#isWatermarkEnabled) {
           this.#watermarkPositions = getViewportGridPositions(viewport, 1);

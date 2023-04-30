@@ -1,3 +1,3 @@
-import {getHighLowPoints} from './high-low-point.js';
+import { getHighLowPoints } from './high-low-point.js';
 
-export const HighLowProvider = {getHighLowPoints};
+export const HighLowProvider = { getHighLowPoints };

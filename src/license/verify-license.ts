@@ -1,9 +1,9 @@
 import fs from 'node:fs';
-import {webcrypto} from 'node:crypto';
-import {program, Option} from 'commander';
+import { webcrypto } from 'node:crypto';
+import { program, Option } from 'commander';
 import clc from 'cli-color';
-import {verifyLicense} from './license.js';
-import type {License} from './license.js';
+import { verifyLicense } from './license.js';
+import type { License } from './license.js';
 
 interface Options {
   publicKeyFile: string;

@@ -1,10 +1,10 @@
-import {transfer, wrap} from 'comlink';
+import { transfer, wrap } from 'comlink';
 import createHighLowPointWorker from 'worker!./high-low-point-worker.js';
-import {HighLowPointWorker} from './high-low-point-worker.js';
-import type {TextureData} from '../../../_utils/data.js';
-import type {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import type {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
+import { HighLowPointWorker } from './high-low-point-worker.js';
+import type { TextureData } from '../../../_utils/data.js';
+import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import type { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 
 export enum HighLowType {
   LOW = 'L',
@@ -39,8 +39,8 @@ function getHighLowPointsFromData(highLowPointData: Float32Array): GeoJSON.Featu
 }
 
 export async function getHighLowPoints(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Promise<GeoJSON.FeatureCollection<GeoJSON.Point, HighLowPointProperties>> {
-  const {data, width, height} = image;
-  const {data: data2} = image2 || {};
+  const { data, width, height } = image;
+  const { data: data2 } = image2 || {};
 
   const dataCopy = data.slice(0);
   const data2Copy = data2 ? data2.slice(0) : null;

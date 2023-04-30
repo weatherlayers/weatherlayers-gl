@@ -1,13 +1,13 @@
-import {parsePalette} from 'cpt2js';
-import type {Palette} from 'cpt2js';
-import type {TextureData} from '../../../_utils/data.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import type {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {getRasterMagnitudeData} from '../../../_utils/raster-data.js';
+import { parsePalette } from 'cpt2js';
+import type { Palette } from 'cpt2js';
+import type { TextureData } from '../../../_utils/data.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import type { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
 
 export function getRasterImage(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, palette: Palette): HTMLCanvasElement {
-  const {width, height} = image;
+  const { width, height } = image;
 
   const magnitudeData = getRasterMagnitudeData(image, null, imageSmoothing, imageInterpolation, 0, imageType, imageUnscale);
   const paletteScale = parsePalette(palette);

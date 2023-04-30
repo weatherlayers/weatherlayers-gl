@@ -1,19 +1,19 @@
-import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
-import {TextLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
-import type {TextLayerProps} from '@deck.gl/layers/typed';
-import {CollisionFilterExtension} from '@deck.gl/extensions/typed';
-import type {CollisionFilterExtensionProps} from '@deck.gl/extensions/typed';
-import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
-import type {TextFormatFunction} from '../../../_utils/props.js';
-import type {TextureData} from '../../../_utils/data.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import type {UnitFormat} from '../../../_utils/unit-format.js';
-import {getViewportPixelOffset, getViewportAngle} from '../../../_utils/viewport.js';
-import {getHighLowPoints, HighLowType} from '../../../standalone/providers/high-low-provider/high-low-point.js';
-import type {HighLowPointProperties} from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import { CompositeLayer } from '@deck.gl/core/typed';
+import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
+import { TextLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
+import type { TextLayerProps } from '@deck.gl/layers/typed';
+import { CollisionFilterExtension } from '@deck.gl/extensions/typed';
+import type { CollisionFilterExtensionProps } from '@deck.gl/extensions/typed';
+import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import type { TextFormatFunction } from '../../../_utils/props.js';
+import type { TextureData } from '../../../_utils/data.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import type { UnitFormat } from '../../../_utils/unit-format.js';
+import { getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
+import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
 const HIGH_LOW_LABEL_COLLISION_GROUP = 'high-low-label';
 
@@ -49,24 +49,24 @@ type _HighLowCompositeLayerProps = CompositeLayerProps & {
 export type HighLowCompositeLayerProps = _HighLowCompositeLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
-  image: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  imageSmoothing: {type: 'number', value: 0},
-  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'object', value: ImageType.SCALAR},
-  imageUnscale: {type: 'array', value: null},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  image: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  image2: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  imageSmoothing: { type: 'number', value: 0 },
+  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
+  imageWeight: { type: 'number', value: 0 },
+  imageType: { type: 'object', value: ImageType.SCALAR },
+  imageUnscale: { type: 'array', value: null },
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 
-  radius: {type: 'number', value: 0},
+  radius: { type: 'number', value: 0 },
 
-  unitFormat: {type: 'object', value: null},
-  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
-  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
-  textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
-  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
-  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
-  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
+  unitFormat: { type: 'object', value: null },
+  textFormatFunction: { type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION },
+  textFontFamily: { type: 'object', value: DEFAULT_TEXT_FONT_FAMILY },
+  textSize: { type: 'number', value: DEFAULT_TEXT_SIZE },
+  textColor: { type: 'color', value: DEFAULT_TEXT_COLOR },
+  textOutlineWidth: { type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH },
+  textOutlineColor: { type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR },
 };
 
 export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_HighLowCompositeLayerProps>> {
@@ -74,13 +74,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const {viewport} = this.context;
-    const {props, highLowPoints, minValue, maxValue} = this.state;
+    const { viewport } = this.context;
+    const { props, highLowPoints, minValue, maxValue } = this.state;
     if (!props || !highLowPoints) {
       return [];
     }
 
-    const {unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = ensureDefaultProps(props, defaultProps);
+    const { unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor } = ensureDefaultProps(props, defaultProps);
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -129,7 +129,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, radius} = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, radius } = params.props;
 
     super.updateState(params);
 
@@ -157,7 +157,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   async #updateHighLowPoints(): Promise<void> {
-    const {image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
+    const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
     }

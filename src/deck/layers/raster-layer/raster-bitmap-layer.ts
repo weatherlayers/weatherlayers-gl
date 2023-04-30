@@ -1,16 +1,16 @@
-import type {LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo} from '@deck.gl/core/typed';
-import {BitmapLayer} from '@deck.gl/layers/typed';
-import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers/typed'
-import {Texture2D} from '@luma.gl/core';
-import {parsePalette, colorRampCanvas} from 'cpt2js';
-import type {Palette} from 'cpt2js';
+import type { LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo } from '@deck.gl/core/typed';
+import { BitmapLayer } from '@deck.gl/layers/typed';
+import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed'
+import { Texture2D } from '@luma.gl/core';
+import { parsePalette, colorRampCanvas } from 'cpt2js';
+import type { Palette } from 'cpt2js';
 import GL from '../../../_utils/gl.js';
-import {ensureDefaultProps} from '../../../_utils/props.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {RasterPointProperties} from '../../../_utils/raster-data.js';
-import {sourceCode as fs, tokens as fsTokens} from './raster-bitmap-layer.fs.glsl';
+import { ensureDefaultProps } from '../../../_utils/props.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { RasterPointProperties } from '../../../_utils/raster-data.js';
+import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
@@ -28,16 +28,16 @@ type _RasterBitmapLayerProps = BitmapLayerProps & {
 export type RasterBitmapLayerProps = _RasterBitmapLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
-  imageTexture: {type: 'object', value: null},
-  imageTexture2: {type: 'object', value: null},
-  imageSmoothing: {type: 'number', value: 0},
-  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'object', value: ImageType.SCALAR},
-  imageUnscale: {type: 'array', value: null},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  imageTexture: { type: 'object', value: null },
+  imageTexture2: { type: 'object', value: null },
+  imageSmoothing: { type: 'number', value: 0 },
+  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
+  imageWeight: { type: 'number', value: 0 },
+  imageType: { type: 'object', value: ImageType.SCALAR },
+  imageUnscale: { type: 'array', value: null },
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 
-  palette: {type: 'object', value: null},
+  palette: { type: 'object', value: null },
 };
 
 export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_RasterBitmapLayerProps>> {
@@ -54,7 +54,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {palette} = params.props;
+    const { palette } = params.props;
 
     super.updateState(params);
 
@@ -64,9 +64,9 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   draw(opts: any): void {
-    const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale} = ensureDefaultProps(this.props, defaultProps);
-    const {paletteTexture, paletteBounds} = this.state;
+    const { model } = this.state;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale } = ensureDefaultProps(this.props, defaultProps);
+    const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture || !paletteTexture) {
       return;
     }
@@ -92,8 +92,8 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   #updatePaletteTexture(): void {
-    const {gl} = this.context;
-    const {palette} = ensureDefaultProps(this.props, defaultProps);
+    const { gl } = this.context;
+    const { palette } = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
       return;
     }
@@ -116,13 +116,13 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   #getRasterMagnitudeValue(color: Uint8Array): number {
-    const {paletteBounds} = this.state;
+    const { paletteBounds } = this.state;
 
     return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
   #getRasterDirectionValue(color: Uint8Array): number {
-    const {imageType} = ensureDefaultProps(this.props, defaultProps);
+    const { imageType } = ensureDefaultProps(this.props, defaultProps);
     if (imageType === ImageType.VECTOR) {
       return color[1] / 255 * 360;
     } else {
@@ -131,8 +131,8 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   getPickingInfo(params: GetPickingInfoParams): PickingInfo {
-    const info: PickingInfo & {raster?: RasterPointProperties} = params.info;
-    const {imageType} = ensureDefaultProps(this.props, defaultProps);
+    const info: PickingInfo & { raster?: RasterPointProperties } = params.info;
+    const { imageType } = ensureDefaultProps(this.props, defaultProps);
     if (!info.color) {
       return info;
     }

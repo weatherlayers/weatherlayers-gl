@@ -1,11 +1,11 @@
-import type {TextureData} from './data.js';
-import type {ImageInterpolation} from './image-interpolation.js';
-import {ImageType} from './image-type.js';
-import type {ImageUnscale} from './image-unscale.js';
-import {getProjectFunction} from './project.js';
-import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from './pixel-value.js';
-import {getPixelInterpolate, getImageDownscaleResolution} from './pixel.js';
-import type {FloatData} from './data.js';
+import type { TextureData } from './data.js';
+import type { ImageInterpolation } from './image-interpolation.js';
+import { ImageType } from './image-type.js';
+import type { ImageUnscale } from './image-unscale.js';
+import { getProjectFunction } from './project.js';
+import { hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue } from './pixel-value.js';
+import { getPixelInterpolate, getImageDownscaleResolution } from './pixel.js';
+import type { FloatData } from './data.js';
 
 export interface RasterPointProperties {
   value: number;
@@ -13,7 +13,7 @@ export interface RasterPointProperties {
 }
 
 export function getRasterPoints(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, positions: GeoJSON.Position[]): GeoJSON.FeatureCollection<GeoJSON.Point, RasterPointProperties> {
-  const {width, height} = image;
+  const { width, height } = image;
   const project = getProjectFunction(width, height, bounds);
 
   // smooth by downscaling resolution
@@ -46,7 +46,7 @@ export function getRasterPoints(image: TextureData, image2: TextureData | null, 
 }
 
 export function getRasterMagnitudeData(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale): FloatData {
-  const {width, height} = image;
+  const { width, height } = image;
 
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);

@@ -1,14 +1,14 @@
-import type {Color, LayerProps, DefaultProps, UpdateParameters, LayerContext} from '@deck.gl/core/typed';
-import {LineLayer, BitmapBoundingBox} from '@deck.gl/layers/typed';
-import type {LineLayerProps} from '@deck.gl/layers/typed';
-import {isWebGL2, Buffer, Transform} from '@luma.gl/core';
-import type {Texture2D} from '@luma.gl/core';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
-import {isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../../_utils/viewport.js';
-import {sourceCode as updateVs, tokens as updateVsTokens} from './particle-line-layer-update.vs.glsl';
+import type { Color, LayerProps, DefaultProps, UpdateParameters, LayerContext } from '@deck.gl/core/typed';
+import { LineLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
+import type { LineLayerProps } from '@deck.gl/layers/typed';
+import { isWebGL2, Buffer, Transform } from '@luma.gl/core';
+import type { Texture2D } from '@luma.gl/core';
+import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
+import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
@@ -36,21 +36,21 @@ type _ParticleLineLayerProps = LineLayerProps<{}> & {
 export type ParticleLineLayerProps = _ParticleLineLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<ParticleLineLayerProps> = {
-  imageTexture: {type: 'object', value: null},
-  imageTexture2: {type: 'object', value: null},
-  imageSmoothing: {type: 'number', value: 0},
-  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'object', value: ImageType.VECTOR},
-  imageUnscale: {type: 'array', value: null},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  imageTexture: { type: 'object', value: null },
+  imageTexture2: { type: 'object', value: null },
+  imageSmoothing: { type: 'number', value: 0 },
+  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
+  imageWeight: { type: 'number', value: 0 },
+  imageType: { type: 'object', value: ImageType.VECTOR },
+  imageUnscale: { type: 'array', value: null },
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 
-  numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
-  maxAge: {type: 'number', min: 1, max: 255, value: 10},
-  speedFactor: {type: 'number', min: 0, max: 50, value: 1},
+  numParticles: { type: 'number', min: 1, max: 1000000, value: 5000 },
+  maxAge: { type: 'number', min: 1, max: 255, value: 10 },
+  speedFactor: { type: 'number', min: 0, max: 50, value: 1 },
 
-  width: {type: 'number', value: DEFAULT_LINE_WIDTH},
-  color: {type: 'color', value: DEFAULT_LINE_COLOR},
+  width: { type: 'number', value: DEFAULT_LINE_WIDTH },
+  color: { type: 'color', value: DEFAULT_LINE_COLOR },
   animate: true,
 
   wrapLongitude: true,
@@ -94,7 +94,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {imageType, numParticles, maxAge, color, width} = params.props;
+    const { imageType, numParticles, maxAge, color, width } = params.props;
 
     super.updateState(params);
 
@@ -124,13 +124,13 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   draw(opts: any): void {
-    const {initialized} = this.state;
+    const { initialized } = this.state;
     if (!initialized) {
       return;
     }
 
-    const {animate} = ensureDefaultProps(this.props, defaultProps);
-    const {sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, model} = this.state;
+    const { animate } = ensureDefaultProps(this.props, defaultProps);
+    const { sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, model } = this.state;
 
     model.setAttributes({
       instanceSourcePositions: sourcePositions,
@@ -149,17 +149,17 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   #setupTransformFeedback(): void {
-    const {gl} = this.context;
+    const { gl } = this.context;
     if (!isWebGL2(gl)) {
       throw new Error('WebGL 2 is required');
     }
 
-    const {initialized} = this.state;
+    const { initialized } = this.state;
     if (initialized) {
       this.#deleteTransformFeedback();
     }
 
-    const {numParticles, maxAge, color, width} = ensureDefaultProps(this.props, defaultProps);
+    const { numParticles, maxAge, color, width } = ensureDefaultProps(this.props, defaultProps);
 
     // sourcePositions/targetPositions buffer layout:
     // |          age0             |          age1             |          age2             |...|          age(N-1)         |
@@ -207,14 +207,14 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   #runTransformFeedback(): void {
-    const {initialized} = this.state;
+    const { initialized } = this.state;
     if (!initialized) {
       return;
     }
 
-    const {viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor} = ensureDefaultProps(this.props, defaultProps);
-    const {numAgedInstances, transform, previousViewportZoom, previousTime} = this.state;
+    const { viewport, timeline } = this.context;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor } = ensureDefaultProps(this.props, defaultProps);
+    const { numAgedInstances, transform, previousViewportZoom, previousTime } = this.state;
     const time = timeline.getTime();
     if (!imageTexture || time === previousTime) {
       return;
@@ -269,7 +269,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
 
     transform.swap();
 
-    // const {sourcePositions, targetPositions} = this.state;
+    // const { sourcePositions, targetPositions } = this.state;
     // console.log(uniforms, sourcePositions.getData().slice(0, 6), targetPositions.getData().slice(0, 6));
 
     this.state.previousViewportZoom = viewport.zoom;
@@ -277,24 +277,24 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   #resetTransformFeedback(): void {
-    const {initialized} = this.state;
+    const { initialized } = this.state;
     if (!initialized) {
       return;
     }
 
-    const {numInstances, sourcePositions, targetPositions} = this.state;
+    const { numInstances, sourcePositions, targetPositions } = this.state;
 
     sourcePositions.subData({data: new Float32Array(numInstances * 3)});
     targetPositions.subData({data: new Float32Array(numInstances * 3)});
   }
 
   #deleteTransformFeedback(): void {
-    const {initialized} = this.state;
+    const { initialized } = this.state;
     if (!initialized) {
       return;
     }
 
-    const {sourcePositions, targetPositions, colors, transform} = this.state;
+    const { sourcePositions, targetPositions, colors, transform } = this.state;
 
     sourcePositions.delete();
     targetPositions.delete();
@@ -314,7 +314,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   requestStep(): void {
-    const {stepRequested} = this.state;
+    const { stepRequested } = this.state;
     if (stepRequested) {
       return;
     }

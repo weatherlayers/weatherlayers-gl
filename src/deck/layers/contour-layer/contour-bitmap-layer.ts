@@ -1,13 +1,13 @@
-import type {Color, LayerProps, DefaultProps} from '@deck.gl/core/typed';
-import {BitmapLayer} from '@deck.gl/layers/typed';
-import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers/typed';
-import {FEATURES, isWebGL2, hasFeatures} from '@luma.gl/core';
-import type {Texture2D} from '@luma.gl/core';
-import {sourceCode as fs, tokens as fsTokens} from './contour-bitmap-layer.fs.glsl';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
-import {ImageInterpolation} from '../../../_utils/image-interpolation.js';
-import {ImageType} from '../../../_utils/image-type.js';
-import type {ImageUnscale} from '../../../_utils/image-unscale.js';
+import type { Color, LayerProps, DefaultProps } from '@deck.gl/core/typed';
+import { BitmapLayer } from '@deck.gl/layers/typed';
+import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed';
+import { FEATURES, isWebGL2, hasFeatures } from '@luma.gl/core';
+import type { Texture2D } from '@luma.gl/core';
+import { sourceCode as fs, tokens as fsTokens } from './contour-bitmap-layer.fs.glsl';
+import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
+import { ImageType } from '../../../_utils/image-type.js';
+import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
@@ -27,18 +27,18 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
 export type ContourBitmapLayerProps = _ContourBitmapLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
-  imageTexture: {type: 'object', value: null},
-  imageTexture2: {type: 'object', value: null},
-  imageSmoothing: {type: 'number', value: 0},
-  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
-  imageWeight: {type: 'number', value: 0},
-  imageType: {type: 'object', value: ImageType.SCALAR},
-  imageUnscale: {type: 'object', value: null},
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  imageTexture: { type: 'object', value: null },
+  imageTexture2: { type: 'object', value: null },
+  imageSmoothing: { type: 'number', value: 0 },
+  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
+  imageWeight: { type: 'number', value: 0 },
+  imageType: { type: 'object', value: ImageType.SCALAR },
+  imageUnscale: { type: 'object', value: null },
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 
-  interval: {type: 'number', value: 0},
-  width: {type: 'number', value: DEFAULT_LINE_WIDTH},
-  color: {type: 'color', value: DEFAULT_LINE_COLOR},
+  interval: { type: 'number', value: 0 },
+  width: { type: 'number', value: DEFAULT_LINE_WIDTH },
+  color: { type: 'color', value: DEFAULT_LINE_COLOR },
 };
 
 export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_ContourBitmapLayerProps>> {
@@ -46,7 +46,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   static defaultProps = defaultProps;
 
   getShaders(): any {
-    const {gl} = this.context;
+    const { gl } = this.context;
     if (!hasFeatures(gl, FEATURES.GLSL_DERIVATIVES)) {
       throw new Error('Derivatives are required');
     }
@@ -62,9 +62,9 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   }
 
   draw(opts: any): void {
-    const {viewport} = this.context;
-    const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width} = ensureDefaultProps(this.props, defaultProps);
+    const { viewport } = this.context;
+    const { model } = this.state;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
     if (!imageTexture) {
       return;
     }

@@ -1,6 +1,6 @@
-import {ImageType} from './image-type.js';
-import type {ImageUnscale} from './image-unscale.js';
-import {mixOne} from './glsl.js';
+import { ImageType } from './image-type.js';
+import type { ImageUnscale } from './image-unscale.js';
+import { mixOne } from './glsl.js';
 
 type VectorValue = [u: number, v: number];
 

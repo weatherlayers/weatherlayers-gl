@@ -1,4 +1,4 @@
-import {distance as geodesyDistance, destinationPoint as geodesyDestinationPoint, initialBearing} from 'geodesy-fn/src/spherical.js';
+import { distance as geodesyDistance, destinationPoint as geodesyDestinationPoint, initialBearing } from 'geodesy-fn/src/spherical.js';
 
 // radius used by deck.gl, see https://github.com/visgl/deck.gl/blob/master/modules/core/src/viewports/globe-viewport.js#L10
 export const DEFAULT_RADIUS = 6370972;
@@ -11,4 +11,4 @@ export function destinationPoint(start: GeoJSON.Position, distance: number, bear
   return geodesyDestinationPoint(start, distance, bearing, DEFAULT_RADIUS);
 }
 
-export {initialBearing};
+export { initialBearing };

@@ -1,6 +1,6 @@
-import {frac, add, dot, mul, mix} from './glsl.js';
-import {ImageInterpolation} from './image-interpolation.js';
-import type {TextureData} from './data.js';
+import { frac, add, dot, mul, mix } from './glsl.js';
+import { ImageInterpolation } from './image-interpolation.js';
+import type { TextureData } from './data.js';
 
 type ImageDownscaleResolution = [width: number, height: number];
 
@@ -117,7 +117,7 @@ export function getImageDownscaleResolution(width: number, height: number, image
 }
 
 export function getPixelSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
-  const {width, height} = image;
+  const { width, height } = image;
 
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);

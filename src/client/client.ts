@@ -1,13 +1,13 @@
-import {Palette} from 'cpt2js';
-import {VERSION, CATALOG_URL} from '../_utils/build.js';
-import {TextureData, loadTextureData, loadJson} from '../_utils/data.js';
-import {getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime} from '../_utils/datetime.js';
-import type {DatetimeISOString, DatetimeISOStringRange} from '../_utils/datetime.js';
-import type {ImageType} from '../_utils/image-type.js';
-import type {ImageUnscale} from '../_utils/image-unscale.js';
-import type {UnitFormat} from '../_utils/unit-format.js';
-import {StacProviderRole, StacAssetRole, StacLinkRel} from '../_utils/stac.js';
-import type {StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem} from '../_utils/stac.js';
+import { Palette } from 'cpt2js';
+import { VERSION, CATALOG_URL } from '../_utils/build.js';
+import { TextureData, loadTextureData, loadJson } from '../_utils/data.js';
+import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } from '../_utils/datetime.js';
+import type { DatetimeISOString, DatetimeISOStringRange } from '../_utils/datetime.js';
+import type { ImageType } from '../_utils/image-type.js';
+import type { ImageUnscale } from '../_utils/image-unscale.js';
+import type { UnitFormat } from '../_utils/unit-format.js';
+import { StacProviderRole, StacAssetRole, StacLinkRel } from '../_utils/stac.js';
+import type { StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem } from '../_utils/stac.js';
 
 export interface ClientConfig {
   url?: string;

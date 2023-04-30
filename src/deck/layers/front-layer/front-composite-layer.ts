@@ -1,14 +1,14 @@
-import {CompositeLayer} from '@deck.gl/core/typed';
-import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, LayersList} from '@deck.gl/core/typed';
-import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers/typed';
-import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers/typed';
-import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions/typed';
-import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck.gl/extensions/typed';
-import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../../_utils/props.js';
-import {getViewportAngle} from '../../../_utils/viewport.js';
-import {FrontType, iconAtlas, iconMapping} from './front-type.js';
-import {getFrontLine} from './front-line.js';
-import type {FrontLine, FrontIcon} from './front-line.js';
+import { CompositeLayer } from '@deck.gl/core/typed';
+import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, LayersList } from '@deck.gl/core/typed';
+import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers/typed';
+import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers/typed';
+import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions/typed';
+import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions/typed';
+import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import { getViewportAngle } from '../../../_utils/viewport.js';
+import { FrontType, iconAtlas, iconMapping } from './front-type.js';
+import { getFrontLine } from './front-line.js';
+import type { FrontLine, FrontIcon } from './front-line.js';
 
 const DEFAULT_WIDTH = 2;
 const DEFAULT_COLD_COLOR: Color = [0, 0, 255];
@@ -41,17 +41,17 @@ type _FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
 export type FrontCompositeLayerProps<DataT> = _FrontCompositeLayerProps<DataT> & LayerProps;
 
 const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
-  data: {type: 'array', value: []},
+  data: { type: 'array', value: [] },
 
-  getType: {type: 'function', value: null},
-  getPath: {type: 'function', value: null},
-  width: {type: 'number', value: DEFAULT_WIDTH},
-  coldColor: {type: 'color', value: DEFAULT_COLD_COLOR},
-  warmColor: {type: 'color', value: DEFAULT_WARM_COLOR},
-  occludedColor: {type: 'color', value: DEFAULT_OCCLUDED_COLOR},
-  iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
+  getType: { type: 'function', value: null },
+  getPath: { type: 'function', value: null },
+  width: { type: 'number', value: DEFAULT_WIDTH },
+  coldColor: { type: 'color', value: DEFAULT_COLD_COLOR },
+  warmColor: { type: 'color', value: DEFAULT_WARM_COLOR },
+  occludedColor: { type: 'color', value: DEFAULT_OCCLUDED_COLOR },
+  iconSize: { type: 'number', value: DEFAULT_ICON_SIZE },
 
-  _debug: {type: 'boolean', value: false},
+  _debug: { type: 'boolean', value: false },
 };
 
 export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_FrontCompositeLayerProps<DataT>>> {
@@ -59,13 +59,13 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const {viewport} = this.context;
-    const {data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
+    const { viewport } = this.context;
+    const { data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     if (!data || !getType || !getPath) {
       return [];
     }
 
-    const FrontTypeToColor: {[key in FrontType]: Color} = {
+    const FrontTypeToColor: { [key in FrontType]: Color } = {
       [FrontType.COLD]: coldColor,
       [FrontType.WARM]: warmColor,
       [FrontType.OCCLUDED]: occludedColor,

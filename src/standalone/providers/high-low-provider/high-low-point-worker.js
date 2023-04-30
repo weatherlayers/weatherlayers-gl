@@ -1,6 +1,6 @@
 // TODO: fix Rollup build config to use TS instead of JS
-import {expose, transfer} from 'comlink';
-import {getHighLowPointDataMain} from './high-low-point-worker-main.js';
+import { expose, transfer } from 'comlink';
+import { getHighLowPointDataMain } from './high-low-point-worker-main.js';
 
 /** @typedef {import('../../../_utils/data.js').TextureDataArray} TextureDataArray */
 /** @typedef {import('../../../_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */

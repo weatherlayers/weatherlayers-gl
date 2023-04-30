@@ -21,7 +21,7 @@ export interface LicenseResult {
 }
 
 export async function generateKeypair(crypto: Crypto): Promise<{ privateKeyJwk: JsonWebKey, publicKeyRaw: string }> {
-  const {privateKey, publicKey} = await crypto.subtle.generateKey(
+  const { privateKey, publicKey } = await crypto.subtle.generateKey(
     { name: 'ECDSA', namedCurve: 'P-384' },
     true,
     ['sign', 'verify']

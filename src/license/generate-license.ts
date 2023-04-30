@@ -1,8 +1,8 @@
 import fs from 'node:fs';
-import {randomUUID, webcrypto} from 'node:crypto';
-import {program, Option} from 'commander';
+import { randomUUID, webcrypto } from 'node:crypto';
+import { program, Option } from 'commander';
 import clc from 'cli-color';
-import {LicenseType, generateLicense} from './license.js';
+import { LicenseType, generateLicense } from './license.js';
 
 interface Options {
   privateKeyFile: string;

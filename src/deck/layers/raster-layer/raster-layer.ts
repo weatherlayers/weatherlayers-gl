@@ -1,10 +1,10 @@
-import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core/typed';
-import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core/typed';
-import type {TextureData} from '../../../_utils/data.js';
-import {createTextureCached, EMPTY_TEXTURE} from '../../../_utils/texture.js';
-import {withVerifyLicense} from '../../with-verify-license.js';
-import {RasterBitmapLayer} from './raster-bitmap-layer.js';
-import type {RasterBitmapLayerProps} from './raster-bitmap-layer.js';
+import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core/typed';
+import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
+import type { TextureData } from '../../../_utils/data.js';
+import { createTextureCached, EMPTY_TEXTURE } from '../../../_utils/texture.js';
+import { withVerifyLicense } from '../../with-verify-license.js';
+import { RasterBitmapLayer } from './raster-bitmap-layer.js';
+import type { RasterBitmapLayerProps } from './raster-bitmap-layer.js';
 
 type _RasterLayerProps = RasterBitmapLayerProps & {
   image: TextureData | null;
@@ -18,10 +18,10 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
 
   imageTexture: undefined,
   imageTexture2: undefined,
-  image: {type: 'object', value: null}, // object instead of image to allow reading raw data
-  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  image: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  image2: { type: 'object', value: null }, // object instead of image to allow reading raw data
 
-  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
 };
 
 @withVerifyLicense('RasterLayer', defaultProps)
@@ -30,7 +30,7 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const {props, imageTexture, imageTexture2} = this.state;
+    const { props, imageTexture, imageTexture2 } = this.state;
     if (!props || !imageTexture) {
       return [];
     }
@@ -52,7 +52,7 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, image2, imageUnscale} = params.props;
+    const { image, image2, imageUnscale } = params.props;
 
     super.updateState(params);
 
@@ -61,8 +61,8 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
     }
 
     if (image !== params.oldProps.image || image2 !== params.oldProps.image2) {
-      const {gl} = this.context;
-      const {image, image2} = this.props;
+      const { gl } = this.context;
+      const { image, image2 } = this.props;
   
       const imageTexture = image ? createTextureCached(gl, image) : null;
       const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
