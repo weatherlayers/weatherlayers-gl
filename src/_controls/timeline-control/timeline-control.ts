@@ -14,6 +14,7 @@ export interface TimelineControlConfig {
   datetimeFormatFunction?: DatetimeFormatFunction;
   onPreload?: (datetimes: DatetimeISOString[]) => Promise<void>;
   onUpdate?: (datetime: DatetimeISOString) => void;
+  fps?: number;
 }
 
 const DEFAULT_WIDTH = 300;
@@ -36,7 +37,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     this.#config = config;
     this.#animation = new Animation({
       onUpdate: () => this.#animationUpdated(),
-      fps: FPS
+      fps: this.#config.fps ?? FPS,
     } satisfies AnimationConfig);
   }
 
