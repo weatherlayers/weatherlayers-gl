@@ -3,6 +3,7 @@ import type { AnimationConfig } from '../../_utils/animation.js';
 import { interpolateDatetime, getDatetimeWeight, formatDatetime } from '../../_utils/datetime.js';
 import type { DatetimeISOString, DatetimeFormatFunction } from '../../_utils/datetime.js';
 import { randomString } from '../../_utils/random-string.js';
+import { findLastIndex } from '../../_utils/array.js';
 import { Control } from '../control.js';
 import './timeline-control.css';
 
@@ -304,7 +305,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const datetimeInterpolate = this.#config.datetimeInterpolate;
     const datetimeFormatFunction = this.#config.datetimeFormatFunction ?? formatDatetime;
 
-    const datetimeStartIndex = datetimes.findLastIndex(x => x <= datetime);
+    const datetimeStartIndex = findLastIndex(datetimes, x => x <= datetime);
     if (datetimeStartIndex < 0) {
       // overflow is handled by the validation above
       throw new Error('Invalid state');

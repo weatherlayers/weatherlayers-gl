@@ -1,5 +1,6 @@
 import type { Position } from '@deck.gl/core/typed';
 import { distance as measureDistance, destinationPoint, initialBearing } from '../../../_utils/geodesy.js';
+import { findLastIndex } from '../../../_utils/array.js';
 
 const ICON_MIN_DISTANCE = 5000;
 const ICON_FACTOR = 3;
@@ -48,7 +49,7 @@ export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT
       }
 
       const distance = i * deltaDistance;
-      const positionStartIndex = cummulativeDistances.findLastIndex(x => x <= distance);
+      const positionStartIndex = findLastIndex(cummulativeDistances, x => x <= distance);
       if (positionStartIndex === -1 || positionStartIndex === positions.length - 1) {
         // both overflows are handled by `i % ICON_FACTOR === 0` above
         throw new Error('Invalid state');
