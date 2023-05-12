@@ -82,7 +82,8 @@
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
         const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
-        const {image: mercatorImage} = await mercatorClient.loadDatasetSliceData(dataset, datetimeRange, datetime);
+        await mercatorClient.loadDatasetSlice(dataset, datetimeRange);
+        const {image: mercatorImage} = await mercatorClient.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         config.datetimes = datetimes;
         config.datetime = datetime;
@@ -119,7 +120,7 @@
         }
 
         if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
           if (contourLayer) {
             map.removeLayer('contourLabel');
             map.removeLayer('contour');
@@ -162,7 +163,7 @@
         }
 
         if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
           if (highLowLayer) {
             map.removeLayer('highLow');
             map.removeSource('highLow');
