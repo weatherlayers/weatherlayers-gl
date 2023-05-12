@@ -64,6 +64,9 @@
         viewer.camera.rotateRight(0.3 / 180 * Math.PI);
       });
 
+      // logo
+      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+
       // legend
       const legendControl = new WeatherLayers.LegendControl();
       legendControl.prependTo(document.getElementById('bottom-left'));

@@ -62,6 +62,9 @@
       let contourLayer;
       let highLowLayer;
 
+      // logo
+      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+
       // legend
       const legendControl = new WeatherLayers.LegendControl();
       legendControl.prependTo(document.getElementById('bottom-left'));

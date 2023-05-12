@@ -55,6 +55,9 @@
       infoControl.prependTo(document.getElementById('top-left'));
       deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
 
+      // logo
+      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+
       // attribution
       const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
       basemapAttributionControl.prependTo(document.getElementById('bottom-right'));

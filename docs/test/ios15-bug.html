@@ -57,6 +57,9 @@
       infoControl.prependTo(document.getElementById('top-left'));
       deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
 
+      // logo
+      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+
       // FPS meter
       const fpsControl = new FpsControl();
       fpsControl.prependTo(document.getElementById('bottom-right'));

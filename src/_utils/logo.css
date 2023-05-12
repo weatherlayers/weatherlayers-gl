@@ -1,0 +1,9 @@
+.weatherlayers-logo a {
+  display: inline-block;
+  width: 134px;
+  height: 23px;
+  margin: 0 -4px;
+  vertical-align: middle;
+  background: no-repeat center / contain;
+  background-image: inline('./logo.svg');
+}

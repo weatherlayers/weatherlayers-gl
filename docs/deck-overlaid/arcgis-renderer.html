@@ -112,6 +112,9 @@
       infoControl.prependTo(document.getElementById('top-left'));
       deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
 
+      // logo
+      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+
       // legend
       const legendControl = new WeatherLayers.LegendControl();
       legendControl.prependTo(document.getElementById('bottom-left'));

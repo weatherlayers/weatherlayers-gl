@@ -58,7 +58,7 @@ body.google-maps #bottom-right {
 .cesium-viewer-toolbar {
   right: calc(300px + 5px + 5px);
 }
-#maptiler-logo {
+#maptiler-logo, .weatherlayers-logo {
   margin: 10px;
 }
 
