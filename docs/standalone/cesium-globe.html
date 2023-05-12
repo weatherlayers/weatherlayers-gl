@@ -83,14 +83,12 @@
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
         const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
-        await mercatorClient.loadDatasetSlice(dataset, datetimeRange);
-        const {image: mercatorImage} = await mercatorClient.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         config.datetimes = datetimes;
         config.datetime = datetime;
 
         if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(image, imageType, imageUnscale, palette) : undefined;
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(image, config.imageSmoothing, config.imageInterpolation, imageType, imageUnscale, palette) : undefined;
           if (rasterLayer) {
             viewer.imageryLayers.remove(rasterLayer);
           }
