@@ -8,7 +8,7 @@ steps:
       - run
       - build
     env:
-      - 'NODE_OPTIONS=--max-old-space-size=4096'
+      - 'NODE_OPTIONS=--max-old-space-size=8192'
     entrypoint: npm
   - name: bash
     args:
@@ -20,7 +20,7 @@ steps:
       - '-r'
       - dist/weatherlayers-deck.umd.min.js
       - dist/weatherlayers-client.umd.min.js
-      # - dist/weatherlayers-standalone.umd.min.js
+      - dist/weatherlayers-standalone.umd.min.js
       - docs/dist
   - name: gcr.io/cloud-builders/gsutil
     args:
