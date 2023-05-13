@@ -19,12 +19,13 @@
 }
 .weatherlayers-timeline-control footer {
   display: flex;
-  align-items: center;
   gap: 10px;
 }
 .weatherlayers-timeline-control .progress-input {
   width: 100%;
   margin: 0;
+  margin-top: -2px;
+  margin-bottom: 2px;
   vertical-align: middle;
 }
 .weatherlayers-timeline-control .start-datetime, .weatherlayers-timeline-control .end-datetime {
@@ -62,9 +63,24 @@
   background-image: inline('./step-forward.svg');
 }
 
-.weatherlayers-timeline-control.loading {
-  cursor: wait;
+.weatherlayers-timeline-control .loader {
+  display: block;
+  margin-top: 2px;
 }
+.weatherlayers-timeline-control .loader-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  background: no-repeat center / contain;
+  background-image: inline('./loader.svg');
+}
+.weatherlayers-timeline-control .loader-text {
+  vertical-align: middle;
+  color: rgba(0, 0, 0, 0.4);
+  margin-left: 2px;
+}
+
 .weatherlayers-timeline-control.loading * {
   pointer-events: none;
 }
@@ -73,4 +89,7 @@
 }
 .weatherlayers-timeline-control:not(.running) .pause-button {
   display: none;
+}
+.weatherlayers-timeline-control:not(.loading) .loader {
+  visibility: hidden;
 }

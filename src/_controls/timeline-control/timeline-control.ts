@@ -396,5 +396,18 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     stepForwardButton.className = 'button step-forward-button';
     stepForwardButton.addEventListener('click', () => this.stepForward());
     buttons.appendChild(stepForwardButton);
+
+    const loader = document.createElement('span');
+    loader.className = 'loader';
+    buttons.appendChild(loader);
+
+    const loaderIcon = document.createElement('span');
+    loaderIcon.className = 'loader-icon';
+    loader.appendChild(loaderIcon);
+
+    const loaderText = document.createElement('span');
+    loaderText.className = 'loader-text';
+    loaderText.innerHTML = 'Loading...';
+    loader.appendChild(loaderText);
   }
 }
