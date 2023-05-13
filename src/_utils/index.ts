@@ -1,6 +1,5 @@
 import './polyfill.js';
 
-export * from './logo.js';
 export * from './props.js';
 export * from './animation.js';
 export * from './datetime.js';

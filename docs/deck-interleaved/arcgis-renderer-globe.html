@@ -101,7 +101,8 @@
       deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
 
       // logo
-      document.getElementById('bottom-left').prepend(WeatherLayers.getLogo());
+      const logoControl = new WeatherLayers.LogoControl();
+      logoControl.prependTo(document.getElementById('bottom-left'));
 
       // legend
       const legendControl = new WeatherLayers.LegendControl();
