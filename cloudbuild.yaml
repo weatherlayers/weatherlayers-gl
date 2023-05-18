@@ -7,8 +7,6 @@ steps:
     args:
       - run
       - build
-    env:
-      - 'NODE_OPTIONS=--max-old-space-size=8192'
     entrypoint: npm
   - name: bash
     args:

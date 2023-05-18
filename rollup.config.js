@@ -2,6 +2,7 @@ import pkg from './package.json' assert { type: 'json' };
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
 import image from '@rollup/plugin-image';
+import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript2';
 import babel from '@rollup/plugin-babel';
@@ -57,9 +58,6 @@ function bundle(entrypoint, filename, format, options = {}) {
       name: bundleClient ? 'WeatherLayersClient' : 'WeatherLayers',
       sourcemap: true,
       globals: {
-        '@deck.gl/core/typed': 'deck',
-        '@deck.gl/extensions/typed': 'deck',
-        '@deck.gl/layers/typed': 'deck',
         '@deck.gl/core': 'deck',
         '@deck.gl/extensions': 'deck',
         '@deck.gl/layers': 'deck',
@@ -69,9 +67,6 @@ function bundle(entrypoint, filename, format, options = {}) {
     },
     external: [
       ...Object.keys(pkg.peerDependencies),
-      '@deck.gl/core/typed',
-      '@deck.gl/extensions/typed',
-      '@deck.gl/layers/typed',
       ...(!options.resolve ? [
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
@@ -89,6 +84,13 @@ function bundle(entrypoint, filename, format, options = {}) {
       }),
       json(),
       image(),
+      alias({
+        entries: [
+          { find: '@deck.gl/core/typed', replacement: '@deck.gl/core' },
+          { find: '@deck.gl/extensions/typed', replacement: '@deck.gl/extensions' },
+          { find: '@deck.gl/layers/typed', replacement: '@deck.gl/layers' },
+        ]
+      }),
       ...(options.resolve ? [resolve()] : []),
       babel({ babelHelpers: 'runtime' }),
       commonjs(),
