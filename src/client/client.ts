@@ -185,8 +185,6 @@ export class Client {
       throw new Error(`STAC Item ${dataset}/${datetime} not found`);
     }
 
-    this.#cacheDatasetDataStacItem(dataset, stacItem);
-
     return stacItem;
   }
 
@@ -233,17 +231,18 @@ export class Client {
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
     const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
     const datetimes = Array.from(this.#datasetDataStacItemCache.get(dataset)?.values() ?? []).map(x => x.properties.datetime).sort();
+    const closestStartDatetime = getClosestStartDatetime(datetimes, datetime);
+    const closestEndDatetime = getClosestEndDatetime(datetimes, datetime);
+
+    // FIXME: calling `loadDatasetData` with start, end and middle datetime, without calling `loadDatasetSlice`, returns interpolation between start and end datetimes
+    // it should return middle datetime
     let startDatetime, endDatetime;
-    if (datetimes.length > 0) {
-      startDatetime = getClosestStartDatetime(datetimes, datetime);
-      endDatetime = datetimeInterpolate ? getClosestEndDatetime(datetimes, datetime) : null;
+    if (datetimeInterpolate && closestStartDatetime && closestEndDatetime && closestStartDatetime !== closestEndDatetime) {
+      startDatetime = closestStartDatetime;
+      endDatetime = closestEndDatetime;
     } else {
       startDatetime = datetime;
       endDatetime = null;
-    }
-
-    if (!startDatetime) {
-      throw new Error('No data found');
     }
 
     const [image, image2] = await Promise.all([
