@@ -179,28 +179,6 @@
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
             }),
-            new WeatherLayers.ParticleLayer({
-              id: 'particle',
-              // data properties
-              image,
-              image2,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageWeight,
-              imageType,
-              imageUnscale,
-              bounds,
-              // style properties
-              visible: config.particle.enabled,
-              numParticles: config.particle.numParticles,
-              maxAge: config.particle.maxAge,
-              speedFactor: config.particle.speedFactor,
-              width: config.particle.width,
-              color: colorToArray(config.particle.color),
-              opacity: config.particle.opacity,
-              animate: config.particle.animate,
-              getPolygonOffset: () => [0, -1000],
-            }),
             new WeatherLayers.GridLayer({
               id: 'grid',
               // data properties
@@ -224,6 +202,28 @@
               iconSize: config.grid.iconSize,
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
+            }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
             }),
           ],
         });
