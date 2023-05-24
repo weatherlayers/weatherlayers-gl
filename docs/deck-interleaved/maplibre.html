@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.0.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/deck.gl@8.9.9/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/mapbox@8.9.9/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -35,7 +35,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isMetalWebGl2 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -49,7 +49,7 @@
       WeatherLayers.setLicense(LICENSE);
       
       const datasets = await client.loadCatalog();
-      const config = await initConfig({ datasets, deckgl: true });
+      const config = await initConfig({ datasets, deckgl: true, webgl2: true });
       let gui;
 
       // Mapbox
@@ -133,9 +133,9 @@
               visible: config.raster.enabled,
               palette,
               opacity: config.raster.opacity,
+              pickable: false, // causes flickering
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
-              pickable: !isMetalWebGl2(),
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
@@ -202,6 +202,28 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
           ],
         });
 
@@ -211,7 +233,7 @@
         attributionControl.updateConfig({ attribution });
       }
       await update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>

@@ -29,7 +29,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isMetalWebGl2 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -43,7 +43,7 @@
       WeatherLayers.setLicense(LICENSE);
       
       const datasets = await client.loadCatalog();
-      const config = await initConfig({ datasets, deckgl: true });
+      const config = await initConfig({ datasets, deckgl: true, webgl2: true });
       let gui;
 
       // Mapbox
@@ -53,6 +53,7 @@
         style: 'mapbox://styles/mapbox/dark-v10',
         center: [30, 10],
         zoom: 1,
+        useWebGL2: true,
       });
       await new Promise(resolve => map.on('load', resolve));
 
@@ -128,7 +129,7 @@
               visible: config.raster.enabled,
               palette,
               opacity: config.raster.opacity,
-              pickable: !isMetalWebGl2(),
+              pickable: false, // causes flickering
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
             }),
@@ -197,6 +198,28 @@
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              width: config.particle.width,
+              color: colorToArray(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
+              getPolygonOffset: () => [0, -1000],
+            }),
           ],
         });
 
@@ -206,7 +229,7 @@
         attributionControl.updateConfig({ attribution });
       }
       await update();
-      gui = initGui(config, update, { deckgl });
+      gui = initGui(config, update, { deckgl, webgl2: true });
     });
   </script>
 </body>
