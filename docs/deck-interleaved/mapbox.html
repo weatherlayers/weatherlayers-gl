@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/deck.gl@8.9.9/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/mapbox@8.9.9/dist/dist.dev.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -50,12 +50,20 @@
       const map = new mapboxgl.Map({
         container: 'mapbox',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6ImNrcG4xZjc0ZjRhNmMybm54NnRjcW1pejAifQ.wLXIYDVrD_6yQPszlIB8Dg', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v10',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [30, 10],
         zoom: 1,
+        projection: 'mercator',
         useWebGL2: true,
       });
       await new Promise(resolve => map.on('load', resolve));
+      map.setPaintProperty('water', 'fill-color', 'hsl(0, 0%, 1%)');
+      map.setPaintProperty('continent-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('continent-label', 'text-opacity', 1);
+      map.setPaintProperty('country-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('state-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('state-label', 'text-opacity', 1);
+      const beforeId = map.style._order.find(layerId => map.style._layers[layerId].type === 'symbol');
 
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({
@@ -132,6 +140,7 @@
               pickable: false, // causes flickering
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
+              beforeId,
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
@@ -152,6 +161,7 @@
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
+              beforeId,
             }),
             new WeatherLayers.HighLowLayer({
               id: 'highLow',
@@ -173,6 +183,7 @@
               textOutlineColor: colorToArray(config.highLow.textOutlineColor),
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
+              beforeId,
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
@@ -197,6 +208,7 @@
               iconSize: config.grid.iconSize,
               iconColor: colorToArray(config.grid.iconColor),
               opacity: config.grid.opacity,
+              beforeId,
             }),
             new WeatherLayers.ParticleLayer({
               id: 'particle',
@@ -219,6 +231,7 @@
               opacity: config.particle.opacity,
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],
+              beforeId,
             }),
           ],
         });

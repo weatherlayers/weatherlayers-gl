@@ -6,8 +6,8 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-standalone.umd.min.js"></script>
@@ -49,12 +49,20 @@
       const map = new mapboxgl.Map({
         container: 'mapbox',
         accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6ImNrcG4xZjc0ZjRhNmMybm54NnRjcW1pejAifQ.wLXIYDVrD_6yQPszlIB8Dg', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v10',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [30, 10],
         zoom: 3,
         projection: 'globe',
         useWebGL2: true,
       });
+      await new Promise(resolve => map.on('load', resolve));
+      map.setPaintProperty('water', 'fill-color', 'hsl(0, 0%, 1%)');
+      map.setPaintProperty('continent-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('continent-label', 'text-opacity', 1);
+      map.setPaintProperty('country-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('state-label', 'text-color', 'hsl(358, 0%, 49%)');
+      map.setPaintProperty('state-label', 'text-opacity', 1);
+
       let rasterLayer;
       let contourLayer;
       let highLowLayer;

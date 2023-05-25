@@ -55,7 +55,7 @@
       // Mapbox
       const map = new maplibregl.Map({
         container: 'maplibre',
-        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
+        style: 'https://api.maptiler.com/maps/dataviz-dark/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
         center: [30, 10],
         zoom: 1,
         /*
@@ -77,16 +77,21 @@
       await new Promise(resolve => map.on('load', resolve));
       /*
       // screenshot, banner
-      // hide boundaries
-      map.setLayoutProperty('admin_sub', 'visibility', 'none');
-      map.setLayoutProperty('admin_country', 'visibility', 'none');
+      // hide borders
+      map.setLayoutProperty('border_other', 'visibility', 'none');
+      map.setLayoutProperty('border_other-dash', 'visibility', 'none');
+      map.setLayoutProperty('border_disputed', 'visibility', 'none');
+      map.setLayoutProperty('border_country', 'visibility', 'none');
       // hide labels
-      map.setLayoutProperty('label_airport', 'visibility', 'none');
-      map.setLayoutProperty('label_road', 'visibility', 'none');
-      map.setLayoutProperty('label_place_other', 'visibility', 'none');
-      map.setLayoutProperty('label_place_city', 'visibility', 'none');
-      map.setLayoutProperty('label_country_other', 'visibility', 'none');
-      map.setLayoutProperty('label_country', 'visibility', 'none');
+      map.setLayoutProperty('water_point', 'visibility', 'none');
+      map.setLayoutProperty('water_line', 'visibility', 'none');
+      map.setLayoutProperty('road', 'visibility', 'none');
+      map.setLayoutProperty('place', 'visibility', 'none');
+      map.setLayoutProperty('town', 'visibility', 'none');
+      map.setLayoutProperty('state', 'visibility', 'none');
+      map.setLayoutProperty('city', 'visibility', 'none');
+      map.setLayoutProperty('country', 'visibility', 'none');
+      map.setLayoutProperty('continent', 'visibility', 'none');
       */
 
       // overlaid deck.gl
