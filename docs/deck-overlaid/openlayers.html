@@ -6,10 +6,9 @@
   <title>WeatherLayers</title>
   <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+  <script src="https://unpkg.com/ol@7.4.0/dist/ol.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ol@7.4.0/ol.css">
   <script src="https://unpkg.com/deck.gl@8.9.9/dist.min.js"></script>
-  <script src="https://unpkg.com/deck.gl-leaflet@1.2.0/dist/deck.gl-leaflet.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
   <script src="../../dist/weatherlayers-client.umd.min.js"></script>
   <script src="../../dist/weatherlayers-deck.umd.min.js"></script>
@@ -20,9 +19,10 @@
   <script defer src="https://web3dsurvey.com/collector.js"></script>
 </head>
 
-<body class="leaflet">
+<body class="openlayers">
   <div id="container">
-    <div id="leaflet"></div>
+    <div id="openlayers"></div>
+    <div id="deck"></div>
   </div>
   <div id="top-left"></div>
   <div id="bottom-left"></div>
@@ -46,27 +46,48 @@
       const config = await initConfig({ datasets, deckgl: true, webgl2: true });
       let gui;
 
-      // Leaflet
-      const map = L.map('leaflet', {
-        center: [10, 30],
-        zoom: 1,
-        zoomControl: false,
-        attributionControl: false,
+      // OpenLayers
+      const map = new ol.Map({
+        target: document.getElementById('openlayers'),
+        view: new ol.View({
+          center: ol.proj.fromLonLat([30, 10]),
+          zoom: 0,
+        }),
+        layers: [],
       });
-      L.tileLayer(
-        'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE', // WeatherLayers access token
-        { maxZoom: 22 }
-      ).addTo(map);
+      map.addLayer(new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE', // WeatherLayers access token
+        }),
+        maxZoom: 22,
+      }));
 
       // overlaid deck.gl
-      const deckLayer = new DeckGlLeaflet.LeafletLayer({
+      // see https://github.com/visgl/deck.gl/blob/8.9-release/examples/get-started/pure-js/openlayers/app.js
+      const deckgl = window.deckgl = new deck.Deck({
+        parent: document.getElementById('deck'),
+        initialViewState: {
+          longitude: 30,
+          latitude: 10,
+          zoom: 0,
+        },
+        controller: false,
         views: [
           new deck.MapView({ repeat: true }),
         ],
         layers: [],
       });
-      map.addLayer(deckLayer);
-      const deckgl = window.deckgl = deckLayer._deck;
+      map.addLayer(new ol.layer.Layer({
+        render({size, viewState}) {
+          const [width, height] = size;
+          const [longitude, latitude] = ol.proj.toLonLat(viewState.center);
+          const zoom = viewState.zoom - 1;
+          const bearing = (-viewState.rotation * 180) / Math.PI;
+          const deckViewState = {bearing, longitude, latitude, zoom};
+          deckgl.setProps({width, height, viewState: deckViewState});
+          deckgl.redraw();
+        }
+      }));
 
       // info panels
       const infoControl = new InfoControl();
@@ -117,7 +138,7 @@
         config.datetimes = datetimes;
         config.datetime = datetime;
 
-        deckLayer.setProps({
+        deckgl.setProps({
           layers: [
             new WeatherLayers.RasterLayer({
               id: 'raster',
