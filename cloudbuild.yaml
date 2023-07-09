@@ -28,5 +28,3 @@ steps:
       - '-d'
       - ./docs
       - 'gs://$_STORAGE_BUCKET'
-options:
-  machineType: 'E2_HIGHCPU_8'
