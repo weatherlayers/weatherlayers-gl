@@ -2,11 +2,12 @@ import type { Viewport } from '@deck.gl/core/typed';
 import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
-import geokdbush from 'geokdbush';
+import * as geokdbush from 'geokdbush-tk';
 import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from './viewport.js';
 import { wrapLongitude } from './bounds.js';
 
-const ICOMESH_INDEX_AT_ZOOM_CACHE = new Map<number, KDBush<GeoJSON.Position>>();
+const GLOBAL_POSITIONS_AT_ZOOM_CACHE = new Map<number, GeoJSON.Position[]>();
+const GLOBAL_INDEX_AT_ZOOM_CACHE = new Map<number, KDBush>();
 
 export function getViewportGridPositions(viewport: Viewport, zoomOffset: number = 0): GeoJSON.Position[] {
   const zoom = Math.floor(viewport.zoom + (isViewportGlobe(viewport) ? 1 : 0) + zoomOffset);
@@ -41,34 +42,44 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
   const MAX_ICOMESH_ZOOM = 7;
   zoom = Math.min(Math.max(zoom - 2, 0), MAX_ICOMESH_ZOOM);
 
-  const globalIndex = ICOMESH_INDEX_AT_ZOOM_CACHE.get(zoom) ?? (() => {
+  const globalPositions = GLOBAL_POSITIONS_AT_ZOOM_CACHE.get(zoom) ?? (() => {
     const { uv } = icomesh(zoom, true);
 
-    let i = 0;
-    const positions: GeoJSON.Position[] = [];
-    for (let j = 0; j < uv.length / 2; j++) {
-      const point = [uv[i++], uv[i++]];
+    const globalPositions = [];
+    for (let i = 0; i < uv.length; i += 2) {
+      const uvX = uv[i];
+      const uvY = uv[i + 1];
 
       // avoid duplicate grid points at the antimeridian
-      if (point[0] === 0) {
+      if (uvX === 0) {
         continue;
       }
       // avoid invalid grid points at the poles
       // TODO: keep one point, fix grid point direction at the poles
-      if (point[1] <= 0 || point[1] >= 1) {
+      if (uvY <= 0 || uvY >= 1) {
         continue;
       }
 
-      const position = [point[0] * 360 - 180, point[1] * 180 - 90];
+      const positionX = uvX * 360 - 180;
+      const positionY = uvY * 180 - 90;
 
-      positions.push(position);
+      globalPositions.push([positionX, positionY]);
     }
+    return globalPositions;
+  })();
 
-    const globalIndex = new KDBush(positions, x => x[0], x => x[1], undefined, Float32Array);
-    ICOMESH_INDEX_AT_ZOOM_CACHE.set(zoom, globalIndex);
+  const globalIndex = GLOBAL_INDEX_AT_ZOOM_CACHE.get(zoom) ?? (() => {
+    const globalIndex = new KDBush(globalPositions.length, undefined, Float32Array);
+    for (let i = 0; i < globalPositions.length; i++) {
+      const position = globalPositions[i];
+      globalIndex.add(position[0], position[1]);
+    }
+    globalIndex.finish();
     return globalIndex;
   })();
-  const positions = geokdbush.around(globalIndex, center[0], center[1], undefined, radius / 1000);
+
+  const ids = geokdbush.around(globalIndex, center[0], center[1], undefined, radius / 1000);
+  const positions = ids.map(i => globalPositions[i]);
 
   return positions;
 }
