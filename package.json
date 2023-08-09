@@ -71,10 +71,10 @@
     "@babel/plugin-transform-runtime": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@babel/runtime": "^7.21.0",
-    "@deck.gl/core": "^8.9.9",
-    "@deck.gl/extensions": "^8.9.9",
-    "@deck.gl/layers": "^8.9.9",
-    "@luma.gl/core": "^8.5.19",
+    "@deck.gl/core": "^8.9.23",
+    "@deck.gl/extensions": "^8.9.23",
+    "@deck.gl/layers": "^8.9.23",
+    "@luma.gl/core": "^8.5.20",
     "@rollup/plugin-alias": "^5.0.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.1.0",
@@ -113,10 +113,10 @@
     "webpack-glsl-minify": "^1.5.0"
   },
   "peerDependencies": {
-    "@deck.gl/core": "^8.9.6",
-    "@deck.gl/extensions": "^8.9.6",
-    "@deck.gl/layers": "^8.9.6",
-    "@luma.gl/core": "^8.5.19",
+    "@deck.gl/core": "^8.9.23",
+    "@deck.gl/extensions": "^8.9.23",
+    "@deck.gl/layers": "^8.9.23",
+    "@luma.gl/core": "^8.5.20",
     "geotiff": "^2.0.7"
   },
   "scarfSettings": {
