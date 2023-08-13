@@ -34,6 +34,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
   const config = {
     datasets: datasets ?? [],
     dataset: urlConfig.get('dataset') ?? DEFAULT_DATASET,
+    unitSystem: WeatherLayers.UnitSystem.METRIC,
     datetimes: [],
     datetime: NO_DATA,
 
@@ -201,6 +202,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     // force update datetime
     originalUpdate();
   });
+  gui.addInput(config, 'unitSystem', { options: getOptions(Object.values(WeatherLayers.UnitSystem)) }).on('change', update);
 
   datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
 

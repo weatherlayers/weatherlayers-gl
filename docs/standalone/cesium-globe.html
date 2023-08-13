@@ -79,7 +79,7 @@
       // config
       async function update() {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset);
+        const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
         const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
         const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];

@@ -5,6 +5,7 @@ import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } fro
 import type { DatetimeISOString, DatetimeISOStringRange } from '../_utils/datetime.js';
 import type { ImageType } from '../_utils/image-type.js';
 import type { ImageUnscale } from '../_utils/image-unscale.js';
+import { UnitSystem } from '../_utils/unit-system.js';
 import type { UnitFormat } from '../_utils/unit-format.js';
 import { StacProviderRole, StacAssetRole, StacLinkRel } from '../_utils/stac.js';
 import type { StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem } from '../_utils/stac.js';
@@ -13,6 +14,7 @@ export interface ClientConfig {
   url?: string;
   accessToken?: string;
   dataFormat?: string;
+  unitSystem?: UnitSystem;
   attributionLinkClass?: string;
   datetimeInterpolate?: boolean;
 }
@@ -41,8 +43,10 @@ export interface DatasetData {
 
 const DEFAULT_URL = CATALOG_URL;
 const DEFAULT_DATA_FORMAT = 'byte.png';
+const DEFAULT_UNIT_SYSTEM = UnitSystem.METRIC;
+const DEFAULT_ATTRIBUTION_LINK_CLASS = '';
 
-function getStacCollectionAttribution(stacCollection: DatasetStacCollection, attributionLinkClass: string | null = null): string {
+function getStacCollectionAttribution(stacCollection: DatasetStacCollection, attributionLinkClass: string): string {
   const producer = stacCollection.providers.find(x => x.roles.includes(StacProviderRole.PRODUCER));
   const processor = stacCollection.providers.find(x => x.roles.includes(StacProviderRole.PROCESSOR));
   const attribution = [
@@ -50,6 +54,11 @@ function getStacCollectionAttribution(stacCollection: DatasetStacCollection, att
     ...(processor ? [`<a href="${processor.url}"${attributionLinkClass ? ` class="${attributionLinkClass}"`: ''}>${processor.name}</a>`] : []),
   ].join(' via ');
   return attribution;
+}
+
+function getStacCollectionUnitFormat(stacCollection: DatasetStacCollection, unitSystem: UnitSystem): UnitFormat {
+  const units = stacCollection['weatherLayers:units'];
+  return units.find(unitFormat => unitFormat.system === unitSystem) ?? units.find(unitFormat => unitFormat.system === DEFAULT_UNIT_SYSTEM) ?? units[0];
 }
 
 function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange): string {
@@ -207,12 +216,14 @@ export class Client {
   }
 
   async loadDataset(dataset: string, config: ClientConfig = {}): Promise<Dataset> {
-    const attributionLinkClass = config.attributionLinkClass ?? this.#config.attributionLinkClass ?? null;
     const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+
+    const unitSystem = config.unitSystem ?? this.#config.unitSystem ?? DEFAULT_UNIT_SYSTEM;
+    const attributionLinkClass = config.attributionLinkClass ?? this.#config.attributionLinkClass ?? DEFAULT_ATTRIBUTION_LINK_CLASS;
 
     return {
       title: stacCollection.title,
-      unitFormat: stacCollection['weatherLayers:units'][0],
+      unitFormat: getStacCollectionUnitFormat(stacCollection, unitSystem),
       attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
       datetimeRange: stacCollection.extent.temporal.interval[0],
       datetimes: stacCollection.links.filter(x => x.rel === StacLinkRel.ITEM).map(x => x.datetime).filter(x => !!x) as DatetimeISOString[],

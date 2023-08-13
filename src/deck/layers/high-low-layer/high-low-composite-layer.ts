@@ -75,8 +75,8 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
-    const { props, highLowPoints, minValue, maxValue } = this.state;
-    if (!props || !highLowPoints) {
+    const { props, points, minValue, maxValue } = this.state;
+    if (!props || !points) {
       return [];
     }
 
@@ -85,7 +85,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     return [
       new TextLayer(this.getSubLayerProps({
         id: 'type',
-        data: highLowPoints,
+        data: points,
         getPixelOffset: [0, -getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => d.properties.type,
@@ -106,7 +106,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
       new TextLayer(this.getSubLayerProps({
         id: 'value',
-        data: highLowPoints,
+        data: points,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => textFormatFunction(d.properties.value, unitFormat),
@@ -129,13 +129,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, radius } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, radius, unitFormat } = params.props;
 
     super.updateState(params);
 
     if (!radius) {
       this.setState({
-        highLowPoints: undefined,
+        points: undefined,
         minValue: undefined,
         maxValue: undefined,
       });
@@ -150,13 +150,17 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       imageWeight !== params.oldProps.imageWeight ||
       radius !== params.oldProps.radius
     ) {
-      this.#updateHighLowPoints();
+      this.#updatePoints();
+    }
+
+    if (unitFormat !== params.oldProps.unitFormat) {
+      this.#redrawPoints();
     }
 
     this.setState({ props: params.props });
   }
 
-  async #updateHighLowPoints(): Promise<void> {
+  async #updatePoints(): Promise<void> {
     const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
@@ -170,11 +174,15 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     // TODO: move getRasterMagnitudeData to GPU, remove blur
     const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
 
-    const highLowPoints = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
-    const values = highLowPoints.map(highLowPoint => highLowPoint.properties.value);
+    const points = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+    const values = points.map(highLowPoint => highLowPoint.properties.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
 
-    this.setState({ image, radius, highLowPoints, minValue, maxValue });
+    this.setState({ image, radius, points, minValue, maxValue });
+  }
+
+  #redrawPoints(): void {
+    this.setState({ points: Array.isArray(this.state.points) ? Array.from(this.state.points) : this.state.points });
   }
 }

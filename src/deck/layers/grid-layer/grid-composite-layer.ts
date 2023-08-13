@@ -70,8 +70,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
-    const { props, rasterPoints } = this.state;
-    if (!props || !rasterPoints) {
+    const { props, points } = this.state;
+    if (!props || !points) {
       return [];
     }
 
@@ -85,7 +85,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
-          data: rasterPoints,
+          data: points,
           getPosition: d => d.geometry.coordinates as Position,
           getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
           getSize: iconSize,
@@ -100,7 +100,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [
         new TextLayer(this.getSubLayerProps({
           id: 'text',
-          data: rasterPoints,
+          data: points,
           getPosition: d => d.geometry.coordinates as Position,
           getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
@@ -125,22 +125,27 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, unitFormat } = params.props;
 
     super.updateState(params);
+
+    if (params.changeFlags.viewportChanged) {
+      this.#updatePositions();
+    }
 
     if (
       image !== params.oldProps.image ||
       image2 !== params.oldProps.image2 ||
       imageSmoothing !== params.oldProps.imageSmoothing ||
       imageInterpolation !== params.oldProps.imageInterpolation ||
-      imageWeight !== params.oldProps.imageWeight
+      imageWeight !== params.oldProps.imageWeight ||
+      params.changeFlags.viewportChanged
     ) {
-      this.#updateGridPoints();
+      this.#updatePoints();
     }
 
-    if (params.changeFlags.viewportChanged) {
-      this.#updatePositions();
+    if (unitFormat !== params.oldProps.unitFormat) {
+      this.#redrawPoints();
     }
 
     this.setState({ props: params.props });
@@ -152,19 +157,21 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     const positions = getViewportGridPositions(viewport, 3);
 
     this.setState({ positions });
-
-    this.#updateGridPoints();
   }
 
-  #updateGridPoints(): void {
+  #updatePoints(): void {
     const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds } = ensureDefaultProps(this.props, defaultProps);
     const { positions } = this.state;
     if (!image) {
       return;
     }
 
-    const rasterPoints = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
+    const points = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
 
-    this.setState({ rasterPoints });
+    this.setState({ points });
+  }
+
+  #redrawPoints(): void {
+    this.setState({ points: Array.isArray(this.state.points) ? Array.from(this.state.points) : this.state.points });
   }
 }
