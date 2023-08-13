@@ -11,6 +11,7 @@ export interface LicenseContent {
   name: string;
   domains: string[];
   created: string;
+  until?: string;
 }
 
 export type License = { content: LicenseContent, signature: string };
@@ -53,8 +54,8 @@ async function signLicenseContent(crypto: Crypto, privateKeyJwk: JsonWebKey, con
   return signature;
 }
 
-export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, domains: string[], created: string): Promise<License> {
-  const content: LicenseContent = { id, type, name, domains, created };
+export async function generateLicense(crypto: Crypto, privateKeyJwk: JsonWebKey, id: string, type: LicenseType, name: string, domains: string[], created: string, until: string | undefined): Promise<License> {
+  const content: LicenseContent = { id, type, name, domains, created, until };
   const signature = await signLicenseContent(crypto, privateKeyJwk, content);
   return { content, signature };
 }
@@ -88,7 +89,15 @@ async function verifyLicenseSignature(crypto: Crypto, publicKeyRaw: string, cont
   );
 }
 
-function verifyLicenseDatetime(content: LicenseContent, packageDatetime: string): boolean {
+function verifyLicenseUntil(content: LicenseContent): boolean {
+  if (!content.until) {
+    return true;
+  }
+  const licenseValidUntil = new Date(content.until);
+  return licenseValidUntil.toISOString() >= new Date().toISOString();
+}
+
+function verifyLicenseCreated(content: LicenseContent, packageDatetime: string): boolean {
   const supportValidUntil = new Date(content.created);
   supportValidUntil.setFullYear(supportValidUntil.getFullYear() + 1);
   return supportValidUntil.toISOString() >= packageDatetime;
@@ -128,8 +137,12 @@ export async function verifyLicense(crypto: Crypto, publicKeyRaw: string, licens
     return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file can\'t be verified.'));
   }
 
-  if (!verifyLicenseDatetime(content, packageDatetime)) {
+  if (!verifyLicenseCreated(content, packageDatetime)) {
     return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file support has expired.'));
+  }
+
+  if (!verifyLicenseUntil(content)) {
+    return getInvalidLicenseResult(getInvalidLicenseMessage('WeatherLayers GL license file has expired.'));
   }
 
   if (!verifyLicenseDomain(content, currentDomain)) {
