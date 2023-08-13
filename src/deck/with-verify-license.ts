@@ -9,7 +9,7 @@ import { getViewportAngle } from '../_utils/viewport.js';
 import { getViewportGridPositions } from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
 import { LicenseWorker } from '../license/license-worker.js';
-import type { License } from '../license/license.js';
+import type { License } from 'weatherlayers-license/src/license.js';
 
 // https://anseki.github.io/gnirts/
 // @ts-ignore
