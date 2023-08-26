@@ -1,5 +1,6 @@
 .weatherlayers-attribution-control {
   margin-top: 2px;
+  pointer-events: auto; /* force controls to be clickable when added as Mapbox/MapLibre control */
 }
 .weatherlayers-attribution-control > div {
   display: inline-block;

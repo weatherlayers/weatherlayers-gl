@@ -1,5 +1,6 @@
 .weatherlayers-logo-control {
   margin: 10px;
+  pointer-events: auto; /* force controls to be clickable when added as Mapbox/MapLibre control */
 }
 .weatherlayers-logo-control a {
   display: inline-block;

@@ -1,5 +1,6 @@
 .weatherlayers-tooltip-control {
   margin: 10px;
+  pointer-events: auto; /* force controls to be clickable when added as Mapbox/MapLibre control */
 }
 .weatherlayers-tooltip-control > div {
   display: inline-block;
