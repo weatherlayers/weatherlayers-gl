@@ -9,7 +9,11 @@ export async function verifyLicenseMain(license: License | null, currentDomain: 
   const licenseResult = await verifyLicense(crypto, publicKeyRaw, license, DATETIME, currentDomain);
 
   if (licenseResult.message) {
-    console.warn(licenseResult.message);
+    if (!licenseResult.isValid) {
+      console.warn(licenseResult.message);
+    } else {
+      console.info(licenseResult.message);
+    }
   }
   
   return licenseResult.isValid;
