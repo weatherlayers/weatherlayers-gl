@@ -60,7 +60,7 @@
     "kdbush": "^4.0.2",
     "leaflet-polylinedecorator": "^1.6.0",
     "lineclip": "^1.1.5",
-    "weatherlayers-license": "github:weatherlayers/weatherlayers-license#1.0.0"
+    "weatherlayers-license": "github:weatherlayers/weatherlayers-license#1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.15",
