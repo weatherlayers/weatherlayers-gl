@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>WeatherLayers</title>
-  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.9.30/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -25,7 +24,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { initConfig, initGui, colorToArray } from '../config.js';
+    import { initConfig, initGui, cssToColor } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -154,7 +153,7 @@
               visible: config.contour.enabled,
               interval: config.contour.interval,
               width: config.contour.width,
-              color: colorToArray(config.contour.color),
+              color: cssToColor(config.contour.color),
               opacity: config.contour.opacity,
             }),
             new WeatherLayers.HighLowLayer({
@@ -171,9 +170,9 @@
               unitFormat,
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
-              textColor: colorToArray(config.highLow.textColor),
+              textColor: cssToColor(config.highLow.textColor),
               textOutlineWidth: config.highLow.textOutlineWidth,
-              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
               opacity: config.highLow.opacity,
             }),
             new WeatherLayers.FrontLayer({

@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>WeatherLayers</title>
-  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.9.30/dist.min.js"></script>
   <script src="https://unpkg.com/@deck.gl/arcgis@8.9.30/dist/dist.dev.js"></script><!-- can't use <script src="https://js.arcgis.com/4.27/"></script> because of require function conflict -->
@@ -27,7 +26,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToColor } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);

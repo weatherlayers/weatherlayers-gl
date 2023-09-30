@@ -1,3 +1,5 @@
+import { Pane } from 'https://cdn.jsdelivr.net/npm/tweakpane@4.0.1/dist/tweakpane.min.js';
+
 export const NO_DATA = 'no data';
 
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
@@ -58,13 +60,13 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       enabled: false,
       interval: 2, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
-      color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+      color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       // text config is used for labels in standalone demos
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
       textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
       textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
     },
     highLow: {
@@ -72,9 +74,9 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       radius: 2000, // dataset-specific
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
       textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-      textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+      textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
       textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-      textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
       opacity: 1,
     },
     ...(deckgl ? {
@@ -83,12 +85,12 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         style: WeatherLayers.GridStyle.VALUE, // dataset-specific
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
         textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
-        textColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_COLOR),
+        textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
         textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
-        textOutlineColor: arrayToColor(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+        textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
         iconBounds: null, // dataset-specific
         iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
-        iconColor: arrayToColor(WeatherLayers.DEFAULT_ICON_COLOR),
+        iconColor: colorToCss(WeatherLayers.DEFAULT_ICON_COLOR),
         opacity: 1,
       },
     } : {}),
@@ -99,7 +101,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         maxAge: 10,
         speedFactor: 0, // dataset-specific
         width: 0, // dataset-specific
-        color: arrayToColor(WeatherLayers.DEFAULT_LINE_COLOR),
+        color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
         opacity: 1,
         animate: true,
       },
@@ -185,10 +187,10 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   update = debounce(() => { updateUrlConfig(config, { deckgl, webgl2 }); originalUpdate() }, 100);
   const updateLast = event => event.last && update();
 
-  const gui = new Tweakpane.Pane();
+  const gui = new Pane();
 
   let datetime;
-  gui.addInput(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
+  gui.addBinding(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
     // force update dataset
     await originalUpdate();
     loadUrlConfig(config, { deckgl, webgl2 });
@@ -196,74 +198,74 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
     // refresh datetimes
     datetime.dispose();
-    datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
+    datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
     gui.refresh();
 
     // force update datetime
     originalUpdate();
   });
-  gui.addInput(config, 'unitSystem', { options: getOptions(Object.values(WeatherLayers.UnitSystem)) }).on('change', update);
+  gui.addBinding(config, 'unitSystem', { options: getOptions(Object.values(WeatherLayers.UnitSystem)) }).on('change', update);
 
-  datetime = gui.addInput(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
+  datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
 
   if (deckgl) {
-    gui.addInput(config, 'datetimeInterpolate').on('change', update);
+    gui.addBinding(config, 'datetimeInterpolate').on('change', update);
   }
 
-  gui.addInput(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
-  gui.addInput(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
+  gui.addBinding(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
+  gui.addBinding(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
 
   if (globe) {
-    gui.addInput(config, 'rotate').on('change', update);
+    gui.addBinding(config, 'rotate').on('change', update);
   }
 
   gui.addButton({ title: 'Catalog' }).on('click', () => location.href = 'https://browser.weatherlayers.com/');
   gui.addButton({ title: 'Docs' }).on('click', () => location.href = 'https://docs.weatherlayers.com/');
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
-  raster.addInput(config.raster, 'enabled').on('change', update);
-  raster.addInput(config.raster, 'colormap', { options: getOptions([DEFAULT_COLORMAP]) }); // dummy
-  raster.addInput(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+  raster.addBinding(config.raster, 'enabled').on('change', update);
+  raster.addBinding(config.raster, 'colormap', { options: getOptions([DEFAULT_COLORMAP]) }); // dummy
+  raster.addBinding(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
-  contour.addInput(config.contour, 'enabled').on('change', update);
-  contour.addInput(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', update);
-  contour.addInput(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
-  contour.addInput(config.contour, 'color').on('change', update);
-  contour.addInput(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+  contour.addBinding(config.contour, 'enabled').on('change', update);
+  contour.addBinding(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', update);
+  contour.addBinding(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+  contour.addBinding(config.contour, 'color').on('change', update);
+  contour.addBinding(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const highLow = gui.addFolder({ title: 'HighLow layer', expanded: true });
-  highLow.addInput(config.highLow, 'enabled').on('change', update);
-  highLow.addInput(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
-  highLow.addInput(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
-  highLow.addInput(config.highLow, 'textColor').on('change', update);
-  highLow.addInput(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
-  highLow.addInput(config.highLow, 'textOutlineColor').on('change', update);
-  highLow.addInput(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+  highLow.addBinding(config.highLow, 'enabled').on('change', update);
+  highLow.addBinding(config.highLow, 'radius', { min: 0, max: 5 * 1000, step: 1 }).on('change', updateLast);
+  highLow.addBinding(config.highLow, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+  highLow.addBinding(config.highLow, 'textColor').on('change', update);
+  highLow.addBinding(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+  highLow.addBinding(config.highLow, 'textOutlineColor').on('change', update);
+  highLow.addBinding(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   if (deckgl) {
     const grid = gui.addFolder({ title: 'Grid layer', expanded: true });
-    grid.addInput(config.grid, 'enabled').on('change', update);
-    grid.addInput(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', update);
-    grid.addInput(config.grid, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
-    grid.addInput(config.grid, 'textColor').on('change', update);
-    grid.addInput(config.grid, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
-    grid.addInput(config.grid, 'textOutlineColor').on('change', update);
-    grid.addInput(config.grid, 'iconSize', { min: 0, max: 100, step: 1 }).on('change', update);
-    grid.addInput(config.grid, 'iconColor').on('change', update);
-    grid.addInput(config.grid, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+    grid.addBinding(config.grid, 'enabled').on('change', update);
+    grid.addBinding(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', update);
+    grid.addBinding(config.grid, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+    grid.addBinding(config.grid, 'textColor').on('change', update);
+    grid.addBinding(config.grid, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+    grid.addBinding(config.grid, 'textOutlineColor').on('change', update);
+    grid.addBinding(config.grid, 'iconSize', { min: 0, max: 100, step: 1 }).on('change', update);
+    grid.addBinding(config.grid, 'iconColor').on('change', update);
+    grid.addBinding(config.grid, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
   }
 
   if (webgl2) {
     const particle = gui.addFolder({ title: 'Particle layer', expanded: true });
-    particle.addInput(config.particle, 'enabled').on('change', update);
-    particle.addInput(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
-    particle.addInput(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
-    particle.addInput(config.particle, 'speedFactor', { min: 0, max: 50, step: 0.1 }).on('change', update);
-    particle.addInput(config.particle, 'color').on('change', update);
-    particle.addInput(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
-    particle.addInput(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
-    particle.addInput(config.particle, 'animate').on('change', update);
+    particle.addBinding(config.particle, 'enabled').on('change', update);
+    particle.addBinding(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
+    particle.addBinding(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
+    particle.addBinding(config.particle, 'speedFactor', { min: 0, max: 50, step: 0.1 }).on('change', update);
+    particle.addBinding(config.particle, 'color').on('change', update);
+    particle.addBinding(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+    particle.addBinding(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
+    particle.addBinding(config.particle, 'animate').on('change', update);
     particle.addButton({ title: 'Step' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step());
     particle.addButton({ title: 'Clear' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear());
   }
@@ -271,16 +273,25 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   return gui;
 }
 
-export function arrayToColor(color) {
-  return { r: color[0], g: color[1], b: color[2], a: typeof color[3] === 'number' ? color[3] / 255 : 1 };
+function componentToHex(value) {
+  return value.toString(16).padStart(2, '0');
 }
 
-export function colorToArray(color) {
-  return [color.r, color.g, color.b, ...(typeof color.a === 'number' ? [color.a * 255] : [255])];
+function colorToCss(color) {
+  return `#${componentToHex(color[0])}${componentToHex(color[1])}${componentToHex(color[2])}${componentToHex(typeof color[3] === 'number' ? color[3] : 255)}`;
 }
 
-export function colorToCss(color) {
-  return `rgba(${color.r}, ${color.g}, ${color.b}, ${typeof color.a === 'number' ? color.a : 1 })`;
+export function cssToColor(color) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+  if (!result) {
+    throw new Error('Invalid argument');
+  }
+  return [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16),
+    parseInt(result[4], 16)
+   ];
 }
 
 export function isMetalWebGl2() {

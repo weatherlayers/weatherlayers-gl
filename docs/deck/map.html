@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>WeatherLayers</title>
-  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.9.30/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -26,7 +25,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { NO_DATA, initConfig, initGui, colorToArray, isMetalWebGl2 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToColor, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -164,7 +163,7 @@
               visible: config.contour.enabled,
               interval: config.contour.interval,
               width: config.contour.width,
-              color: colorToArray(config.contour.color),
+              color: cssToColor(config.contour.color),
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
@@ -185,9 +184,9 @@
               unitFormat,
               radius: config.highLow.radius,
               textSize: config.highLow.textSize,
-              textColor: colorToArray(config.highLow.textColor),
+              textColor: cssToColor(config.highLow.textColor),
               textOutlineWidth: config.highLow.textOutlineWidth,
-              textOutlineColor: colorToArray(config.highLow.textOutlineColor),
+              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
               opacity: config.highLow.opacity,
             }),
             new WeatherLayers.GridLayer({
@@ -206,12 +205,12 @@
               style: config.grid.style,
               unitFormat,
               textSize: config.grid.textSize,
-              textColor: colorToArray(config.grid.textColor),
+              textColor: cssToColor(config.grid.textColor),
               textOutlineWidth: config.grid.textOutlineWidth,
-              textOutlineColor: colorToArray(config.grid.textOutlineColor),
+              textOutlineColor: cssToColor(config.grid.textOutlineColor),
               iconBounds: config.grid.iconBounds,
               iconSize: config.grid.iconSize,
-              iconColor: colorToArray(config.grid.iconColor),
+              iconColor: cssToColor(config.grid.iconColor),
               opacity: config.grid.opacity,
             }),
             new WeatherLayers.ParticleLayer({
@@ -231,7 +230,7 @@
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
               width: config.particle.width,
-              color: colorToArray(config.particle.color),
+              color: cssToColor(config.particle.color),
               opacity: config.particle.opacity,
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],

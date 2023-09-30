@@ -69,7 +69,7 @@ body.openlayers #deck {
 }
 
 :root {
-  --tp-font-family: 'Lucida Grande', sans-serif;
+  --tp-base-font-family: 'Lucida Grande', sans-serif;
   --tp-base-background-color: #111111;
   --tp-container-foreground-color: #eeeeee;
   --tp-container-background-color: #000000;
@@ -82,9 +82,10 @@ body.openlayers #deck {
   --tp-input-background-color-focus: #333333;
   --tp-input-background-color-hover: #333333;
   --tp-label-foreground-color: #eeeeee;
+  --tp-blade-value-width: 200px;
 }
 .tp-dfwv {
-  width: 300px !important;
-  max-height: 100vh;
+  width: 340px !important;
+  max-height: calc(100vh - 8px);
   overflow: auto;
 }

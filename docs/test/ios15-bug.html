@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <title>WeatherLayers</title>
-  <script src="https://unpkg.com/tweakpane@3.0.5/dist/tweakpane.min.js"></script>
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
   <script src="https://unpkg.com/deck.gl@8.9.30/dist.min.js"></script>
   <script src="https://unpkg.com/geotiff@2.0.7/dist-browser/geotiff.js"></script>
@@ -25,7 +24,7 @@
   <div id="bottom-right"></div>
 
   <script type="module">
-    import { initConfig, colorToArray } from '../config.js';
+    import { initConfig, cssToColor } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -99,7 +98,7 @@
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
               width: config.particle.width,
-              color: colorToArray(config.particle.color),
+              color: cssToColor(config.particle.color),
               opacity: config.particle.opacity,
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],
