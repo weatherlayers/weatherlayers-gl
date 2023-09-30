@@ -118,6 +118,30 @@
 
         deckLayer.setProps({
           layers: [
+            // HighLowLayer must be before RasterLayer and ContourLayer in MapLibre interleaved, see https://docs.weatherlayers.com/weatherlayers-gl/troubleshooting
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.highLow.enabled && !timelineControl.running,
+              unitFormat,
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: cssToColor(config.highLow.textColor),
+              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              opacity: config.highLow.opacity,
+              getPolygonOffset: () => [0, -1000],
+              beforeId,
+            }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
               // data properties
@@ -157,28 +181,6 @@
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
-              beforeId,
-            }),
-            new WeatherLayers.HighLowLayer({
-              id: 'highLow',
-              // data properties
-              image,
-              image2,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageWeight,
-              imageType,
-              imageUnscale,
-              bounds,
-              // style properties
-              visible: config.highLow.enabled && !timelineControl.running,
-              unitFormat,
-              radius: config.highLow.radius,
-              textSize: config.highLow.textSize,
-              textColor: cssToColor(config.highLow.textColor),
-              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
-              textOutlineWidth: config.highLow.textOutlineWidth,
-              opacity: config.highLow.opacity,
               beforeId,
             }),
             new WeatherLayers.GridLayer({
