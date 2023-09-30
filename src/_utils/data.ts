@@ -66,7 +66,7 @@ async function loadGeotiff(url: string): Promise<TextureData> {
   let geotiff;
   try {
     // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
-    geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: 10*1024*1024 });
+    geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: Number.MAX_SAFE_INTEGER });
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, { cause: e });
   }
