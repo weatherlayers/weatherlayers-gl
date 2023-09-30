@@ -11,6 +11,7 @@ import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
+import { randomString } from '../../../_utils/random-string.js';
 import { getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
 import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
@@ -166,6 +167,9 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       return;
     }
 
+    const requestId = randomString();
+    this.state.requestId = requestId;
+
     // interpolation for entire data is slow, fallback to NEAREST interpolation + blur in worker
     // CPU speed (image 1440x721):
     // - NEAREST - 100 ms
@@ -175,6 +179,12 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
 
     const points = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+
+    // discard displaying obsolete points
+    if (this.state.requestId !== requestId) {
+      return;
+    }
+
     const values = points.map(highLowPoint => highLowPoint.properties.value);
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
