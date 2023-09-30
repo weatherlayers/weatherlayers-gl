@@ -52,7 +52,6 @@
         center: [30, 10],
         zoom: 3,
         projection: 'globe',
-        useWebGL2: true,
       });
       await new Promise(resolve => map.on('load', resolve));
       map.setPaintProperty('water', 'fill-color', 'hsl(0, 0%, 1%)');
