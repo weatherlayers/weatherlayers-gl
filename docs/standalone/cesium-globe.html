@@ -25,12 +25,14 @@
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, colorToCss } from '../config.js';
+    import { BASEMAP_RASTER_STYLE_URL, BASEMAP_ATTRIBUTION } from '../basemap.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -43,8 +45,8 @@
       Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(10, 40, 10, 40);
       const viewer = new Cesium.Viewer('cesium', {
         imageryProvider: new Cesium.UrlTemplateImageryProvider({
-          url: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE', // WeatherLayers access token
-          credit: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          url: BASEMAP_RASTER_STYLE_URL,
+          credit: BASEMAP_ATTRIBUTION,
           maximumLevel: 22,
         }),
         geocoder: false,
@@ -96,7 +98,7 @@
             rasterLayer = viewer.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
               url: rasterImage.toDataURL(),
               rectangle: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
-              credit: config.attribution,
+              credit: config.BASEMAP_ATTRIBUTION,
             }));
             rasterLayer.name = 'raster';
             rasterLayer.dataset = config.dataset;

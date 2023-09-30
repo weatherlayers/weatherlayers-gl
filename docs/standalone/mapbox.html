@@ -26,16 +26,18 @@
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN, MAPBOX_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, colorToCss, isMetalWebGl2 } from '../config.js';
+    import { BASEMAP_VECTOR_STYLE_URL, updateBasemapVectorStyle } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
     const mercatorClient = window.mercatorClient = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
       dataFormat: 'mercator.byte.png',
     });
 
@@ -47,19 +49,13 @@
       // Mapbox
       const map = new mapboxgl.Map({
         container: 'mapbox',
-        accessToken: 'pk.eyJ1IjoiemFramFuIiwiYSI6ImNrcG4xZjc0ZjRhNmMybm54NnRjcW1pejAifQ.wLXIYDVrD_6yQPszlIB8Dg', // WeatherLayers access token
-        style: 'mapbox://styles/mapbox/dark-v11',
+        accessToken: MAPBOX_ACCESS_TOKEN,
+        style: BASEMAP_VECTOR_STYLE_URL,
         center: [30, 10],
         zoom: 1,
-        projection: 'mercator',
       });
+      updateBasemapVectorStyle(map);
       await new Promise(resolve => map.on('load', resolve));
-      map.setPaintProperty('water', 'fill-color', 'hsl(0, 0%, 1%)');
-      map.setPaintProperty('continent-label', 'text-color', 'hsl(358, 0%, 49%)');
-      map.setPaintProperty('continent-label', 'text-opacity', 1);
-      map.setPaintProperty('country-label', 'text-color', 'hsl(358, 0%, 49%)');
-      map.setPaintProperty('state-label', 'text-color', 'hsl(358, 0%, 49%)');
-      map.setPaintProperty('state-label', 'text-opacity', 1);
 
       let rasterLayer;
       let contourLayer;

@@ -24,7 +24,9 @@
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { initConfig, cssToColor } from '../config.js';
+    import { BASEMAP_RASTER_STYLE_URL, BASEMAP_ATTRIBUTION } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -61,7 +63,7 @@
       logoControl.prependTo(document.getElementById('bottom-left'));
 
       // attribution
-      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: '© <a href="https://www.jawg.io">Jawg</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
+      const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: BASEMAP_ATTRIBUTION });
       basemapAttributionControl.prependTo(document.getElementById('bottom-right'));
 
       // FPS meter
@@ -79,7 +81,7 @@
           layers: [
             new deck.TileLayer({
               id: 'basemap',
-              data: 'https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=L65oyoBsBEB9LmzFMCJLhM1Mk8stGaEF5Lhq0pKQEdJWyqDQ2o8CCHfkePgO2brE',
+              data: BASEMAP_RASTER_STYLE_URL,
               minZoom: 0,
               maxZoom: 22,
               tileSize: 256,

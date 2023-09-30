@@ -26,15 +26,16 @@
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, cssToColor } from '../config.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
     const mercatorClient = window.mercatorClient = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
       dataFormat: 'mercator.byte.png',
     });
 
@@ -141,7 +142,7 @@
               dataset,
               datetime,
               canvas: rasterImage,
-              copyright: attribution,
+              copyright: BASEMAP_ATTRIBUTION,
             });
             map.add(rasterLayer);
           }
@@ -162,7 +163,7 @@
               dataset,
               datetime,
               url: URL.createObjectURL(new Blob([JSON.stringify(contourLines)], { type: 'application/json' })),
-              copyright: attribution,
+              copyright: BASEMAP_ATTRIBUTION,
             });
             map.add(contourLayer);
           }
@@ -207,7 +208,7 @@
               dataset,
               datetime,
               url: URL.createObjectURL(new Blob([JSON.stringify(highLowPoints)], { type: 'application/json' })),
-              copyright: attribution,
+              copyright: BASEMAP_ATTRIBUTION,
             });
             map.add(highLowLayer);
           }

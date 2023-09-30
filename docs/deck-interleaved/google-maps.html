@@ -27,13 +27,14 @@
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, cssToColor, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
 
     window.addEventListener('DOMContentLoaded', async () => {

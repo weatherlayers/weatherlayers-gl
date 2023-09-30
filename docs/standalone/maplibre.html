@@ -22,26 +22,22 @@
     <div id="maplibre"></div>
   </div>
   <div id="top-left"></div>
-  <div id="bottom-left">
-    <div id="maptiler-logo">
-      <a href="https://www.maptiler.com" target="_blank">
-        <img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler Logo">
-      </a>
-    </div>
-  </div>
+  <div id="bottom-left"></div>
   <div id="bottom-right"></div>
 
   <script type="module">
+    import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, colorToCss, isMetalWebGl2 } from '../config.js';
+    import { BASEMAP_VECTOR_STYLE_URL, updateBasemapVectorStyle } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
     const mercatorClient = window.mercatorClient = new WeatherLayersClient.Client({
-      accessToken: '9djqrhlmAjv2Mv2z2Vwz', // WeatherLayers access token
+      accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
       dataFormat: 'mercator.byte.png',
     });
 
@@ -53,10 +49,13 @@
       // Mapbox
       const map = new maplibregl.Map({
         container: 'maplibre',
-        style: 'https://api.maptiler.com/maps/0fd4a5fb-fa7d-4f50-857b-65d4522671bc/style.json?key=bntDcPhpnI79mjuGa7SV', // WeatherLayers access token
+        style: BASEMAP_VECTOR_STYLE_URL,
         center: [30, 10],
         zoom: 1,
       });
+      updateBasemapVectorStyle(map);
+      await new Promise(resolve => map.on('load', resolve));
+
       let rasterLayer;
       let contourLayer;
       let highLowLayer;
