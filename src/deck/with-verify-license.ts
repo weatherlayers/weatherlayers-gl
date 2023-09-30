@@ -4,7 +4,7 @@ import { TextLayer } from '@deck.gl/layers/typed';
 import type { TextLayerProps } from '@deck.gl/layers/typed';
 import { wrap } from 'comlink';
 import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../_utils/props.js';
-import { randomString } from '../_utils/random-string.js';
+import { hashCodeString } from '../_utils/hashcode.js';
 import { getViewportAngle } from '../_utils/viewport.js';
 import { getViewportGridPositions } from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
@@ -48,21 +48,21 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       constructor(...propObjects: Partial<PropsT & CompositeLayerProps>[]) {
         super(...propObjects);
 
-        // update wrapper layer id to a random id, this.props.id stays with original id
-        this.id = randomString();
+        // overwrite the wrapper layer id, so that the original layer can stay with the original id
+        this.id = hashCodeString(`${this.id}-wrapper`);
       }
 
       renderLayers(): LayersList {
         const { viewport } = this.context;
-        // create base layer without calling this.getSubLayerProps, so that base layer id uses original id from this.props.id
+        // create the base layer without calling this.getSubLayerProps, so that the base layer id can stay with the original id
         // @ts-ignore
         const baseLayer: CompositeLayer<PropsT> = new layerClass(this.props);
 
         let watermarkLayer: TextLayer<Position> | null = null;
         if (this.#isWatermarkEnabled) {
-          // create watermark layer without calling this.getSubLayerProps, so that watermark layer id is random
+          // create the watermark layer without calling this.getSubLayerProps, so that the watermark layer id is not created from the wrapper layer id
           watermarkLayer = new TextLayer({
-            id: randomString(),
+            id: hashCodeString(`${this.id}-watermark`),
             data: this.#watermarkPositions,
             getPosition: d => d,
             getText: () => WEATHER_LAYERS_COM,
