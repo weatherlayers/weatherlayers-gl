@@ -1,4 +1,4 @@
-import { distance as geodesyDistance, destinationPoint as geodesyDestinationPoint, initialBearing } from 'geodesy-fn/src/spherical.js';
+import { distance as geodesyDistance, destinationPoint as geodesyDestinationPoint, initialBearing } from 'geodesy-fn';
 
 // radius used by deck.gl, see https://github.com/visgl/deck.gl/blob/master/modules/core/src/viewports/globe-viewport.js#L10
 export const DEFAULT_RADIUS = 6370972;

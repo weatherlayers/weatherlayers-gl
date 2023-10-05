@@ -71,7 +71,6 @@ function bundle(entrypoint, filename, format, options = {}) {
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
         'rollup-plugin-worker-factory/src/browser.js',
-        'geodesy-fn/src/spherical.js',
         'leaflet-polylinedecorator/src/patternUtils.js',
       ] : []),
     ],
