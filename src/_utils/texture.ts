@@ -20,6 +20,9 @@ function getTextureProps(gl: WebGLRenderingContext, image: TextureData): Texture
     } else if (bandsCount === 2) {
       format = GL.LUMINANCE_ALPHA;
       textureData = data;
+    } else if (bandsCount === 1) {
+      format = GL.LUMINANCE;
+      textureData = data;
     } else {
       throw new Error('Unsupported data format');
     }

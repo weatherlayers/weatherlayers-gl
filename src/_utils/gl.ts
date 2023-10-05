@@ -4,6 +4,7 @@ export default {
   FLOAT: 0x1406,
   RGB: 0x1907,
   RGBA: 0x1908,
+  LUMINANCE: 0x1909,
   LUMINANCE_ALPHA: 0x190a,
   NEAREST: 0x2600,
   LINEAR: 0x2601,
