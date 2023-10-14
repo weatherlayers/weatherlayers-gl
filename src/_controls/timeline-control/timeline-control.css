@@ -22,53 +22,53 @@
   display: flex;
   gap: 10px;
 }
-.weatherlayers-timeline-control .progress-input {
+.weatherlayers-timeline-control__progress-input {
   width: 100%;
   margin: 0;
   margin-top: -2px;
   margin-bottom: 2px;
   vertical-align: middle;
 }
-.weatherlayers-timeline-control .start-datetime, .weatherlayers-timeline-control .end-datetime {
+.weatherlayers-timeline-control__start-datetime, .weatherlayers-timeline-control__end-datetime {
   flex: 0 0;
 }
-.weatherlayers-timeline-control .buttons {
+.weatherlayers-timeline-control__buttons {
   flex: 1 0;
 }
-.weatherlayers-timeline-control .start-datetime {
+.weatherlayers-timeline-control__start-datetime {
   text-align: left;
 }
-.weatherlayers-timeline-control .end-datetime {
+.weatherlayers-timeline-control__end-datetime {
   text-align: right;
 }
-.weatherlayers-timeline-control .button {
+.weatherlayers-timeline-control__button {
   display: inline-block;
   width: 16px;
   height: 16px;
   vertical-align: middle;
   background: no-repeat center / contain;
 }
-.weatherlayers-timeline-control .button + .button {
+.weatherlayers-timeline-control__button + .weatherlayers-timeline-control__button {
   margin-left: 5px;
 }
-.weatherlayers-timeline-control .play-button {
+.weatherlayers-timeline-control__play-button {
   background-image: inline('./play.svg');
 }
-.weatherlayers-timeline-control .pause-button {
+.weatherlayers-timeline-control__pause-button {
   background-image: inline('./pause.svg');
 }
-.weatherlayers-timeline-control .step-backward-button {
+.weatherlayers-timeline-control__step-backward-button {
   background-image: inline('./step-backward.svg');
 }
-.weatherlayers-timeline-control .step-forward-button {
+.weatherlayers-timeline-control__step-forward-button {
   background-image: inline('./step-forward.svg');
 }
 
-.weatherlayers-timeline-control .loader {
+.weatherlayers-timeline-control__loader {
   display: block;
   margin-top: 2px;
 }
-.weatherlayers-timeline-control .loader-icon {
+.weatherlayers-timeline-control__loader-icon {
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -76,7 +76,7 @@
   background: no-repeat center / contain;
   background-image: inline('./loader.svg');
 }
-.weatherlayers-timeline-control .loader-text {
+.weatherlayers-timeline-control__loader-text {
   vertical-align: middle;
   color: rgba(0, 0, 0, 0.4);
   margin-left: 2px;
@@ -85,12 +85,12 @@
 .weatherlayers-timeline-control.loading * {
   pointer-events: none;
 }
-.weatherlayers-timeline-control.running .play-button {
+.weatherlayers-timeline-control.running .weatherlayers-timeline-control__play-button {
   display: none;
 }
-.weatherlayers-timeline-control:not(.running) .pause-button {
+.weatherlayers-timeline-control:not(.running) .weatherlayers-timeline-control__pause-button {
   display: none;
 }
-.weatherlayers-timeline-control:not(.loading) .loader {
+.weatherlayers-timeline-control:not(.loading) .weatherlayers-timeline-control__loader {
   visibility: hidden;
 }

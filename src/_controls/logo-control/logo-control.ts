@@ -3,6 +3,8 @@ import './logo-control.css';
 
 export interface LogoControlConfig {}
 
+const CONTROL_CLASS = 'weatherlayers-logo-control';
+
 export class LogoControl extends Control<LogoControlConfig> {
   #config: LogoControlConfig;
   #container: HTMLElement | undefined = undefined;
@@ -14,7 +16,7 @@ export class LogoControl extends Control<LogoControlConfig> {
 
   protected onAdd(): HTMLElement {
     this.#container = document.createElement('div');
-    this.#container.className = 'weatherlayers-logo-control';
+    this.#container.classList.add(CONTROL_CLASS);
 
     this.setConfig(this.#config);
 

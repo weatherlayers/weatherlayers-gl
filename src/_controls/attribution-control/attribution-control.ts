@@ -5,6 +5,8 @@ export interface AttributionControlConfig {
   attribution: string;
 }
 
+const CONTROL_CLASS = 'weatherlayers-attribution-control';
+
 export class AttributionControl extends Control<AttributionControlConfig> {
   #config: AttributionControlConfig;
   #container: HTMLElement | undefined = undefined;
@@ -16,7 +18,7 @@ export class AttributionControl extends Control<AttributionControlConfig> {
 
   protected onAdd(): HTMLElement {
     this.#container = document.createElement('div');
-    this.#container.className = 'weatherlayers-attribution-control';
+    this.#container.classList.add(CONTROL_CLASS);
 
     this.setConfig(this.#config);
 

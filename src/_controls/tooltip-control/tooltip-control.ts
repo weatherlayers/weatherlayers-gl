@@ -8,6 +8,8 @@ export interface TooltipControlConfig {
   unitFormat: UnitFormat;
 }
 
+const CONTROL_CLASS = 'weatherlayers-tooltip-control';
+
 export class TooltipControl extends Control<TooltipControlConfig> {
   #config: TooltipControlConfig;
   #container: HTMLElement | undefined = undefined;
@@ -19,7 +21,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
   protected onAdd(): HTMLElement {
     this.#container = document.createElement('div');
-    this.#container.className = 'weatherlayers-tooltip-control';
+    this.#container.classList.add(CONTROL_CLASS);
 
     this.setConfig(this.#config);
 

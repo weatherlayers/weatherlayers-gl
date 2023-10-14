@@ -17,7 +17,7 @@
 .weatherlayers-legend-control header {
   font-weight: bold;
 }
-.weatherlayers-legend-control .legend {
+.weatherlayers-legend-control__legend {
   width: 100%;
   margin-top: 5px;
   vertical-align: middle;

@@ -16,6 +16,9 @@ export interface LegendControlConfig {
 const DEFAULT_WIDTH = 300;
 const DEFAULT_TICKS_COUNT = 6;
 
+const CONTROL_CLASS = 'weatherlayers-legend-control';
+const TEXT_CLASS = `${CONTROL_CLASS}__text`;
+
 export class LegendControl extends Control<LegendControlConfig> {
   #config: LegendControlConfig;
   #container: HTMLElement | undefined = undefined;
@@ -27,7 +30,7 @@ export class LegendControl extends Control<LegendControlConfig> {
 
   protected onAdd(): HTMLElement {
     this.#container = document.createElement('div');
-    this.#container.className = 'weatherlayers-legend-control';
+    this.#container.classList.add(CONTROL_CLASS);
 
     this.setConfig(this.#config);
 
@@ -89,7 +92,7 @@ export class LegendControl extends Control<LegendControlConfig> {
     div.appendChild(header);
 
     const text = document.createElement('span');
-    text.className = 'text';
+    text.classList.add(TEXT_CLASS);
     text.innerHTML = `${title} [${formatUnit(unitFormat)}]`;
     header.appendChild(text);
 
@@ -99,7 +102,7 @@ export class LegendControl extends Control<LegendControlConfig> {
     const xmlns = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(xmlns, 'svg');
     svg.setAttribute('height', '24px');
-    svg.setAttribute('class', 'legend');
+    svg.setAttribute('class', 'weatherlayers-legend-control__legend');
     main.appendChild(svg);
 
     const image = document.createElementNS(xmlns, 'image');
