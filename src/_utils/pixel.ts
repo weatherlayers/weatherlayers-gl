@@ -34,7 +34,7 @@ function spline(c0: number[], c1: number[], c2: number[], c3: number[], a: numbe
     mul(c3, dot(BS_B, powers(2. - a))));
 
   // fix precision loss in alpha channel
-  color[3] = (c0[3] == 255 && c1[3] == 255 && c2[3] == 255 && c3[3] == 255) ? 255 : 0;
+  color[3] = (c0[3] > 0 && c1[3] > 0 && c2[3] > 0 && c3[3] > 0) ? Math.max(Math.max(Math.max(c0[3], c1[3]), c2[3]), c3[3]) : 0;
 
   return color;
 }

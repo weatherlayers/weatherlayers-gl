@@ -20,7 +20,7 @@ vec4 spline(vec4 c0, vec4 c1, vec4 c2, vec4 c3, float a) {
     c3 * dot(BS_B, powers(2. - a));
 
   // fix precision loss in alpha channel
-  color.a = (c0.a == 1. && c1.a == 1. && c2.a == 1. && c3.a == 1.) ? 1. : 0.;
+  color.a = (c0.a > 0. && c1.a > 0. && c2.a > 0. && c3.a > 0.) ? max(max(max(c0.a, c1.a), c2.a), c3.a) : 0.;
 
   return color;
 }

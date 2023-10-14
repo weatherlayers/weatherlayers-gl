@@ -6,7 +6,9 @@ type VectorValue = [u: number, v: number];
 
 export function hasPixelValue(pixel: number[], imageUnscale: ImageUnscale): boolean {
   if (imageUnscale) {
-    return pixel[3] == 255;
+    // pixel[3] > 127 causes interpolated nodata edges with linear interpolation
+    // pixel[3] === 255 causes incorrect nodata pixels in Safari, because Canvas.getImageData returns different data from the original image, with lower values
+    return pixel[3] > 0;
   } else {
     return !isNaN(pixel[0]);
   }
@@ -14,7 +16,7 @@ export function hasPixelValue(pixel: number[], imageUnscale: ImageUnscale): bool
 
 function getPixelScalarValue(pixel: number[], imageType: ImageType, imageUnscale: ImageUnscale): number {
   if (imageType === ImageType.VECTOR) {
-    return 0.;
+    return 0;
   } else {
     if (imageUnscale) {
       return mixOne(imageUnscale[0], imageUnscale[1], pixel[0] / 255);

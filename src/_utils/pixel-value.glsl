@@ -13,7 +13,9 @@ bool isNaN(float value) {
 
 bool hasPixelValue(vec4 pixel, vec2 imageUnscale) {
   if (imageUnscale[0] < imageUnscale[1]) {
-    return pixel.a == 1.;
+    // pixel.a > 0.5 causes interpolated nodata edges with linear interpolation
+    // pixel.a == 1.0 causes incorrect nodata pixels in Safari, because Canvas.getImageData returns different data from the original image, with lower values
+    return pixel.a > 0.;
   } else {
     return !isNaN(pixel.x);
   }
