@@ -11,3 +11,8 @@
   line-height: 20px;
   color: rgba(0, 0, 0, 0.75);
 }
+.weatherlayers-tooltip-control.follow-cursor {
+  position: absolute;
+  margin: 5px;
+  pointer-events: none;
+}

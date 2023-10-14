@@ -122,9 +122,9 @@
       timelineControl.prependTo(document.getElementById('bottom-left'));
 
       // tooltip
-      const tooltipControl = new WeatherLayers.TooltipControl();
-      tooltipControl.prependTo(document.getElementById('bottom-left'));
-      deckgl.setProps({ onHover: event => tooltipControl.update(event.raster) });
+      const tooltipControl = new WeatherLayers.TooltipControl({ followCursor: true });
+      tooltipControl.addTo(document.getElementById('container'));
+      deckgl.setProps({ onHover: event => tooltipControl.updatePickingInfo(event) });
 
       // attribution
       const attributionControl = new WeatherLayers.AttributionControl();
