@@ -212,11 +212,17 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       return;
     }
 
-    const { viewport, timeline } = this.context;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor } = ensureDefaultProps(this.props, defaultProps);
-    const { numAgedInstances, transform, previousViewportZoom, previousTime } = this.state;
+    const { timeline } = this.context;
+    const { previousTime } = this.state;
     const time = timeline.getTime();
-    if (!imageTexture || time === previousTime) {
+    if (time < previousTime + 1000 / FPS) {
+      return;
+    }
+
+    const { viewport } = this.context;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor } = ensureDefaultProps(this.props, defaultProps);
+    const { numAgedInstances, transform, previousViewportZoom } = this.state;
+    if (!imageTexture) {
       return;
     }
 
@@ -320,10 +326,10 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     }
 
     this.state.stepRequested = true;
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       this.step();
       this.state.stepRequested = false;
-    }, 1000 / FPS);
+    });
   }
 
   step(): void {
