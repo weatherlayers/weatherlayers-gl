@@ -18,7 +18,7 @@
   margin: 0;
   pointer-events: none;
 }
-.weatherlayers-tooltip-control.follow-cursor:not(:empty)::before {
+.weatherlayers-tooltip-control.follow-cursor::before {
   content: '';
   position: absolute;
   width: 0;
@@ -28,4 +28,26 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: 5px solid rgba(255, 255, 255, 0.5);
+}
+
+.weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction {
+  margin-left: 6px;
+}
+.weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  background: no-repeat center / contain;
+  background-image: inline('./arrow-circle-down.svg');
+  margin-top: -1px;
+  margin-right: 4px;
+  opacity: 0.75;
+}
+
+.weatherlayers-tooltip-control:not(.has-value) {
+  display: none;
+}
+.weatherlayers-tooltip-control:not(.has-direction) .weatherlayers-tooltip-control__direction {
+  display: none;
 }

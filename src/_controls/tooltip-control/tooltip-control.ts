@@ -13,11 +13,20 @@ export interface TooltipControlConfig {
 const FOLLOW_CURSOR_OFFSET = 16;
 
 const CONTROL_CLASS = 'weatherlayers-tooltip-control';
+const VALUE_CLASS = `${CONTROL_CLASS}__value`;
+const DIRECTION_CLASS = `${CONTROL_CLASS}__direction`;
+const DIRECTION_ICON_CLASS = `${CONTROL_CLASS}__direction-icon`;
+const DIRECTION_TEXT_CLASS = `${CONTROL_CLASS}__direction-text`;
 const FOLLOW_CURSOR_CLASS = 'follow-cursor';
+const HAS_VALUE_CLASS = 'has-value';
+const HAS_DIRECTION_CLASS = 'has-direction';
 
 export class TooltipControl extends Control<TooltipControlConfig> {
   #config: TooltipControlConfig;
   #container: HTMLElement | undefined = undefined;
+  #value: HTMLElement | undefined = undefined;
+  #directionIcon: HTMLElement | undefined = undefined;
+  #directionText: HTMLElement | undefined = undefined;
 
   constructor(config: TooltipControlConfig = {} as TooltipControlConfig) {
     super();
@@ -65,31 +74,51 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.#config = config;
 
     this.#container.innerHTML = '';
-    this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor);
+    this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
+
+    const div = document.createElement('div');
+    this.#container.appendChild(div);
+  
+    this.#value = document.createElement('span');
+    this.#value.classList.add(VALUE_CLASS);
+    div.appendChild(this.#value);
+
+    const direction = document.createElement('span');
+    direction.classList.add(DIRECTION_CLASS);
+    div.appendChild(direction);
+
+    this.#directionIcon = document.createElement('span');
+    this.#directionIcon.classList.add(DIRECTION_ICON_CLASS);
+    direction.appendChild(this.#directionIcon);
+
+    this.#directionText = document.createElement('span');
+    this.#directionText.classList.add(DIRECTION_TEXT_CLASS);
+    direction.appendChild(this.#directionText);
   }
 
   update(rasterPointProperties: RasterPointProperties | undefined): void {
-    if (!this.#container) {
+    if (!this.#container || !this.#value || !this.#directionIcon || !this.#directionText) {
       return;
     }
 
-    if (!rasterPointProperties) {
-      this.#container.innerHTML = '';
-      return;
+    const { value, direction } = rasterPointProperties ?? {};
+
+    this.#container.classList.toggle(HAS_VALUE_CLASS, typeof value !== 'undefined');
+    this.#container.classList.toggle(HAS_DIRECTION_CLASS, typeof direction !== 'undefined');
+
+    if (typeof value !== 'undefined') {
+      this.#value.innerHTML = formatValueWithUnit(value, this.#config.unitFormat);
+    } else {
+      this.#value.innerHTML = '';
     }
 
-    const { value, direction } = rasterPointProperties;
-    if (typeof value === 'undefined') {
-      this.#container.innerHTML = '';
-      return;
-    }
-  
-    let tooltip = formatValueWithUnit(value, this.#config.unitFormat);
     if (typeof direction !== 'undefined') {
-      tooltip += `, ${formatDirection(direction)}`
+      this.#directionIcon.style.transform = `rotate(${direction}deg)`;
+      this.#directionText.innerHTML = formatDirection(direction);
+    } else {
+      this.#directionIcon.style.transform = '';
+      this.#directionText.innerHTML = '';
     }
-
-    this.#container.innerHTML = `<div>${tooltip}</div>`;
   }
 
   updatePickingInfo(pickingInfo: PickingInfo & { raster?: RasterPointProperties }): void {
@@ -98,7 +127,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     }
 
     if (!pickingInfo) {
-      this.#container.innerHTML = '';
+      this.update(undefined);
       return;
     }
 
@@ -112,11 +141,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       this.#container.style.top = `${tooltipY}px`;
 
       // hide on panning
-      document.addEventListener('mousedown', () => {
-        if (this.#container) {
-          this.#container.innerHTML = '';
-        }
-      }, { once: true });
+      document.addEventListener('mousedown', () => this.update(undefined), { once: true });
     }
   }
 }
