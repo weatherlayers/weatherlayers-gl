@@ -1,13 +1,15 @@
 import type { PickingInfo } from '@deck.gl/core/typed';
 import { formatValueWithUnit, formatDirection } from '../../_utils/format.js';
 import type { UnitFormat } from '../../_utils/unit-format.js';
+import { DirectionFormat } from '../../_utils/direction-format.js';
 import { RasterPointProperties } from '../../_utils/raster-data.js';
 import { Control } from '../control.js';
 import './tooltip-control.css';
 
 export interface TooltipControlConfig {
   unitFormat: UnitFormat;
-  followCursor: boolean;
+  directionFormat?: DirectionFormat;
+  followCursor?: boolean;
 }
 
 const FOLLOW_CURSOR_OFFSET = 16;
@@ -114,7 +116,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     if (typeof direction !== 'undefined') {
       this.#directionIcon.style.transform = `rotate(${direction}deg)`;
-      this.#directionText.innerHTML = formatDirection(direction);
+      this.#directionText.innerHTML = formatDirection(direction, this.#config.directionFormat ?? DirectionFormat.VALUE);
     } else {
       this.#directionIcon.style.transform = '';
       this.#directionText.innerHTML = '';

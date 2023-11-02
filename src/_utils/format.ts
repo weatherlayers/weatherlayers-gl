@@ -1,4 +1,11 @@
+import { DirectionFormat } from './direction-format.js';
 import type { UnitFormat } from './unit-format.js';
+
+const CARDINALS = {
+  [DirectionFormat.CARDINAL]: ['N', 'E', 'S', 'W'],
+  [DirectionFormat.CARDINAL2]: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+  [DirectionFormat.CARDINAL3]: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
+};
 
 export function formatValue(value: number, unitFormat?: UnitFormat): string {
   if (!unitFormat) {
@@ -16,11 +23,20 @@ export function formatUnit(unitFormat: UnitFormat): string {
 }
 
 export function formatValueWithUnit(value: number, unitFormat: UnitFormat): string {
-  const formattedValueWithUnit = `${formatValue(value, unitFormat)}\xa0${formatUnit(unitFormat)}`;
-  return formattedValueWithUnit;
+  const formattedValue = formatValue(value, unitFormat);
+  const formattedUnit = formatUnit(unitFormat);
+  return `${formattedValue}\xa0${formattedUnit}`;
 }
   
-export function formatDirection(direction: number): string {
-  const formattedDirection = `${Math.round(direction)}°`;
-  return formattedDirection;
+export function formatDirection(direction: number, directionFormat: DirectionFormat): string {
+  if (directionFormat === DirectionFormat.VALUE) {
+    return `${Math.round(direction % 360)}°`;
+  } else if (directionFormat === DirectionFormat.CARDINAL || directionFormat === DirectionFormat.CARDINAL2 || directionFormat === DirectionFormat.CARDINAL3) {
+    const cardinals = CARDINALS[directionFormat];
+    const cardinalDelta = 360 / cardinals.length;
+    const index = Math.floor(((direction % 360) + (cardinalDelta / 2)) / cardinalDelta) % cardinals.length;
+    return cardinals[index];
+  } else {
+    throw new Error('Invalid state');
+  }
 }
