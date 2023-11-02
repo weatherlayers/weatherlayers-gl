@@ -10,6 +10,8 @@ export interface TooltipControlConfig {
   followCursor: boolean;
 }
 
+const FOLLOW_CURSOR_OFFSET = 16;
+
 const CONTROL_CLASS = 'weatherlayers-tooltip-control';
 const FOLLOW_CURSOR_CLASS = 'follow-cursor';
 
@@ -104,25 +106,10 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     if (this.#config.followCursor) {
       // update position
-      const width = pickingInfo?.viewport?.width;
-      const height = pickingInfo?.viewport?.height;
-      if (width && height) {
-        if (pickingInfo.x < width / 2) {
-          this.#container.style.left = `${pickingInfo.x}px`;
-          this.#container.style.right = '';
-        } else {
-          this.#container.style.left = '';
-          this.#container.style.right = `${width - pickingInfo.x}px`;
-        }
-
-        if (pickingInfo.y < height / 2) {
-          this.#container.style.top = `${pickingInfo.y}px`;
-          this.#container.style.bottom = '';
-        } else {
-          this.#container.style.top = '';
-          this.#container.style.bottom = `${height - pickingInfo.y}px`;
-        }
-      }
+      const tooltipX = pickingInfo.x - this.#container.clientWidth / 2;
+      const tooltipY = pickingInfo.y + FOLLOW_CURSOR_OFFSET;
+      this.#container.style.left = `${tooltipX}px`;
+      this.#container.style.top = `${tooltipY}px`;
 
       // hide on panning
       document.addEventListener('mousedown', () => {
