@@ -114,6 +114,27 @@
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],
             }),
+            new WeatherLayers.GridLayer({
+              id: 'grid',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              bounds,
+              // style properties
+              visible: config.grid.enabled,
+              style: WeatherLayers.GridStyle.WIND_BARB,
+              textSize: config.grid.textSize,
+              textColor: cssToColor(config.grid.textColor),
+              textOutlineWidth: config.grid.textOutlineWidth,
+              textOutlineColor: cssToColor(config.grid.textOutlineColor),
+              iconBounds: config.grid.iconBounds,
+              iconSize: config.grid.iconSize,
+              iconColor: cssToColor(config.grid.iconColor),
+              opacity: config.grid.opacity,
+            }),
           ],
         });
       }

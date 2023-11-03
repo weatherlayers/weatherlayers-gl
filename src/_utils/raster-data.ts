@@ -12,6 +12,13 @@ export interface RasterPointProperties {
   direction?: number;
 }
 
+function isPositionInBounds(position: GeoJSON.Position, bounds: GeoJSON.BBox): boolean {
+  return (
+    (position[0] >= bounds[0] && position[0] <= bounds[2]) &&
+    (position[1] >= bounds[1] && position[1] <= bounds[3])
+  );
+}
+
 export function getRasterPoints(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, positions: GeoJSON.Position[]): GeoJSON.FeatureCollection<GeoJSON.Point, RasterPointProperties> {
   const { width, height } = image;
   const project = getProjectFunction(width, height, bounds);
@@ -20,20 +27,24 @@ export function getRasterPoints(image: TextureData, image2: TextureData | null, 
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
   const rasterPoints = positions.map(position => {
-    const point = project(position);
-
-    const uvX = point[0] / width;
-    const uvY = point[1] / height;
-    const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
-
     let rasterPointProperties;
-    if (hasPixelValue(pixel, imageUnscale)) {
-      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
-      if (imageType === ImageType.VECTOR) {
-        const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
-        rasterPointProperties = { value, direction };
+    if (isPositionInBounds(position, bounds)) {
+      const point = project(position);
+
+      const uvX = point[0] / width;
+      const uvY = point[1] / height;
+      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+
+      if (hasPixelValue(pixel, imageUnscale)) {
+        const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+        if (imageType === ImageType.VECTOR) {
+          const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
+          rasterPointProperties = { value, direction };
+        } else {
+          rasterPointProperties = { value };
+        }
       } else {
-        rasterPointProperties = { value };
+        rasterPointProperties = { value: NaN };
       }
     } else {
       rasterPointProperties = { value: NaN };
