@@ -6,9 +6,9 @@ const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 const DEFAULT_COLORMAP = 'default';
 
 const CONTOUR_LAYER_DATASET_CONFIG = {
-  'gfs/pressure_mean_sea_level': { interval: 2 },
   'gfs/temperature_2m_above_ground': { interval: 2 },
   'gfs/apparent_temperature_2m_above_ground': { interval: 2 },
+  'gfs/pressure_mean_sea_level': { interval: 2 },
   'cmems_sst/sea_surface_temperature': { interval: 2 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
