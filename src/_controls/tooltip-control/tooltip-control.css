@@ -17,6 +17,10 @@
   position: absolute;
   margin: 0;
   pointer-events: none;
+  z-index: 1; /** same z-index as .deck-tooltip */
+}
+.leaflet-map-pane .weatherlayers-tooltip-control.follow-cursor {
+  z-index: 101; /** higher z-index for Leaflet, because .leaflet-map-pane canvas z-index is 100 */
 }
 .weatherlayers-tooltip-control.follow-cursor::before {
   content: '';
