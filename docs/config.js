@@ -225,8 +225,9 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     gui.addBinding(config, 'rotate').on('change', update);
   }
 
+  gui.addButton({ title: 'Demo' }).on('click', () => location.href = 'https://weatherlayers.com/demo.html');
+  gui.addButton({ title: 'Integrations' }).on('click', () => location.href = 'https://weatherlayers.com/integrations.html');
   gui.addButton({ title: 'Docs' }).on('click', () => location.href = 'https://docs.weatherlayers.com/');
-  gui.addButton({ title: 'Cloud Catalog' }).on('click', () => location.href = 'https://browser.weatherlayers.com/');
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addBinding(config.raster, 'enabled').on('change', update);
