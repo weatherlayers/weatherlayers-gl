@@ -58,9 +58,6 @@ body.google-maps #bottom-left {
 body.google-maps #bottom-right {
   bottom: calc(14px + 2px);
 }
-body.openlayers #deck {
-  pointer-events: none;
-}
 .cesium-viewer-toolbar {
   right: calc(300px + 5px + 5px);
 }

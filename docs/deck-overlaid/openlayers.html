@@ -22,7 +22,6 @@
 <body class="openlayers">
   <div id="container">
     <div id="openlayers"></div>
-    <div id="deck"></div>
   </div>
   <div id="top-left"></div>
   <div id="bottom-left"></div>
@@ -62,8 +61,11 @@
 
       // overlaid deck.gl
       // see https://github.com/visgl/deck.gl/blob/8.9-release/examples/get-started/pure-js/openlayers/app.js
+      // updated to support picking
+      const element = document.createElement('div');
+      element.style.pointerEvents = 'none';
       const deckgl = window.deckgl = new deck.Deck({
-        parent: document.getElementById('deck'),
+        parent: element,
         initialViewState: {
           longitude: 30,
           latitude: 10,
@@ -75,6 +77,9 @@
         ],
         layers: [],
       });
+      map.addControl(new ol.control.Control({
+        element: element,
+      }));
       map.addLayer(new ol.layer.Layer({
         render({size, viewState}) {
           const [width, height] = size;
@@ -86,6 +91,15 @@
           deckgl.redraw();
         }
       }));
+      map.getViewport().addEventListener('pointerdown', event => {
+        deckgl._onPointerDown({ type: event.type, offsetCenter: { x: event.offsetX, y: event.offsetY }, leftButton: event.buttons === 1, rightButton: event.buttons === 2, srcEvent: event });
+      });
+      map.getViewport().addEventListener('pointermove', event => {
+        deckgl._onPointerMove({ type: event.type, offsetCenter: { x: event.offsetX, y: event.offsetY }, leftButton: event.buttons === 1, rightButton: event.buttons === 2, srcEvent: event });
+      });
+      map.getViewport().addEventListener('pointerleave', event => {
+        deckgl._onPointerMove({ type: event.type, srcEvent: event });
+      });
 
       // info panels
       const infoControl = new InfoControl();
