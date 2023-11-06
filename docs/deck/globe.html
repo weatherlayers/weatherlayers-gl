@@ -98,7 +98,7 @@
 
       // tooltip
       const tooltipControl = new WeatherLayers.TooltipControl({ directionFormat: WeatherLayers.DirectionFormat.CARDINAL3, followCursor: true });
-      tooltipControl.addTo(document.getElementById('container'));
+      tooltipControl.addTo(deckgl.getCanvas().parentElement);
       deckgl.setProps({ onHover: event => tooltipControl.updatePickingInfo(event) });
 
       // attribution

@@ -29,7 +29,7 @@
 
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
-    import { NO_DATA, initConfig, initGui, cssToColor, isMetalWebGl2 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToColor, waitForDeck, isMetalWebGl2 } from '../config.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -63,11 +63,7 @@
         layers: [],
       });
       deckLayer.setMap(map);
-      await new Promise(resolve => {
-        const waitForDeck = () => deckLayer._deck ? resolve() : setTimeout(waitForDeck, 100);
-        waitForDeck();
-      });
-      const deckgl = window.deckgl = deckLayer._deck;
+      const deckgl = window.deckgl = await waitForDeck(() => deckLayer._deck);;
 
       // info panels
       const infoControl = new InfoControl();
@@ -94,7 +90,7 @@
 
       // tooltip
       const tooltipControl = new WeatherLayers.TooltipControl({ directionFormat: WeatherLayers.DirectionFormat.CARDINAL3, followCursor: true });
-      tooltipControl.addTo(document.getElementById('container'));
+      tooltipControl.addTo(deckgl.getCanvas().parentElement);
       deckgl.setProps({ onHover: event => tooltipControl.updatePickingInfo(event) });
 
       // attribution

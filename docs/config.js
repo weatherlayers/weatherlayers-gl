@@ -301,6 +301,20 @@ export function cssToColor(color) {
    ];
 }
 
+export function waitForDeck(getDeck) {
+  return new Promise(resolve => {
+    function wait() {
+      const deck = getDeck();
+      if (deck && deck.getCanvas()) {
+        resolve(deck);
+      } else {
+        setTimeout(wait, 100);
+      }
+    }
+    wait();
+  });
+}
+
 export function isMetalWebGl2() {
   // iOS 15+
   return navigator.maxTouchPoints && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome');
