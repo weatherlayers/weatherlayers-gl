@@ -1,6 +1,6 @@
 import * as GeoTIFF from 'geotiff';
 
-export type TextureDataArray = GeoTIFF.TypedArray | Uint8ClampedArray;
+export type TextureDataArray = Uint8Array | Uint8ClampedArray | Float32Array;
 
 export interface TextureData {
   data: TextureDataArray;
@@ -73,6 +73,9 @@ async function loadGeotiff(url: string): Promise<TextureData> {
   const geotiffImage = await geotiff.getImage(0);
 
   const sourceData = await geotiffImage.readRasters({ interleave: true }) as GeoTIFF.TypedArray;
+  if (!(sourceData instanceof Uint8Array || sourceData instanceof Uint8ClampedArray || sourceData instanceof Float32Array)) {
+    throw new Error('Unsupported data format');
+  }
   const nodata = geotiffImage.getGDALNoData();
   const data = maskData(sourceData, nodata);
 
@@ -104,7 +107,7 @@ function loadCached<T>(loadFunction: LoadFunction<T>): CachedLoadFunction<T> {
 }
 
 export const loadTextureData = loadCached(url => {
-  if (url.includes('.png')) {
+  if (url.includes('.png') || url.includes('.webp')) {
     return loadImage(url);
   } else if (url.includes('.tif')) {
     return loadGeotiff(url);
