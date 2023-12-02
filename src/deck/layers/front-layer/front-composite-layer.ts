@@ -1,11 +1,11 @@
 import { CompositeLayer } from '@deck.gl/core/typed';
-import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, LayersList } from '@deck.gl/core/typed';
+import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, LayersList } from '@deck.gl/core/typed';
 import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers/typed';
 import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers/typed';
 import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions/typed';
 import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions/typed';
 import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
-import { getViewportAngle } from '../../../_utils/viewport.js';
+import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
 import { FrontType, iconAtlas, iconMapping } from './front-type.js';
 import { getFrontLine } from './front-line.js';
 import type { FrontLine, FrontIcon } from './front-line.js';
@@ -26,6 +26,8 @@ interface DebugFrontPoint<DataT> {
 
 type _FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
   data: DataT[];
+  minZoom: number | null;
+  maxZoom: number | null;
 
   getType: ((d: DataT) => FrontType) | null;
   getPath: ((d: DataT) => Position[]) | null;
@@ -42,6 +44,8 @@ export type FrontCompositeLayerProps<DataT> = _FrontCompositeLayerProps<DataT> &
 
 const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
   data: { type: 'array', value: [] },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: null },
 
   getType: { type: 'function', value: null },
   getPath: { type: 'function', value: null },
@@ -60,8 +64,13 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
-    const { data, getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
-    if (!data || !getType || !getPath) {
+    const { props, visibleFrontLines, visibleDebugFrontPoints } = this.state;
+    if (!props || !visibleFrontLines || !visibleDebugFrontPoints) {
+      return [];
+    }
+
+    const { getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(props, defaultProps);
+    if (!getType || !getPath) {
       return [];
     }
 
@@ -72,14 +81,11 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       [FrontType.STATIONARY]: coldColor,
     };
 
-    const frontLines = data.map(d => getFrontLine(d, getPath(d)));
-    const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index })));
-
     // render front line from front points instead of the original path, to workaround for front points detaching from the front line when over-zooming
     return [
       new PathLayer(this.getSubLayerProps({
         id: 'path',
-        data: frontLines,
+        data: visibleFrontLines,
         getPath: d => [d.startPosition, ...d.icons.map(point => point.position), d.endPosition],
         getColor: d => FrontTypeToColor[getType(d.d)],
         getWidth: width,
@@ -88,7 +94,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
       new PathLayer(this.getSubLayerProps({
         id: 'path-stationary-warm',
-        data: frontLines.filter(d => getType(d.d) === FrontType.STATIONARY),
+        data: (visibleFrontLines as FrontLine<DataT>[]).filter(d => getType(d.d) === FrontType.STATIONARY),
         getPath: d => [d.startPosition, ...d.icons.map(point => point.position), d.endPosition],
         getColor: warmColor,
         getWidth: width,
@@ -100,7 +106,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
       new IconLayer(this.getSubLayerProps({
         id: 'icon',
-        data: frontLines.flatMap(d => d.icons),
+        data: (visibleFrontLines as FrontLine<DataT>[]).flatMap(d => d.icons),
         getPosition: d => d.position,
         getIcon: d => getType(d.d) === FrontType.OCCLUDED || getType(d.d) === FrontType.STATIONARY
           ? (d.alternate
@@ -132,7 +138,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       ...(debug ? [
         new TextLayer(this.getSubLayerProps({
           id: 'text',
-          data: debugFrontPoints,
+          data: visibleDebugFrontPoints,
           getPosition: d => d.position,
           getText: d => `${d.index}`,
           getSize: DEFAULT_TEXT_SIZE,
@@ -146,5 +152,72 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
         } satisfies TextLayerProps<DebugFrontPoint<DataT>>)),
       ] : []),
     ];
+  }
+
+  shouldUpdateState(params: UpdateParameters<this>): boolean {
+    return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
+  }
+
+  updateState(params: UpdateParameters<this>): void {
+    const { data, getType, getPath, minZoom, maxZoom } = params.props;
+
+    super.updateState(params);
+
+    if (!data || !getType || !getPath) {
+      this.setState({
+        features: undefined,
+        debugFeatures: undefined,
+        visibleFeatures: undefined,
+        visibleDebugFeatures: undefined,
+      });
+      return;
+    }
+
+    if (
+      data !== params.oldProps.data ||
+      getPath !== params.oldProps.getPath
+    ) {
+      this.#updateFeatures();
+    }
+
+    if (
+      minZoom !== params.oldProps.minZoom ||
+      maxZoom !== params.oldProps.maxZoom ||
+      params.changeFlags.viewportChanged
+    ) {
+      this.#updateVisibleFeatures();
+    }
+
+    this.setState({ props: params.props });
+  }
+
+  #updateFeatures(): void {
+    const { data, getPath } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
+    if (!getPath) {
+      return;
+    }
+
+    const frontLines: FrontLine<DataT>[] = data.map(d => getFrontLine(d, getPath(d)));
+    const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index })));
+
+    this.setState({ frontLines, debugFrontPoints });
+  }
+
+  #updateVisibleFeatures(): void {
+    const { viewport } = this.context;
+    const { minZoom, maxZoom } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
+    const { frontLines, debugFrontPoints } = this.state;
+
+    let visibleFrontLines: FrontLine<DataT>[];
+    let visibleDebugFrontPoints: DebugFrontPoint<DataT>[];
+    if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      visibleFrontLines = frontLines;
+      visibleDebugFrontPoints = debugFrontPoints;
+    } else {
+      visibleFrontLines = [];
+      visibleDebugFrontPoints = [];
+    }
+
+    this.setState({ visibleFrontLines, visibleDebugFrontPoints });
   }
 }

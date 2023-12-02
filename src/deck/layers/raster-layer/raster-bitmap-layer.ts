@@ -9,6 +9,7 @@ import { ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
 import { RasterPointProperties } from '../../../_utils/raster-data.js';
 import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
 
@@ -21,6 +22,8 @@ type _RasterBitmapLayerProps = BitmapLayerProps & {
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
+  minZoom: number | null;
+  maxZoom: number | null;
 
   palette: Palette | null;
 };
@@ -36,6 +39,8 @@ const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: null },
 
   palette: { type: 'object', value: null },
 };
@@ -64,14 +69,15 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   draw(opts: any): void {
+    const { viewport } = this.context;
     const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture || !paletteTexture) {
       return;
     }
 
-    if (model) {
+    if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.setUniforms({
         [fsTokens.imageTexture]: imageTexture,
         [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,

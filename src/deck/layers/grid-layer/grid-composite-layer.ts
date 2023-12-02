@@ -9,7 +9,7 @@ import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
-import { getViewportAngle } from '../../../_utils/viewport.js';
+import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
 import { getViewportGridPositions } from '../../../_utils/viewport-grid.js';
 import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 import { getRasterPoints } from '../../../_utils/raster-data.js';
@@ -24,6 +24,8 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
+  minZoom: number | null;
+  maxZoom: number | null;
 
   style: GridStyle;
   unitFormat: UnitFormat | null;
@@ -49,6 +51,8 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: null },
 
   style: { type: 'object', value: GridStyle.VALUE },
   unitFormat: { type: 'object', value: null },
@@ -70,8 +74,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
-    const { props, points } = this.state;
-    if (!props || !points) {
+    const { props, visiblePoints } = this.state;
+    if (!props || !visiblePoints) {
       return [];
     }
 
@@ -85,7 +89,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
-          data: points,
+          data: visiblePoints,
           getPosition: d => d.geometry.coordinates as Position,
           getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
           getSize: iconSize,
@@ -100,7 +104,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [
         new TextLayer(this.getSubLayerProps({
           id: 'text',
-          data: points,
+          data: visiblePoints,
           getPosition: d => d.geometry.coordinates as Position,
           getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
@@ -125,7 +129,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, unitFormat } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, unitFormat } = params.props;
 
     super.updateState(params);
 
@@ -138,14 +142,21 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       image2 !== params.oldProps.image2 ||
       imageSmoothing !== params.oldProps.imageSmoothing ||
       imageInterpolation !== params.oldProps.imageInterpolation ||
-      imageWeight !== params.oldProps.imageWeight ||
+      imageWeight !== params.oldProps.imageWeight
+    ) {
+      this.#updateFeatures();
+    }
+
+    if (
+      minZoom !== params.oldProps.minZoom ||
+      maxZoom !== params.oldProps.maxZoom ||
       params.changeFlags.viewportChanged
     ) {
-      this.#updatePoints();
+      this.#updateVisibleFeatures();
     }
 
     if (unitFormat !== params.oldProps.unitFormat) {
-      this.#redrawPoints();
+      this.#redrawVisibleFeatures();
     }
 
     this.setState({ props: params.props });
@@ -157,9 +168,11 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     const positions = getViewportGridPositions(viewport, 3);
 
     this.setState({ positions });
+
+    this.#updateFeatures();
   }
 
-  #updatePoints(): void {
+  #updateFeatures(): void {
     const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds } = ensureDefaultProps(this.props, defaultProps);
     const { positions } = this.state;
     if (!image) {
@@ -169,9 +182,26 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     const points = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
 
     this.setState({ points });
+
+    this.#updateVisibleFeatures();
   }
 
-  #redrawPoints(): void {
-    this.setState({ points: Array.isArray(this.state.points) ? Array.from(this.state.points) : this.state.points });
+  #updateVisibleFeatures(): void {
+    const { viewport } = this.context;
+    const { minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
+    const { points } = this.state;
+
+    let visiblePoints: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[];
+    if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      visiblePoints = points;
+    } else {
+      visiblePoints = [];
+    }
+
+    this.setState({ visiblePoints });
+  }
+
+  #redrawVisibleFeatures(): void {
+    this.setState({ visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints });
   }
 }

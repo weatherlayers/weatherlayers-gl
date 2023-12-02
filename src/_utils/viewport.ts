@@ -11,6 +11,16 @@ export function isViewportMercator(viewport: Viewport): viewport is WebMercatorV
   return !isViewportGlobe(viewport);
 }
 
+export function isViewportInZoomBounds(viewport: Viewport, minZoom: number | null, maxZoom: number | null): boolean {
+  if (minZoom != null && viewport.zoom < minZoom) {
+    return false;
+  }
+  if (maxZoom != null && viewport.zoom > maxZoom) {
+    return false;
+  }
+  return true;
+}
+
 export function getViewportGlobeCenter(viewport: GlobeViewport): GeoJSON.Position {
   return [viewport.longitude, viewport.latitude];
 }

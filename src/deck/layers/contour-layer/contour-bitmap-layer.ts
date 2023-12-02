@@ -8,6 +8,7 @@ import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../.
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
@@ -18,6 +19,8 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
+  minZoom: number | null;
+  maxZoom: number | null;
 
   interval: number;
   width: number;
@@ -35,6 +38,8 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: 10 }, // drop rendering artifacts in high zoom levels due to a low precision
 
   interval: { type: 'number', value: 0 },
   width: { type: 'number', value: DEFAULT_LINE_WIDTH },
@@ -64,16 +69,12 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const { viewport } = this.context;
     const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, minZoom, maxZoom, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
     if (!imageTexture) {
       return;
     }
-    if (viewport.zoom > 10) {
-      // drop artifacts in high zoom
-      return;
-    }
 
-    if (model) {
+    if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.setUniforms({
         [fsTokens.imageTexture]: imageTexture,
         [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,

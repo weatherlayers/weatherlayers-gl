@@ -12,7 +12,7 @@ import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
 import { randomString } from '../../../_utils/random-string.js';
-import { getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
+import { isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
 import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
@@ -35,6 +35,8 @@ type _HighLowCompositeLayerProps = CompositeLayerProps & {
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
+  minZoom: number | null;
+  maxZoom: number | null;
 
   radius: number;
 
@@ -58,6 +60,8 @@ const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: null },
 
   radius: { type: 'number', value: 0 },
 
@@ -76,8 +80,8 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
-    const { props, points, minValue, maxValue } = this.state;
-    if (!props || !points) {
+    const { props, visiblePoints, minValue, maxValue } = this.state;
+    if (!props || !visiblePoints) {
       return [];
     }
 
@@ -86,7 +90,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     return [
       new TextLayer(this.getSubLayerProps({
         id: 'type',
-        data: points,
+        data: visiblePoints,
         getPixelOffset: [0, -getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => d.properties.type,
@@ -107,7 +111,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
       new TextLayer(this.getSubLayerProps({
         id: 'value',
-        data: points,
+        data: visiblePoints,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => textFormatFunction(d.properties.value, unitFormat),
@@ -129,14 +133,19 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     ];
   }
 
+  shouldUpdateState(params: UpdateParameters<this>): boolean {
+    return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
+  }
+
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, radius, unitFormat } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, radius, unitFormat } = params.props;
 
     super.updateState(params);
 
     if (!radius) {
       this.setState({
         points: undefined,
+        visiblePoints: undefined,
         minValue: undefined,
         maxValue: undefined,
       });
@@ -151,17 +160,25 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       imageWeight !== params.oldProps.imageWeight ||
       radius !== params.oldProps.radius
     ) {
-      this.#updatePoints();
+      this.#updateFeatures();
+    }
+
+    if (
+      minZoom !== params.oldProps.minZoom ||
+      maxZoom !== params.oldProps.maxZoom ||
+      params.changeFlags.viewportChanged
+    ) {
+      this.#updateVisibleFeatures();
     }
 
     if (unitFormat !== params.oldProps.unitFormat) {
-      this.#redrawPoints();
+      this.#redrawVisibleFeatures();
     }
 
     this.setState({ props: params.props });
   }
 
-  async #updatePoints(): Promise<void> {
+  async #updateFeatures(): Promise<void> {
     const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
@@ -190,9 +207,26 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const maxValue = Math.max(...values);
 
     this.setState({ image, radius, points, minValue, maxValue });
+
+    this.#updateVisibleFeatures();
   }
 
-  #redrawPoints(): void {
-    this.setState({ points: Array.isArray(this.state.points) ? Array.from(this.state.points) : this.state.points });
+  #updateVisibleFeatures(): void {
+    const { viewport } = this.context;
+    const { minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
+    const { points } = this.state;
+
+    let visiblePoints: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
+    if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      visiblePoints = points;
+    } else {
+      visiblePoints = [];
+    }
+
+    this.setState({ visiblePoints });
+  }
+
+  #redrawVisibleFeatures(): void {
+    this.setState({ visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints });
   }
 }

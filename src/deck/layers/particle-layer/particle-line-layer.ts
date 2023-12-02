@@ -7,7 +7,7 @@ import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../.
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
-import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
+import { isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
 import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
@@ -23,6 +23,8 @@ type _ParticleLineLayerProps = LineLayerProps<{}> & {
   imageType: ImageType;
   imageUnscale: ImageUnscale;
   bounds: BitmapBoundingBox;
+  minZoom: number | null;
+  maxZoom: number | null;
 
   numParticles: number;
   maxAge: number;
@@ -44,6 +46,8 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   imageType: { type: 'object', value: ImageType.VECTOR },
   imageUnscale: { type: 'array', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
+  minZoom: { type: 'object', value: null },
+  maxZoom: { type: 'object', value: 15 }, // drop rendering artifacts in high zoom levels due to a low precision
 
   numParticles: { type: 'number', min: 1, max: 1000000, value: 5000 },
   maxAge: { type: 'number', min: 1, max: 255, value: 10 },
@@ -129,22 +133,26 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       return;
     }
 
-    const { animate } = ensureDefaultProps(this.props, defaultProps);
-    const { sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths, model } = this.state;
+    const { viewport } = this.context;
+    const { model } = this.state;
+    const { minZoom, maxZoom, animate } = ensureDefaultProps(this.props, defaultProps);
+    const { sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths } = this.state;
 
-    model.setAttributes({
-      instanceSourcePositions: sourcePositions,
-      instanceTargetPositions: targetPositions,
-      instanceSourcePositions64Low: sourcePositions64Low,
-      instanceTargetPositions64Low: targetPositions64Low,
-      instanceColors: colors,
-      instanceWidths: widths,
-    });
+    if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      model.setAttributes({
+        instanceSourcePositions: sourcePositions,
+        instanceTargetPositions: targetPositions,
+        instanceSourcePositions64Low: sourcePositions64Low,
+        instanceTargetPositions64Low: targetPositions64Low,
+        instanceColors: colors,
+        instanceWidths: widths,
+      });
 
-    super.draw(opts);
+      super.draw(opts);
 
-    if (animate) {
-      this.requestStep();
+      if (animate) {
+        this.requestStep();
+      }
     }
   }
 
