@@ -28,6 +28,7 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
   maxZoom: number | null;
 
   style: GridStyle;
+  density: number;
   unitFormat: UnitFormat | null;
   textFormatFunction: TextFormatFunction;
   textFontFamily: string;
@@ -55,6 +56,7 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   maxZoom: { type: 'object', value: null },
 
   style: { type: 'object', value: GridStyle.VALUE },
+  density: { type: 'number', value: 0 },
   unitFormat: { type: 'object', value: null },
   textFormatFunction: { type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION },
   textFontFamily: { type: 'object', value: DEFAULT_TEXT_FONT_FAMILY },
@@ -129,11 +131,13 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, unitFormat } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, density, unitFormat } = params.props;
 
     super.updateState(params);
 
-    if (params.changeFlags.viewportChanged) {
+    if (
+      density !== params.oldProps.density ||
+      params.changeFlags.viewportChanged) {
       this.#updatePositions();
     }
 
@@ -164,8 +168,9 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
   #updatePositions(): void {
     const { viewport } = this.context;
+    const { density } = ensureDefaultProps(this.props, defaultProps);
 
-    const positions = getViewportGridPositions(viewport, 3);
+    const positions = getViewportGridPositions(viewport, density + 3);
 
     this.setState({ positions });
 

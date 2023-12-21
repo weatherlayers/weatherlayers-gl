@@ -89,6 +89,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       grid: {
         enabled: false,
         style: WeatherLayers.GridStyle.VALUE, // dataset-specific
+        density: 0,
         textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
         textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
         textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
@@ -254,6 +255,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     const grid = gui.addFolder({ title: 'Grid layer', expanded: true });
     grid.addBinding(config.grid, 'enabled').on('change', update);
     grid.addBinding(config.grid, 'style', { options: getOptions(Object.values(WeatherLayers.GridStyle)) }).on('change', update);
+    grid.addBinding(config.grid, 'density', { min: 0, max: 2, step: 1 }).on('change', update);
     grid.addBinding(config.grid, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
     grid.addBinding(config.grid, 'textColor').on('change', update);
     grid.addBinding(config.grid, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
