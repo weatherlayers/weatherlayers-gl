@@ -27,6 +27,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
   #config: TooltipControlConfig;
   #container: HTMLElement | undefined = undefined;
   #value: HTMLElement | undefined = undefined;
+  #direction: HTMLElement | undefined = undefined;
   #directionIcon: HTMLElement | undefined = undefined;
   #directionText: HTMLElement | undefined = undefined;
 
@@ -85,17 +86,17 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.#value.classList.add(VALUE_CLASS);
     div.appendChild(this.#value);
 
-    const direction = document.createElement('span');
-    direction.classList.add(DIRECTION_CLASS);
-    div.appendChild(direction);
+    this.#direction = document.createElement('span');
+    this.#direction.classList.add(DIRECTION_CLASS);
+    div.appendChild(this.#direction);
 
     this.#directionIcon = document.createElement('span');
     this.#directionIcon.classList.add(DIRECTION_ICON_CLASS);
-    direction.appendChild(this.#directionIcon);
+    this.#direction.appendChild(this.#directionIcon);
 
     this.#directionText = document.createElement('span');
     this.#directionText.classList.add(DIRECTION_TEXT_CLASS);
-    direction.appendChild(this.#directionText);
+    this.#direction.appendChild(this.#directionText);
   }
 
   update(rasterPointProperties: RasterPointProperties | undefined): void {
@@ -115,7 +116,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     }
 
     if (typeof direction !== 'undefined') {
-      this.#directionIcon.style.transform = `rotate(${direction}deg)`;
+      this.#directionIcon.style.transform = `rotate(${(direction + 180) % 360}deg)`;
       this.#directionText.innerHTML = formatDirection(direction, this.#config.directionFormat ?? DirectionFormat.VALUE);
     } else {
       this.#directionIcon.style.transform = '';
@@ -124,7 +125,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
   }
 
   updatePickingInfo(pickingInfo: PickingInfo & { raster?: RasterPointProperties }): void {
-    if (!this.#container) {
+    if (!this.#container || !this.#value || !this.#direction) {
       return;
     }
 
@@ -134,13 +135,20 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     }
 
     this.update(pickingInfo.raster);
+    const hasDirection = typeof pickingInfo.raster?.direction !== 'undefined';
 
     if (this.#config.followCursor) {
       // update position
-      const tooltipX = pickingInfo.x - this.#container.clientWidth / 2;
-      const tooltipY = pickingInfo.y + FOLLOW_CURSOR_OFFSET;
-      this.#container.style.left = `${tooltipX}px`;
-      this.#container.style.top = `${tooltipY}px`;
+      const containterX = pickingInfo.x;
+      const containterY = pickingInfo.y + FOLLOW_CURSOR_OFFSET;
+      this.#container.style.left = `${containterX}px`;
+      this.#container.style.top = `${containterY}px`;
+
+      const div = this.#container.firstChild! as HTMLElement;
+      const divPaddingLeft = parseFloat(window.getComputedStyle(div).paddingLeft);
+      const directionMarginLeft = parseFloat(window.getComputedStyle(this.#direction).marginLeft);
+      const divX = -(divPaddingLeft + (hasDirection ? this.#value.clientWidth + directionMarginLeft : this.#value.clientWidth / 2));
+      div.style.left = `${divX}px`;
 
       // hide on panning
       document.addEventListener('mousedown', () => this.update(undefined), { once: true });

@@ -3,7 +3,8 @@
   pointer-events: auto; /* force controls to be clickable when added as Mapbox/MapLibre control */
 }
 .weatherlayers-tooltip-control > div {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   background: rgba(255, 255, 255, 0.5);
   padding: 0 5px;
   font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
@@ -18,6 +19,9 @@
   margin: 0;
   pointer-events: none;
   z-index: 1; /** same z-index as .deck-tooltip */
+}
+.weatherlayers-tooltip-control.follow-cursor > div {
+  position: absolute;
 }
 .leaflet-map-pane .weatherlayers-tooltip-control.follow-cursor {
   z-index: 101; /** higher z-index for Leaflet, because .leaflet-map-pane canvas z-index is 100 */
@@ -35,6 +39,8 @@
 }
 
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction {
+  display: inline-flex;
+  align-items: center;
   margin-left: 6px;
 }
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction-icon {
@@ -43,10 +49,11 @@
   height: 14px;
   vertical-align: middle;
   background: no-repeat center / contain;
-  background-image: inline('./arrow-circle-down.svg');
-  margin-top: -1px;
-  margin-right: 4px;
+  background-image: inline('./circle-arrow-up.svg');
   opacity: 0.75; /* same opacity as text */
+}
+.weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction-text {
+  margin-left: 4px;
 }
 
 .weatherlayers-tooltip-control:not(.has-value) {
