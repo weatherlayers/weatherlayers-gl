@@ -41,19 +41,19 @@
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction {
   display: inline-flex;
   align-items: center;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction-icon {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   vertical-align: middle;
   background: no-repeat center / contain;
-  background-image: inline('./circle-arrow-up.svg');
+  background-image: inline('./wi-wind-deg.svg');
   opacity: 0.75; /* same opacity as text */
 }
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction-text {
-  margin-left: 4px;
+  margin-left: 2px;
 }
 
 .weatherlayers-tooltip-control:not(.has-value) {
