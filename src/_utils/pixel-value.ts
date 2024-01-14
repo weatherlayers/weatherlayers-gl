@@ -6,9 +6,10 @@ type VectorValue = [u: number, v: number];
 
 export function hasPixelValue(pixel: number[], imageUnscale: ImageUnscale): boolean {
   if (imageUnscale) {
-    // pixel[3] > 127 causes interpolated nodata edges with linear interpolation
     // pixel[3] === 255 causes incorrect nodata pixels in Safari, because Canvas.getImageData returns different data from the original image, with lower values
-    return pixel[3] > 0;
+    // - this happened in 2023.10.2, fixed in 2023.10.3, reverted in 2024.1.0, it's not happening anymore, why?
+    // anything smaller causes interpolated nodata edges with linear interpolation
+    return pixel[3] === 255;
   } else {
     return !isNaN(pixel[0]);
   }
