@@ -24,6 +24,7 @@ const GRID_LAYER_DATASET_CONFIG = {
   'gfswave/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 30] },
   'gfswave/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 30] },
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
+  'cmems_phy_merged/tidal_currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_sst/sea_surface_temperature': { style: WeatherLayers.GridStyle.VALUE },
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
@@ -34,6 +35,7 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'gfswave/swell2': { speedFactor: 2, width: 5 },
   'gfswave/swell3': { speedFactor: 2, width: 5 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
+  'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
 };
 
 export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
