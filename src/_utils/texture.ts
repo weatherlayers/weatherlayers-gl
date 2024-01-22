@@ -79,7 +79,7 @@ function getTextureProps(gl: WebGLRenderingContext, image: TextureData): Texture
     // custom interpolation in pixel.glsl
     [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
     [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-    [GL.TEXTURE_WRAP_S]: GL.REPEAT, // TODO: REPEAT for data with bounds -180..180, CLAMP_TO_EDGE for other data
+    [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
     [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
   };
 
