@@ -3,7 +3,6 @@ import { Pane } from 'https://cdn.jsdelivr.net/npm/tweakpane@4.0.1/dist/tweakpan
 export const NO_DATA = 'no data';
 
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
-const DEFAULT_COLORMAP = 'default';
 
 const CONTOUR_LAYER_DATASET_CONFIG = {
   'gfs/temperature_2m_above_ground': { interval: 2 },
@@ -61,7 +60,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     raster: {
       enabled: false,
-      colormap: DEFAULT_COLORMAP,
+      palette: true,
       opacity: 0.2,
     },
     contour: {
@@ -75,7 +74,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
       textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
       textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-      opacity: 1,
+      opacity: 0.2,
     },
     highLow: {
       enabled: false,
@@ -100,7 +99,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         iconBounds: null, // dataset-specific
         iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
         iconColor: colorToCss(WeatherLayers.DEFAULT_ICON_COLOR),
-        opacity: 1,
+        opacity: 0.2,
       },
     } : {}),
     ...(webgl2 ? {
@@ -111,7 +110,8 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         speedFactor: 0, // dataset-specific
         width: 0, // dataset-specific
         color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
-        opacity: 1,
+        palette: true,
+        opacity: 0.2,
         animate: true,
       },
     } : {}),
@@ -234,7 +234,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addBinding(config.raster, 'enabled').on('change', update);
-  raster.addBinding(config.raster, 'colormap', { options: getOptions([DEFAULT_COLORMAP]) }); // dummy
+  raster.addBinding(config.raster, 'palette').on('change', update);
   raster.addBinding(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
@@ -274,6 +274,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     particle.addBinding(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
     particle.addBinding(config.particle, 'speedFactor', { min: 0, max: 50, step: 0.1 }).on('change', update);
     particle.addBinding(config.particle, 'color').on('change', update);
+    particle.addBinding(config.particle, 'palette').on('change', update);
     particle.addBinding(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
     particle.addBinding(config.particle, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
     particle.addBinding(config.particle, 'animate').on('change', update);

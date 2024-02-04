@@ -84,6 +84,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+
         [fsTokens.interval]: interval,
         [fsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsTokens.width]: width,

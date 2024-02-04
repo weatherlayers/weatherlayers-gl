@@ -10,6 +10,7 @@ precision highp float;
 
 in vec3 sourcePosition;
 out vec3 targetPosition;
+out vec4 targetColor;
 
 uniform bool viewportGlobe;
 uniform vec2 viewportGlobeCenter;
@@ -31,10 +32,15 @@ uniform float numParticles;
 uniform float maxAge;
 uniform float speedFactor;
 
+uniform vec4 color;
+uniform sampler2D paletteTexture;
+uniform vec2 paletteBounds;
+
 uniform float time;
 uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
+const vec4 DROP_COLOR = vec4(0);
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
 float distanceTo(vec2 from, vec2 point) {
@@ -152,39 +158,44 @@ void main() {
     vec2 position = pointToPosition(point);
     targetPosition.xy = position;
     targetPosition.x = wrapLongitude(targetPosition.x);
+    targetColor = DROP_COLOR;
     return;
   }
 
   if (!isPositionInBounds(sourcePosition.xy, bounds)) {
     // drop out of bounds
     targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
     return;
   }
 
   if (!isPositionInViewport(sourcePosition.xy)) {
     // drop out of viewport
     targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
     return;
   }
 
   if (viewportZoomChangeFactor > 1. && mod(particleIndex, viewportZoomChangeFactor) >= 1.) {
     // drop when zooming out
     targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
     return;
   }
 
   if (abs(mod(particleIndex, maxAge + 2.) - mod(time, maxAge + 2.)) < 1.) {
     // drop by maxAge, +2 because only non-randomized pairs are rendered
     targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
     return;
   }
 
   vec2 uv = getUV(sourcePosition.xy);
-
   vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
     targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
     return;
   }
 
@@ -197,4 +208,13 @@ void main() {
   vec2 offset = vec2(speed.x / distortion, speed.y);
   targetPosition.xy = sourcePosition.xy + offset;
   targetPosition.x = wrapLongitude(targetPosition.x);
+
+  // update color
+  if (paletteBounds[0] < paletteBounds[1]) {
+    float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
+    targetColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
+  } else {
+    targetColor = color;
+  }
 }

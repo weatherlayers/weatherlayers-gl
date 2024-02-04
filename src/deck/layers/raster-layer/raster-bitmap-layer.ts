@@ -1,10 +1,9 @@
 import type { LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo } from '@deck.gl/core/typed';
 import { BitmapLayer } from '@deck.gl/layers/typed';
-import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed'
+import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed';
 import { Texture2D } from '@luma.gl/core';
-import { parsePalette, colorRampCanvas } from 'cpt2js';
 import type { Palette } from 'cpt2js';
-import GL from '../../../_utils/gl.js';
+import { createPaletteTexture } from '../../../_utils/palette.js';
 import { ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
@@ -87,6 +86,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+
         [fsTokens.paletteTexture]: paletteTexture,
         [fsTokens.paletteBounds]: paletteBounds,
       });
@@ -101,22 +101,14 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     const { gl } = this.context;
     const { palette } = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
+      this.setState({
+        paletteTexture: undefined,
+        paletteBounds: undefined,
+      });
       return;
     }
 
-    const paletteScale = parsePalette(palette);
-    const paletteDomain = paletteScale.domain() as unknown as number[];
-    const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
-    const paletteCanvas = colorRampCanvas(paletteScale);
-    const paletteTexture = new Texture2D(gl, {
-      data: paletteCanvas,
-      parameters: {
-        [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
-        [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
-        [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-        [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
-      },
-    });
+    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, palette);
 
     this.setState({ paletteTexture, paletteBounds });
   }

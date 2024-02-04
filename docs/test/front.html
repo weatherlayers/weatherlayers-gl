@@ -128,7 +128,7 @@
               bounds,
               // style properties
               visible: config.raster.enabled,
-              palette,
+              palette: config.raster.palette ? palette : null,
               opacity: config.raster.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],

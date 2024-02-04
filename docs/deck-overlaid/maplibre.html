@@ -161,7 +161,7 @@
               bounds,
               // style properties
               visible: config.raster.enabled,
-              palette,
+              palette: config.raster.palette ? palette : null,
               opacity: config.raster.opacity,
               pickable: !isMetalWebGl2(),
               extensions: [new deck.ClipExtension()],
@@ -251,6 +251,7 @@
               speedFactor: config.particle.speedFactor,
               width: config.particle.width,
               color: cssToColor(config.particle.color),
+              palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],

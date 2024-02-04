@@ -182,7 +182,7 @@
               bounds,
               // style properties
               visible: config.raster.enabled,
-              palette,
+              palette: config.raster.palette ? palette : null,
               opacity: config.raster.opacity,
               pickable: !isMetalWebGl2(),
               extensions: [new deck.ClipExtension()],

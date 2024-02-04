@@ -2,7 +2,9 @@ import type { Color, LayerProps, DefaultProps, UpdateParameters, LayerContext } 
 import { LineLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
 import type { LineLayerProps } from '@deck.gl/layers/typed';
 import { isWebGL2, Buffer, Transform } from '@luma.gl/core';
-import type { Texture2D } from '@luma.gl/core';
+import { Texture2D } from '@luma.gl/core';
+import type { Palette } from 'cpt2js';
+import { createPaletteTexture } from '../../../_utils/palette.js';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
@@ -13,6 +15,7 @@ import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-lin
 const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
 const TARGET_POSITION = 'targetPosition';
+const TARGET_COLOR = 'targetColor';
 
 type _ParticleLineLayerProps = LineLayerProps<{}> & {
   imageTexture: Texture2D | null;
@@ -32,6 +35,7 @@ type _ParticleLineLayerProps = LineLayerProps<{}> & {
 
   width: number;
   color: Color;
+  palette: Palette | null;
   animate: boolean;
 };
 
@@ -72,11 +76,15 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       inject: {
         ...parentShaders.inject,
         'vs:#decl': (parentShaders.inject?.['vs:#decl'] || '') + `
+          attribute float instanceOpacities;
           varying float drop;
           const vec2 DROP_POSITION = vec2(0);
         `,
         'vs:#main-start': (parentShaders.inject?.['vs:#main-start'] || '') + `
           drop = float(instanceSourcePositions.xy == DROP_POSITION || instanceTargetPositions.xy == DROP_POSITION);
+        `,
+        'vs:DECKGL_FILTER_COLOR': (parentShaders.inject?.['vs:DECKGL_FILTER_COLOR'] || '') + `
+          color.a = color.a * instanceOpacities;
         `,
         'fs:#decl': (parentShaders.inject?.['fs:#decl'] || '') + `
           varying float drop;
@@ -98,7 +106,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { imageType, numParticles, maxAge, color, width } = params.props;
+    const { imageType, numParticles, maxAge, color, width, palette } = params.props;
 
     super.updateState(params);
 
@@ -119,6 +127,10 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     ) {
       this.#setupTransformFeedback();
     }
+
+    if (palette !== params.oldProps.palette) {
+      this.#updatePaletteTexture();
+    }
   }
 
   finalizeState(context: LayerContext): void {
@@ -136,7 +148,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     const { viewport } = this.context;
     const { model } = this.state;
     const { minZoom, maxZoom, animate } = ensureDefaultProps(this.props, defaultProps);
-    const { sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, widths } = this.state;
+    const { sourcePositions, targetPositions, sourcePositions64Low, targetPositions64Low, colors, opacities, widths } = this.state;
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.setAttributes({
@@ -145,6 +157,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
         instanceSourcePositions64Low: sourcePositions64Low,
         instanceTargetPositions64Low: targetPositions64Low,
         instanceColors: colors,
+        instanceOpacities: opacities,
         instanceWidths: widths,
       });
 
@@ -167,7 +180,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       this.#deleteTransformFeedback();
     }
 
-    const { numParticles, maxAge, color, width } = ensureDefaultProps(this.props, defaultProps);
+    const { numParticles, maxAge, width } = ensureDefaultProps(this.props, defaultProps);
 
     // sourcePositions/targetPositions buffer layout:
     // |          age0             |          age1             |          age2             |...|          age(N-1)         |
@@ -178,10 +191,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     const targetPositions = new Buffer(gl, new Float32Array(numInstances * 3));
     const sourcePositions64Low = new Float32Array([0, 0, 0]); // constant attribute
     const targetPositions64Low = new Float32Array([0, 0, 0]); // constant attribute
-    const colors = new Buffer(gl, new Float32Array(new Array(numInstances).fill(undefined).map((_, i) => {
-      const age = Math.floor(i / numParticles);
-      return [color[0], color[1], color[2], (color[3] ?? 255) * (1 - age / maxAge)].map(d => d / 255);
-    }).flat()));
+    const colors = new Buffer(gl, new Float32Array(numInstances * 4));
+    const colorsCopy = new Buffer(gl, new Float32Array(numInstances * 4));
+    const opacities = new Buffer(gl, new Float32Array(new Array(numInstances).fill(undefined).map((_, i) => {
+      const particleAge = Math.floor(i / numParticles);
+      return 1 - particleAge / maxAge;
+    })));
     const widths = new Float32Array([width]); // constant attribute
 
     // setup transform feedback for particles age0
@@ -191,6 +206,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       },
       feedbackBuffers: {
         [TARGET_POSITION]: targetPositions,
+        [TARGET_COLOR]: colors,
       },
       feedbackMap: {
         [SOURCE_POSITION]: TARGET_POSITION,
@@ -208,6 +224,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       sourcePositions64Low,
       targetPositions64Low,
       colors,
+      colorsCopy,
+      opacities,
       widths,
       transform,
       previousViewportZoom: 0,
@@ -228,8 +246,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     }
 
     const { viewport } = this.context;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor } = ensureDefaultProps(this.props, defaultProps);
-    const { numAgedInstances, transform, previousViewportZoom } = this.state;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
+    const { paletteTexture, paletteBounds, numInstances, numAgedInstances, colors, colorsCopy, transform, previousViewportZoom } = this.state;
     if (!imageTexture) {
       return;
     }
@@ -244,7 +262,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     // speed factor for current zoom level
     const currentSpeedFactor = speedFactor / 2 ** (viewport.zoom + 7);
 
-    // update particles age0
+    // update particle positions and colors age0
     const uniforms = {
       [updateVsTokens.viewportGlobe]: viewportGlobe,
       [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
@@ -261,16 +279,21 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
       [updateVsTokens.imageUnscale]: imageUnscale || [0, 0],
       [updateVsTokens.bounds]: bounds,
+
       [updateVsTokens.numParticles]: numParticles,
       [updateVsTokens.maxAge]: maxAge,
       [updateVsTokens.speedFactor]: currentSpeedFactor,
+
+      [updateVsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+      [updateVsTokens.paletteTexture]: paletteTexture,
+      [updateVsTokens.paletteBounds]: paletteBounds || [0, 0],
 
       [updateVsTokens.time]: time,
       [updateVsTokens.seed]: Math.random(),
     };
     transform.run({uniforms});
 
-    // update particles age1-age(N-1)
+    // update particle positions age1-age(N-1)
     // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
     const sourcePositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].sourceBuffers[SOURCE_POSITION];
     const targetPositions = transform.bufferTransform.bindings[transform.bufferTransform.currentIndex].feedbackBuffers[TARGET_POSITION];
@@ -279,6 +302,22 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       readOffset: 0,
       writeOffset: numParticles * 4 * 3,
       size: numAgedInstances * 4 * 3,
+    });
+
+    // update particle colors age1-age(N-1)
+    // copy age0-age(N-2) colors to age1-age(N-1) colors
+    // needs a duplicate copy buffer, because read and write regions overlap
+    colorsCopy.copyData({
+      sourceBuffer: colors,
+      readOffset: 0,
+      writeOffset: 0,
+      size: numInstances * 4 * 4,
+    });
+    colors.copyData({
+      sourceBuffer: colorsCopy,
+      readOffset: 0,
+      writeOffset: numParticles * 4 * 4,
+      size: numAgedInstances * 4 * 4,
     });
 
     transform.swap();
@@ -325,6 +364,22 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       widths: undefined,
       transform: undefined,
     });
+  }
+
+  #updatePaletteTexture(): void {
+    const { gl } = this.context;
+    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    if (!palette) {
+      this.setState({
+        paletteTexture: undefined,
+        paletteBounds: undefined,
+      });
+      return;
+    }
+
+    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, palette);
+
+    this.setState({ paletteTexture, paletteBounds });
   }
 
   requestStep(): void {
