@@ -239,6 +239,8 @@
               palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-181, -85.051129, 181, 85.051129],
               getPolygonOffset: () => [0, -1000],
               beforeId,
             }),

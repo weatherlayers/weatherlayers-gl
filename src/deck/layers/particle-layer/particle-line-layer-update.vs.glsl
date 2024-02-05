@@ -9,6 +9,7 @@ precision highp float;
 @include "../../../_utils/pixel-value.glsl"
 
 in vec3 sourcePosition;
+in vec4 sourceColor;
 out vec3 targetPosition;
 out vec4 targetColor;
 
@@ -42,22 +43,7 @@ uniform float seed;
 
 const vec2 DROP_POSITION = vec2(0);
 const vec4 DROP_COLOR = vec4(0);
-
-// see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L187
-float distanceTo(vec2 from, vec2 point) {
-  float y1 = radians(from.y);
-  float x1 = radians(from.x);
-  float y2 = radians(point.y);
-  float x2 = radians(point.x);
-  float dy = y2 - y1;
-  float dx = x2 - x1;
-
-  float a = sin(dy / 2.) * sin(dy / 2.) + cos(y1) * cos(y2) * sin(dx / 2.) * sin(dx / 2.);
-  float c = 2. * atan2(sqrt(a), sqrt(1. - a));
-  float d = EARTH_RADIUS * c;
-
-  return d;
-}
+const vec4 HIDE_COLOR = vec4(1, 0, 0, 0);
 
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L360
 vec2 destinationPoint(vec2 from, float dist, float bearing) {
@@ -125,14 +111,6 @@ bool isPositionInBounds(vec2 position, vec4 bounds) {
   );
 }
 
-bool isPositionInViewport(vec2 position) {
-  if (viewportGlobe) {
-    return distanceTo(viewportGlobeCenter, position) <= viewportGlobeRadius;
-  } else {
-    return isPositionInBounds(position, viewportBounds);
-  }
-}
-
 // imageTexture is in COORDINATE_SYSTEM.LNGLAT
 // no coordinate conversion needed
 vec2 getUV(vec2 pos) {
@@ -152,28 +130,14 @@ void main() {
     return;
   }
 
-  if (sourcePosition.xy == DROP_POSITION) {
+  if (sourceColor == DROP_COLOR) {
     // generate random position to prevent converging particles
     vec2 particleSeed = vec2(particleIndex * seed / numParticles);
     vec2 point = randPoint(particleSeed);
     vec2 position = pointToPosition(point);
     targetPosition.xy = position;
     targetPosition.x = wrapLongitude(targetPosition.x);
-    targetColor = DROP_COLOR;
-    return;
-  }
-
-  if (!isPositionInBounds(sourcePosition.xy, bounds)) {
-    // drop out of bounds
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
-    return;
-  }
-
-  if (!isPositionInViewport(sourcePosition.xy)) {
-    // drop out of viewport
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
+    targetColor = HIDE_COLOR;
     return;
   }
 
@@ -191,12 +155,19 @@ void main() {
     return;
   }
 
+  if (!isPositionInBounds(sourcePosition.xy, bounds)) {
+    // drop out of bounds
+    targetPosition.xy = sourcePosition.xy;
+    targetColor = HIDE_COLOR;
+    return;
+  }
+
   vec2 uv = getUV(sourcePosition.xy);
   vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
     // drop nodata
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
+    targetPosition.xy = sourcePosition.xy;
+    targetColor = HIDE_COLOR;
     return;
   }
 
@@ -206,8 +177,8 @@ void main() {
     (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
   ) {
     // drop value out of bounds
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
+    targetPosition.xy = sourcePosition.xy;
+    targetColor = HIDE_COLOR;
     return;
   }
 
