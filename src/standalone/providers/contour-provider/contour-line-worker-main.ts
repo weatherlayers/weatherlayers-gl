@@ -1,10 +1,8 @@
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
 import { blur } from '../../../_utils/blur.js';
-import { TextureDataArray } from '../../../_utils/data.js';
-import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import type { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import type { FloatData } from '../../../_utils/data.js';
+import type { ImageProperties } from '../../../_utils/image-properties.js';
 import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
 import { getUnprojectFunction } from '../../../_utils/project.js';
 
@@ -74,7 +72,8 @@ function computeContours(data: Float32Array, width: number, height: number, inte
   return contours;
 }
 
-function getContourLineData(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, interval: number): Float32Array {
+function getContourLineData(floatData: FloatData, bounds: GeoJSON.BBox, interval: number): Float32Array {
+  let { data, width, height } = floatData;
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -123,10 +122,8 @@ function getContourLineData(data: Float32Array, width: number, height: number, b
   return contourLineData;
 }
 
-export function getContourLineDataMain(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, interval: number): Float32Array {
-  const image = { data, width, height };
-  const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getRasterMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
-  const contourLineData = getContourLineData(magnitudeData.data, width, height, bounds, interval);
+export function getContourLineDataMain(imageProperties: ImageProperties, bounds: GeoJSON.BBox, interval: number): Float32Array {
+  const magnitudeData = getRasterMagnitudeData(imageProperties);
+  const contourLineData = getContourLineData(magnitudeData, bounds, interval);
   return contourLineData;
 }

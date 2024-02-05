@@ -27,7 +27,7 @@
 
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
-    import { NO_DATA, initConfig, initGui, colorToCss } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToRgba } from '../config.js';
     import { BASEMAP_RASTER_STYLE_URL, BASEMAP_ATTRIBUTION } from '../basemap.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -90,8 +90,17 @@
         config.datetimes = datetimes;
         config.datetime = datetime;
 
-        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(image, config.imageSmoothing, config.imageInterpolation, imageType, imageUnscale, palette) : undefined;
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime || rasterLayer.imageSmoothing !== config.imageSmoothing || rasterLayer.imageInterpolation !== config.imageInterpolation || rasterLayer.imageMinValue !== config.imageMinValue || rasterLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(imageProperties, palette) : undefined;
           if (rasterLayer) {
             viewer.imageryLayers.remove(rasterLayer);
           }
@@ -102,8 +111,12 @@
               credit: config.BASEMAP_ATTRIBUTION,
             }));
             rasterLayer.name = 'raster';
-            rasterLayer.dataset = config.dataset;
-            rasterLayer.datetime = config.datetime;
+            rasterLayer.dataset = dataset;
+            rasterLayer.datetime = datetime;
+            rasterLayer.imageSmoothing = config.imageSmoothing;
+            rasterLayer.imageInterpolation = config.imageInterpolation;
+            rasterLayer.imageMinValue = config.imageMinValue;
+            rasterLayer.imageMaxValue = config.imageMaxValue;
             Cesium.knockout.track(rasterLayer, ['show', 'alpha']);
           }
         }
@@ -112,16 +125,29 @@
           rasterLayer.alpha = config.raster.opacity;
         }
 
-        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime || contourLayer.imageSmoothing !== config.imageSmoothing || contourLayer.imageInterpolation !== config.imageInterpolation || contourLayer.imageMinValue !== config.imageMinValue || contourLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(imageProperties, bounds, config.contour.interval) : undefined;
           if (contourLayer) {
             viewer.dataSources.remove(contourLayer);
           }
           if (contourLines) {
             contourLayer = new Cesium.CustomDataSource();
             contourLayer.name = 'contour';
-            contourLayer.dataset = config.dataset;
-            contourLayer.datetime = config.datetime;
+            contourLayer.dataset = dataset;
+            contourLayer.datetime = datetime;
+            contourLayer.imageSmoothing = config.imageSmoothing;
+            contourLayer.imageInterpolation = config.imageInterpolation;
+            contourLayer.imageMinValue = config.imageMinValue;
+            contourLayer.imageMaxValue = config.imageMaxValue;
             for (let contourLine of contourLines.features) {
               contourLayer.entities.add({
                 polyline: {
@@ -130,27 +156,41 @@
               });
             }
             viewer.dataSources.add(contourLayer);
-            Cesium.knockout.track(contourLayer, ['show']);
+            Cesium.knockout.track(contourLayer, ['show', 'alpha']);
           }
         }
         if (contourLayer) {
           contourLayer.show = config.contour.enabled;
+          contourLayer.alpha = config.contour.opacity;
           for (let contourLayerEntity of contourLayer.entities.values) {
             contourLayerEntity.polyline.width = config.contour.width;
-            contourLayerEntity.polyline.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(colorToCss(config.contour.color)));
+            contourLayerEntity.polyline.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(cssToRgba(config.contour.color)));
           }
         }
 
-        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime || highLowLayer.imageSmoothing !== config.imageSmoothing || highLowLayer.imageInterpolation !== config.imageInterpolation || highLowLayer.imageMinValue !== config.imageMinValue || highLowLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(imageProperties, bounds, config.highLow.radius) : undefined;
           if (highLowLayer) {
             viewer.dataSources.remove(highLowLayer);
           }
           if (highLowPoints) {
             highLowLayer = new Cesium.CustomDataSource();
             highLowLayer.name = 'highLow';
-            highLowLayer.dataset = config.dataset;
-            highLowLayer.datetime = config.datetime;
+            highLowLayer.dataset = dataset;
+            highLowLayer.datetime = datetime;
+            highLowLayer.imageSmoothing = config.imageSmoothing;
+            highLowLayer.imageInterpolation = config.imageInterpolation;
+            highLowLayer.imageMinValue = config.imageMinValue;
+            highLowLayer.imageMaxValue = config.imageMaxValue;
             for (let highLowPoint of highLowPoints.features) {
               highLowLayer.entities.add({
                 position: Cesium.Cartesian3.fromDegrees(highLowPoint.geometry.coordinates[0], highLowPoint.geometry.coordinates[1]),
@@ -162,16 +202,17 @@
               });
             }
             viewer.dataSources.add(highLowLayer);
-            Cesium.knockout.track(highLowLayer, ['show']);
+            Cesium.knockout.track(highLowLayer, ['show', 'alpha']);
           }
         }
         if (highLowLayer) {
-          highLowLayer.show = config.contour.enabled;
+          highLowLayer.show = config.highLow.enabled;
+          highLowLayer.alpha = config.highLow.opacity;
           for (let highLowLayerEntity of highLowLayer.entities.values) {
             highLowLayerEntity.label.font = `${config.highLow.textSize}px ${WeatherLayers.DEFAULT_TEXT_FONT_FAMILY}`;
-            highLowLayerEntity.label.fillColor = Cesium.Color.fromCssColorString(colorToCss(config.highLow.textColor));
+            highLowLayerEntity.label.fillColor = Cesium.Color.fromCssColorString(cssToRgba(config.highLow.textColor));
             highLowLayerEntity.label.outlineWidth = config.highLow.textOutlineWidth;
-            highLowLayerEntity.label.outlineColor = Cesium.Color.fromCssColorString(colorToCss(config.highLow.textOutlineColor));
+            highLowLayerEntity.label.outlineColor = Cesium.Color.fromCssColorString(cssToRgba(config.highLow.textOutlineColor));
           }
         }
 

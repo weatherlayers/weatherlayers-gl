@@ -26,7 +26,7 @@
 
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
-    import { initConfig, cssToColor } from '../config.js';
+    import { initConfig, cssToColor, isMetalWebGl2 } from '../config.js';
     import { BASEMAP_RASTER_STYLE_URL, BASEMAP_ATTRIBUTION } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
@@ -77,6 +77,15 @@
         const imageType = WeatherLayers.ImageType.VECTOR;
         const imageUnscale = [-128, 127];
         const bounds = [-180, -90, 180, 90];
+        const unitFormat = { unit: 'm/s' };
+        const palette = [
+          [0, [255, 255, 255]],
+          [5, [127, 255, 255]],
+          [10, [127, 255, 127]],
+          [15, [255, 255, 127]],
+          [20, [255, 127, 127]],
+          [25, [127, 0, 0]],
+        ];
 
         deckgl.setProps({
           layers: [
@@ -95,8 +104,48 @@
                 });
               },
             }),
-            new WeatherLayers.ParticleLayer({
-              id: 'particle',
+            new WeatherLayers.RasterLayer({
+              id: 'raster',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
+              visible: config.raster.enabled,
+              palette: config.raster.palette ? palette : null,
+              opacity: config.raster.opacity,
+              pickable: !isMetalWebGl2(),
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-181, -85.051129, 181, 85.051129],
+            }),
+            new WeatherLayers.ContourLayer({
+              id: 'contour',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
+              visible: config.contour.enabled,
+              interval: config.contour.interval,
+              width: config.contour.width,
+              color: cssToColor(config.contour.color),
+              palette: config.contour.palette ? palette : null,
+              opacity: config.contour.opacity,
+              extensions: [new deck.ClipExtension()],
+              clipBounds: [-181, -85.051129, 181, 85.051129],
+            }),
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
               // data properties
               image,
               imageSmoothing: config.imageSmoothing,
@@ -105,12 +154,61 @@
               imageUnscale,
               bounds,
               // style properties
+              visible: config.highLow.enabled && !timelineControl.running,
+              unitFormat,
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: cssToColor(config.highLow.textColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
+              palette: config.highLow.palette ? palette : null,
+              opacity: config.highLow.opacity,
+            }),
+            new WeatherLayers.GridLayer({
+              id: 'grid',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
+              visible: config.grid.enabled,
+              style: config.grid.style,
+              density: config.grid.density,
+              unitFormat,
+              textSize: config.grid.textSize,
+              textColor: cssToColor(config.grid.textColor),
+              textOutlineWidth: config.grid.textOutlineWidth,
+              textOutlineColor: cssToColor(config.grid.textOutlineColor),
+              iconBounds: config.grid.iconBounds,
+              iconSize: config.grid.iconSize,
+              iconColor: cssToColor(config.grid.iconColor),
+              palette: config.grid.palette ? palette : null,
+              opacity: config.grid.opacity,
+            }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
               visible: config.particle.enabled,
               numParticles: config.particle.numParticles,
               maxAge: config.particle.maxAge,
               speedFactor: config.particle.speedFactor,
               width: config.particle.width,
               color: cssToColor(config.particle.color),
+              palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
               getPolygonOffset: () => [0, -1000],

@@ -28,7 +28,8 @@
 
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
-    import { NO_DATA, initConfig, initGui, cssToColor } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToRgba } from '../config.js';
+    import { BASEMAP_ATTRIBUTION } from '../basemap.js';
     import { FpsControl } from '../fps-control.js';
 
     const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
@@ -132,8 +133,17 @@
         config.datetimes = datetimes;
         config.datetime = datetime;
 
-        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(mercatorImage, config.imageSmoothing, config.imageInterpolation, imageType, imageUnscale, palette) : undefined;
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime || rasterLayer.imageSmoothing !== config.imageSmoothing || rasterLayer.imageInterpolation !== config.imageInterpolation || rasterLayer.imageMinValue !== config.imageMinValue || rasterLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image: mercatorImage,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(imageProperties, palette) : undefined;
           if (rasterLayer) {
             map.remove(rasterLayer);
           }
@@ -142,6 +152,10 @@
               id: 'raster',
               dataset,
               datetime,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageMinValue: config.imageMinValue,
+              imageMaxValue: config.imageMaxValue,
               canvas: rasterImage,
               copyright: BASEMAP_ATTRIBUTION,
             });
@@ -153,8 +167,17 @@
           rasterLayer.opacity = config.raster.opacity;
         }
 
-        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime || contourLayer.imageSmoothing !== config.imageSmoothing || contourLayer.imageInterpolation !== config.imageInterpolation || contourLayer.imageMinValue !== config.imageMinValue || contourLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(imageProperties, bounds, config.contour.interval) : undefined;
           if (contourLayer) {
             map.remove(contourLayer);
           }
@@ -163,6 +186,10 @@
               id: 'contour',
               dataset,
               datetime,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageMinValue: config.imageMinValue,
+              imageMaxValue: config.imageMaxValue,
               url: URL.createObjectURL(new Blob([JSON.stringify(contourLines)], { type: 'application/json' })),
               copyright: BASEMAP_ATTRIBUTION,
             });
@@ -176,7 +203,7 @@
             symbol: {
               type: 'simple-line',
               width: `${config.contour.width}px`,
-              color: config.contour.color,
+              color: cssToRgba(config.contour.color),
             },
           };
           // contourLayer.labelingInfo = [
@@ -189,17 +216,26 @@
           //         family: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
           //         size: config.contour.textSize,
           //       },
-          //       color: config.contour.textColor,
+          //       color: cssToRgba(config.contour.textColor),
           //       haloSize: `${config.contour.textOutlineWidth}px`,
-          //       haloColor: config.contour.textOutlineColor,
+          //       haloColor: cssToRgba(config.contour.textOutlineColor),
           //     },
           //   },
           // ];
           contourLayer.opacity = config.contour.opacity;
         }
 
-        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime || highLowLayer.imageSmoothing !== config.imageSmoothing || highLowLayer.imageInterpolation !== config.imageInterpolation || highLowLayer.imageMinValue !== config.imageMinValue || highLowLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(imageProperties, bounds, config.highLow.radius) : undefined;
           if (highLowLayer) {
             map.remove(highLowLayer);
           }
@@ -208,6 +244,10 @@
               id: 'highLow',
               dataset,
               datetime,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageMinValue: config.imageMinValue,
+              imageMaxValue: config.imageMaxValue,
               url: URL.createObjectURL(new Blob([JSON.stringify(highLowPoints)], { type: 'application/json' })),
               copyright: BASEMAP_ATTRIBUTION,
             });
@@ -233,9 +273,9 @@
                   family: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
                   size: config.highLow.textSize,
                 },
-                color: config.highLow.textColor,
+                color: cssToRgba(config.highLow.textColor),
                 haloSize: `${config.highLow.textOutlineWidth}px`,
-                haloColor: config.highLow.textOutlineColor,
+                haloColor: cssToRgba(config.highLow.textOutlineColor),
               },
             },
           ];

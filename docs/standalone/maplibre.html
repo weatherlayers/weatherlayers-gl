@@ -28,7 +28,7 @@
 
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
-    import { NO_DATA, initConfig, initGui, colorToCss, isMetalWebGl2 } from '../config.js';
+    import { NO_DATA, initConfig, initGui, cssToRgba, isMetalWebGl2 } from '../config.js';
     import { BASEMAP_VECTOR_STYLE_URL, updateBasemapVectorStyle } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
@@ -91,8 +91,17 @@
         config.datetimes = datetimes;
         config.datetime = datetime;
 
-        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime) {
-          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(mercatorImage, config.imageSmoothing, config.imageInterpolation, imageType, imageUnscale, palette) : undefined;
+        if (!rasterLayer || rasterLayer.dataset !== dataset || rasterLayer.datetime !== datetime || rasterLayer.imageSmoothing !== config.imageSmoothing || rasterLayer.imageInterpolation !== config.imageInterpolation || rasterLayer.imageMinValue !== config.imageMinValue || rasterLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image: mercatorImage,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const rasterImage = config.raster.enabled ? WeatherLayers.RasterProvider.getRasterImage(imageProperties, palette) : undefined;
           if (rasterLayer) {
             map.removeLayer('raster');
             map.removeSource('raster');
@@ -113,8 +122,12 @@
               type: 'raster',
               source: 'raster',
             });
-            rasterLayer.dataset = config.dataset;
-            rasterLayer.datetime = config.datetime;
+            rasterLayer.dataset = dataset;
+            rasterLayer.datetime = datetime;
+            rasterLayer.imageSmoothing = config.imageSmoothing;
+            rasterLayer.imageInterpolation = config.imageInterpolation;
+            rasterLayer.imageMinValue = config.imageMinValue;
+            rasterLayer.imageMaxValue = config.imageMaxValue;
           }
         }
         if (rasterLayer) {
@@ -122,8 +135,17 @@
           map.setPaintProperty('raster', 'raster-opacity', config.raster.opacity);
         }
 
-        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime) {
-          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.contour.interval) : undefined;
+        if (!contourLayer || contourLayer.dataset !== dataset || contourLayer.datetime !== datetime || contourLayer.imageSmoothing !== config.imageSmoothing || contourLayer.imageInterpolation !== config.imageInterpolation || contourLayer.imageMinValue !== config.imageMinValue || contourLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const contourLines = config.contour.enabled ? await WeatherLayers.ContourProvider.getContourLines(imageProperties, bounds, config.contour.interval) : undefined;
           if (contourLayer) {
             map.removeLayer('contourLabel');
             map.removeLayer('contour');
@@ -139,8 +161,12 @@
               source: 'contour',
               type: 'line',
             });
-            contourLayer.dataset = config.dataset;
-            contourLayer.datetime = config.datetime;
+            contourLayer.dataset = dataset;
+            contourLayer.datetime = datetime;
+            contourLayer.imageSmoothing = config.imageSmoothing;
+            contourLayer.imageInterpolation = config.imageInterpolation;
+            contourLayer.imageMinValue = config.imageMinValue;
+            contourLayer.imageMaxValue = config.imageMaxValue;
             map.addLayer({
               id: 'contourLabel',
               source: 'contour',
@@ -155,18 +181,27 @@
         if (contourLayer) {
           map.setLayoutProperty('contour', 'visibility', config.contour.enabled ? 'visible' : 'none');
           map.setPaintProperty('contour', 'line-width', config.contour.width);
-          map.setPaintProperty('contour', 'line-color', colorToCss(config.contour.color));
+          map.setPaintProperty('contour', 'line-color', cssToRgba(config.contour.color));
           map.setPaintProperty('contour', 'line-opacity', config.contour.opacity);
           map.setLayoutProperty('contourLabel', 'visibility', config.contour.enabled ? 'visible' : 'none');
           map.setLayoutProperty('contourLabel', 'text-size', config.contour.textSize);
-          map.setPaintProperty('contourLabel', 'text-color', colorToCss(config.contour.textColor));
+          map.setPaintProperty('contourLabel', 'text-color', cssToRgba(config.contour.textColor));
           map.setPaintProperty('contourLabel', 'text-halo-width', config.contour.textOutlineWidth);
-          map.setPaintProperty('contourLabel', 'text-halo-color', colorToCss(config.contour.textOutlineColor));
+          map.setPaintProperty('contourLabel', 'text-halo-color', cssToRgba(config.contour.textOutlineColor));
           map.setPaintProperty('contourLabel', 'text-opacity', config.contour.opacity);
         }
 
-        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime) {
-          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(image, null, config.imageSmoothing, config.imageInterpolation, 0, imageType, imageUnscale, bounds, config.highLow.radius) : undefined;
+        if (!highLowLayer || highLowLayer.dataset !== dataset || highLowLayer.datetime !== datetime || highLowLayer.imageSmoothing !== config.imageSmoothing || highLowLayer.imageInterpolation !== config.imageInterpolation || highLowLayer.imageMinValue !== config.imageMinValue || highLowLayer.imageMaxValue !== config.imageMaxValue) {
+          const imageProperties = {
+            image,
+            imageSmoothing: config.imageSmoothing,
+            imageInterpolation: config.imageInterpolation,
+            imageType,
+            imageUnscale,
+            imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+            imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+          };
+          const highLowPoints = config.highLow.enabled ? await WeatherLayers.HighLowProvider.getHighLowPoints(imageProperties, bounds, config.highLow.radius) : undefined;
           if (highLowLayer) {
             map.removeLayer('highLow');
             map.removeSource('highLow');
@@ -188,16 +223,20 @@
                 ],
               },
             });
-            highLowLayer.dataset = config.dataset;
-            highLowLayer.datetime = config.datetime;
+            highLowLayer.dataset = dataset;
+            highLowLayer.datetime = datetime;
+            highLowLayer.imageSmoothing = config.imageSmoothing;
+            highLowLayer.imageInterpolation = config.imageInterpolation;
+            highLowLayer.imageMinValue = config.imageMinValue;
+            highLowLayer.imageMaxValue = config.imageMaxValue;
           }
         }
         if (highLowLayer) {
           map.setLayoutProperty('highLow', 'visibility', config.highLow.enabled ? 'visible' : 'none');
           map.setLayoutProperty('highLow', 'text-size', config.highLow.textSize);
-          map.setPaintProperty('highLow', 'text-color', colorToCss(config.highLow.textColor));
+          map.setPaintProperty('highLow', 'text-color', cssToRgba(config.highLow.textColor));
           map.setPaintProperty('highLow', 'text-halo-width', config.highLow.textOutlineWidth);
-          map.setPaintProperty('highLow', 'text-halo-color', colorToCss(config.highLow.textOutlineColor));
+          map.setPaintProperty('highLow', 'text-halo-color', cssToRgba(config.highLow.textOutlineColor));
           map.setPaintProperty('highLow', 'text-opacity', config.highLow.opacity);
         }
 

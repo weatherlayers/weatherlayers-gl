@@ -1,7 +1,5 @@
-import type { TextureData } from './data.js';
-import type { ImageInterpolation } from './image-interpolation.js';
+import type { ImageProperties } from './image-properties.js';
 import { ImageType } from './image-type.js';
-import type { ImageUnscale } from './image-unscale.js';
 import { getProjectFunction } from './project.js';
 import { hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue } from './pixel-value.js';
 import { getPixelInterpolate, getImageDownscaleResolution } from './pixel.js';
@@ -19,7 +17,12 @@ function isPositionInBounds(position: GeoJSON.Position, bounds: GeoJSON.BBox): b
   );
 }
 
-export function getRasterPoints(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, positions: GeoJSON.Position[]): GeoJSON.FeatureCollection<GeoJSON.Point, RasterPointProperties> {
+function createRasterPoint(position: GeoJSON.Position, properties: RasterPointProperties): GeoJSON.Feature<GeoJSON.Point, RasterPointProperties> {
+  return { type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties };
+}
+
+export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSON.BBox, positions: GeoJSON.Position[]): GeoJSON.FeatureCollection<GeoJSON.Point, RasterPointProperties> {
+  const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue } = imageProperties;
   const { width, height } = image;
   const project = getProjectFunction(width, height, bounds);
 
@@ -27,36 +30,44 @@ export function getRasterPoints(image: TextureData, image2: TextureData | null, 
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
   const rasterPoints = positions.map(position => {
-    let rasterPointProperties;
-    if (isPositionInBounds(position, bounds)) {
-      const point = project(position);
-
-      const uvX = point[0] / width;
-      const uvY = point[1] / height;
-      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
-
-      if (hasPixelValue(pixel, imageUnscale)) {
-        const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
-        if (imageType === ImageType.VECTOR) {
-          const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
-          rasterPointProperties = { value, direction };
-        } else {
-          rasterPointProperties = { value };
-        }
-      } else {
-        rasterPointProperties = { value: NaN };
-      }
-    } else {
-      rasterPointProperties = { value: NaN };
+    if (!isPositionInBounds(position, bounds)) {
+      // drop position out of bounds
+      return createRasterPoint(position, { value: NaN });
     }
 
-    return { type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties: rasterPointProperties} as GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>;
+    const point = project(position);
+
+    const uvX = point[0] / width;
+    const uvY = point[1] / height;
+    const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+
+    if (!hasPixelValue(pixel, imageUnscale)) {
+      // drop nodata
+      return createRasterPoint(position, { value: NaN });
+    }
+
+    const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+    if (
+      (typeof imageMinValue === 'number' && !isNaN(imageMinValue) && value < imageMinValue) ||
+      (typeof imageMaxValue === 'number' && !isNaN(imageMaxValue) && value > imageMaxValue)
+    ) {
+      // drop value out of bounds
+      return createRasterPoint(position, { value: NaN });
+    }
+
+    if (imageType === ImageType.VECTOR) {
+      const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
+      return createRasterPoint(position, { value, direction });
+    } else {
+      return createRasterPoint(position, { value });
+    }
   });
 
   return { type: 'FeatureCollection', features: rasterPoints };
 }
 
-export function getRasterMagnitudeData(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale): FloatData {
+export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatData {
+  const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue } = imageProperties;
   const { width, height } = image;
 
   // smooth by downscaling resolution
@@ -71,11 +82,20 @@ export function getRasterMagnitudeData(image: TextureData, image2: TextureData |
       const uvY = y / height;
       const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
 
-      let value;
-      if (hasPixelValue(pixel, imageUnscale)) {
-        value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
-      } else {
-        value = NaN;
+      if (!hasPixelValue(pixel, imageUnscale)) {
+        // drop nodata
+        magnitudeData[i] = NaN;
+        continue;
+      }
+
+      const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+      if (
+        (typeof imageMinValue === 'number' && !isNaN(imageMinValue) && value < imageMinValue) ||
+        (typeof imageMaxValue === 'number' && !isNaN(imageMaxValue) && value > imageMaxValue)
+      ) {
+        // drop value out of bounds
+        magnitudeData[i] = NaN;
+        continue;
       }
 
       magnitudeData[i] = value;

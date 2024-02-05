@@ -19,6 +19,8 @@ type _RasterBitmapLayerProps = BitmapLayerProps & {
   imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
+  imageMinValue: number | null;
+  imageMaxValue: number | null;
   bounds: BitmapBoundingBox;
   minZoom: number | null;
   maxZoom: number | null;
@@ -36,6 +38,8 @@ const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   imageWeight: { type: 'number', value: 0 },
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
+  imageMinValue: { type: 'object', value: null },
+  imageMaxValue: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: null },
@@ -69,7 +73,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   draw(opts: any): void {
     const { viewport } = this.context;
     const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture || !paletteTexture) {
       return;
@@ -85,6 +89,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
         [fsTokens.paletteTexture]: paletteTexture,
         [fsTokens.paletteBounds]: paletteBounds,

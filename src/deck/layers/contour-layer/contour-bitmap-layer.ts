@@ -20,6 +20,8 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
+  imageMinValue: number | null;
+  imageMaxValue: number | null;
   bounds: BitmapBoundingBox;
   minZoom: number | null;
   maxZoom: number | null;
@@ -40,6 +42,8 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   imageWeight: { type: 'number', value: 0 },
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'object', value: null },
+  imageMinValue: { type: 'object', value: null },
+  imageMaxValue: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: 10 }, // drop rendering artifacts in high zoom levels due to a low precision
@@ -83,7 +87,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const { viewport } = this.context;
     const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, minZoom, maxZoom, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture) {
       return;
@@ -99,6 +103,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
         [fsTokens.interval]: interval,
         [fsTokens.width]: width,

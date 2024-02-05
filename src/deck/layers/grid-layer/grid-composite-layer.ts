@@ -25,6 +25,8 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
   imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
+  imageMinValue: number | null;
+  imageMaxValue: number | null;
   bounds: BitmapBoundingBox;
   minZoom: number | null;
   maxZoom: number | null;
@@ -54,6 +56,8 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   imageWeight: { type: 'number', value: 0 },
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
+  imageMinValue: { type: 'object', value: null },
+  imageMaxValue: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: null },
@@ -136,7 +140,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, density, unitFormat, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, density, unitFormat, palette } = params.props;
 
     super.updateState(params);
 
@@ -152,7 +156,11 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       image2 !== params.oldProps.image2 ||
       imageSmoothing !== params.oldProps.imageSmoothing ||
       imageInterpolation !== params.oldProps.imageInterpolation ||
-      imageWeight !== params.oldProps.imageWeight
+      imageWeight !== params.oldProps.imageWeight ||
+      imageType !== params.oldProps.imageType ||
+      imageUnscale !== params.oldProps.imageUnscale ||
+      imageMinValue !== params.oldProps.imageMinValue ||
+      imageMaxValue !== params.oldProps.imageMaxValue
     ) {
       this.#updateFeatures();
     }
@@ -188,13 +196,14 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   #updateFeatures(): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds } = ensureDefaultProps(this.props, defaultProps);
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds } = ensureDefaultProps(this.props, defaultProps);
     const { positions } = this.state;
     if (!image) {
       return;
     }
 
-    const points = getRasterPoints(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
+    const imageProperties = { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const points = getRasterPoints(imageProperties, bounds as GeoJSON.BBox, positions).features.filter(d => !isNaN(d.properties.value));
 
     this.setState({ points });
 

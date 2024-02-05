@@ -36,6 +36,8 @@ type _HighLowCompositeLayerProps = CompositeLayerProps & {
   imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
+  imageMinValue: number | null;
+  imageMaxValue: number | null;
   bounds: BitmapBoundingBox;
   minZoom: number | null;
   maxZoom: number | null;
@@ -62,6 +64,8 @@ const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   imageWeight: { type: 'number', value: 0 },
   imageType: { type: 'object', value: ImageType.SCALAR },
   imageUnscale: { type: 'array', value: null },
+  imageMinValue: { type: 'object', value: null },
+  imageMaxValue: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: null },
@@ -143,7 +147,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, radius, unitFormat, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, palette } = params.props;
 
     super.updateState(params);
 
@@ -163,6 +167,10 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       imageSmoothing !== params.oldProps.imageSmoothing ||
       imageInterpolation !== params.oldProps.imageInterpolation ||
       imageWeight !== params.oldProps.imageWeight ||
+      imageType !== params.oldProps.imageType ||
+      imageUnscale !== params.oldProps.imageUnscale ||
+      imageMinValue !== params.oldProps.imageMinValue ||
+      imageMaxValue !== params.oldProps.imageMaxValue ||
       radius !== params.oldProps.radius
     ) {
       this.#updateFeatures();
@@ -188,7 +196,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   async #updateFeatures(): Promise<void> {
-    const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
+    const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageMinValue, imageMaxValue, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
     }
@@ -203,8 +211,8 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     // - CUBIC - 6 s
     // TODO: move getRasterMagnitudeData to GPU, remove blur
     const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
-
-    const points = (await getHighLowPoints(image, image2, imageSmoothing, effectiveImageInterpolation, imageWeight, imageType, imageUnscale, bounds as GeoJSON.BBox, radius)).features;
+    const imageProperties = { image, image2, imageSmoothing, imageInterpolation: effectiveImageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const points = (await getHighLowPoints(imageProperties, bounds as GeoJSON.BBox, radius)).features;
 
     // discard displaying obsolete points
     if (this.state.requestId !== requestId) {

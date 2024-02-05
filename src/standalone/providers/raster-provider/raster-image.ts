@@ -1,15 +1,13 @@
-import type { TextureData } from '../../../_utils/data.js';
-import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import type { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import type { ImageProperties } from '../../../_utils/image-properties.js';
 import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
 import { parsePalette, type Palette } from '../../../_utils/palette.js';
 import { paletteColorToGl } from '../../../_utils/color.js';
 
-export function getRasterImage(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, palette: Palette): HTMLCanvasElement {
+export function getRasterImage(imageProperties: ImageProperties, palette: Palette): HTMLCanvasElement {
+  const { image } = imageProperties;
   const { width, height } = image;
 
-  const magnitudeData = getRasterMagnitudeData(image, null, imageSmoothing, imageInterpolation, 0, imageType, imageUnscale);
+  const magnitudeData = getRasterMagnitudeData(imageProperties);
   const paletteScale = parsePalette(palette);
 
   const canvas = document.createElement('canvas');

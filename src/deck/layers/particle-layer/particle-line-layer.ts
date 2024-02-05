@@ -25,6 +25,8 @@ type _ParticleLineLayerProps = LineLayerProps<{}> & {
   imageWeight: number;
   imageType: ImageType;
   imageUnscale: ImageUnscale;
+  imageMinValue: number | null;
+  imageMaxValue: number | null;
   bounds: BitmapBoundingBox;
   minZoom: number | null;
   maxZoom: number | null;
@@ -49,6 +51,8 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   imageWeight: { type: 'number', value: 0 },
   imageType: { type: 'object', value: ImageType.VECTOR },
   imageUnscale: { type: 'array', value: null },
+  imageMinValue: { type: 'object', value: null },
+  imageMaxValue: { type: 'object', value: null },
   bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: 15 }, // drop rendering artifacts in high zoom levels due to a low precision
@@ -242,7 +246,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     }
 
     const { viewport } = this.context;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds, numInstances, numAgedInstances, colors, colorsCopy, transform, previousViewportZoom } = this.state;
     if (!imageTexture) {
       return;
@@ -274,6 +278,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
       [updateVsTokens.imageUnscale]: imageUnscale || [0, 0],
+      [updateVsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
       [updateVsTokens.bounds]: bounds,
 
       [updateVsTokens.numParticles]: numParticles,

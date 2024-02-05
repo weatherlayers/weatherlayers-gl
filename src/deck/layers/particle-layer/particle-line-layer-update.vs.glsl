@@ -26,6 +26,7 @@ uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
+uniform vec2 imageValueBounds;
 uniform vec4 bounds;
 
 uniform float numParticles;
@@ -199,6 +200,17 @@ void main() {
     return;
   }
 
+  float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+  if (
+    (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
+    (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
+  ) {
+    // drop value out of bounds
+    targetPosition.xy = DROP_POSITION;
+    targetColor = DROP_COLOR;
+    return;
+  }
+
   // update position
   vec2 speed = getPixelVectorValue(pixel, imageTypeVector, imageUnscale) * speedFactor;
   // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
@@ -211,7 +223,6 @@ void main() {
 
   // update color
   if (paletteBounds[0] < paletteBounds[1]) {
-    float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
     float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
     targetColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
   } else {

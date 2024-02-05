@@ -16,6 +16,7 @@ uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
+uniform vec2 imageValueBounds;
 
 uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
@@ -30,6 +31,14 @@ void main(void) {
   }
 
   float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+  if (
+    (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
+    (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
+  ) {
+    // drop value out of bounds
+    discard;
+  }
+
   float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
   vec4 color = texture2D(paletteTexture, vec2(paletteValue, 0.));
   gl_FragColor = apply_opacity(color.rgb, color.a * opacity);

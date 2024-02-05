@@ -126,6 +126,8 @@
               imageWeight,
               imageType,
               imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.raster.enabled,
@@ -145,6 +147,8 @@
               imageWeight,
               imageType,
               imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.contour.enabled,
@@ -188,6 +192,8 @@
               imageWeight,
               imageType,
               imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.grid.enabled,
@@ -214,6 +220,8 @@
               imageWeight,
               imageType,
               imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.particle.enabled,

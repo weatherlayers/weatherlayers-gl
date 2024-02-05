@@ -4,5 +4,21 @@ import type { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 
 export class HighLowPointWorker {
-  getHighLowPointData(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array;
+  getHighLowPointData(
+    data: TextureDataArray,
+    width: number,
+    height: number,
+    data2: TextureDataArray | null,
+    width2: number | null,
+    height2: number | null,
+    imageSmoothing: number,
+    imageInterpolation: ImageInterpolation,
+    imageWeight: number,
+    imageType: ImageType,
+    imageUnscale: ImageUnscale,
+    imageMinValue: number | null,
+    imageMaxValue: number | null,
+    bounds: GeoJSON.BBox,
+    radius: number
+  ): Float32Array;
 }

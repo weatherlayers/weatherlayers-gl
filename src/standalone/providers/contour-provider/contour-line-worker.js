@@ -10,20 +10,27 @@ import { getContourLineDataMain } from './contour-line-worker-main.js';
 expose({
   /**
    * @param {TextureDataArray} data
-   * @param {TextureDataArray | null} data2
    * @param {number} width
    * @param {number} height
+   * @param {TextureDataArray | null} data2
+   * @param {number | null} width
+   * @param {number | null} height
    * @param {number} imageSmoothing
    * @param {ImageInterpolation} imageInterpolation
    * @param {number} imageWeight
    * @param {ImageType} imageType
    * @param {ImageUnscale} imageUnscale
+   * @param {number | null} imageMinValue
+   * @param {number | null} imageMaxValue
    * @param {GeoJSON.BBox} bounds
    * @param {number} interval
    * @returns {Float32Array}
    */
-  getContourLineData(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval) {
-    const contourLineData = getContourLineDataMain(data, data2, width, height, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, bounds, interval);
+  getContourLineData(data, width, height, data2, width2, height2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, interval) {
+    const image = { data, width, height };
+    const image2 = data2 ? { data: data2, width: width2, height: height2 } : null;
+    const imageProperties = { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const contourLineData = getContourLineDataMain(imageProperties, bounds, interval);
     return transfer(contourLineData, [contourLineData.buffer]);
   }
 });

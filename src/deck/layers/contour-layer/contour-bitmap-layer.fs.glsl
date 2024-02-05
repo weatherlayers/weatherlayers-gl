@@ -16,6 +16,7 @@ uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
+uniform vec2 imageValueBounds;
 
 uniform float interval;
 uniform float width;
@@ -33,6 +34,14 @@ void main(void) {
   }
 
   float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+  if (
+    (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
+    (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
+  ) {
+    // drop value out of bounds
+    discard;
+  }
+
   float contourValue = value / interval;
   float contourMajor = (step(fract(contourValue * 0.2), 0.1) + 1.) / 2.; // 1: major contour every fifth contour, 0.5: minor contour
   float contourWidth = width * contourMajor; // minor contour: half width

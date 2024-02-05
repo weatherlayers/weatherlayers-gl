@@ -1,16 +1,15 @@
-import { TextureDataArray } from '../../../_utils/data.js';
-import { getUnprojectFunction } from '../../../_utils/project.js';
-import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import type { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { blur } from '../../../_utils/blur.js';
 import { distance } from '../../../_utils/geodesy.js';
+import type { FloatData } from '../../../_utils/data.js';
+import type { ImageProperties } from '../../../_utils/image-properties.js';
 import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
+import { getUnprojectFunction } from '../../../_utils/project.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
  */
-function getHighLowPointData(data: Float32Array, width: number, height: number, bounds: GeoJSON.BBox, radius: number): Float32Array {
+function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius: number): Float32Array {
+  let { data, width, height } = floatData;
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -102,10 +101,8 @@ function getHighLowPointData(data: Float32Array, width: number, height: number, 
   return highLowPointData;
 }
 
-export function getHighLowPointDataMain(data: TextureDataArray, data2: TextureDataArray | null, width: number, height: number, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, imageType: ImageType, imageUnscale: ImageUnscale, bounds: GeoJSON.BBox, radius: number): Float32Array {
-  const image = { data, width, height };
-  const image2 = data2 ? { data: data2, width, height } : null;
-  const magnitudeData = getRasterMagnitudeData(image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale);
-  const highLowPointData = getHighLowPointData(magnitudeData.data, width, height, bounds, radius);
+export function getHighLowPointDataMain(imageProperties: ImageProperties, bounds: GeoJSON.BBox, radius: number): Float32Array {
+  const magnitudeData = getRasterMagnitudeData(imageProperties);
+  const highLowPointData = getHighLowPointData(magnitudeData, bounds, radius);
   return highLowPointData;
 }

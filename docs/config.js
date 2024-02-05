@@ -53,6 +53,8 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     imageSmoothing: 0,
     imageInterpolation: deckgl ? WeatherLayers.ImageInterpolation.CUBIC : WeatherLayers.ImageInterpolation.NEAREST,
+    imageMinValue: 0, // dataset-specific
+    imageMaxValue: 0, // dataset-specific
 
     ...(globe ? {
       rotate: false,
@@ -226,6 +228,8 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   gui.addBinding(config, 'imageSmoothing', { min: 0, max: 10, step: 1 }).on('change', update);
   gui.addBinding(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
+  gui.addBinding(config, 'imageMinValue', { min: 0, max: 1100, step: 0.1 }).on('change', update);
+  gui.addBinding(config, 'imageMaxValue', { min: 0, max: 1100, step: 0.1 }).on('change', update);
 
   if (globe) {
     gui.addBinding(config, 'rotate').on('change', update);
@@ -310,6 +314,11 @@ export function cssToColor(color) {
     parseInt(result[3], 16),
     parseInt(result[4], 16)
    ];
+}
+
+export function cssToRgba(color) {
+  const rgba = cssToColor(color);
+  return `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3] / 255})`;
 }
 
 export function waitForDeck(getDeck) {
