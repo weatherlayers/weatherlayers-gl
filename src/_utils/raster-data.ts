@@ -1,4 +1,5 @@
 import type { ImageProperties } from './image-properties.js';
+import { ImageInterpolation } from './image-interpolation.js';
 import { ImageType } from './image-type.js';
 import { getProjectFunction } from './project.js';
 import { hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue } from './pixel-value.js';
@@ -70,6 +71,14 @@ export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatD
   const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue } = imageProperties;
   const { width, height } = image;
 
+  // interpolation for entire data is slow, fallback to NEAREST interpolation + blur in worker
+  // CPU speed (image 1440x721):
+  // - NEAREST - 100 ms
+  // - LINEAR - 600 ms
+  // - CUBIC - 6 s
+  // TODO: move getRasterMagnitudeData to GPU
+  const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
+
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
@@ -80,7 +89,7 @@ export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatD
 
       const uvX = x / width;
       const uvY = y / height;
-      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, effectiveImageInterpolation, imageWeight, uvX, uvY);
 
       if (!hasPixelValue(pixel, imageUnscale)) {
         // drop nodata

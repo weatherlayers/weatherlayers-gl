@@ -204,14 +204,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const requestId = randomString();
     this.state.requestId = requestId;
 
-    // interpolation for entire data is slow, fallback to NEAREST interpolation + blur in worker
-    // CPU speed (image 1440x721):
-    // - NEAREST - 100 ms
-    // - LINEAR - 600 ms
-    // - CUBIC - 6 s
-    // TODO: move getRasterMagnitudeData to GPU, remove blur
-    const effectiveImageInterpolation = imageInterpolation !== ImageInterpolation.NEAREST ? ImageInterpolation.NEAREST : imageInterpolation;
-    const imageProperties = { image, image2, imageSmoothing, imageInterpolation: effectiveImageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const imageProperties = { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
     const points = (await getHighLowPoints(imageProperties, bounds as GeoJSON.BBox, radius)).features;
 
     // discard displaying obsolete points
