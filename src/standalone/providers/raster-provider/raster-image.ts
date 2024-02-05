@@ -22,7 +22,9 @@ export function getRasterImage(imageProperties: ImageProperties, palette: Palett
 
       const value = magnitudeData.data[i];
       if (isNaN(value)) {
-        const color = paletteColorToGl(paletteScale(null).rgba());
+        // how to differentiate nodata NaN vs. imageMinValue/imageMaxValue NaN?
+        // const color = paletteColorToGl(paletteScale(null).rgba());
+        const color = [0, 0, 0, 0];
         imageData.data[j] = color[0];
         imageData.data[j + 1] = color[1];
         imageData.data[j + 2] = color[2];
