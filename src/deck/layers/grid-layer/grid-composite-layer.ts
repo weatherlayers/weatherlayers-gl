@@ -91,7 +91,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
     if (iconStyle) {
       const { iconAtlas, iconMapping } = iconStyle;
-      const iconBounds = iconStyle.iconBounds || props.iconBounds;
+      const iconBounds = iconStyle.iconBounds || props.iconBounds || [0, 0];
       const delta = (iconBounds[1] - iconBounds[0]) / Object.values(iconMapping).length;
       return [
         new IconLayer(this.getSubLayerProps({
