@@ -11,6 +11,7 @@ import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
+import { colorToGl } from '../../../_utils/color.js';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
@@ -26,7 +27,7 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
 
   interval: number;
   width: number;
-  color: Color;
+  color: Color | null;
   palette: Palette | null;
 }
 
@@ -102,7 +103,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
 
         [fsTokens.interval]: interval,
         [fsTokens.width]: width,
-        [fsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+        [fsTokens.color]: color ? colorToGl(color) : [0, 0, 0, 0],
         [fsTokens.paletteTexture]: paletteTexture,
         [fsTokens.paletteBounds]: paletteBounds || [0, 0],
       });

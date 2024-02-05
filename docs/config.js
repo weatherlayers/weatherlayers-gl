@@ -85,7 +85,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
       textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
       textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
-      opacity: 1,
+      opacity: 0.2,
     },
     ...(deckgl ? {
       grid: {

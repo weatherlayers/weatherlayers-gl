@@ -10,6 +10,7 @@ import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
+import { colorToGl } from '../../../_utils/color.js';
 import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
@@ -34,7 +35,7 @@ type _ParticleLineLayerProps = LineLayerProps<{}> & {
   speedFactor: number;
 
   width: number;
-  color: Color;
+  color: Color | null;
   palette: Palette | null;
   animate: boolean;
 };
@@ -106,7 +107,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { imageType, numParticles, maxAge, color, width, palette } = params.props;
+    const { imageType, numParticles, maxAge, width, palette } = params.props;
 
     super.updateState(params);
 
@@ -119,10 +120,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       imageType !== params.oldProps.imageType ||
       numParticles !== params.oldProps.numParticles ||
       maxAge !== params.oldProps.maxAge ||
-      color[0] !== params.oldProps.color[0] ||
-      color[1] !== params.oldProps.color[1] ||
-      color[2] !== params.oldProps.color[2] ||
-      color[3] !== params.oldProps.color[3] ||
       width !== params.oldProps.width
     ) {
       this.#setupTransformFeedback();
@@ -196,7 +193,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     const opacities = new Buffer(gl, new Float32Array(new Array(numInstances).fill(undefined).map((_, i) => {
       const particleAge = Math.floor(i / numParticles);
       return 1 - particleAge / maxAge;
-    })));
+    }))); // static
     const widths = new Float32Array([width]); // constant attribute
 
     // setup transform feedback for particles age0
@@ -284,7 +281,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       [updateVsTokens.maxAge]: maxAge,
       [updateVsTokens.speedFactor]: currentSpeedFactor,
 
-      [updateVsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+      [updateVsTokens.color]: color ? colorToGl(color) : [0, 0, 0, 0],
       [updateVsTokens.paletteTexture]: paletteTexture,
       [updateVsTokens.paletteBounds]: paletteBounds || [0, 0],
 
@@ -335,10 +332,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       return;
     }
 
-    const { numInstances, sourcePositions, targetPositions } = this.state;
+    const { numInstances, sourcePositions, targetPositions, colors, colorsCopy } = this.state;
 
     sourcePositions.subData({data: new Float32Array(numInstances * 3)});
     targetPositions.subData({data: new Float32Array(numInstances * 3)});
+    colors.subData({data: new Float32Array(numInstances * 4)});
+    colorsCopy.subData({data: new Float32Array(numInstances * 4)});
   }
 
   #deleteTransformFeedback(): void {
@@ -347,11 +346,13 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       return;
     }
 
-    const { sourcePositions, targetPositions, colors, transform } = this.state;
+    const { sourcePositions, targetPositions, colors, colorsCopy, opacities, transform } = this.state;
 
     sourcePositions.delete();
     targetPositions.delete();
     colors.delete();
+    colorsCopy.delete();
+    opacities.delete();
     transform.delete();
 
     this.setState({
@@ -361,6 +362,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       sourcePositions64Low: undefined,
       targetPositions64Low: undefined,
       colors: undefined,
+      colorsCopy: undefined,
+      opacities: undefined,
       widths: undefined,
       transform: undefined,
     });
