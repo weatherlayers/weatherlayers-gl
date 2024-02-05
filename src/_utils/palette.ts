@@ -1,10 +1,9 @@
 import { Texture2D } from '@luma.gl/core';
-import { parsePalette, colorRampCanvas } from 'cpt2js';
-import type { Palette } from 'cpt2js';
+import { colorRampCanvas } from 'cpt2js';
+import type { Scale } from 'cpt2js';
 import GL from './gl.js';
 
-export function createPaletteTexture(gl: WebGLRenderingContext, palette: Palette): { paletteBounds: readonly [number, number], paletteTexture: Texture2D } {
-  const paletteScale = parsePalette(palette);
+export function createPaletteTexture(gl: WebGLRenderingContext, paletteScale: Scale): { paletteBounds: readonly [number, number], paletteTexture: Texture2D } {
   const paletteDomain = paletteScale.domain() as unknown as number[];
   const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
   const paletteCanvas = colorRampCanvas(paletteScale);
@@ -20,3 +19,6 @@ export function createPaletteTexture(gl: WebGLRenderingContext, palette: Palette
 
   return { paletteBounds, paletteTexture };
 }
+
+export { parsePalette, colorRampCanvas } from 'cpt2js';
+export type { Palette } from 'cpt2js';

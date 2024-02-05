@@ -1,10 +1,10 @@
-import { parsePalette } from 'cpt2js';
-import type { Palette } from 'cpt2js';
 import type { TextureData } from '../../../_utils/data.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import type { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
+import { parsePalette, type Palette } from '../../../_utils/palette.js';
+import { paletteColorToGl } from '../../../_utils/color.js';
 
 export function getRasterImage(image: TextureData, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageType: ImageType, imageUnscale: ImageUnscale, palette: Palette): HTMLCanvasElement {
   const { width, height } = image;
@@ -24,20 +24,19 @@ export function getRasterImage(image: TextureData, imageSmoothing: number, image
 
       const value = magnitudeData.data[i];
       if (isNaN(value)) {
-        const color = paletteScale(null as unknown as number).rgba();
+        const color = paletteColorToGl(paletteScale(null).rgba());
         imageData.data[j] = color[0];
         imageData.data[j + 1] = color[1];
         imageData.data[j + 2] = color[2];
-        imageData.data[j + 3] = color[3] * 255;
+        imageData.data[j + 3] = color[3];
         continue;
       }
 
-      const color = paletteScale(value).rgba();
-
+      const color = paletteColorToGl(paletteScale(value).rgba());
       imageData.data[j] = color[0];
       imageData.data[j + 1] = color[1];
       imageData.data[j + 2] = color[2];
-      imageData.data[j + 3] = color[3] * 255;
+      imageData.data[j + 3] = color[3];
     }
   }
   context.putImageData(imageData, 0, 0);

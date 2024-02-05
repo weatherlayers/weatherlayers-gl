@@ -3,14 +3,13 @@ import { LineLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
 import type { LineLayerProps } from '@deck.gl/layers/typed';
 import { isWebGL2, Buffer, Transform } from '@luma.gl/core';
 import { Texture2D } from '@luma.gl/core';
-import type { Palette } from 'cpt2js';
-import { createPaletteTexture } from '../../../_utils/palette.js';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
-import { colorToGl } from '../../../_utils/color.js';
+import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
+import { deckColorToGl } from '../../../_utils/color.js';
 import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
@@ -126,7 +125,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     }
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePaletteTexture();
+      this.#updatePalette();
     }
   }
 
@@ -281,7 +280,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       [updateVsTokens.maxAge]: maxAge,
       [updateVsTokens.speedFactor]: currentSpeedFactor,
 
-      [updateVsTokens.color]: color ? colorToGl(color) : [0, 0, 0, 0],
+      [updateVsTokens.color]: color ? deckColorToGl(color) : [0, 0, 0, 0],
       [updateVsTokens.paletteTexture]: paletteTexture,
       [updateVsTokens.paletteBounds]: paletteBounds || [0, 0],
 
@@ -369,18 +368,16 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     });
   }
 
-  #updatePaletteTexture(): void {
+  #updatePalette(): void {
     const { gl } = this.context;
     const { palette } = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
-      this.setState({
-        paletteTexture: undefined,
-        paletteBounds: undefined,
-      });
+      this.setState({ paletteTexture: undefined, paletteBounds: undefined });
       return;
     }
 
-    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, palette);
+    const paletteScale = parsePalette(palette);
+    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, paletteScale);
 
     this.setState({ paletteTexture, paletteBounds });
   }

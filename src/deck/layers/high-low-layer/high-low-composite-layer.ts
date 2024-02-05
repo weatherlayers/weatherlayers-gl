@@ -13,6 +13,8 @@ import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
 import { randomString } from '../../../_utils/random-string.js';
 import { isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
+import { parsePalette, type Palette } from '../../../_utils/palette.js';
+import { paletteColorToGl } from '../../../_utils/color.js';
 import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
@@ -47,6 +49,7 @@ type _HighLowCompositeLayerProps = CompositeLayerProps & {
   textColor: Color;
   textOutlineWidth: number;
   textOutlineColor: Color;
+  palette: Palette | null;
 }
 
 export type HighLowCompositeLayerProps = _HighLowCompositeLayerProps & LayerProps;
@@ -72,6 +75,7 @@ const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
   textColor: { type: 'color', value: DEFAULT_TEXT_COLOR },
   textOutlineWidth: { type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH },
   textOutlineColor: { type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR },
+  palette: { type: 'object', value: null },
 };
 
 export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_HighLowCompositeLayerProps>> {
@@ -86,6 +90,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     }
 
     const { unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor } = ensureDefaultProps(props, defaultProps);
+    const { paletteScale } = this.state;
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -95,7 +100,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => d.properties.type,
         getSize: textSize * 1.2,
-        getColor: textColor,
+        getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : textColor,
         getAngle: getViewportAngle(viewport, 0),
         outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
@@ -116,7 +121,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => textFormatFunction(d.properties.value, unitFormat),
         getSize: textSize,
-        getColor: textColor,
+        getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : textColor,
         getAngle: getViewportAngle(viewport, 0),
         outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
@@ -138,7 +143,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, radius, unitFormat } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, radius, unitFormat, palette } = params.props;
 
     super.updateState(params);
 
@@ -169,6 +174,10 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       params.changeFlags.viewportChanged
     ) {
       this.#updateVisibleFeatures();
+    }
+
+    if (palette !== params.oldProps.palette) {
+      this.#updatePalette();
     }
 
     if (unitFormat !== params.oldProps.unitFormat) {
@@ -224,6 +233,22 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     }
 
     this.setState({ visiblePoints });
+  }
+
+  #updatePalette(): void {
+    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    if (!palette) {
+      this.setState({ paletteScale: undefined });
+
+      this.#redrawVisibleFeatures();
+      return;
+    }
+
+    const paletteScale = parsePalette(palette);
+
+    this.setState({ paletteScale });
+
+    this.#redrawVisibleFeatures();
   }
 
   #redrawVisibleFeatures(): void {

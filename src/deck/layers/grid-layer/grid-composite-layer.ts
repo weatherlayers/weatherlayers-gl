@@ -11,9 +11,11 @@ import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
 import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
 import { getViewportGridPositions } from '../../../_utils/viewport-grid.js';
-import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 import { getRasterPoints } from '../../../_utils/raster-data.js';
 import type { RasterPointProperties } from '../../../_utils/raster-data.js';
+import { parsePalette, type Palette } from '../../../_utils/palette.js';
+import { paletteColorToGl } from '../../../_utils/color.js';
+import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 
 type _GridCompositeLayerProps = CompositeLayerProps & {
   image: TextureData | null;
@@ -39,6 +41,7 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
   iconBounds: [number, number] | null;
   iconSize: number;
   iconColor: Color;
+  palette: Palette | null;
 }
 
 export type GridCompositeLayerProps = _GridCompositeLayerProps & LayerProps;
@@ -67,6 +70,7 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   iconBounds: { type: 'array', value: null },
   iconSize: { type: 'number', value: DEFAULT_ICON_SIZE },
   iconColor: { type: 'color', value: DEFAULT_ICON_COLOR },
+  palette: { type: 'object', value: null },
 };
 
 // see https://observablehq.com/@cguastini/signed-distance-fields-wind-barbs-and-webgl
@@ -82,6 +86,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     }
 
     const { style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor } = ensureDefaultProps(props, defaultProps);
+    const { paletteScale } = this.state;
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
@@ -95,7 +100,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           getPosition: d => d.geometry.coordinates as Position,
           getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
           getSize: iconSize,
-          getColor: iconColor,
+          getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : iconColor,
           getAngle: d => getViewportAngle(viewport, d.properties.direction ? 360 - d.properties.direction : 0),
           iconAtlas,
           iconMapping,
@@ -110,7 +115,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           getPosition: d => d.geometry.coordinates as Position,
           getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
-          getColor: textColor,
+          getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : textColor,
           getAngle: getViewportAngle(viewport, 0),
           outlineWidth: textOutlineWidth,
           outlineColor: textOutlineColor,
@@ -131,13 +136,14 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, density, unitFormat } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, minZoom, maxZoom, density, unitFormat, palette } = params.props;
 
     super.updateState(params);
 
     if (
       density !== params.oldProps.density ||
-      params.changeFlags.viewportChanged) {
+      params.changeFlags.viewportChanged
+    ) {
       this.#updatePositions();
     }
 
@@ -157,6 +163,10 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       params.changeFlags.viewportChanged
     ) {
       this.#updateVisibleFeatures();
+    }
+
+    if (palette !== params.oldProps.palette) {
+      this.#updatePalette();
     }
 
     if (unitFormat !== params.oldProps.unitFormat) {
@@ -204,6 +214,22 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     }
 
     this.setState({ visiblePoints });
+  }
+
+  #updatePalette(): void {
+    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    if (!palette) {
+      this.setState({ paletteScale: undefined });
+
+      this.#redrawVisibleFeatures();
+      return;
+    }
+
+    const paletteScale = parsePalette(palette);
+
+    this.setState({ paletteScale });
+
+    this.#redrawVisibleFeatures();
   }
 
   #redrawVisibleFeatures(): void {

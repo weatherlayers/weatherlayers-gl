@@ -85,6 +85,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       textColor: colorToCss(WeatherLayers.DEFAULT_TEXT_COLOR),
       textOutlineWidth: WeatherLayers.DEFAULT_TEXT_OUTLINE_WIDTH,
       textOutlineColor: colorToCss(WeatherLayers.DEFAULT_TEXT_OUTLINE_COLOR),
+      palette: false,
       opacity: 0.2,
     },
     ...(deckgl ? {
@@ -100,6 +101,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         iconBounds: null, // dataset-specific
         iconSize: WeatherLayers.DEFAULT_ICON_SIZE,
         iconColor: colorToCss(WeatherLayers.DEFAULT_ICON_COLOR),
+        palette: false,
         opacity: 0.2,
       },
     } : {}),
@@ -111,7 +113,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         speedFactor: 0, // dataset-specific
         width: 0, // dataset-specific
         color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
-        palette: true,
+        palette: false,
         opacity: 0.2,
         animate: true,
       },
@@ -235,7 +237,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addBinding(config.raster, 'enabled').on('change', update);
-  raster.addBinding(config.raster, 'palette').on('change', update);
+  // raster.addBinding(config.raster, 'palette').on('change', update);
   raster.addBinding(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
@@ -253,6 +255,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   highLow.addBinding(config.highLow, 'textColor').on('change', update);
   highLow.addBinding(config.highLow, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
   highLow.addBinding(config.highLow, 'textOutlineColor').on('change', update);
+  highLow.addBinding(config.highLow, 'palette').on('change', update);
   highLow.addBinding(config.highLow, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   if (deckgl) {
@@ -266,6 +269,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     grid.addBinding(config.grid, 'textOutlineColor').on('change', update);
     grid.addBinding(config.grid, 'iconSize', { min: 0, max: 100, step: 1 }).on('change', update);
     grid.addBinding(config.grid, 'iconColor').on('change', update);
+    grid.addBinding(config.grid, 'palette').on('change', update);
     grid.addBinding(config.grid, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
   }
 
