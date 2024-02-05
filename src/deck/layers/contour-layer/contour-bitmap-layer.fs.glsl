@@ -16,9 +16,12 @@ uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
+
 uniform float interval;
 uniform float width;
 uniform vec4 color;
+uniform sampler2D paletteTexture;
+uniform vec2 paletteBounds;
 
 void main(void) {
   @include "../../../_utils/deck-bitmap-layer-main-start.glsl"
@@ -47,7 +50,14 @@ void main(void) {
   float contourOpacity = contour * contourMajor; // minor contour: half opacity
 
   // contourOpacity += factor; // debug
-  gl_FragColor = vec4(color.rgb, color.a * contourOpacity * opacity);
+  vec4 targetColor;
+  if (paletteBounds[0] < paletteBounds[1]) {
+    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
+    targetColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
+  } else {
+    targetColor = color;
+  }
+  gl_FragColor = vec4(targetColor.rgb, targetColor.a * contourOpacity * opacity);
 
   @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
 }

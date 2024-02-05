@@ -16,6 +16,7 @@ uniform int imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;
+
 uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
 

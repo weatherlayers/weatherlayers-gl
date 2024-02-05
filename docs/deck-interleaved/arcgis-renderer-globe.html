@@ -182,6 +182,7 @@
               interval: config.contour.interval,
               width: config.contour.width,
               color: cssToColor(config.contour.color),
+              palette: config.contour.palette ? palette : null,
               opacity: config.contour.opacity,
             }),
             new WeatherLayers.HighLowLayer({

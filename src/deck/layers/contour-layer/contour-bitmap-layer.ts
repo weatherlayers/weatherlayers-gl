@@ -1,8 +1,10 @@
-import type { Color, LayerProps, DefaultProps } from '@deck.gl/core/typed';
+import type { Color, LayerProps, DefaultProps, UpdateParameters } from '@deck.gl/core/typed';
 import { BitmapLayer } from '@deck.gl/layers/typed';
 import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed';
 import { FEATURES, isWebGL2, hasFeatures } from '@luma.gl/core';
 import type { Texture2D } from '@luma.gl/core';
+import type { Palette } from 'cpt2js';
+import { createPaletteTexture } from '../../../_utils/palette.js';
 import { sourceCode as fs, tokens as fsTokens } from './contour-bitmap-layer.fs.glsl';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
@@ -25,6 +27,7 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   interval: number;
   width: number;
   color: Color;
+  palette: Palette | null;
 }
 
 export type ContourBitmapLayerProps = _ContourBitmapLayerProps & LayerProps;
@@ -44,6 +47,7 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   interval: { type: 'number', value: 0 },
   width: { type: 'number', value: DEFAULT_LINE_WIDTH },
   color: { type: 'color', value: DEFAULT_LINE_COLOR },
+  palette: { type: 'object', value: null },
 };
 
 export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_ContourBitmapLayerProps>> {
@@ -66,10 +70,21 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     };
   }
 
+  updateState(params: UpdateParameters<this>): void {
+    const { palette } = params.props;
+
+    super.updateState(params);
+
+    if (palette !== params.oldProps.palette) {
+      this.#updatePaletteTexture();
+    }
+  }
+
   draw(opts: any): void {
     const { viewport } = this.context;
     const { model } = this.state;
     const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, minZoom, maxZoom, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
+    const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture) {
       return;
     }
@@ -86,13 +101,31 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         [fsTokens.imageUnscale]: imageUnscale || [0, 0],
 
         [fsTokens.interval]: interval,
-        [fsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
         [fsTokens.width]: width,
+        [fsTokens.color]: [color[0], color[1], color[2], (color[3] ?? 255)].map(d => d / 255),
+        [fsTokens.paletteTexture]: paletteTexture,
+        [fsTokens.paletteBounds]: paletteBounds || [0, 0],
       });
 
       this.props.image = imageTexture;
       super.draw(opts);
       this.props.image = null;
     }
+  }
+
+  #updatePaletteTexture(): void {
+    const { gl } = this.context;
+    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    if (!palette) {
+      this.setState({
+        paletteTexture: undefined,
+        paletteBounds: undefined,
+      });
+      return;
+    }
+
+    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, palette);
+
+    this.setState({ paletteTexture, paletteBounds });
   }
 }

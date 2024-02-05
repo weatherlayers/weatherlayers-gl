@@ -153,6 +153,7 @@
               interval: config.contour.interval,
               width: config.contour.width,
               color: cssToColor(config.contour.color),
+              palette: config.contour.palette ? palette : null,
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
