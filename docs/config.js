@@ -5,10 +5,10 @@ export const NO_DATA = 'no data';
 const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 
 const CONTOUR_LAYER_DATASET_CONFIG = {
-  'gfs/temperature_2m_above_ground': { interval: 2 },
-  'gfs/apparent_temperature_2m_above_ground': { interval: 2 },
-  'gfs/pressure_mean_sea_level': { interval: 2 },
-  'cmems_sst/sea_surface_temperature': { interval: 2 },
+  'gfs/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'gfs/apparent_temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'gfs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'cmems_sst/sea_surface_temperature': { interval: 2, majorInterval: 10 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'gfs/pressure_mean_sea_level': { radius: 2000 },
@@ -68,6 +68,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
     contour: {
       enabled: false,
       interval: 2, // dataset-specific
+      majorInterval: 10, // dataset-specific
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       palette: false,
@@ -142,6 +143,7 @@ function loadUrlConfig(config, { deckgl, webgl2 } = {}) {
 
   config.contour.enabled = urlConfig.has('contour') ? urlConfig.get('contour') === 'true' : !!CONTOUR_LAYER_DATASET_CONFIG[config.dataset];
   config.contour.interval = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.interval || 2;
+  config.contour.majorInterval = CONTOUR_LAYER_DATASET_CONFIG[config.dataset]?.majorInterval || 10;
 
   config.highLow.enabled = urlConfig.has('highLow') ? urlConfig.get('highLow') === 'true' : !!HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset];
   config.highLow.radius = HIGH_LOW_LAYER_DATASET_CONFIG[config.dataset]?.radius || 2000;
@@ -247,6 +249,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });
   contour.addBinding(config.contour, 'enabled').on('change', update);
   contour.addBinding(config.contour, 'interval', { min: 0, max: 1000, step: 1 }).on('change', update);
+  contour.addBinding(config.contour, 'majorInterval', { min: 0, max: 1000, step: 1 }).on('change', update);
   contour.addBinding(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
   contour.addBinding(config.contour, 'color').on('change', update);
   contour.addBinding(config.contour, 'palette').on('change', update);

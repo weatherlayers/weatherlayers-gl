@@ -27,6 +27,7 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   maxZoom: number | null;
 
   interval: number;
+  majorInterval: number;
   width: number;
   color: Color | null;
   palette: Palette | null;
@@ -49,6 +50,7 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   maxZoom: { type: 'object', value: 10 }, // drop rendering artifacts in high zoom levels due to a low precision
 
   interval: { type: 'number', value: 0 },
+  majorInterval: { type: 'number', value: 0 },
   width: { type: 'number', value: DEFAULT_LINE_WIDTH },
   color: { type: 'color', value: DEFAULT_LINE_COLOR },
   palette: { type: 'object', value: null },
@@ -87,7 +89,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const { viewport } = this.context;
     const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, interval, color, width } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, interval, majorInterval, color, width } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
     if (!imageTexture) {
       return;
@@ -106,6 +108,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
         [fsTokens.interval]: interval,
+        [fsTokens.majorInterval]: majorInterval,
         [fsTokens.width]: width,
         [fsTokens.color]: color ? deckColorToGl(color) : [0, 0, 0, 0],
         [fsTokens.paletteTexture]: paletteTexture,

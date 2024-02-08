@@ -19,6 +19,7 @@ uniform vec2 imageUnscale;
 uniform vec2 imageValueBounds;
 
 uniform float interval;
+uniform float majorInterval;
 uniform float width;
 uniform vec4 color;
 uniform sampler2D paletteTexture;
@@ -42,8 +43,9 @@ void main(void) {
     discard;
   }
 
+  float majorIntervalRatio = majorInterval > interval ? floor(majorInterval / interval) : 1.; // majorInterval < interval: every contour is a major contour
   float contourValue = value / interval;
-  float contourMajor = (step(fract(contourValue * 0.2), 0.1) + 1.) / 2.; // 1: major contour every fifth contour, 0.5: minor contour
+  float contourMajor = (step(fract(contourValue / majorIntervalRatio), 0.1) + 1.) / 2.; // 1: major contour, 0.5: minor contour
   float contourWidth = width * contourMajor; // minor contour: half width
 
   // https://stackoverflow.com/a/30909828/1823988
