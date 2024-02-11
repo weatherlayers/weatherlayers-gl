@@ -42,6 +42,7 @@ type _GridCompositeLayerProps = CompositeLayerProps & {
   textOutlineColor: Color;
   iconBounds: [number, number] | null;
   iconSize: number;
+  iconMinSize: number | null;
   iconColor: Color;
   palette: Palette | null;
 }
@@ -73,6 +74,7 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
   textOutlineColor: { type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR },
   iconBounds: { type: 'array', value: null },
   iconSize: { type: 'number', value: DEFAULT_ICON_SIZE },
+  iconMinSize: { type: 'object', value: null },
   iconColor: { type: 'color', value: DEFAULT_ICON_COLOR },
   palette: { type: 'object', value: null },
 };
@@ -89,21 +91,24 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       return [];
     }
 
-    const { style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor } = ensureDefaultProps(props, defaultProps);
+    const { style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconMinSize, iconColor } = ensureDefaultProps(props, defaultProps);
     const { paletteScale } = this.state;
     const iconStyle = GRID_ICON_STYLES.get(style);
 
     if (iconStyle) {
       const { iconAtlas, iconMapping } = iconStyle;
+      const iconCount = Object.keys(iconMapping).length;
       const iconBounds = iconStyle.iconBounds || props.iconBounds || [0, 0];
-      const delta = (iconBounds[1] - iconBounds[0]) / Object.values(iconMapping).length;
+      const iconBoundsDelta = iconBounds[1] - iconBounds[0];
+      const iconBoundsRatio = (value: number) => (value - iconBounds[0]) / iconBoundsDelta;
+      const iconSizeDelta = typeof iconMinSize === 'number' ? iconSize - iconMinSize : 0;
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
           data: visiblePoints,
           getPosition: d => d.geometry.coordinates as Position,
-          getIcon: d => `${Math.min(Math.max(Math.floor((d.properties.value - iconBounds[0]) / delta), 0), Object.values(iconMapping).length - 1)}`,
-          getSize: iconSize,
+          getIcon: d => `${Math.min(Math.max(Math.floor(iconBoundsRatio(d.properties.value) * iconCount), 0), iconCount - 1)}`,
+          getSize: d => iconSizeDelta ? iconMinSize + (iconBoundsRatio(d.properties.value) * iconSizeDelta) : iconSize,
           getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : iconColor,
           getAngle: d => getViewportAngle(viewport, d.properties.direction ? 360 - d.properties.direction : 0),
           iconAtlas,
@@ -140,7 +145,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, density, unitFormat, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconMinSize, iconColor, palette } = params.props;
 
     super.updateState(params);
 
@@ -177,7 +182,18 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       this.#updatePalette();
     }
 
-    if (unitFormat !== params.oldProps.unitFormat) {
+    if (
+      unitFormat !== params.oldProps.unitFormat ||
+      textFormatFunction !== params.oldProps.textFormatFunction ||
+      textFontFamily !== params.oldProps.textFontFamily ||
+      textSize !== params.oldProps.textSize ||
+      textColor !== params.oldProps.textColor ||
+      textOutlineWidth !== params.oldProps.textOutlineWidth ||
+      textOutlineColor !== params.oldProps.textOutlineColor ||
+      iconSize !== params.oldProps.iconSize ||
+      iconMinSize !== params.oldProps.iconMinSize ||
+      iconColor !== params.oldProps.iconColor
+    ) {
       this.#redrawVisibleFeatures();
     }
 

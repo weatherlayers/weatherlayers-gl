@@ -265,6 +265,7 @@
               textOutlineColor: cssToColor(config.grid.textOutlineColor),
               iconBounds: config.grid.iconBounds,
               iconSize: config.grid.iconSize,
+              iconMinSize: config.grid.style === WeatherLayers.GridStyle.ARROW ? config.grid.iconSize / 8 : config.grid.iconSize,
               iconColor: cssToColor(config.grid.iconColor),
               palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,

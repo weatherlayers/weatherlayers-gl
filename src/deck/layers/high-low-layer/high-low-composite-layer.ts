@@ -147,7 +147,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette } = params.props;
 
     super.updateState(params);
 
@@ -188,7 +188,15 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       this.#updatePalette();
     }
 
-    if (unitFormat !== params.oldProps.unitFormat) {
+    if (
+      unitFormat !== params.oldProps.unitFormat ||
+      textFormatFunction !== params.oldProps.textFormatFunction ||
+      textFontFamily !== params.oldProps.textFontFamily ||
+      textSize !== params.oldProps.textSize ||
+      textColor !== params.oldProps.textColor ||
+      textOutlineWidth !== params.oldProps.textOutlineWidth ||
+      textOutlineColor !== params.oldProps.textOutlineColor
+    ) {
       this.#redrawVisibleFeatures();
     }
 
