@@ -62,7 +62,6 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     raster: {
       enabled: false,
-      palette: true,
       opacity: 0.2,
     },
     contour: {
