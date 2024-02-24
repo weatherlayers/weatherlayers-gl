@@ -10,9 +10,8 @@ export interface TooltipControlConfig {
   unitFormat: UnitFormat;
   directionFormat?: DirectionFormat;
   followCursor?: boolean;
+  followCursorOffset?: number;
 }
-
-const FOLLOW_CURSOR_OFFSET = 16;
 
 const CONTROL_CLASS = 'weatherlayers-tooltip-control';
 const VALUE_CLASS = `${CONTROL_CLASS}__value`;
@@ -139,8 +138,9 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     if (this.#config.followCursor) {
       // update position
+      const followCursorOffset = this.#config.followCursorOffset ?? 16;
       const containterX = pickingInfo.x;
-      const containterY = pickingInfo.y + FOLLOW_CURSOR_OFFSET;
+      const containterY = pickingInfo.y + followCursorOffset;
       this.#container.style.left = `${containterX}px`;
       this.#container.style.top = `${containterY}px`;
 
