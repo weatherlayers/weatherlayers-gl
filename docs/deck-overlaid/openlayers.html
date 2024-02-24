@@ -92,10 +92,10 @@
         }
       }));
       map.getViewport().addEventListener('pointerdown', event => {
-        deckgl._onPointerDown({ type: event.type, offsetCenter: { x: event.offsetX, y: event.offsetY }, leftButton: event.buttons === 1, rightButton: event.buttons === 2, srcEvent: event });
+        deckgl._onPointerDown({ type: event.type, srcEvent: event, offsetCenter: { x: event.offsetX / window.devicePixelRatio, y: event.offsetY / window.devicePixelRatio }, leftButton: event.buttons === 1, rightButton: event.buttons === 2 });
       });
       map.getViewport().addEventListener('pointermove', event => {
-        deckgl._onPointerMove({ type: event.type, offsetCenter: { x: event.offsetX, y: event.offsetY }, leftButton: event.buttons === 1, rightButton: event.buttons === 2, srcEvent: event });
+        deckgl._onPointerMove({ type: event.type, srcEvent: event, offsetCenter: { x: event.offsetX / window.devicePixelRatio, y: event.offsetY / window.devicePixelRatio }, leftButton: event.buttons === 1, rightButton: event.buttons === 2 });
       });
       map.getViewport().addEventListener('pointerleave', event => {
         deckgl._onPointerMove({ type: event.type, srcEvent: event });
