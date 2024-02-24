@@ -100,7 +100,6 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       const iconBoundsDelta = iconBounds[1] - iconBounds[0];
       const iconBoundsRatio = (value: number) => (value - iconBounds[0]) / iconBoundsDelta;
       const iconSizeDelta = Array.isArray(iconSize) ? iconSize[1] - iconSize[0] : 0;
-      console.log(iconSize);
       return [
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
