@@ -31,11 +31,34 @@
   position: absolute;
   width: 0;
   height: 0;
+}
+.weatherlayers-tooltip-control.follow-cursor-placement-bottom::before {
   top: -5px;
   left: calc(50% - 5px);
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
+}
+.weatherlayers-tooltip-control.follow-cursor-placement-top::before {
+  top: 0;
+  left: calc(50% - 5px);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
+}
+.weatherlayers-tooltip-control.follow-cursor-placement-right::before {
+  top: calc(50% - 5px);
+  left: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
+}
+.weatherlayers-tooltip-control.follow-cursor-placement-left::before {
+  top: calc(50% - 5px);
+  left: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
 }
 
 .weatherlayers-tooltip-control .weatherlayers-tooltip-control__direction {

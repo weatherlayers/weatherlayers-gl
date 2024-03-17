@@ -2,6 +2,7 @@ import type { PickingInfo } from '@deck.gl/core/typed';
 import { formatValueWithUnit, formatDirection } from '../../_utils/format.js';
 import type { UnitFormat } from '../../_utils/unit-format.js';
 import { DirectionFormat } from '../../_utils/direction-format.js';
+import { Placement } from '../../_utils/placement.js';
 import { RasterPointProperties } from '../../_utils/raster-data.js';
 import { Control } from '../control.js';
 import './tooltip-control.css';
@@ -11,6 +12,7 @@ export interface TooltipControlConfig {
   directionFormat?: DirectionFormat;
   followCursor?: boolean;
   followCursorOffset?: number;
+  followCursorPlacement?: Placement;
 }
 
 const CONTROL_CLASS = 'weatherlayers-tooltip-control';
@@ -19,6 +21,12 @@ const DIRECTION_CLASS = `${CONTROL_CLASS}__direction`;
 const DIRECTION_ICON_CLASS = `${CONTROL_CLASS}__direction-icon`;
 const DIRECTION_TEXT_CLASS = `${CONTROL_CLASS}__direction-text`;
 const FOLLOW_CURSOR_CLASS = 'follow-cursor';
+const FOLLOW_CURSOR_PLACEMENT_CLASS = {
+  [Placement.BOTTOM]: 'follow-cursor-placement-bottom',
+  [Placement.TOP]: 'follow-cursor-placement-top',
+  [Placement.RIGHT]: 'follow-cursor-placement-right',
+  [Placement.LEFT]: 'follow-cursor-placement-left',
+};
 const HAS_VALUE_CLASS = 'has-value';
 const HAS_DIRECTION_CLASS = 'has-direction';
 
@@ -77,6 +85,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     this.#container.innerHTML = '';
     this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
+    this.#container.classList.add(FOLLOW_CURSOR_PLACEMENT_CLASS[this.#config.followCursorPlacement ?? Placement.BOTTOM]);
 
     const div = document.createElement('div');
     this.#container.appendChild(div);
@@ -137,18 +146,49 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     const hasDirection = typeof pickingInfo.raster?.direction !== 'undefined';
 
     if (this.#config.followCursor) {
+      const div = this.#container.firstChild! as HTMLElement;
+      const divBounds = div.getBoundingClientRect();
+      const valueBounds = this.#value.getBoundingClientRect();
+
       // update position
       const followCursorOffset = this.#config.followCursorOffset ?? 16;
-      const containterX = pickingInfo.x;
-      const containterY = pickingInfo.y + followCursorOffset;
-      this.#container.style.left = `${containterX}px`;
-      this.#container.style.top = `${containterY}px`;
+      const followCursorPlacement = this.#config.followCursorPlacement ?? Placement.BOTTOM;
 
-      const div = this.#container.firstChild! as HTMLElement;
-      const divPaddingLeft = parseFloat(window.getComputedStyle(div).paddingLeft);
-      const directionMarginLeft = parseFloat(window.getComputedStyle(this.#direction).marginLeft);
-      const divX = -(divPaddingLeft + (hasDirection ? this.#value.clientWidth + directionMarginLeft : this.#value.clientWidth / 2));
-      div.style.left = `${divX}px`;
+      let containerX = pickingInfo.x;
+      let containerY = pickingInfo.y;
+      if (followCursorPlacement === Placement.BOTTOM) {
+        containerY += followCursorOffset;
+      } else if (followCursorPlacement === Placement.TOP) {
+        containerY -= followCursorOffset;
+      } else if (followCursorPlacement === Placement.RIGHT) {
+        containerX += followCursorOffset;
+      } else if (followCursorPlacement === Placement.LEFT) {
+        containerX -= followCursorOffset;
+      } else {
+        throw new Error(`Invalid placement ${followCursorPlacement}`);
+      }
+      this.#container.style.left = `${containerX}px`;
+      this.#container.style.top = `${containerY}px`;
+
+      if (followCursorPlacement === Placement.BOTTOM || followCursorPlacement === Placement.TOP) {
+        const divPaddingLeft = parseFloat(window.getComputedStyle(div).paddingLeft);
+        const directionMarginLeft = parseFloat(window.getComputedStyle(this.#direction).marginLeft);
+        const divX = -(divPaddingLeft + (hasDirection ? valueBounds.width + directionMarginLeft : valueBounds.width / 2));
+        div.style.left = `${divX}px`;
+      }
+      if (followCursorPlacement === Placement.RIGHT || followCursorPlacement === Placement.LEFT) {
+        const divY = -divBounds.height / 2;
+        div.style.top = `${divY}px`;
+      }
+
+      if (followCursorPlacement === Placement.TOP) {
+        const divY = -divBounds.height;
+        div.style.top = `${divY}px`;
+      }
+      if (followCursorPlacement === Placement.LEFT) {
+        const divX = -divBounds.width;
+        div.style.left = `${divX}px`;
+      }
 
       // hide on panning
       document.addEventListener('mousedown', () => this.update(undefined), { once: true });
