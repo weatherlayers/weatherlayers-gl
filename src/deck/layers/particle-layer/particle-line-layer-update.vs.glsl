@@ -94,6 +94,7 @@ vec2 randPointToPosition(vec2 point) {
     float bearing = point.y * 360.;
     return destinationPoint(viewportGlobeCenter, dist, bearing);
   } else {
+    point.y = smoothstep(0., 1., point.y); // uniform random latitude
     vec2 viewportBoundsMin = viewportBounds.xy;
     vec2 viewportBoundsMax = viewportBounds.zw;
     return mix(viewportBoundsMin, viewportBoundsMax, point);
@@ -105,7 +106,14 @@ vec2 movePositionBySpeed(vec2 position, vec2 speed) {
   // float bearing = degrees(-atan2(speed.y, speed.x));
   // targetPosition.xy = destinationPoint(position.xy, dist, bearing);
   float distortion = cos(radians(position.y));
-  vec2 offset = vec2(speed.x / distortion, speed.y);
+
+  vec2 offset;
+  if (viewportGlobe) {
+    offset = vec2(speed.x / distortion, speed.y); // faster longitude
+  } else {
+    offset = vec2(speed.x, speed.y * distortion); // slower latitude
+  }
+
   return position + offset;
 }
 
