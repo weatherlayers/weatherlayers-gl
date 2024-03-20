@@ -87,7 +87,7 @@ vec2 randPoint(vec2 seed) {
   return vec2(randFloat(seed + 1.3), randFloat(seed + 2.1));
 }
 
-vec2 pointToPosition(vec2 point) {
+vec2 randPointToPosition(vec2 point) {
   if (viewportGlobe) {
     point.x += 0.0001; // prevent generating point in the center
     float dist = sqrt(point.x) * viewportGlobeRadius;
@@ -98,6 +98,15 @@ vec2 pointToPosition(vec2 point) {
     vec2 viewportBoundsMax = viewportBounds.zw;
     return mix(viewportBoundsMin, viewportBoundsMax, point);
   }
+}
+
+vec2 movePositionBySpeed(vec2 position, vec2 speed) {
+  // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
+  // float bearing = degrees(-atan2(speed.y, speed.x));
+  // targetPosition.xy = destinationPoint(position.xy, dist, bearing);
+  float distortion = cos(radians(position.y));
+  vec2 offset = vec2(speed.x / distortion, speed.y);
+  return position + offset;
 }
 
 bool isPositionInBounds(vec2 position, vec4 bounds) {
@@ -134,7 +143,7 @@ void main() {
     // generate random position to prevent converging particles
     vec2 particleSeed = vec2(particleIndex * seed / numParticles);
     vec2 point = randPoint(particleSeed);
-    vec2 position = pointToPosition(point);
+    vec2 position = randPointToPosition(point);
     targetPosition.xy = position;
     targetPosition.x = wrapLongitude(targetPosition.x);
     targetColor = HIDE_COLOR;
@@ -184,12 +193,7 @@ void main() {
 
   // update position
   vec2 speed = getPixelVectorValue(pixel, imageTypeVector, imageUnscale) * speedFactor;
-  // float dist = sqrt(speed.x * speed.x + speed.y + speed.y) * 10000.;
-  // float bearing = degrees(-atan2(speed.y, speed.x));
-  // targetPosition.xy = destinationPoint(sourcePosition.xy, dist, bearing);
-  float distortion = cos(radians(sourcePosition.y)); 
-  vec2 offset = vec2(speed.x / distortion, speed.y);
-  targetPosition.xy = sourcePosition.xy + offset;
+  targetPosition.xy = movePositionBySpeed(sourcePosition.xy, speed);
   targetPosition.x = wrapLongitude(targetPosition.x);
 
   // update color
