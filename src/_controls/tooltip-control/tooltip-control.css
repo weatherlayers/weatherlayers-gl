@@ -32,28 +32,28 @@
   width: 0;
   height: 0;
 }
-.weatherlayers-tooltip-control.follow-cursor-placement-bottom::before {
+.weatherlayers-tooltip-control.follow-cursor[data-follow-cursor-placement=BOTTOM]::before {
   top: -5px;
   left: calc(50% - 5px);
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-bottom: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
 }
-.weatherlayers-tooltip-control.follow-cursor-placement-top::before {
+.weatherlayers-tooltip-control.follow-cursor[data-follow-cursor-placement=TOP]::before {
   top: 0;
   left: calc(50% - 5px);
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
 }
-.weatherlayers-tooltip-control.follow-cursor-placement-right::before {
+.weatherlayers-tooltip-control.follow-cursor[data-follow-cursor-placement=RIGHT]::before {
   top: calc(50% - 5px);
   left: -5px;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-right: 5px solid rgba(255, 255, 255, 0.5); /* same color as background */
 }
-.weatherlayers-tooltip-control.follow-cursor-placement-left::before {
+.weatherlayers-tooltip-control.follow-cursor[data-follow-cursor-placement=LEFT]::before {
   top: calc(50% - 5px);
   left: 0;
   border-top: 5px solid transparent;

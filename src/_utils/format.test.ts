@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import test from 'node:test';
 
 import { formatDirection } from './format.js';
+import { DirectionType } from './direction-type.js';
 import { DirectionFormat } from './direction-format.js';
 
 const DELTA = 0.000001;
@@ -75,13 +76,13 @@ test('formatDirection', () => {
     [360    + DELTA, 'N', 'N', 'N'],
   ] as [direction: number, expectedResultCardinal: string, expectedResultCardinal2: string, expectedResultCardinal3: string][];
   for (const [direction, expectedResultCardinal, expectedResultCardinal2, expectedResultCardinal3] of rows) {
-    const resultCardinal = formatDirection(direction, DirectionFormat.CARDINAL);
+    const resultCardinal = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL);
     assert.equal(resultCardinal, expectedResultCardinal, `formatDirection(${direction}, ${DirectionFormat.CARDINAL}) was ${resultCardinal}, but should be ${expectedResultCardinal}`);
 
-    const resultCardinal2 = formatDirection(direction, DirectionFormat.CARDINAL2);
+    const resultCardinal2 = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL2);
     assert.equal(resultCardinal2, expectedResultCardinal2, `formatDirection(${direction}, ${DirectionFormat.CARDINAL2}) was ${resultCardinal2}, but should be ${expectedResultCardinal2}`);
 
-    const resultCardinal3 = formatDirection(direction, DirectionFormat.CARDINAL3);
+    const resultCardinal3 = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL3);
     assert.equal(resultCardinal3, expectedResultCardinal3, `formatDirection(${direction}, ${DirectionFormat.CARDINAL3}) was ${resultCardinal3}, but should be ${expectedResultCardinal3}`);
   }
 });

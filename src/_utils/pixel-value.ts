@@ -50,7 +50,7 @@ export function getPixelMagnitudeValue(pixel: number[], imageType: ImageType, im
     return getPixelScalarValue(pixel, imageType, imageUnscale);
   }
 }
-  
+
 export function getPixelDirectionValue(pixel: number[], imageType: ImageType, imageUnscale: ImageUnscale): number {
   if (imageType === ImageType.VECTOR) {
     const value = getPixelVectorValue(pixel, imageType, imageUnscale);

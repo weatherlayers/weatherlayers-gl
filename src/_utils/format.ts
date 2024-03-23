@@ -1,3 +1,4 @@
+import { DirectionType } from './direction-type.js';
 import { DirectionFormat } from './direction-format.js';
 import type { UnitFormat } from './unit-format.js';
 
@@ -28,7 +29,11 @@ export function formatValueWithUnit(value: number, unitFormat: UnitFormat): stri
   return `${formattedValue}\xa0${formattedUnit}`;
 }
   
-export function formatDirection(direction: number, directionFormat: DirectionFormat): string {
+export function formatDirection(direction: number, directionType: DirectionType, directionFormat: DirectionFormat): string {
+  if (directionType === DirectionType.OUTWARD) {
+    direction += 180;
+  }
+
   if (directionFormat === DirectionFormat.VALUE) {
     return `${Math.round(direction % 360)}°`;
   } else if (directionFormat === DirectionFormat.CARDINAL || directionFormat === DirectionFormat.CARDINAL2 || directionFormat === DirectionFormat.CARDINAL3) {

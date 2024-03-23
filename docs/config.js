@@ -36,6 +36,16 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
 };
+const TOOLTIP_CONTROL_DATASET_CONFIG = {
+  'gfs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfs/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfswave/waves': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfswave/swell': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfswave/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfswave/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
+  'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
+};
 
 export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
@@ -120,6 +130,12 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         animate: true,
       },
     } : {}),
+    tooltip: {
+      directionType: WeatherLayers.DirectionType.INWARD, // dataset-specific
+      directionFormat: WeatherLayers.DirectionFormat.CARDINAL3,
+      followCursorOffset: 16,
+      followCursorPlacement: WeatherLayers.Placement.BOTTOM,
+    },
   };
 
   loadUrlConfig(config, { deckgl, webgl2 });
@@ -158,6 +174,8 @@ function loadUrlConfig(config, { deckgl, webgl2 } = {}) {
     config.particle.speedFactor = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.speedFactor || 0;
     config.particle.width = PARTICLE_LAYER_DATASET_CONFIG[config.dataset]?.width || 0;
   }
+
+  config.tooltip.directionType = TOOLTIP_CONTROL_DATASET_CONFIG[config.dataset]?.directionType || WeatherLayers.DirectionType.INWARD;
 }
 
 function updateUrlConfig(config, { deckgl, webgl2 } = {}) {
@@ -293,6 +311,12 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     particle.addButton({ title: 'Step' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.step());
     particle.addButton({ title: 'Clear' }).on('click', () => deckgl.layerManager.getLayers({ layerIds: ['particle-line'] })[0]?.clear());
   }
+
+  const tooltip = gui.addFolder({ title: 'Tooltip control', expanded: true });
+  tooltip.addBinding(config.tooltip, 'directionType', { options: getOptions(Object.values(WeatherLayers.DirectionType)) }).on('change', update);
+  tooltip.addBinding(config.tooltip, 'directionFormat', { options: getOptions(Object.values(WeatherLayers.DirectionFormat)) }).on('change', update);
+  tooltip.addBinding(config.tooltip, 'followCursorOffset', { min: 0, max: 50, step: 1 }).on('change', update);
+  tooltip.addBinding(config.tooltip, 'followCursorPlacement', { options: getOptions(Object.values(WeatherLayers.Placement)) }).on('change', update);
 
   return gui;
 }

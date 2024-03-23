@@ -1,6 +1,7 @@
 import type { PickingInfo } from '@deck.gl/core/typed';
 import { formatValueWithUnit, formatDirection } from '../../_utils/format.js';
 import type { UnitFormat } from '../../_utils/unit-format.js';
+import { DirectionType } from '../../_utils/direction-type.js';
 import { DirectionFormat } from '../../_utils/direction-format.js';
 import { Placement } from '../../_utils/placement.js';
 import { RasterPointProperties } from '../../_utils/raster-data.js';
@@ -9,6 +10,7 @@ import './tooltip-control.css';
 
 export interface TooltipControlConfig {
   unitFormat: UnitFormat;
+  directionType?: DirectionType;
   directionFormat?: DirectionFormat;
   followCursor?: boolean;
   followCursorOffset?: number;
@@ -21,12 +23,7 @@ const DIRECTION_CLASS = `${CONTROL_CLASS}__direction`;
 const DIRECTION_ICON_CLASS = `${CONTROL_CLASS}__direction-icon`;
 const DIRECTION_TEXT_CLASS = `${CONTROL_CLASS}__direction-text`;
 const FOLLOW_CURSOR_CLASS = 'follow-cursor';
-const FOLLOW_CURSOR_PLACEMENT_CLASS = {
-  [Placement.BOTTOM]: 'follow-cursor-placement-bottom',
-  [Placement.TOP]: 'follow-cursor-placement-top',
-  [Placement.RIGHT]: 'follow-cursor-placement-right',
-  [Placement.LEFT]: 'follow-cursor-placement-left',
-};
+const FOLLOW_CURSOR_PLACEMENT_ATTRIBUTE = 'data-follow-cursor-placement';
 const HAS_VALUE_CLASS = 'has-value';
 const HAS_DIRECTION_CLASS = 'has-direction';
 
@@ -76,7 +73,12 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     // prevent update if no config changed
     if (
       this.#container.children.length > 0 &&
-      this.#config.unitFormat === config.unitFormat
+      this.#config.directionType === config.directionType &&
+      this.#config.directionFormat === config.directionFormat &&
+      this.#config.unitFormat === config.unitFormat &&
+      this.#config.followCursor === config.followCursor &&
+      this.#config.followCursorOffset === config.followCursorOffset &&
+      this.#config.followCursorPlacement === config.followCursorPlacement
     ) {
       return;
     }
@@ -84,8 +86,6 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.#config = config;
 
     this.#container.innerHTML = '';
-    this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
-    this.#container.classList.add(FOLLOW_CURSOR_PLACEMENT_CLASS[this.#config.followCursorPlacement ?? Placement.BOTTOM]);
 
     const div = document.createElement('div');
     this.#container.appendChild(div);
@@ -114,6 +114,8 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     const { value, direction } = rasterPointProperties ?? {};
 
+    this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
+    this.#container.setAttribute(FOLLOW_CURSOR_PLACEMENT_ATTRIBUTE, this.#config.followCursorPlacement ?? Placement.BOTTOM);
     this.#container.classList.toggle(HAS_VALUE_CLASS, typeof value !== 'undefined');
     this.#container.classList.toggle(HAS_DIRECTION_CLASS, typeof direction !== 'undefined');
 
@@ -125,7 +127,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     if (typeof direction !== 'undefined') {
       this.#directionIcon.style.transform = `rotate(${(direction + 180) % 360}deg)`;
-      this.#directionText.innerHTML = formatDirection(direction, this.#config.directionFormat ?? DirectionFormat.VALUE);
+      this.#directionText.innerHTML = formatDirection(direction, this.#config.directionType ?? DirectionType.INWARD, this.#config.directionFormat ?? DirectionFormat.VALUE);
     } else {
       this.#directionIcon.style.transform = '';
       this.#directionText.innerHTML = '';
@@ -145,8 +147,8 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.update(pickingInfo.raster);
     const hasDirection = typeof pickingInfo.raster?.direction !== 'undefined';
 
+    const div = this.#container.firstChild! as HTMLElement;
     if (this.#config.followCursor) {
-      const div = this.#container.firstChild! as HTMLElement;
       const divBounds = div.getBoundingClientRect();
       const valueBounds = this.#value.getBoundingClientRect();
 
@@ -192,6 +194,11 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
       // hide on panning
       document.addEventListener('mousedown', () => this.update(undefined), { once: true });
+    } else {
+      this.#container.style.left = '';
+      this.#container.style.top = '';
+      div.style.left = '';
+      div.style.top = '';
     }
   }
 }
