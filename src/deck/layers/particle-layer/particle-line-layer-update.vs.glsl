@@ -90,7 +90,8 @@ vec2 randPoint(vec2 seed) {
 vec2 randPointToPosition(vec2 point) {
   if (viewportGlobe) {
     point.x += 0.0001; // prevent generating point in the center
-    float dist = sqrt(point.x) * viewportGlobeRadius;
+    point.x = sqrt(point.x); // uniform random distance, see https://twitter.com/keenanisalive/status/1529490555893428226
+    float dist = point.x * viewportGlobeRadius;
     float bearing = point.y * 360.;
     return destinationPoint(viewportGlobeCenter, dist, bearing);
   } else {
