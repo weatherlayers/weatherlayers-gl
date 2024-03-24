@@ -7,8 +7,10 @@ float atan2(float y, float x) {
   return x == 0. ? sign(y) * PI / 2. : atan(y, x);
 }
 
+// see https://github.com/tensorflow/tfjs/pull/6107
 bool isNaN(float value) {
-  return !(value <= 0. || 0. <= value);
+  uint valueUint = floatBitsToUint(value);
+  return (valueUint & 0x7fffffffu) > 0x7f800000u;
 }
 
 bool hasPixelValue(vec4 pixel, vec2 imageUnscale) {

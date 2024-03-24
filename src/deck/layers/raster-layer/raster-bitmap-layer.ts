@@ -56,7 +56,9 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
 
     return {
       ...parentShaders,
-      fs: fs,
+      vs: `#version 300 es\n${parentShaders.vs}`,
+      fs: `#version 300 es\n${fs}`,
+      prologue: false,
     };
   }
 

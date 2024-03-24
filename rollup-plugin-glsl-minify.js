@@ -8,12 +8,14 @@ import { GlslMinify } from 'webpack-glsl-minify/build/minify.js';
 import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node.js';
 
 function minifyShader(code, id, minimize) {
-  // don't mangle injected deck.gl names
   const nomangle = [
+    // don't mangle injected deck.gl names
     'PI', 'EARTH_RADIUS',
     'transparentColor', 'opacity', 'coordinateConversion', 'bounds',
     'geometry', 'uv', 'DECKGL_FILTER_COLOR',
     'picking_uActive',
+    // don't mangle WebGL2 functions
+    'floatBitsToUint',
   ];
 
   // minify
