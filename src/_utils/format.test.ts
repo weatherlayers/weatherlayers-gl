@@ -7,6 +7,17 @@ import { DirectionFormat } from './direction-format.js';
 
 const DELTA = 0.000001;
 
+const REVERSE_CARDINALS = {
+  'N': 'S',
+  'E': 'W',
+  'S': 'N',
+  'W': 'E',
+};
+
+function reverseDirection(direction: string): string {
+  return direction.split('').map(char => REVERSE_CARDINALS[char as keyof typeof REVERSE_CARDINALS]).join('');
+}
+
 test('formatDirection', () => {
   const rows = [
     [  0    + DELTA, 'N', 'N', 'N'],
@@ -74,15 +85,24 @@ test('formatDirection', () => {
     [348.75 + DELTA, 'N', 'N', 'N'],
     [360    - DELTA, 'N', 'N', 'N'],
     [360    + DELTA, 'N', 'N', 'N'],
-  ] as [direction: number, expectedResultCardinal: string, expectedResultCardinal2: string, expectedResultCardinal3: string][];
-  for (const [direction, expectedResultCardinal, expectedResultCardinal2, expectedResultCardinal3] of rows) {
-    const resultCardinal = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL);
-    assert.equal(resultCardinal, expectedResultCardinal, `formatDirection(${direction}, ${DirectionFormat.CARDINAL}) was ${resultCardinal}, but should be ${expectedResultCardinal}`);
+  ] as [direction: number, expectedResultInwardCardinal: string, expectedResultInwardCardinal2: string, expectedResultInwardCardinal3: string][];
+  for (const [direction, expectedResultInwardCardinal, expectedResultInwardCardinal2, expectedResultInwardCardinal3] of rows) {
+    const resultInwardCardinal = formatDirection(direction, DirectionType.INWARD, DirectionFormat.CARDINAL);
+    const resultOutwardCardinal = formatDirection(direction, DirectionType.OUTWARD, DirectionFormat.CARDINAL);
+    const expectedResultOutwardCardinal = reverseDirection(expectedResultInwardCardinal);
+    assert.equal(resultInwardCardinal, expectedResultInwardCardinal, `formatDirection(${direction}, ${DirectionFormat.CARDINAL}) was ${resultInwardCardinal}, but should be ${expectedResultInwardCardinal}`);
+    assert.equal(resultOutwardCardinal, expectedResultOutwardCardinal, `formatDirection(${direction}, ${DirectionFormat.CARDINAL}) was ${resultOutwardCardinal}, but should be ${expectedResultInwardCardinal}`);
 
-    const resultCardinal2 = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL2);
-    assert.equal(resultCardinal2, expectedResultCardinal2, `formatDirection(${direction}, ${DirectionFormat.CARDINAL2}) was ${resultCardinal2}, but should be ${expectedResultCardinal2}`);
+    const resultInwardCardinal2 = formatDirection(direction, DirectionType.INWARD, DirectionFormat.CARDINAL2);
+    const resultOutwardCardinal2 = formatDirection(direction, DirectionType.OUTWARD, DirectionFormat.CARDINAL2);
+    const expectedResultOutwardCardinal2 = reverseDirection(expectedResultInwardCardinal2);
+    assert.equal(resultInwardCardinal2, expectedResultInwardCardinal2, `formatDirection(${direction}, ${DirectionFormat.CARDINAL2}) was ${resultInwardCardinal2}, but should be ${expectedResultInwardCardinal2}`);
+    assert.equal(resultOutwardCardinal2, expectedResultOutwardCardinal2, `formatDirection(${direction}, ${DirectionFormat.CARDINAL2}) was ${resultOutwardCardinal2}, but should be ${expectedResultInwardCardinal2}`);
 
-    const resultCardinal3 = formatDirection(direction, DirectionType.TO, DirectionFormat.CARDINAL3);
-    assert.equal(resultCardinal3, expectedResultCardinal3, `formatDirection(${direction}, ${DirectionFormat.CARDINAL3}) was ${resultCardinal3}, but should be ${expectedResultCardinal3}`);
+    const resultInwardCardinal3 = formatDirection(direction, DirectionType.INWARD, DirectionFormat.CARDINAL3);
+    const resultOutwardCardinal3 = formatDirection(direction, DirectionType.OUTWARD, DirectionFormat.CARDINAL3);
+    const expectedResultOutwardCardinal3 = reverseDirection(expectedResultInwardCardinal3);
+    assert.equal(resultInwardCardinal3, expectedResultInwardCardinal3, `formatDirection(${direction}, ${DirectionFormat.CARDINAL3}) was ${resultInwardCardinal3}, but should be ${expectedResultInwardCardinal3}`);
+    assert.equal(resultOutwardCardinal3, expectedResultOutwardCardinal3, `formatDirection(${direction}, ${DirectionFormat.CARDINAL3}) was ${resultOutwardCardinal3}, but should be ${expectedResultInwardCardinal3}`);
   }
 });
