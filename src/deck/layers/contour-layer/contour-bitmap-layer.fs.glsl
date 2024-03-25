@@ -1,3 +1,4 @@
+#version 300 es
 #define SHADER_NAME contour-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
@@ -64,11 +65,11 @@ void main(void) {
   vec4 targetColor;
   if (paletteBounds[0] < paletteBounds[1]) {
     float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    targetColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
+    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
   } else {
     targetColor = color;
   }
-  gl_FragColor = vec4(targetColor.rgb, targetColor.a * contourOpacity * opacity);
+  fragColor = vec4(targetColor.rgb, targetColor.a * contourOpacity * opacity);
 
   @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
 }

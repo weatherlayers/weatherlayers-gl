@@ -1,8 +1,8 @@
-import type { Color, DefaultProps } from '@deck.gl/core/typed';
+import type { Color, DefaultProps } from '@deck.gl/core';
 import type { UnitFormat } from './unit-format.js';
 import { formatValue } from './format.js';
 
-export type TextFormatFunction = (value: number, unitFormat?: UnitFormat) => string;
+export type TextFormatFunction = (value: number, unitFormat: UnitFormat | null | undefined) => string;
 
 export const DEFAULT_LINE_WIDTH: number = 1;
 export const DEFAULT_LINE_COLOR: Color = [255, 255, 255];

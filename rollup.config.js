@@ -62,6 +62,7 @@ function bundle(entrypoint, filename, format, options = {}) {
         '@deck.gl/extensions': 'deck',
         '@deck.gl/layers': 'deck',
         '@luma.gl/core': 'luma',
+        '@luma.gl/engine': 'luma',
         'geotiff': 'GeoTIFF',
       },
     },

@@ -1,5 +1,7 @@
-varying vec2 vTexCoord;
-varying vec2 vTexPos;
+in vec2 vTexCoord;
+in vec2 vTexPos;
+
+out vec4 fragColor;
 
 uniform vec4 transparentColor;
 uniform float opacity;

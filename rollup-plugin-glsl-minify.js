@@ -9,12 +9,13 @@ import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node.js';
 
 function minifyShader(code, id, minimize) {
   const nomangle = [
-    // don't mangle injected deck.gl names
+    // don't mangle deck.gl names
     'PI', 'EARTH_RADIUS',
     'transparentColor', 'opacity', 'coordinateConversion', 'bounds',
     'geometry', 'uv', 'DECKGL_FILTER_COLOR',
-    'picking_uActive',
+    'picking', 'isActive', 'isAttribute',
     // don't mangle WebGL2 functions
+    'texture',
     'floatBitsToUint',
   ];
 

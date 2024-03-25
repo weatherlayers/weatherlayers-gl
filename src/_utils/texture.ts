@@ -1,73 +1,32 @@
-import { FEATURES, isWebGL2, hasFeatures, Texture2D } from '@luma.gl/core';
-import type { TextureProps } from '@luma.gl/core';
-import GL from './gl.js';
+import type { Device, Texture, TextureProps, TextureFormat } from '@luma.gl/core';
 import type { TextureData } from './data.js';
 
-const cache = new WeakMap<WebGLRenderingContext, WeakMap<TextureData, Texture2D>>();
+const cache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
 
-function getTextureProps(gl: WebGLRenderingContext, image: TextureData): TextureProps {
+function getTextureProps(device: Device, image: TextureData): TextureProps {
   const { data, width, height } = image;
   const bandsCount = data.length / (width * height);
 
-  let type;
-  let format;
-  let textureData;
+  let format: TextureFormat;
   if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) {
-    type = GL.UNSIGNED_BYTE;
     if (bandsCount === 4) {
-      format = GL.RGBA;
-      textureData = data;
+      format = 'rgba8unorm';
     } else if (bandsCount === 2) {
-      format = GL.LUMINANCE_ALPHA;
-      textureData = data;
+      format = 'rg8unorm'; // TODO: deck.gl 9 verify
     } else if (bandsCount === 1) {
-      format = GL.LUMINANCE;
-      textureData = data;
+      format = 'r8unorm';
     } else {
       throw new Error('Unsupported data format');
     }
   } else if (data instanceof Float32Array) {
-    if (!hasFeatures(gl, FEATURES.TEXTURE_FLOAT)) {
+    if (!device.features.has('float32-renderable-webgl')) {
       throw new Error('Float textures are required');
     }
 
-    type = GL.FLOAT;
     if (bandsCount === 2) {
-      if (isWebGL2(gl)) {
-        format = GL.RG32F;
-        textureData = data;
-      } else {
-        format = GL.RGB;
-        textureData = new Float32Array(width * height * 3);
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const i = (x + y * width) * 2;
-            const j = (x + y * width) * 3;
-
-            textureData[j] = data[i];
-            textureData[j + 1] = data[i + 1];
-            textureData[j + 2] = NaN;
-          }
-        }
-      }
+      format = 'rg32float';
     } else if (bandsCount === 1) {
-      if (isWebGL2(gl)) {
-        format = GL.R32F;
-        textureData = data;
-      } else {
-        format = GL.RGB;
-        textureData = new Float32Array(width * height * 3);
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const i = x + y * width;
-            const j = (x + y * width) * 3;
-
-            textureData[j] = data[i];
-            textureData[j + 1] = NaN;
-            textureData[j + 2] = NaN;
-          }
-        }
-      }
+      format = 'r32float';
     } else {
       throw new Error('Unsupported data format');
     }
@@ -75,27 +34,31 @@ function getTextureProps(gl: WebGLRenderingContext, image: TextureData): Texture
     throw new Error('Unsupported data format');
   }
 
-  const parameters = {
-    // custom interpolation in pixel.glsl
-    [GL.TEXTURE_MIN_FILTER]: GL.NEAREST,
-    [GL.TEXTURE_MAG_FILTER]: GL.NEAREST,
-    [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-    [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+  return {
+    data,
+    width,
+    height,
+    format,
+    sampler: {
+      // custom interpolation in pixel.glsl
+      magFilter: 'nearest',
+      minFilter: 'nearest',
+      addressModeU: 'clamp-to-edge',
+      addressModeV: 'clamp-to-edge',
+    },
   };
-
-  return { data: textureData, width, height, format, type, parameters };
 }
 
-export function createTextureCached(gl: WebGLRenderingContext, image: TextureData): Texture2D {
-  const cache2 = cache.get(gl) ?? (() => {
-    const cache2 = new WeakMap<TextureData, Texture2D>()
-    cache.set(gl, cache2);
+export function createTextureCached(device: Device, image: TextureData): Texture {
+  const cache2 = cache.get(device) ?? (() => {
+    const cache2 = new WeakMap<TextureData, Texture>()
+    cache.set(device, cache2);
     return cache2;
   })();
 
   const texture = cache2.get(image) ?? (() => {
-    const textureProps = getTextureProps(gl, image);
-    const texture = new Texture2D(gl, textureProps);
+    const textureProps = getTextureProps(device, image);
+    const texture = device.createTexture(textureProps);
     cache2.set(image, texture);
     return texture;
   })();
@@ -103,11 +66,11 @@ export function createTextureCached(gl: WebGLRenderingContext, image: TextureDat
 }
 
 // empty texture required instead of null
-let emptyTexture: Texture2D | null = null;
+let emptyTexture: Texture | null = null;
 
-export function createEmptyTextureCached(gl: WebGLRenderingContext): Texture2D {
+export function createEmptyTextureCached(device: Device): Texture {
   if (!emptyTexture) {
-    emptyTexture = new Texture2D(gl, { data: new Uint8Array(), width: 0, height: 0, mipmaps: false });
+    emptyTexture = device.createTexture({ data: new Uint8Array(), width: 0, height: 0, mipmaps: false });
   }
   return emptyTexture;
 }

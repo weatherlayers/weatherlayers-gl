@@ -1,4 +1,4 @@
-import type { Position } from '@deck.gl/core/typed';
+import type { Position } from '@deck.gl/core';
 import { distance as measureDistance, destinationPoint, initialBearing } from '../../../_utils/geodesy.js';
 import { findLastIndex } from '../../../_utils/array.js';
 

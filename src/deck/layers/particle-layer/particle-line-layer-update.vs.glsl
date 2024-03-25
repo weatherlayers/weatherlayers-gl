@@ -208,7 +208,7 @@ void main() {
   // update color
   if (paletteBounds[0] < paletteBounds[1]) {
     float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    targetColor = texture2D(paletteTexture, vec2(paletteValue, 0.));
+    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
   } else {
     targetColor = color;
   }

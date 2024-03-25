@@ -1,3 +1,4 @@
+#version 300 es
 #define SHADER_NAME raster-bitmap-layer-fragment-shader
 
 #ifdef GL_ES
@@ -40,13 +41,13 @@ void main(void) {
   }
 
   float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-  vec4 color = texture2D(paletteTexture, vec2(paletteValue, 0.));
-  gl_FragColor = apply_opacity(color.rgb, color.a * opacity);
+  vec4 color = texture(paletteTexture, vec2(paletteValue, 0.));
+  fragColor = apply_opacity(color.rgb, color.a * opacity);
 
   @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
 
-  if (picking_uActive) {
+  if (bool(picking.isActive) && !bool(picking.isAttribute)) {
     float directionValue = getPixelDirectionValue(pixel, imageTypeVector, imageUnscale);
-    gl_FragColor = vec4(paletteValue, directionValue, 0, 1);
+    fragColor = vec4(paletteValue, directionValue, 0, 1);
   }
 }

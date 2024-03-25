@@ -1,7 +1,7 @@
-import { CompositeLayer } from '@deck.gl/core/typed';
-import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList } from '@deck.gl/core/typed';
-import { TextLayer, IconLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
-import type { TextLayerProps, IconLayerProps } from '@deck.gl/layers/typed';
+import { CompositeLayer } from '@deck.gl/core';
+import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList } from '@deck.gl/core';
+import { TextLayer, IconLayer, BitmapBoundingBox } from '@deck.gl/layers';
+import type { TextLayerProps, IconLayerProps } from '@deck.gl/layers';
 import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import type { TextFormatFunction } from '../../../_utils/props.js';
 import type { TextureData } from '../../../_utils/data.js';
@@ -13,7 +13,7 @@ import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewpo
 import { getViewportGridPositions } from '../../../_utils/viewport-grid.js';
 import { getRasterPoints } from '../../../_utils/raster-data.js';
 import type { RasterPointProperties } from '../../../_utils/raster-data.js';
-import { parsePalette, type Palette } from '../../../_utils/palette.js';
+import { parsePalette, type Palette, type Scale } from '../../../_utils/palette.js';
 import { paletteColorToGl } from '../../../_utils/color.js';
 import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 
@@ -81,6 +81,15 @@ const defaultProps: DefaultProps<GridCompositeLayerProps> = {
 export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_GridCompositeLayerProps>> {
   static layerName = 'GridCompositeLayer';
   static defaultProps = defaultProps;
+
+  state!: CompositeLayer['state'] & {
+    props?: GridCompositeLayerProps;
+    paletteScale?: Scale;
+    positions?: GeoJSON.Position[];
+    points?: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[];
+    visiblePositions?: GeoJSON.Position[];
+    visiblePoints?: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[];
+  };
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
@@ -211,7 +220,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   #updateFeatures(): void {
     const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds } = ensureDefaultProps(this.props, defaultProps);
     const { positions } = this.state;
-    if (!image) {
+    if (!image || !positions) {
       return;
     }
 
@@ -227,6 +236,9 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     const { viewport } = this.context;
     const { minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { points } = this.state;
+    if (!points) {
+      return;
+    }
 
     let visiblePoints: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[];
     if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {

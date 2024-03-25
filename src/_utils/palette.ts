@@ -1,19 +1,20 @@
-import { Texture2D } from '@luma.gl/core';
+import type { Device, Texture } from '@luma.gl/core';
 import { colorRampCanvas } from 'cpt2js';
 import type { Scale } from 'cpt2js';
-import GL from './gl.js';
 
-export function createPaletteTexture(gl: WebGLRenderingContext, paletteScale: Scale): { paletteBounds: readonly [number, number], paletteTexture: Texture2D } {
+export function createPaletteTexture(device: Device, paletteScale: Scale): { paletteBounds: readonly [number, number], paletteTexture: Texture } {
   const paletteDomain = paletteScale.domain() as unknown as number[];
   const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
   const paletteCanvas = colorRampCanvas(paletteScale);
-  const paletteTexture = new Texture2D(gl, {
-    data: paletteCanvas,
-    parameters: {
-      [GL.TEXTURE_MAG_FILTER]: GL.LINEAR,
-      [GL.TEXTURE_MIN_FILTER]: GL.LINEAR,
-      [GL.TEXTURE_WRAP_S]: GL.CLAMP_TO_EDGE,
-      [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
+  const paletteImage = document.createElement('img');
+  paletteImage.src = paletteCanvas.toDataURL(); // TODO: change back to using canvas directly with luma.gl 9.1, see https://github.com/visgl/luma.gl/pull/1860
+  const paletteTexture = device.createTexture({
+    data: paletteImage,
+    sampler: {
+      magFilter: 'linear',
+      minFilter: 'linear',
+      addressModeU: 'clamp-to-edge',
+      addressModeV: 'clamp-to-edge',
     },
   });
 
@@ -21,4 +22,4 @@ export function createPaletteTexture(gl: WebGLRenderingContext, paletteScale: Sc
 }
 
 export { parsePalette, colorRampCanvas } from 'cpt2js';
-export type { Palette } from 'cpt2js';
+export type { Palette, Scale } from 'cpt2js';

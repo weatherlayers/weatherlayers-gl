@@ -1,7 +1,7 @@
-import type { LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams, PickingInfo } from '@deck.gl/core/typed';
-import { BitmapLayer } from '@deck.gl/layers/typed';
-import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed';
-import { Texture2D } from '@luma.gl/core';
+import type { LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams } from '@deck.gl/core';
+import { BitmapLayer } from '@deck.gl/layers';
+import type { BitmapLayerProps, BitmapBoundingBox, BitmapLayerPickingInfo } from '@deck.gl/layers';
+import type { Texture } from '@luma.gl/core';
 import { ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
@@ -13,8 +13,8 @@ import { createEmptyTextureCached } from '../../../_utils/texture.js';
 import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {
-  imageTexture: Texture2D | null;
-  imageTexture2: Texture2D | null;
+  imageTexture: Texture | null;
+  imageTexture2: Texture | null;
   imageSmoothing: number;
   imageInterpolation: ImageInterpolation;
   imageWeight: number;
@@ -52,14 +52,17 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   static layerName = 'RasterBitmapLayer';
   static defaultProps = defaultProps;
 
+  state!: BitmapLayer['state'] & {
+    paletteTexture?: Texture;
+    paletteBounds?: [number, number];
+  };
+
   getShaders(): any {
     const parentShaders = super.getShaders();
 
     return {
       ...parentShaders,
-      vs: `#version 300 es\n${parentShaders.vs}`,
-      fs: `#version 300 es\n${fs}`,
-      prologue: false,
+      fs,
     };
   }
 
@@ -74,18 +77,22 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   draw(opts: any): void {
-    const { gl, viewport } = this.context;
+    const { device, viewport } = this.context;
     const { model } = this.state;
     const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
-    if (!imageTexture || !paletteTexture) {
+    if (!imageTexture) {
       return;
     }
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      model.setBindings({
+        [fsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(device),
+        [fsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
+
+        [fsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(device),
+      });
       model.setUniforms({
-        [fsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(gl),
-        [fsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(gl),
         [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
         [fsTokens.imageSmoothing]: imageSmoothing ?? 0,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
@@ -94,7 +101,6 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
         [fsTokens.imageUnscale]: imageUnscale ?? [0, 0],
         [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
-        [fsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(gl),
         [fsTokens.paletteBounds]: paletteBounds ?? [0, 0],
       });
 
@@ -105,7 +111,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   #updatePalette(): void {
-    const { gl } = this.context;
+    const { device } = this.context;
     const { palette } = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
       this.setState({ paletteTexture: undefined, paletteBounds: undefined });
@@ -113,14 +119,12 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     }
 
     const paletteScale = parsePalette(palette);
-    const { paletteBounds, paletteTexture } = createPaletteTexture(gl, paletteScale);
+    const { paletteBounds, paletteTexture } = createPaletteTexture(device, paletteScale);
 
     this.setState({ paletteTexture, paletteBounds });
   }
 
-  #getRasterMagnitudeValue(color: Uint8Array): number {
-    const { paletteBounds } = this.state;
-
+  #getRasterMagnitudeValue(color: Uint8Array, paletteBounds: [number, number]): number {
     return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
@@ -133,15 +137,16 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     }
   }
 
-  getPickingInfo(params: GetPickingInfoParams): PickingInfo {
-    const info: PickingInfo & { raster?: RasterPointProperties } = params.info;
+  getPickingInfo(params: GetPickingInfoParams): BitmapLayerPickingInfo {
+    const info: BitmapLayerPickingInfo & { raster?: RasterPointProperties } = super.getPickingInfo(params);
     const { imageType } = ensureDefaultProps(this.props, defaultProps);
+    const { paletteBounds } = this.state;
     if (!info.color) {
       return info;
     }
 
     let rasterPointProperties: RasterPointProperties;
-    const value = this.#getRasterMagnitudeValue(info.color);
+    const value = this.#getRasterMagnitudeValue(info.color, paletteBounds ?? [0, 0]);
     if (imageType === ImageType.VECTOR) {
       const direction = this.#getRasterDirectionValue(info.color);
       rasterPointProperties = { value, direction };

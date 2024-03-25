@@ -1,7 +1,7 @@
-import { CompositeLayer, CompositeLayerProps } from '@deck.gl/core/typed';
-import type { Position, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
-import { TextLayer } from '@deck.gl/layers/typed';
-import type { TextLayerProps } from '@deck.gl/layers/typed';
+import { CompositeLayer, CompositeLayerProps } from '@deck.gl/core';
+import type { Position, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
+import { TextLayer } from '@deck.gl/layers';
+import type { TextLayerProps } from '@deck.gl/layers';
 import { wrap } from 'comlink';
 import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../_utils/props.js';
 import { hashCodeString } from '../_utils/hashcode.js';

@@ -1,9 +1,9 @@
-import { CompositeLayer } from '@deck.gl/core/typed';
-import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, LayersList } from '@deck.gl/core/typed';
-import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers/typed';
-import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers/typed';
-import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions/typed';
-import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions/typed';
+import { CompositeLayer } from '@deck.gl/core';
+import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, LayersList } from '@deck.gl/core';
+import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers';
+import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers';
+import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
+import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions';
 import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
 import { FrontType, iconAtlas, iconMapping } from './front-type.js';
@@ -61,6 +61,14 @@ const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
 export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_FrontCompositeLayerProps<DataT>>> {
   static layerName = 'FrontCompositeLayer';
   static defaultProps = defaultProps;
+
+  state!: CompositeLayer['state'] & {
+    props?: FrontCompositeLayerProps<DataT>;
+    frontLines?: FrontLine<DataT>[];
+    debugFrontPoints?: DebugFrontPoint<DataT>[];
+    visibleFrontLines?: FrontLine<DataT>[];
+    visibleDebugFrontPoints?: DebugFrontPoint<DataT>[];
+  };
 
   renderLayers(): LayersList {
     const { viewport } = this.context;
@@ -207,6 +215,9 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
     const { viewport } = this.context;
     const { minZoom, maxZoom } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     const { frontLines, debugFrontPoints } = this.state;
+    if (!frontLines || !debugFrontPoints) {
+      return;
+    }
 
     let visibleFrontLines: FrontLine<DataT>[];
     let visibleDebugFrontPoints: DebugFrontPoint<DataT>[];

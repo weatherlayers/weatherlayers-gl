@@ -1,9 +1,9 @@
-import { CompositeLayer } from '@deck.gl/core/typed';
-import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
-import { TextLayer, BitmapBoundingBox } from '@deck.gl/layers/typed';
-import type { TextLayerProps } from '@deck.gl/layers/typed';
-import { CollisionFilterExtension } from '@deck.gl/extensions/typed';
-import type { CollisionFilterExtensionProps } from '@deck.gl/extensions/typed';
+import { CompositeLayer } from '@deck.gl/core';
+import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList } from '@deck.gl/core';
+import { TextLayer, BitmapBoundingBox } from '@deck.gl/layers';
+import type { TextLayerProps } from '@deck.gl/layers';
+import { CollisionFilterExtension } from '@deck.gl/extensions';
+import type { CollisionFilterExtensionProps } from '@deck.gl/extensions';
 import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import type { TextFormatFunction } from '../../../_utils/props.js';
 import type { TextureData } from '../../../_utils/data.js';
@@ -13,7 +13,7 @@ import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import type { UnitFormat } from '../../../_utils/unit-format.js';
 import { randomString } from '../../../_utils/random-string.js';
 import { isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle } from '../../../_utils/viewport.js';
-import { parsePalette, type Palette } from '../../../_utils/palette.js';
+import { parsePalette, type Palette, type Scale } from '../../../_utils/palette.js';
 import { paletteColorToGl } from '../../../_utils/color.js';
 import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
 import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
@@ -86,10 +86,21 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   static layerName = 'HighLowCompositeLayer';
   static defaultProps = defaultProps;
 
+  state!: CompositeLayer['state'] & {
+    props?: HighLowCompositeLayerProps;
+    paletteScale?: Scale;
+    positions?: GeoJSON.Position[];
+    points?: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
+    visiblePositions?: GeoJSON.Position[];
+    visiblePoints?: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
+    minValue?: number;
+    maxValue?: number;
+  };
+
   renderLayers(): LayersList {
     const { viewport } = this.context;
     const { props, visiblePoints, minValue, maxValue } = this.state;
-    if (!props || !visiblePoints) {
+    if (!props || !visiblePoints || typeof minValue !== 'number' || typeof maxValue !== 'number') {
       return [];
     }
 
@@ -224,7 +235,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
 
-    this.setState({ image, radius, points, minValue, maxValue });
+    this.setState({ points, minValue, maxValue });
 
     this.#updateVisibleFeatures();
   }
@@ -233,6 +244,9 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const { viewport } = this.context;
     const { minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { points } = this.state;
+    if (!points) {
+      return;
+    }
 
     let visiblePoints: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
     if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {

@@ -1,12 +1,12 @@
 vec4 getPixel(sampler2D image, vec2 imageDownscaleResolution, vec2 iuv, vec2 offset) {
   vec2 uv = (iuv + offset + 0.5) / imageDownscaleResolution;
 
-  return texture2D(image, uv);
+  return texture(image, uv);
 }
 
 // cubic B-spline
-vec4 BS_A = vec4( 3.0, -6.0,   0.0, 4.0) / 6.0;
-vec4 BS_B = vec4(-1.0,  6.0, -12.0, 8.0) / 6.0;
+const vec4 BS_A = vec4( 3.0, -6.0,   0.0, 4.0) / 6.0;
+const vec4 BS_B = vec4(-1.0,  6.0, -12.0, 8.0) / 6.0;
 
 vec4 powers(float x) { 
   return vec4(x*x*x, x*x, x, 1.0); 

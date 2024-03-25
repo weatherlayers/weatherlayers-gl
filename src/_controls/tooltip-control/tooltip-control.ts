@@ -1,4 +1,4 @@
-import type { PickingInfo } from '@deck.gl/core/typed';
+import type { PickingInfo } from '@deck.gl/core';
 import { formatValueWithUnit, formatDirection } from '../../_utils/format.js';
 import type { UnitFormat } from '../../_utils/unit-format.js';
 import { DirectionType } from '../../_utils/direction-type.js';

@@ -1,5 +1,5 @@
-import type { Viewport, WebMercatorViewport, _GlobeViewport as GlobeViewport, LayerExtension } from '@deck.gl/core/typed';
-import { ClipExtension } from '@deck.gl/extensions/typed';
+import type { Viewport, WebMercatorViewport, _GlobeViewport as GlobeViewport, LayerExtension } from '@deck.gl/core';
+import { ClipExtension } from '@deck.gl/extensions';
 import { distance } from './geodesy.js';
 import { wrapBounds, clipBounds } from './bounds.js';
 

@@ -1,5 +1,6 @@
-import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core/typed';
-import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
+import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core';
+import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
+import type { Texture } from '@luma.gl/core';
 import type { TextureData } from '../../../_utils/data.js';
 import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
 import { withVerifyLicense } from '../../with-verify-license.js';
@@ -29,8 +30,13 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;
 
+  state!: CompositeLayer['state'] & {
+    imageTexture?: Texture;
+    imageTexture2?: Texture;
+  };
+
   renderLayers(): LayersList {
-    const { gl } = this.context;
+    const { device } = this.context;
     const { props, imageTexture, imageTexture2 } = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -46,8 +52,8 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
           _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         } satisfies Partial<RasterLayerProps>,
 
-        image: createEmptyTextureCached(gl),
-        image2: createEmptyTextureCached(gl),
+        image: createEmptyTextureCached(device),
+        image2: createEmptyTextureCached(device),
       })),
     ];
   }
@@ -62,11 +68,11 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
     }
 
     if (image !== params.oldProps.image || image2 !== params.oldProps.image2) {
-      const { gl } = this.context;
+      const { device } = this.context;
       const { image, image2 } = this.props;
   
-      const imageTexture = image ? createTextureCached(gl, image) : null;
-      const imageTexture2 = image2 ? createTextureCached(gl, image2) : null;
+      const imageTexture = image ? createTextureCached(device, image) : null;
+      const imageTexture2 = image2 ? createTextureCached(device, image2) : null;
   
       this.setState({ imageTexture, imageTexture2 });
     }
