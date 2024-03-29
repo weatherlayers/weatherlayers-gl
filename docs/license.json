@@ -1,12 +1,13 @@
 {
   "content": {
-    "id": "ff446e77-2f24-4750-9c75-33a0af248d4c",
+    "id": "dc5790c3-1e0b-42a8-9e00-6e276156246e",
     "type": "production",
     "name": "WeatherLayers",
     "domains": [
       "weatherlayers.com"
     ],
-    "created": "2023-03-27T22:00:25.434Z"
+    "devDomains": [],
+    "created": "2024-03-29T09:32:43.180Z"
   },
-  "signature": "92GtM5LqtieWXkYnqhFvZFu9sOacWmT20PkpSfwFwiTSeMGLAPKEglzieW0IEOJOxWdAWb70T1DmIafcAd1yff859a2P0Ob3mKYN2jAWQpDcEswShxbUop7nLcTxGpQH"
+  "signature": "yE1ZYjMxZs0Q0T8XuHg4p3KltIt/rl/zvDXTO4KnDewLI4Ojh0wKR6epxLDLvcdyEoBdAw831pvIw+aO4rSuj0lnusM25moHtnyD8dar3T0qN+69mZrKftZhmOO2ZcyK"
 }
