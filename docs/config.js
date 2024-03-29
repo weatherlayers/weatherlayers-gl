@@ -14,8 +14,8 @@ const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'gfs/pressure_mean_sea_level': { radius: 2000 },
 };
 const GRID_LAYER_DATASET_CONFIG = {
-  'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 66.8772] },
-  'gfs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 66.8772] },
+  'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'gfs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'gfs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfs/apparent_temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfswave/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
