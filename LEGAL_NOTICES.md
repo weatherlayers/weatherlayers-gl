@@ -15,7 +15,7 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 | cpt2js | 1.5.3 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
 | geodesy-fn | 1.0.1 | https://github.com/zakjan/geodesy-fn | MIT | https://github.com/zakjan/geodesy-fn/blob/main/LICENSE |
 | geokdbush-tk | 2.0.4 | https://github.com/tkafka/geokdbush-tk | ISC | https://github.com/tkafka/geokdbush-tk/blob/master/LICENSE |
-| geotiff | 2.1.2 | https://github.com/geotiffjs/geotiff.js | MIT | https://github.com/geotiffjs/geotiff.js/blob/master/LICENSE |
+| geotiff | 2.1.3 | https://github.com/geotiffjs/geotiff.js | MIT | https://github.com/geotiffjs/geotiff.js/blob/master/LICENSE |
 | icomesh | 1.1.0 | https://github.com/mourner/icomesh | ISC | https://github.com/mourner/icomesh/blob/master/LICENSE |
 | json-stable-stringify | 1.0.2 | https://github.com/ljharb/json-stable-stringify | MIT | https://github.com/ljharb/json-stable-stringify/blob/main/LICENSE |
 | kdbush | 4.0.2 | https://github.com/mourner/kdbush | ISC | https://github.com/mourner/kdbush/blob/master/LICENSE |
