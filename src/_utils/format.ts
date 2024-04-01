@@ -8,7 +8,7 @@ const CARDINALS = {
   [DirectionFormat.CARDINAL3]: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
 };
 
-export function formatValue(value: number, unitFormat?: UnitFormat): string {
+export function formatValue(value: number, unitFormat: UnitFormat | null | undefined): string {
   if (!unitFormat) {
     return `${Math.round(value)}`;
   }

@@ -9,6 +9,7 @@ import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
 import { RasterPointProperties } from '../../../_utils/raster-data.js';
 import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
+import { createEmptyTextureCached } from '../../../_utils/texture.js';
 import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {
@@ -73,7 +74,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   }
 
   draw(opts: any): void {
-    const { viewport } = this.context;
+    const { gl, viewport } = this.context;
     const { model } = this.state;
     const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
@@ -83,18 +84,18 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.setUniforms({
-        [fsTokens.imageTexture]: imageTexture,
-        [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(gl),
+        [fsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(gl),
         [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
-        [fsTokens.imageSmoothing]: imageSmoothing,
+        [fsTokens.imageSmoothing]: imageSmoothing ?? 0,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-        [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.imageUnscale]: imageUnscale ?? [0, 0],
         [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
-        [fsTokens.paletteTexture]: paletteTexture,
-        [fsTokens.paletteBounds]: paletteBounds,
+        [fsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(gl),
+        [fsTokens.paletteBounds]: paletteBounds ?? [0, 0],
       });
 
       this.props.image = imageTexture;

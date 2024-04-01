@@ -10,6 +10,7 @@ import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from '../../../_utils/viewport.js';
 import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
 import { deckColorToGl } from '../../../_utils/color.js';
+import { createEmptyTextureCached } from '../../../_utils/texture.js';
 import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
@@ -18,7 +19,7 @@ const TARGET_POSITION = 'targetPosition';
 const SOURCE_COLOR = 'sourceColor';
 const TARGET_COLOR = 'targetColor';
 
-type _ParticleLineLayerProps = LineLayerProps<{}> & {
+type _ParticleLineLayerProps = LineLayerProps<unknown> & {
   imageTexture: Texture2D | null;
   imageTexture2: Texture2D | null;
   imageSmoothing: number;
@@ -69,7 +70,7 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   wrapLongitude: true,
 };
 
-export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}, ExtraPropsT & Required<_ParticleLineLayerProps>> {
+export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<unknown, ExtraPropsT & Required<_ParticleLineLayerProps>> {
   static layerName = 'ParticleLineLayer';
   static defaultProps = defaultProps;
 
@@ -231,6 +232,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       opacities,
       transform,
       previousViewportZoom: 0,
+      previousTime: 0,
     });
   }
 
@@ -240,17 +242,18 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       return;
     }
 
-    const { timeline } = this.context;
-    const { previousTime } = this.state;
-    const time = timeline.getTime();
-    if (time < previousTime + 1000 / FPS) {
+    const { gl, viewport, timeline } = this.context;
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
+    const { paletteTexture, paletteBounds, numAgedInstances, transform, previousViewportZoom, previousTime } = this.state;
+    if (!imageTexture) {
       return;
     }
+    if (!isRectangularBounds(bounds)) {
+      throw new Error('_imageCoordinateSystem only supports rectangular bounds');
+    }
 
-    const { viewport } = this.context;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
-    const { paletteTexture, paletteBounds, numAgedInstances, transform, previousViewportZoom } = this.state;
-    if (!imageTexture) {
+    const time = timeline.getTime();
+    if (typeof previousTime === 'number' && time < previousTime + 1000 / FPS) {
       return;
     }
 
@@ -259,7 +262,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     const viewportGlobeCenter = isViewportGlobe(viewport) ? getViewportGlobeCenter(viewport) : null;
     const viewportGlobeRadius = isViewportGlobe(viewport) ? getViewportGlobeRadius(viewport) : null;
     const viewportBounds = isViewportMercator(viewport) ? getViewportBounds(viewport) : null;
-    const viewportZoomChangeFactor = 2 ** ((previousViewportZoom - viewport.zoom) * 4);
+    const viewportZoomChangeFactor = 2 ** ((typeof previousViewportZoom === 'number' ? previousViewportZoom - viewport.zoom : 0) * 4);
 
     // speed factor for current zoom level
     const currentSpeedFactor = speedFactor / 2 ** (viewport.zoom + 7);
@@ -267,19 +270,19 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
     // update particle positions and colors age0
     const uniforms = {
       [updateVsTokens.viewportGlobe]: viewportGlobe,
-      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter || [0, 0],
-      [updateVsTokens.viewportGlobeRadius]: viewportGlobeRadius || 0,
-      [updateVsTokens.viewportBounds]: viewportBounds || [0, 0, 0, 0],
-      [updateVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor || 0,
+      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter ?? [0, 0],
+      [updateVsTokens.viewportGlobeRadius]: viewportGlobeRadius ?? 0,
+      [updateVsTokens.viewportBounds]: viewportBounds ?? [0, 0, 0, 0],
+      [updateVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor ?? 0,
 
-      [updateVsTokens.imageTexture]: imageTexture,
-      [updateVsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+      [updateVsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(gl),
+      [updateVsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(gl),
       [updateVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
-      [updateVsTokens.imageSmoothing]: imageSmoothing,
+      [updateVsTokens.imageSmoothing]: imageSmoothing ?? 0,
       [updateVsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
       [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-      [updateVsTokens.imageUnscale]: imageUnscale || [0, 0],
+      [updateVsTokens.imageUnscale]: imageUnscale ?? [0, 0],
       [updateVsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
       [updateVsTokens.bounds]: bounds,
 
@@ -288,8 +291,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
       [updateVsTokens.speedFactor]: currentSpeedFactor,
 
       [updateVsTokens.color]: color ? deckColorToGl(color) : [0, 0, 0, 0],
-      [updateVsTokens.paletteTexture]: paletteTexture,
-      [updateVsTokens.paletteBounds]: paletteBounds || [0, 0],
+      [updateVsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(gl),
+      [updateVsTokens.paletteBounds]: paletteBounds ?? [0, 0],
 
       [updateVsTokens.time]: time,
       [updateVsTokens.seed]: Math.random(),
@@ -406,4 +409,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<{}
 
     this.setNeedsRedraw();
   }
+}
+
+function isRectangularBounds(bounds: BitmapBoundingBox): bounds is [number, number, number, number] {
+  return Number.isFinite(bounds[0]);
 }

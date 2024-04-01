@@ -72,7 +72,9 @@
       // info panels
       const infoControl = new InfoControl();
       infoControl.prependTo(document.getElementById('top-left'));
-      deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
+      deckgl.setProps({
+        onViewStateChange: ({ viewState }) => infoControl.update(viewState),
+      });
 
       // logo
       const logoControl = new WeatherLayers.LogoControl();
@@ -94,8 +96,10 @@
 
       // tooltip
       const tooltipControl = new WeatherLayers.TooltipControl({ followCursor: true });
-      tooltipControl.addTo(deckgl.getCanvas().parentElement);
-      deckgl.setProps({ onHover: event => tooltipControl.updatePickingInfo(event) });
+      deckgl.setProps({
+        onLoad: () => tooltipControl.addTo(deckgl.getCanvas().parentElement),
+        onHover: event => tooltipControl.updatePickingInfo(event),
+      });
 
       // attribution
       const attributionControl = new WeatherLayers.AttributionControl();

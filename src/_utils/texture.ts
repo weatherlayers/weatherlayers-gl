@@ -102,5 +102,12 @@ export function createTextureCached(gl: WebGLRenderingContext, image: TextureDat
   return texture;
 }
 
-// empty texture required instead of null since deck.gl 8.9 because of removal of null check in https://github.com/visgl/deck.gl/commit/b2a25b6b11a3c5197769a911a7482a7c987a12fb
-export const EMPTY_TEXTURE: TextureProps = { data: new Uint8Array(), width: 0, height: 0, mipmaps: false };
+// empty texture required instead of null
+let emptyTexture: Texture2D | null = null;
+
+export function createEmptyTextureCached(gl: WebGLRenderingContext): Texture2D {
+  if (!emptyTexture) {
+    emptyTexture = new Texture2D(gl, { data: new Uint8Array(), width: 0, height: 0, mipmaps: false });
+  }
+  return emptyTexture;
+}

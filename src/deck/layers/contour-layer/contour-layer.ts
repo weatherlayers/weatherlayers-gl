@@ -1,7 +1,7 @@
 import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core/typed';
 import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
 import type { TextureData } from '../../../_utils/data.js';
-import { createTextureCached, EMPTY_TEXTURE } from '../../../_utils/texture.js';
+import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
 import { withVerifyLicense } from '../../with-verify-license.js';
 import { ContourBitmapLayer } from './contour-bitmap-layer.js';
 import type { ContourBitmapLayerProps } from './contour-bitmap-layer.js';
@@ -28,6 +28,7 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
+    const { gl } = this.context;
     const { props, imageTexture, imageTexture2 } = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -43,8 +44,8 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
           _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         } satisfies Partial<ContourBitmapLayerProps>,
 
-        image: EMPTY_TEXTURE,
-        image2: EMPTY_TEXTURE,
+        image: createEmptyTextureCached(gl),
+        image2: createEmptyTextureCached(gl),
       })),
     ];
   }

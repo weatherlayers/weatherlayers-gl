@@ -1,7 +1,7 @@
 import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core/typed';
 import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
 import type { TextureData } from '../../../_utils/data.js';
-import { createTextureCached, EMPTY_TEXTURE } from '../../../_utils/texture.js';
+import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
 import { withVerifyLicense } from '../../with-verify-license.js';
 import { RasterBitmapLayer } from './raster-bitmap-layer.js';
 import type { RasterBitmapLayerProps } from './raster-bitmap-layer.js';
@@ -30,6 +30,7 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
+    const { gl } = this.context;
     const { props, imageTexture, imageTexture2 } = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -45,8 +46,8 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
           _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
         } satisfies Partial<RasterLayerProps>,
 
-        image: EMPTY_TEXTURE,
-        image2: EMPTY_TEXTURE,
+        image: createEmptyTextureCached(gl),
+        image2: createEmptyTextureCached(gl),
       })),
     ];
   }

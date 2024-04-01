@@ -56,7 +56,9 @@
       // info panels
       const infoControl = new InfoControl();
       infoControl.prependTo(document.getElementById('top-left'));
-      deckgl.setProps({ onViewStateChange: ({ viewState }) => infoControl.update(viewState) });
+      deckgl.setProps({
+        onViewStateChange: ({ viewState }) => infoControl.update(viewState),
+      });
 
       // logo
       const logoControl = new WeatherLayers.LogoControl();

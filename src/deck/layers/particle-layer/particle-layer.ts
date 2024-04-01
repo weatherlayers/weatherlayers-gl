@@ -1,7 +1,7 @@
 import { CompositeLayer } from '@deck.gl/core/typed';
 import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core/typed';
 import type { TextureData } from '../../../_utils/data.js';
-import { createTextureCached, EMPTY_TEXTURE } from '../../../_utils/texture.js';
+import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
 import { withVerifyLicense } from '../../with-verify-license.js';
 import { ParticleLineLayer } from './particle-line-layer.js';
 import type { ParticleLineLayerProps } from './particle-line-layer.js';
@@ -28,6 +28,7 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
+    const { gl } = this.context;
     const { props, imageTexture, imageTexture2 } = this.state;
     if (!props || !imageTexture) {
       return [];
@@ -42,8 +43,8 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
           imageTexture2,
         } satisfies Partial<ParticleLineLayerProps>,
 
-        image: EMPTY_TEXTURE,
-        image2: EMPTY_TEXTURE,
+        image: createEmptyTextureCached(gl),
+        image2: createEmptyTextureCached(gl),
       })),
     ];
   }

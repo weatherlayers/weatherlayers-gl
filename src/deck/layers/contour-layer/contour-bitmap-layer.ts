@@ -3,14 +3,15 @@ import { BitmapLayer } from '@deck.gl/layers/typed';
 import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers/typed';
 import { FEATURES, isWebGL2, hasFeatures } from '@luma.gl/core';
 import type { Texture2D } from '@luma.gl/core';
-import { sourceCode as fs, tokens as fsTokens } from './contour-bitmap-layer.fs.glsl';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
 import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
+import { createEmptyTextureCached } from '../../../_utils/texture.js';
 import { deckColorToGl } from '../../../_utils/color.js';
+import { sourceCode as fs, tokens as fsTokens } from './contour-bitmap-layer.fs.glsl';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture2D | null;
@@ -87,7 +88,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   }
 
   draw(opts: any): void {
-    const { viewport } = this.context;
+    const { gl, viewport } = this.context;
     const { model } = this.state;
     const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, interval, majorInterval, color, width } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds } = this.state;
@@ -97,22 +98,22 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.setUniforms({
-        [fsTokens.imageTexture]: imageTexture,
-        [fsTokens.imageTexture2]: imageTexture2 !== imageTexture ? imageTexture2 : null,
+        [fsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(gl),
+        [fsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(gl),
         [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
-        [fsTokens.imageSmoothing]: imageSmoothing,
+        [fsTokens.imageSmoothing]: imageSmoothing ?? 0,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
         [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
-        [fsTokens.imageUnscale]: imageUnscale || [0, 0],
+        [fsTokens.imageUnscale]: imageUnscale ?? [0, 0],
         [fsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
 
         [fsTokens.interval]: interval,
         [fsTokens.majorInterval]: majorInterval,
         [fsTokens.width]: width,
         [fsTokens.color]: color ? deckColorToGl(color) : [0, 0, 0, 0],
-        [fsTokens.paletteTexture]: paletteTexture,
-        [fsTokens.paletteBounds]: paletteBounds || [0, 0],
+        [fsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(gl),
+        [fsTokens.paletteBounds]: paletteBounds ?? [0, 0],
       });
 
       this.props.image = imageTexture;

@@ -96,7 +96,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     if (iconStyle) {
       const { iconAtlas, iconMapping } = iconStyle;
       const iconCount = Object.keys(iconMapping).length;
-      const iconBounds = props.iconBounds || iconStyle.iconBounds || [0, 0];
+      const iconBounds = props.iconBounds ?? iconStyle.iconBounds ?? [0, 0];
       const iconBoundsDelta = iconBounds[1] - iconBounds[0];
       const iconBoundsRatio = (value: number) => (value - iconBounds[0]) / iconBoundsDelta;
       const iconSizeDelta = Array.isArray(iconSize) ? iconSize[1] - iconSize[0] : 0;
