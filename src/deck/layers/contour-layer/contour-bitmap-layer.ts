@@ -60,7 +60,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   static layerName = 'ContourBitmapLayer';
   static defaultProps = defaultProps;
 
-  state!: BitmapLayer['state'] & {
+  declare state: BitmapLayer['state'] & {
     paletteTexture?: Texture;
     paletteBounds?: [number, number];
   };

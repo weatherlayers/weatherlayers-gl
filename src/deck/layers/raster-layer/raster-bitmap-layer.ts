@@ -52,7 +52,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   static layerName = 'RasterBitmapLayer';
   static defaultProps = defaultProps;
 
-  state!: BitmapLayer['state'] & {
+  declare state: BitmapLayer['state'] & {
     paletteTexture?: Texture;
     paletteBounds?: [number, number];
   };

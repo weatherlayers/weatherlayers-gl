@@ -74,7 +74,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   static layerName = 'ParticleLineLayer';
   static defaultProps = defaultProps;
 
-  state!: LineLayer['state'] & {
+  declare state: LineLayer['state'] & {
     initialized?: boolean;
     numInstances?: number;
     numAgedInstances?: number;

@@ -30,7 +30,7 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     imageTexture?: Texture;
     imageTexture2?: Texture;
   };

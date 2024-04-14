@@ -28,7 +28,7 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
   static layerName = 'ContourLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     imageTexture?: Texture;
     imageTexture2?: Texture;
   };

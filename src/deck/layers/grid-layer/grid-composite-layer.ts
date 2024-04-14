@@ -82,7 +82,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   static layerName = 'GridCompositeLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     props?: GridCompositeLayerProps;
     paletteScale?: Scale;
     positions?: GeoJSON.Position[];

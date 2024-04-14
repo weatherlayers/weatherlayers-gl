@@ -86,7 +86,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   static layerName = 'HighLowCompositeLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     props?: HighLowCompositeLayerProps;
     paletteScale?: Scale;
     positions?: GeoJSON.Position[];

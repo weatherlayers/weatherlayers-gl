@@ -62,7 +62,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
   static layerName = 'FrontCompositeLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     props?: FrontCompositeLayerProps<DataT>;
     frontLines?: FrontLine<DataT>[];
     debugFrontPoints?: DebugFrontPoint<DataT>[];

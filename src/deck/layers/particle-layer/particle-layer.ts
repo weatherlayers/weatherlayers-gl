@@ -28,7 +28,7 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
   static layerName = 'ParticleLayer';
   static defaultProps = defaultProps;
 
-  state!: CompositeLayer['state'] & {
+  declare state: CompositeLayer['state'] & {
     imageTexture?: Texture;
     imageTexture2?: Texture;
   };
