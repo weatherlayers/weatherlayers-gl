@@ -464,7 +464,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
 
     this.state.stepRequested = true;
-    requestAnimationFrame(() => {
+    requestIdleCallback(() => {
       this.step();
       this.state.stepRequested = false;
     });
