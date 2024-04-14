@@ -25,7 +25,10 @@ const licenseWorkerProxy = wrap<LicenseWorker>(createLicenseWorker());
 
 let license: License | null = null;
 
-export function setLicense(currentLicense: License): void {
+export function setLicense(currentLicense: any): void {
+  if (typeof currentLicense.content !== 'object' || typeof currentLicense.signature !== 'string') {
+    throw new Error('Invalid license');
+  }
   license = currentLicense;
 }
 
