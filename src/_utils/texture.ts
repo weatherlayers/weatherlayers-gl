@@ -39,12 +39,14 @@ function getTextureProps(device: Device, image: TextureData): TextureProps {
     width,
     height,
     format,
+    mipmaps: false,
     sampler: {
       // custom interpolation in pixel.glsl
       magFilter: 'nearest',
       minFilter: 'nearest',
       addressModeU: 'clamp-to-edge',
       addressModeV: 'clamp-to-edge',
+      lodMaxClamp: 0,
     },
   };
 }
