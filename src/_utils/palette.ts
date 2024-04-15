@@ -6,10 +6,8 @@ export function createPaletteTexture(device: Device, paletteScale: Scale): { pal
   const paletteDomain = paletteScale.domain() as unknown as number[];
   const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
   const paletteCanvas = colorRampCanvas(paletteScale);
-  const paletteImage = document.createElement('img');
-  paletteImage.src = paletteCanvas.toDataURL(); // TODO: change back to using canvas directly with luma.gl 9.1, see https://github.com/visgl/luma.gl/pull/1860
   const paletteTexture = device.createTexture({
-    data: paletteImage,
+    data: paletteCanvas as any, // TODO: remove any with luma.gl 9.1, see https://github.com/visgl/luma.gl/pull/1860
     sampler: {
       magFilter: 'linear',
       minFilter: 'linear',
