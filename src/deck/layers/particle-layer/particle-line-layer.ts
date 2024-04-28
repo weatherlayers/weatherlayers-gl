@@ -464,10 +464,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
 
     this.state.stepRequested = true;
-    requestIdleCallback(() => {
+    // requestAnimationFrame causes flickering when interacting with MapLibre/Mapbox
+    // requestIdleCallback is not supported yet on Safari
+    setTimeout(() => {
       this.step();
       this.state.stepRequested = false;
-    });
+    }, 0);
   }
 
   step(): void {
