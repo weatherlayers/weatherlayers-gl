@@ -12,14 +12,14 @@ steps:
     volumes:
     - name: 'ssh'
       path: /root/.ssh
-  - name: node
+  - name: node:20
     args:
       - install
     entrypoint: npm
     volumes:
     - name: 'ssh'
       path: /root/.ssh
-  - name: node
+  - name: node:20
     args:
       - run
       - build
