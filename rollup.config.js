@@ -98,6 +98,11 @@ function bundle(entrypoint, filename, format, options = {}) {
           typescript({
             typescript: tsc,
             clean: options.stats,
+            tsconfigOverride: {
+              compilerOptions: {
+                target: 'es2016', // Fix support for Angular by downgrading to ES2016 target in WebWorkers, see https://github.com/angular/angular-cli/issues/22191
+              },
+            },
           }),
         ],
         type: 'browser',
