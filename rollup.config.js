@@ -55,7 +55,6 @@ function bundle(entrypoint, filename, format, options = {}) {
       file: filename,
       format: format,
       name: bundleClient ? 'WeatherLayersClient' : 'WeatherLayers',
-      sourcemap: true,
       globals: {
         '@deck.gl/core': 'deck',
         '@deck.gl/extensions': 'deck',
