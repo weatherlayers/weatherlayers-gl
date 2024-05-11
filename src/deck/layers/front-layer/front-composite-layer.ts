@@ -209,6 +209,8 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
     const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index })));
 
     this.setState({ frontLines, debugFrontPoints });
+
+    this.#updateVisibleFeatures();
   }
 
   #updateVisibleFeatures(): void {
