@@ -5,8 +5,8 @@ import { Control } from '../control.js';
 import './legend-control.css';
 
 export interface LegendControlConfig {
-  width: number;
-  ticksCount: number;
+  width?: number;
+  ticksCount?: number;
   title: string;
   unitFormat: UnitFormat;
   palette: Palette;

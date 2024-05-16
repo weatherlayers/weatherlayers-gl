@@ -8,10 +8,10 @@ import { Control } from '../control.js';
 import './timeline-control.css';
 
 export interface TimelineControlConfig {
-  width: number;
+  width?: number;
   datetimes: DatetimeISOString[];
   datetime: DatetimeISOString;
-  datetimeInterpolate: boolean;
+  datetimeInterpolate?: boolean;
   datetimeFormatFunction?: DatetimeFormatFunction;
   onPreload?: (datetimes: DatetimeISOString[]) => Promise<void>;
   onUpdate?: (datetime: DatetimeISOString) => void;
@@ -284,7 +284,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     const width = this.#config.width ?? DEFAULT_WIDTH;
     const datetimes = this.#config.datetimes;
     const datetime = this.#config.datetime;
-    const datetimeInterpolate = this.#config.datetimeInterpolate;
+    const datetimeInterpolate = this.#config.datetimeInterpolate ?? false;
     const datetimeFormatFunction = this.#config.datetimeFormatFunction ?? formatDatetime;
 
     const datetimeStartIndex = findLastIndex(datetimes, x => x <= datetime);
