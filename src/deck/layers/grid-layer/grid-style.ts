@@ -1,3 +1,4 @@
+import type { IconStyle } from '../../../_utils/icon-style.js';
 import arrowAtlas from './arrow.atlas.png';
 import arrowMapping from './arrow.mapping.json';
 import windBarbAtlas from './wind-barb.atlas.png';
@@ -9,7 +10,7 @@ export enum GridStyle {
   WIND_BARB = 'WIND_BARB',
 }
 
-export const GRID_ICON_STYLES = new Map([
+export const GRID_ICON_STYLES = new Map<GridStyle, IconStyle>([
   [GridStyle.ARROW, {
     iconAtlas: arrowAtlas,
     iconMapping: arrowMapping,

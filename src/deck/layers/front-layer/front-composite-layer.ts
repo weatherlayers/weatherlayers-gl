@@ -4,9 +4,13 @@ import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers';
 import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers';
 import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
 import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions';
+import type { Texture } from '@luma.gl/core';
 import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
+import { loadTextureData } from '../../../_utils/data.js';
+import { createTextureCached } from '../../../_utils/texture.js';
 import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
-import { FrontType, iconAtlas, iconMapping } from './front-type.js';
+import type { IconStyle } from '../../../_utils/icon-style.js';
+import { FrontType, iconStyle } from './front-type.js';
 import { getFrontLine } from './front-line.js';
 import type { FrontLine, FrontIcon } from './front-line.js';
 
@@ -64,6 +68,8 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
   declare state: CompositeLayer['state'] & {
     props?: FrontCompositeLayerProps<DataT>;
+    iconStyle?: IconStyle;
+    iconAtlasTexture?: Texture;
     frontLines?: FrontLine<DataT>[];
     debugFrontPoints?: DebugFrontPoint<DataT>[];
     visibleFrontLines?: FrontLine<DataT>[];
@@ -79,6 +85,11 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
     const { getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(props, defaultProps);
     if (!getType || !getPath) {
+      return [];
+    }
+
+    const { iconStyle, iconAtlasTexture } = this.state;
+    if (!iconStyle || !iconAtlasTexture) {
       return [];
     }
 
@@ -132,8 +143,8 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
             ? getViewportAngle(viewport, d.direction)
             : getViewportAngle(viewport, d.direction + 180))
           : getViewportAngle(viewport, d.direction),
-        iconAtlas,
-        iconMapping,
+        iconAtlas: iconAtlasTexture,
+        iconMapping: iconStyle.iconMapping,
         billboard: false,
 
         extensions: [new CollisionFilterExtension()],
@@ -181,6 +192,10 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       return;
     }
 
+    if (!this.state.iconStyle) {
+      this.#updateIconStyle();
+    }
+
     if (
       data !== params.oldProps.data ||
       getPath !== params.oldProps.getPath
@@ -197,6 +212,16 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
     }
 
     this.setState({ props: params.props });
+  }
+
+  async #updateIconStyle(): Promise<void> {
+    const { device } = this.context;
+
+    this.setState({ iconStyle });
+    
+    const iconAtlasTexture = createTextureCached(device, await loadTextureData(iconStyle.iconAtlas));
+
+    this.setState({ iconAtlasTexture });
   }
 
   #updateFeatures(): void {

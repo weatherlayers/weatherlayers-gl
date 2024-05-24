@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src weatherlayers.com localhost:* unpkg.com cdn.jsdelivr.net web3dsurvey.com blob: 'unsafe-inline'; style-src weatherlayers.com localhost:* 'unsafe-inline'; img-src weatherlayers.com localhost:* catalog.weatherlayers.com data:; connect-src weatherlayers.com localhost:* catalog.weatherlayers.com tiles.basemaps.cartocdn.com web3dsurvey.com">
   <title>WeatherLayers</title>
   <link href="https://weatherlayers.com/assets/logo.png" rel="icon" type="image/png">
   <script src="https://unpkg.com/stats.js@0.17.0/build/stats.min.js"></script>
@@ -113,7 +114,8 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
         const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
-        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
+        // const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
+        const datetime = '2024-05-14T12:00:00Z';
         const {image, image2, imageWeight, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         config.datetimes = datetimes;

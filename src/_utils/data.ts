@@ -40,10 +40,9 @@ function maskData(data: TextureDataArray, nodata: number | null): TextureDataArr
 }
 
 async function loadImage(url: string): Promise<TextureData> {
-  const blob = await (await fetch(url)).blob();
-
   const image = new Image();
-  image.src = URL.createObjectURL(blob);
+  image.src = url;
+  image.crossOrigin = 'anonymous';
   try {
     await image.decode();
   } catch (e) {
@@ -107,9 +106,9 @@ function loadCached<T>(loadFunction: LoadFunction<T>): CachedLoadFunction<T> {
 }
 
 export const loadTextureData = loadCached(url => {
-  if (url.includes('.png') || url.includes('.webp')) {
+  if (url.includes('.png') || url.includes('.webp') || url.includes('image/png') || url.includes('image/webp')) {
     return loadImage(url);
-  } else if (url.includes('.tif')) {
+  } else if (url.includes('.tif') || url.includes('image/tif')) {
     return loadGeotiff(url);
   } else {
     throw new Error('Unsupported data format');

@@ -1,3 +1,4 @@
+import type { IconStyle } from '../../../_utils/icon-style.js';
 import iconAtlas from './front-type.atlas.png';
 import iconMapping from './front-type.mapping.json';
 
@@ -14,4 +15,4 @@ export enum FrontType {
 // icon height = 35
 // icon padding bottom = 3 (found experimentally, works best for rotated icons)
 // total icon height = 38
-export { iconAtlas, iconMapping };
+export const iconStyle: IconStyle = { iconAtlas, iconMapping };

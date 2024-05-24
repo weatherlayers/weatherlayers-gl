@@ -2,9 +2,12 @@ import { CompositeLayer } from '@deck.gl/core';
 import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList } from '@deck.gl/core';
 import { TextLayer, IconLayer, BitmapBoundingBox } from '@deck.gl/layers';
 import type { TextLayerProps, IconLayerProps } from '@deck.gl/layers';
+import type { Texture } from '@luma.gl/core';
 import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import type { TextFormatFunction } from '../../../_utils/props.js';
+import { loadTextureData } from '../../../_utils/data.js';
 import type { TextureData } from '../../../_utils/data.js';
+import { createTextureCached } from '../../../_utils/texture.js';
 import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
@@ -15,6 +18,7 @@ import { getRasterPoints } from '../../../_utils/raster-data.js';
 import type { RasterPointProperties } from '../../../_utils/raster-data.js';
 import { parsePalette, type Palette, type Scale } from '../../../_utils/palette.js';
 import { paletteColorToGl } from '../../../_utils/color.js';
+import type { IconStyle } from '../../../_utils/icon-style.js';
 import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 
 type _GridCompositeLayerProps = CompositeLayerProps & {
@@ -84,6 +88,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
   declare state: CompositeLayer['state'] & {
     props?: GridCompositeLayerProps;
+    iconStyle?: IconStyle;
+    iconAtlasTexture?: Texture;
     paletteScale?: Scale;
     positions?: GeoJSON.Position[];
     points?: GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>[];
@@ -100,11 +106,14 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
     const { style, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor } = ensureDefaultProps(props, defaultProps);
     const { paletteScale } = this.state;
-    const iconStyle = GRID_ICON_STYLES.get(style);
 
-    if (iconStyle) {
-      const { iconAtlas, iconMapping } = iconStyle;
-      const iconCount = Object.keys(iconMapping).length;
+    if (GRID_ICON_STYLES.has(style)) {
+      const { iconStyle, iconAtlasTexture } = this.state;
+      if (!iconStyle || !iconAtlasTexture) {
+        return [];
+      }
+
+      const iconCount = Object.keys(iconStyle.iconMapping).length;
       const iconBounds = props.iconBounds ?? iconStyle.iconBounds ?? [0, 0];
       const iconBoundsDelta = iconBounds[1] - iconBounds[0];
       const iconBoundsRatio = (value: number) => (value - iconBounds[0]) / iconBoundsDelta;
@@ -118,8 +127,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           getSize: d => Array.isArray(iconSize) ? iconSize[0] + (iconBoundsRatio(d.properties.value) * iconSizeDelta) : iconSize,
           getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : iconColor,
           getAngle: d => getViewportAngle(viewport, d.properties.direction ? 360 - d.properties.direction : 0),
-          iconAtlas,
-          iconMapping,
+          iconAtlas: iconAtlasTexture,
+          iconMapping: iconStyle.iconMapping,
           billboard: false,
         } satisfies IconLayerProps<GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>>)),
       ];
@@ -152,9 +161,16 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, style, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor, palette } = params.props;
 
     super.updateState(params);
+
+    if (
+      !this.state.iconStyle ||
+      style !== params.oldProps.style
+    ) {
+      this.#updateIconStyle();
+    }
 
     if (
       density !== params.oldProps.density ||
@@ -204,6 +220,26 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     }
 
     this.setState({ props: params.props });
+  }
+
+  async #updateIconStyle(): Promise<void> {
+    const { device } = this.context;
+    const { style } = ensureDefaultProps(this.props, defaultProps);
+
+    const iconStyle = GRID_ICON_STYLES.get(style);
+    if (!iconStyle) {
+      this.setState({
+        iconStyle: undefined,
+        iconAtlasTexture: undefined,
+      });
+      return;
+    }
+
+    this.setState({ iconStyle });
+
+    const iconAtlasTexture = createTextureCached(device, await loadTextureData(iconStyle.iconAtlas));
+
+    this.setState({ iconAtlasTexture });
   }
 
   #updatePositions(): void {
