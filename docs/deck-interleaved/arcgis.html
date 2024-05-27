@@ -80,12 +80,12 @@
       map.add(deckLayer);
       const deckLayerView = await view.whenLayerView(deckLayer);
       await reactiveUtils.whenOnce(() => !deckLayerView.updating);
-      deckLayerView.deckInstance.setProps({
+      const deckgl = window.deckgl = await waitForDeck(() => deckLayerView.resources?.deck);
+      deckgl.setProps({
         views: [
           new deck.MapView({ repeat: true }),
         ],
       });
-      const deckgl = window.deckgl = await waitForDeck(() => deckLayerView.deckInstance);
 
       // info panels
       const infoControl = new InfoControl();

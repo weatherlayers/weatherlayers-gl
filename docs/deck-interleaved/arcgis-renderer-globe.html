@@ -90,12 +90,12 @@
         layers: [],
       });
       externalRenderers.add(view, deckRenderer);
-      deckRenderer.deckInstance.setProps({
+      const deckgl = window.deckgl = await waitForDeck(() => deckRenderer.resources?.deck);
+      deckgl.setProps({
         views: [
           new deck._GlobeView(),
         ],
       });
-      const deckgl = window.deckgl = await waitForDeck(() => deckRenderer.deckInstance);
 
       // rotate
       const rotateAnimation = new WeatherLayers.Animation(() => {

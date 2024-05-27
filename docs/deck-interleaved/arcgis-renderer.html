@@ -85,7 +85,7 @@
         layers: [],
       });
       externalRenderers.add(view, deckRenderer);
-      const deckgl = window.deckgl = await waitForDeck(() => deckRenderer.deckInstance);
+      const deckgl = window.deckgl = await waitForDeck(() => deckRenderer.resources?.deck);
 
       // info panels
       const infoControl = new InfoControl();
