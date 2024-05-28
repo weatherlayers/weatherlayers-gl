@@ -71,7 +71,7 @@
         layers: [],
       });
       deckLayer.setMap(map);
-      const deckgl = window.deckgl = await waitForDeck(() => deckLayer._deck);;
+      const deckgl = window.deckgl = await waitForDeck(() => deckLayer._deck);
 
       // info panels
       const infoControl = new InfoControl();
