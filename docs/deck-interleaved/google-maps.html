@@ -45,6 +45,7 @@
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
+    WeatherLayersClient.setLibrary('geotiff', GeoTIFF);
 
     window.addEventListener('DOMContentLoaded', async () => {
       const LICENSE = await (await fetch('../license.json')).json();

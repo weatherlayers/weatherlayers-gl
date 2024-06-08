@@ -1,4 +1,5 @@
-import * as GeoTIFF from 'geotiff';
+import type { TypedArrayWithDimensions } from 'geotiff';
+import { getLibrary } from './library.js';
 
 export type TextureDataArray = Uint8Array | Uint8ClampedArray | Float32Array;
 
@@ -62,6 +63,8 @@ async function loadImage(url: string): Promise<TextureData> {
 }
 
 async function loadGeotiff(url: string): Promise<TextureData> {
+  const GeoTIFF = await getLibrary<typeof import('geotiff')>('geotiff');
+
   let geotiff;
   try {
     // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
@@ -71,7 +74,7 @@ async function loadGeotiff(url: string): Promise<TextureData> {
   }
   const geotiffImage = await geotiff.getImage(0);
 
-  const sourceData = await geotiffImage.readRasters({ interleave: true }) as GeoTIFF.TypedArray;
+  const sourceData = await geotiffImage.readRasters({ interleave: true }) as TypedArrayWithDimensions;
   if (!(sourceData instanceof Uint8Array || sourceData instanceof Uint8ClampedArray || sourceData instanceof Float32Array)) {
     throw new Error('Unsupported data format');
   }

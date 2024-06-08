@@ -45,6 +45,8 @@
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
+    WeatherLayersClient.setLibrary('geotiff', GeoTIFF);
+
     const mercatorClient = window.mercatorClient = new WeatherLayersClient.Client({
       accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
       dataFormat: 'mercator.byte.png',
