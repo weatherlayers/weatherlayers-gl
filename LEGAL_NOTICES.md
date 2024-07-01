@@ -6,16 +6,16 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 
 | Name | Version | Homepage | License | Link |
 |---|---|---|---|---|
-| @deck.gl/core | 9.0.16 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/extensions | 9.0.16 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @deck.gl/layers | 9.0.16 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
-| @luma.gl/core | 9.0.14 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
-| @luma.gl/engine | 9.0.14 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
+| @deck.gl/core | 9.0.20 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/extensions | 9.0.20 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @deck.gl/layers | 9.0.20 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
+| @luma.gl/core | 9.0.15 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
+| @luma.gl/engine | 9.0.15 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
 | @mapbox/sphericalmercator | 1.2.0 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
 | comlink | 4.4.1 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
 | cpt2js | 1.5.3 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
 | geodesy-fn | 1.0.1 | https://github.com/zakjan/geodesy-fn | MIT | https://github.com/zakjan/geodesy-fn/blob/main/LICENSE |
-| geokdbush-tk | 2.0.4 | https://github.com/tkafka/geokdbush-tk | ISC | https://github.com/tkafka/geokdbush-tk/blob/master/LICENSE |
+| geokdbush | 2.0.1 | https://github.com/mourner/geokdbush | ISC | https://github.com/mourner/geokdbush/blob/main/LICENSE |
 | geotiff | 2.1.3 | https://github.com/geotiffjs/geotiff.js | MIT | https://github.com/geotiffjs/geotiff.js/blob/master/LICENSE |
 | icomesh | 1.1.0 | https://github.com/mourner/icomesh | ISC | https://github.com/mourner/icomesh/blob/master/LICENSE |
 | json-stable-stringify | 1.0.2 | https://github.com/ljharb/json-stable-stringify | MIT | https://github.com/ljharb/json-stable-stringify/blob/main/LICENSE |

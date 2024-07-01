@@ -2,7 +2,7 @@ import type { Viewport } from '@deck.gl/core';
 import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
-import * as geokdbush from 'geokdbush-tk';
+import * as geokdbush from 'geokdbush';
 import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from './viewport.js';
 import { wrapLongitude } from './bounds.js';
 

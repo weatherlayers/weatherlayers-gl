@@ -1,4 +1,4 @@
-declare module 'geokdbush-tk' {
+declare module 'geokdbush' {
   import KDBush from 'kdbush';
   
   export function around(
