@@ -63,7 +63,7 @@ async function loadImage(url: string): Promise<TextureData> {
 }
 
 async function loadGeotiff(url: string): Promise<TextureData> {
-  const GeoTIFF = await getLibrary<typeof import('geotiff')>('geotiff');
+  const GeoTIFF = await getLibrary('geotiff');
 
   let geotiff;
   try {

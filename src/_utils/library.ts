@@ -1,12 +1,19 @@
 const libraries = new Map<string, unknown>();
 
-export function setLibrary<T>(name: string, library: T): void {
+export function setLibrary(name: string, library: unknown): void {
   libraries.set(name, library);
 }
 
-export async function getLibrary<T>(name: string): Promise<T> {
+export async function getLibrary(name: 'geotiff'): Promise<typeof import('geotiff')>;
+export async function getLibrary(name: string): Promise<unknown> {
+  if (libraries.has(name)) {
+    return libraries.get(name);
+  }
+
   try {
-    return libraries.get(name) ?? await import(name);
+    switch (name) {
+      case 'geotiff': return await import('geotiff');
+    }
   } catch (e) {
     throw new Error(`Optional dependency '${name}' is missing, install it with a package manager or provide with \`WeatherLayersClient.setLibrary('${name}', library)\``, { cause: e });
   }
