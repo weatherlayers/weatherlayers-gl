@@ -46,7 +46,9 @@
   "scripts": {
     "build": "rimraf dist && NODE_OPTIONS=--max-old-space-size=8192 rollup -c",
     "dev": "NODE_OPTIONS=--max-old-space-size=8192 rollup -c -w",
-    "test": "tsx --test src/**/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts",
+    "prepublishOnly": "./prepublish.sh",
+    "postpublish": "./postpublish.sh"
   },
   "dependencies": {
     "@mapbox/sphericalmercator": "^1.2.0",
