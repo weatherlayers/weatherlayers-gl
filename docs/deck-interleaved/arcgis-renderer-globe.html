@@ -122,7 +122,7 @@
 
       // timeline
       const timelineControl = new WeatherLayers.TimelineControl({
-        onPreload: datetimes => Promise.all(datetimes.map(datetime => client.loadDatasetData(config.dataset, datetime))),
+        onPreload: datetimes => datetimes.map(datetime => client.loadDatasetData(config.dataset, datetime)),
         onUpdate: datetime => {
           config.datetime = datetime || NO_DATA;
           update();

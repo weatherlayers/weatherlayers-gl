@@ -13,7 +13,7 @@ export interface TimelineControlConfig {
   datetime: DatetimeISOString;
   datetimeInterpolate?: boolean;
   datetimeFormatFunction?: DatetimeFormatFunction;
-  onPreload?: (datetimes: DatetimeISOString[]) => Promise<void>;
+  onPreload?: (datetimes: DatetimeISOString[]) => Promise<void>[] | Promise<void>;
   onUpdate?: (datetime: DatetimeISOString) => void;
   fps?: number;
 }
@@ -46,6 +46,7 @@ export class TimelineControl extends Control<TimelineControlConfig> {
   #container: HTMLElement | undefined = undefined;
   #currentDatetime: HTMLElement | undefined = undefined;
   #progressInput: HTMLInputElement | undefined = undefined;
+  #loaderText: HTMLSpanElement | undefined = undefined;
   #loading: boolean = false;
   #animation: Animation;
 
@@ -234,13 +235,34 @@ export class TimelineControl extends Control<TimelineControlConfig> {
   }
 
   async #preload(datetimes: DatetimeISOString[]): Promise<void> {
-    if (!this.#container || !this.#config.onPreload) {
+    if (!this.#container || !this.#loaderText || !this.#config.onPreload) {
       return;
     }
 
     this.#loading = true;
     this.#container.classList.add(LOADING_CLASS);
-    await this.#config.onPreload(datetimes);
+
+    const promises = this.#config.onPreload(datetimes);
+    if (Array.isArray(promises)) {
+      let successCount = 0;
+      const updateLoaderText = () => {
+        this.#loaderText!.innerHTML = `Loading... ${successCount}/${promises.length}`;
+      };
+      updateLoaderText();
+      for (let promise of promises) {
+        promise.then(() => {
+          successCount++;
+          updateLoaderText();
+        });
+      }
+      await Promise.all(promises);
+      this.#loaderText.innerHTML = '';
+    } else {
+      this.#loaderText.innerHTML = 'Loading...';
+      await promises;
+      this.#loaderText.innerHTML = '';
+    }
+
     this.#loading = false;
     this.#container.classList.remove(LOADING_CLASS);
   }
@@ -391,9 +413,8 @@ export class TimelineControl extends Control<TimelineControlConfig> {
     loaderIcon.classList.add(LOADER_ICON_CLASS);
     loader.appendChild(loaderIcon);
 
-    const loaderText = document.createElement('span');
-    loaderText.classList.add(LOADER_TEXT_CLASS);
-    loaderText.innerHTML = 'Loading...';
-    loader.appendChild(loaderText);
+    this.#loaderText = document.createElement('span');
+    this.#loaderText.classList.add(LOADER_TEXT_CLASS);
+    loader.appendChild(this.#loaderText);
   }
 }
