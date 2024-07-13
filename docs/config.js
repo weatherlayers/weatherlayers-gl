@@ -47,16 +47,18 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
 };
 
+const CURRENT_DATETIME = new Date().toISOString();
+
 export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
   const urlConfig = new URLSearchParams(location.hash.substring(1));
 
   const config = {
     datasets: datasets ?? [],
     dataset: urlConfig.get('dataset') ?? DEFAULT_DATASET,
-    unitSystem: WeatherLayers.UnitSystem.METRIC,
+    datetimeRange: WeatherLayers.offsetDatetimeRange(CURRENT_DATETIME, 0, 24).join('/'),
+    datetimeStep: 3,
     datetimes: [],
     datetime: NO_DATA,
-
     ...(deckgl ? {
       datetimeInterpolate: true,
     } : {}),
@@ -65,6 +67,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
     imageInterpolation: deckgl ? WeatherLayers.ImageInterpolation.CUBIC : WeatherLayers.ImageInterpolation.NEAREST,
     imageMinValue: 0, // dataset-specific
     imageMaxValue: 0, // dataset-specific
+    unitSystem: WeatherLayers.UnitSystem.METRIC,
 
     ...(globe ? {
       rotate: false,
@@ -144,7 +147,15 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 }
 
 function getOptions(options) {
-  return options.map(x => ({ value: x, text: x }));
+  return options.map(x => ({ value: x, text: `${x}` }));
+}
+
+function getDatetimeRangeOptions(options) {
+  return options.map(x => ({ value: WeatherLayers.offsetDatetimeRange(CURRENT_DATETIME, 0, x * 24).join('/'), text: `${x} day${x > 1 ? 's' : ''}` }));
+}
+
+function getHourOptions(options) {
+  return options.map(x => ({ value: x, text: `${x} hour${x > 1 ? 's' : ''}` }));
 }
 
 function getDatetimeOptions(datetimes) {
@@ -223,24 +234,25 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   const gui = new Pane();
 
   let datetime;
-  gui.addBinding(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', async () => {
+  const updateDatetimes = async () => {
     // force update dataset
-    await originalUpdate();
+    await originalUpdate(true);
     loadUrlConfig(config, { deckgl, webgl2 });
     updateUrlConfig(config, { deckgl, webgl2 });
 
-    // refresh datetimes
+    // update datetimes
     datetime.dispose();
-    datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 1 }).on('change', update);
+    datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]), index: 3 }).on('change', update);
     gui.refresh();
 
     // force update datetime
-    originalUpdate();
-  });
-  gui.addBinding(config, 'unitSystem', { options: getOptions(Object.values(WeatherLayers.UnitSystem)) }).on('change', update);
+    originalUpdate(true);
+  };
 
+  gui.addBinding(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', updateDatetimes);
+  gui.addBinding(config, 'datetimeRange', { options: getDatetimeRangeOptions([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) }).on('change', updateDatetimes);
+  gui.addBinding(config, 'datetimeStep', { options: getHourOptions([1, 3, 6, 12, 24]) }).on('change', updateDatetimes);
   datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
-
   if (deckgl) {
     gui.addBinding(config, 'datetimeInterpolate').on('change', update);
   }
@@ -249,6 +261,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   gui.addBinding(config, 'imageInterpolation', { options: getOptions(Object.values(WeatherLayers.ImageInterpolation)) }).on('change', update);
   gui.addBinding(config, 'imageMinValue', { min: 0, max: 1100, step: 0.1 }).on('change', update);
   gui.addBinding(config, 'imageMaxValue', { min: 0, max: 1100, step: 0.1 }).on('change', update);
+  gui.addBinding(config, 'unitSystem', { options: getOptions(Object.values(WeatherLayers.UnitSystem)) }).on('change', update);
 
   if (globe) {
     gui.addBinding(config, 'rotate').on('change', update);

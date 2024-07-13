@@ -4,6 +4,8 @@ export type DatetimeISOStringRange = [start: DatetimeISOString, end: DatetimeISO
 
 export type DatetimeFormatFunction = (value: DatetimeISOString) => DatetimeISOString;
 
+export type DurationISOString = string;
+
 export function interpolateDatetime(start: DatetimeISOString, end: DatetimeISOString | null, weight: number): string {
   if (!end) {
     if (weight === 0) {
@@ -63,8 +65,8 @@ export function offsetDatetime(datetime: DatetimeISOString, hour: number): Datet
   return updatedDatetimeDate.toISOString();
 }
 
-export function offsetDatetimeRange(datetime: DatetimeISOString, start: number, end: number): DatetimeISOStringRange {
-  return [offsetDatetime(datetime, start), offsetDatetime(datetime, end)];
+export function offsetDatetimeRange(datetime: DatetimeISOString, startHour: number, endHour: number): DatetimeISOStringRange {
+  return [offsetDatetime(datetime, startHour), offsetDatetime(datetime, endHour)];
 }
 
 export function formatDatetime(value: DatetimeISOString): string {

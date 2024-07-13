@@ -41,7 +41,6 @@
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
-    const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
     const client = window.client = new WeatherLayersClient.Client({
       accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
     });
@@ -88,12 +87,12 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update() {
+      async function update(forceUpdateDatetime) {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
-        const datetimeRange = WeatherLayers.offsetDatetimeRange(new Date().toISOString(), 0, 24);
-        const {datetimes} = await client.loadDatasetSlice(dataset, datetimeRange);
-        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] ? config.datetime : datetimes[0];
+        const currentDatetime = new Date().toISOString();
+        const {datetimes} = await client.loadDatasetSlice(dataset, config.datetimeRange, { datetimeStep: config.datetimeStep });
+        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] && !forceUpdateDatetime ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
         await mercatorClient.loadDatasetSlice(dataset, datetimeRange);
         const {image: mercatorImage} = await mercatorClient.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });

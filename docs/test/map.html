@@ -82,7 +82,7 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update() {
+      async function update(forceUpdateDatetime) {
         const image = await WeatherLayers.loadTextureData('wind_data.png');
         const imageType = WeatherLayers.ImageType.VECTOR;
         const imageUnscale = [-128, 127];

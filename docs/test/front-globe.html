@@ -96,7 +96,7 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update() {
+      async function update(forceUpdateDatetime) {
         const image = await WeatherLayers.loadTextureData('front-pressure.byte.png');
         const imageType = WeatherLayers.ImageType.SCALAR;
         const imageUnscale = [940, 1080];
