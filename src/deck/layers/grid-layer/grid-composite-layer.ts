@@ -161,9 +161,17 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, style, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, style, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor, palette, visible } = params.props;
 
     super.updateState(params);
+
+    if (!visible) {
+      this.setState({
+        points: undefined,
+        visiblePoints: undefined,
+      });
+      return;
+    }
 
     if (
       !this.state.iconStyle ||
@@ -188,7 +196,8 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       imageType !== params.oldProps.imageType ||
       imageUnscale !== params.oldProps.imageUnscale ||
       imageMinValue !== params.oldProps.imageMinValue ||
-      imageMaxValue !== params.oldProps.imageMaxValue
+      imageMaxValue !== params.oldProps.imageMaxValue ||
+      visible !== params.oldProps.visible
     ) {
       this.#updateFeatures();
     }

@@ -158,11 +158,11 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette } = params.props;
+    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette, visible } = params.props;
 
     super.updateState(params);
 
-    if (!radius) {
+    if (!radius || !visible) {
       this.setState({
         points: undefined,
         visiblePoints: undefined,
@@ -182,7 +182,8 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       imageUnscale !== params.oldProps.imageUnscale ||
       imageMinValue !== params.oldProps.imageMinValue ||
       imageMaxValue !== params.oldProps.imageMaxValue ||
-      radius !== params.oldProps.radius
+      radius !== params.oldProps.radius ||
+      visible !== params.oldProps.visible
     ) {
       this.#updateFeatures();
     }
