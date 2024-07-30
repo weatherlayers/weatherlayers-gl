@@ -72,7 +72,9 @@ function getStacCollectionAttribution(stacCollection: DatasetStacCollection, att
 
 function getStacCollectionUnitFormat(stacCollection: DatasetStacCollection, unitSystem: UnitSystem): UnitFormat {
   const units = stacCollection['weatherLayers:units'];
-  return units.find(unitFormat => unitFormat.system === unitSystem) ?? units.find(unitFormat => unitFormat.system === DEFAULT_UNIT_SYSTEM) ?? units[0];
+  const unitDefinition = units.find(unitFormat => unitFormat.system === unitSystem) ?? units.find(unitFormat => unitFormat.system === DEFAULT_UNIT_SYSTEM) ?? units[0];
+  const {unit, scale, offset, decimals} = unitDefinition;
+  return {unit, scale, offset, decimals};
 }
 
 function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange): string {

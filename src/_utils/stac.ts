@@ -1,5 +1,5 @@
-import { ImageType } from './image-type.js';
-import { UnitFormat } from './unit-format.js';
+import type { ImageType } from './image-type.js';
+import type { UnitDefinition } from './unit-definition.js';
 
 export enum StacProviderRole {
   LICENSOR = 'licensor',
@@ -118,7 +118,7 @@ export type DatasetStacCollections = StacCollections<DatasetStacCollection>;
 export interface DatasetStacCollection extends StacCollection {
   'weatherLayers:imageType': ImageType; // custom
   'weatherLayers:imageUnscale': [number, number] | null; // custom
-  'weatherLayers:units': UnitFormat[]; // custom
+  'weatherLayers:units': UnitDefinition[]; // custom
 }
 
 export type DatasetDataStacItemCollection = StacItemCollection<DatasetDataStacItem>;
