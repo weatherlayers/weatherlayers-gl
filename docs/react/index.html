@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src weatherlayers.com *.weatherlayers.com localhost:* unpkg.com cdn.jsdelivr.net *.mapbox.com *.googleapis.com *.gstatic.com *.arcgis.com web3dsurvey.com blob: 'unsafe-inline' 'unsafe-eval';
+    style-src weatherlayers.com *.weatherlayers.com localhost:* unpkg.com *.mapbox.com *.googleapis.com *.gstatic.com *.arcgis.com 'unsafe-inline';
+    img-src weatherlayers.com *.weatherlayers.com localhost:* catalog.weatherlayers.com *.basemaps.cartocdn.com *.googleapis.com *.gstatic.com *.arcgis.com data:;
+    connect-src weatherlayers.com *.weatherlayers.com localhost:* catalog.weatherlayers.com *.basemaps.cartocdn.com *.mapbox.com *.googleapis.com *.gstatic.com *.arcgis.com web3dsurvey.com data: ws:;
+    font-src *.gstatic.com *.arcgis.com
+  ">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeatherLayers</title>
+  <link href="https://weatherlayers.com/assets/logo.png" rel="icon" type="image/png">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
