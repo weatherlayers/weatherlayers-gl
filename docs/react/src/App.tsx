@@ -94,6 +94,7 @@ function App() {
           width: 2,
           opacity: 0.2,
           animate: true,
+          pauseDuringInteraction: true,
           extensions: [new ClipExtension()],
           clipBounds: [-180, -85.051129, 180, 85.051129],
           getPolygonOffset: () => [0, -1000],
