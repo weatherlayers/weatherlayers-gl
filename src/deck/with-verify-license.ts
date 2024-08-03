@@ -1,5 +1,5 @@
-import { CompositeLayer, CompositeLayerProps } from '@deck.gl/core';
-import type { Position, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
+import { CompositeLayer } from '@deck.gl/core';
+import type { Position, DefaultProps, UpdateParameters, LayersList, CompositeLayerProps } from '@deck.gl/core';
 import { TextLayer } from '@deck.gl/layers';
 import type { TextLayerProps } from '@deck.gl/layers';
 import { wrap } from 'comlink';
@@ -8,7 +8,7 @@ import { hashCodeString } from '../_utils/hashcode.js';
 import { getViewportAngle } from '../_utils/viewport.js';
 import { getViewportGridPositions } from '../_utils/viewport-grid.js';
 import createLicenseWorker from 'worker!../license/license-worker.js';
-import { LicenseWorker } from '../license/license-worker.js';
+import type { LicenseWorker } from '../license/license-worker.js';
 import type { License } from 'weatherlayers-license/src/license.js';
 
 // https://anseki.github.io/gnirts/

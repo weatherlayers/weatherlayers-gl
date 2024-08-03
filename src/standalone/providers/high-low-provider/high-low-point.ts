@@ -1,6 +1,6 @@
 import { transfer, wrap } from 'comlink';
 import createHighLowPointWorker from 'worker!./high-low-point-worker.js';
-import { HighLowPointWorker } from './high-low-point-worker.js';
+import type { HighLowPointWorker } from './high-low-point-worker.js';
 import type { ImageProperties } from '../../../_utils/image-properties.js';
 
 export enum HighLowType {

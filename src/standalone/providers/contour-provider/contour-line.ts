@@ -1,6 +1,6 @@
 import { transfer, wrap } from 'comlink';
 import createContourLineWorker from 'worker!./contour-line-worker.js';
-import { ContourLineWorker } from './contour-line-worker.js';
+import type { ContourLineWorker } from './contour-line-worker.js';
 import type { ImageProperties } from '../../../_utils/image-properties.js';
 
 export interface ContourLineProperties {

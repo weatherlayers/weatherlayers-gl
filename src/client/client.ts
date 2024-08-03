@@ -1,5 +1,6 @@
 import { VERSION, CATALOG_URL } from '../_utils/build.js';
-import { TextureData, loadTextureData, loadJson } from '../_utils/data.js';
+import { loadTextureData, loadJson } from '../_utils/data.js';
+import type { TextureData } from '../_utils/data.js';
 import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } from '../_utils/datetime.js';
 import type { DatetimeISOString, DatetimeISOStringRange, DurationISOString } from '../_utils/datetime.js';
 import type { ImageType } from '../_utils/image-type.js';

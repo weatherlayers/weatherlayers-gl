@@ -1,6 +1,6 @@
 import type { Color, LayerProps, DefaultProps, UpdateParameters, LayerContext } from '@deck.gl/core';
-import { LineLayer, BitmapBoundingBox } from '@deck.gl/layers';
-import type { LineLayerProps } from '@deck.gl/layers';
+import { LineLayer } from '@deck.gl/layers';
+import type { LineLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
 import type { Buffer, Texture } from '@luma.gl/core';
 import { BufferTransform } from '@luma.gl/engine';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';

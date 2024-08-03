@@ -2,7 +2,7 @@
 import { expose, transfer } from 'comlink';
 import { verifyLicenseMain } from './license-worker-main.js';
 
-/** @typedef {import('./license.js').License} License */
+/** @typedef {import('weatherlayers-license/src/license.js').License} License */
 
 expose({
   /**

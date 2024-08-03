@@ -1,7 +1,7 @@
 import { CompositeLayer } from '@deck.gl/core';
 import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import { TextLayer, BitmapBoundingBox } from '@deck.gl/layers';
-import type { TextLayerProps } from '@deck.gl/layers';
+import { TextLayer } from '@deck.gl/layers';
+import type { TextLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
 import { CollisionFilterExtension } from '@deck.gl/extensions';
 import type { CollisionFilterExtensionProps } from '@deck.gl/extensions';
 import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';

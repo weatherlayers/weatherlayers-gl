@@ -7,7 +7,7 @@ import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
 import { ImageType } from '../../../_utils/image-type.js';
 import type { ImageUnscale } from '../../../_utils/image-unscale.js';
 import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
-import { RasterPointProperties } from '../../../_utils/raster-data.js';
+import type { RasterPointProperties } from '../../../_utils/raster-data.js';
 import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
 import { createEmptyTextureCached } from '../../../_utils/texture.js';
 import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';

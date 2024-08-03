@@ -4,7 +4,7 @@ import type { UnitFormat } from '../../_utils/unit-format.js';
 import { DirectionType } from '../../_utils/direction-type.js';
 import { DirectionFormat } from '../../_utils/direction-format.js';
 import { Placement } from '../../_utils/placement.js';
-import { RasterPointProperties } from '../../_utils/raster-data.js';
+import type { RasterPointProperties } from '../../_utils/raster-data.js';
 import { Control } from '../control.js';
 import './tooltip-control.css';
 

@@ -1,7 +1,7 @@
 import { CompositeLayer } from '@deck.gl/core';
 import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, CompositeLayerProps, LayersList } from '@deck.gl/core';
-import { TextLayer, IconLayer, BitmapBoundingBox } from '@deck.gl/layers';
-import type { TextLayerProps, IconLayerProps } from '@deck.gl/layers';
+import { TextLayer, IconLayer } from '@deck.gl/layers';
+import type { TextLayerProps, IconLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
 import type { Texture } from '@luma.gl/core';
 import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
 import type { TextFormatFunction } from '../../../_utils/props.js';
