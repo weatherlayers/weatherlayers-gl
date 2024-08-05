@@ -189,7 +189,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     const { viewport } = this.context;
     const { model } = this.state;
-    const { minZoom, maxZoom, width, animate } = ensureDefaultProps(this.props, defaultProps);
+    const { minZoom, maxZoom, width } = ensureDefaultProps(this.props, defaultProps);
     const { sourcePositions, targetPositions, sourceColors, opacities, transform } = this.state;
     if (!sourcePositions || !targetPositions || !sourceColors || !opacities || !transform) {
       return;
@@ -209,10 +209,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       });
 
       super.draw(opts);
-
-      if (animate) {
-        this.requestStep();
-      }
     }
   }
 
@@ -339,7 +335,13 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       [updateVsTokens.time]: time,
       [updateVsTokens.seed]: Math.random(),
     });
-    transform.run();
+    transform.run({
+      clearColor: false,
+      clearDepth: false,
+      clearStencil: false,
+      depthReadOnly: true,
+      stencilReadOnly: true,
+    });
 
     const commandEncoder = device.createCommandEncoder();
 
@@ -455,21 +457,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     const { paletteBounds, paletteTexture } = createPaletteTexture(device, paletteScale);
 
     this.setState({ paletteTexture, paletteBounds });
-  }
-
-  requestStep(): void {
-    const { stepRequested } = this.state;
-    if (stepRequested) {
-      return;
-    }
-
-    this.state.stepRequested = true;
-    // requestAnimationFrame causes flickering when interacting with MapLibre/Mapbox
-    // requestIdleCallback is not supported yet on Safari
-    setTimeout(() => {
-      this.step();
-      this.state.stepRequested = false;
-    }, 0);
   }
 
   step(): void {

@@ -1,11 +1,12 @@
 import { CompositeLayer } from '@deck.gl/core';
-import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
+import type { LayerProps, DefaultProps, UpdateParameters, LayersList, LayerContext } from '@deck.gl/core';
 import type { Texture } from '@luma.gl/core';
 import type { TextureData } from '../../../_utils/data.js';
 import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
 import { withVerifyLicense } from '../../with-verify-license.js';
 import { ParticleLineLayer } from './particle-line-layer.js';
 import type { ParticleLineLayerProps } from './particle-line-layer.js';
+import { ParticleLineLayerUpdateEffect } from './particle-line-layer-update-effect.js';
 
 type _ParticleLayerProps = ParticleLineLayerProps & {
   image: TextureData | null;
@@ -53,6 +54,12 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
         image2: createEmptyTextureCached(device),
       })),
     ];
+  }
+
+  initializeState(context: LayerContext): void {
+    super.initializeState(context);
+
+    this.context.deck?._addDefaultEffect(new ParticleLineLayerUpdateEffect());
   }
 
   updateState(params: UpdateParameters<this>): void {
