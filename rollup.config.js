@@ -131,22 +131,22 @@ export default commandLineArgs => {
     ...(!commandLineArgs.watch ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),
       bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
-    ] : []),
-    bundle(entrypoint, filename, 'es', { resolve: true }),
-    bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
-    {
-      input: entrypoint,
-      output: {
-        file: filename.replace('.js', '.d.ts'),
-        format: 'es',
+      bundle(entrypoint, filename, 'es', { resolve: true }),
+      bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
+      {
+        input: entrypoint,
+        output: {
+          file: filename.replace('.js', '.d.ts'),
+          format: 'es',
+        },
+        plugins: [
+          dts(),
+          json(),
+          image(),
+          postcss({ inject: false }),
+        ],
       },
-      plugins: [
-        dts(),
-        json(),
-        image(),
-        postcss({ inject: false }),
-      ],
-    },
+    ] : []),
     bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
     bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
   ]).flat();

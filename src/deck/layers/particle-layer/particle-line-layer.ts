@@ -41,7 +41,6 @@ type _ParticleLineLayerProps = LineLayerProps<unknown> & {
   color: Color | null;
   palette: Palette | null;
   animate: boolean;
-  pauseDuringInteraction: boolean;
 };
 
 export type ParticleLineLayerProps = _ParticleLineLayerProps & LayerProps;
@@ -67,7 +66,6 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   width: { type: 'number', value: DEFAULT_LINE_WIDTH },
   color: { type: 'color', value: DEFAULT_LINE_COLOR },
   animate: true,
-  pauseDuringInteraction: false,
 
   wrapLongitude: true,
 };
@@ -90,7 +88,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     previousTime?: number;
     paletteTexture?: Texture;
     paletteBounds?: [number, number];
-    stepRequestedTimeout?: NodeJS.Timeout;
+    stepRequested?: boolean;
   };
 
   getShaders(): any {
@@ -460,22 +458,18 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   }
 
   requestStep(): void {
-    const { pauseDuringInteraction } = ensureDefaultProps(this.props, defaultProps);
-    const { stepRequestedTimeout } = this.state;
-    if (stepRequestedTimeout) {
-      if (pauseDuringInteraction) {
-        clearTimeout(stepRequestedTimeout);
-      } else {
-        return;
-      }
+    const { stepRequested } = this.state;
+    if (stepRequested) {
+      return;
     }
 
+    this.state.stepRequested = true;
     // requestAnimationFrame causes flickering when interacting with MapLibre/Mapbox
     // requestIdleCallback is not supported yet on Safari
-    this.state.stepRequestedTimeout = setTimeout(() => {
+    setTimeout(() => {
       this.step();
-      this.state.stepRequestedTimeout = undefined;
-    }, FPS);
+      this.state.stepRequested = false;
+    }, 0);
   }
 
   step(): void {
