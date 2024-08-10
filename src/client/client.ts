@@ -2,7 +2,7 @@ import { VERSION, CATALOG_URL } from '../_utils/build.js';
 import { loadTextureData, loadJson } from '../_utils/data.js';
 import type { TextureData } from '../_utils/data.js';
 import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } from '../_utils/datetime.js';
-import type { DatetimeISOString, DatetimeISOStringRange, DurationISOString } from '../_utils/datetime.js';
+import type { DatetimeISOString, DatetimeISOStringRange, OpenDatetimeISOStringRange, DurationISOString } from '../_utils/datetime.js';
 import type { ImageType } from '../_utils/image-type.js';
 import type { ImageUnscale } from '../_utils/image-unscale.js';
 import { UnitSystem } from '../_utils/unit-system.js';
@@ -25,7 +25,7 @@ export interface Dataset {
   title: string;
   unitFormat: UnitFormat;
   attribution: string;
-  datetimeRange: DatetimeISOStringRange;
+  datetimeRange: OpenDatetimeISOStringRange;
   datetimes: DatetimeISOString[]; // deprecated, use `loadDatasetSlice` instead
   palette: Palette;
 }

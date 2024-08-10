@@ -81,7 +81,7 @@ export interface StacCollection {
       bbox: [[number, number, number, number]];
     };
     temporal: {
-      interval: [[string, string]];
+      interval: [[string | null, string | null]];
     };
   };
   summaries?: unknown; // deprecated, used by Virtual Gaia

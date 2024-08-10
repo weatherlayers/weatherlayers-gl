@@ -2,6 +2,8 @@ export type DatetimeISOString = string;
 
 export type DatetimeISOStringRange = [start: DatetimeISOString, end: DatetimeISOString];
 
+export type OpenDatetimeISOStringRange = [start: DatetimeISOString | null, end: DatetimeISOString | null];
+
 export type DatetimeFormatFunction = (value: DatetimeISOString) => DatetimeISOString;
 
 export type DurationISOString = string;
