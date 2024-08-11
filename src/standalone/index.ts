@@ -1,5 +1,5 @@
-export * from '../_utils/index.js';
-export * from '../_controls/index.js';
+export * from '../deck/_utils/index.js';
+export * from '../deck/controls/index.js';
 
 export { GridStyle } from '../deck/layers/grid-layer/grid-style.js'; // required by demo only
 

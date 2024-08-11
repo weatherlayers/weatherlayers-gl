@@ -1,10 +1,10 @@
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
-import { blur } from '../../../_utils/blur.js';
-import type { FloatData } from '../../../_utils/data.js';
-import type { ImageProperties } from '../../../_utils/image-properties.js';
-import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
-import { getUnprojectFunction } from '../../../_utils/project.js';
+import { blur } from '../../../deck/_utils/blur.js';
+import type { FloatData } from '../../../client/_utils/texture-data.js';
+import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
+import { getRasterMagnitudeData } from '../../../deck/_utils/raster-data.js';
+import { getUnprojectFunction } from '../../../deck/_utils/project.js';
 
 /**
  * wrap data around the world by repeating the data in the west and east

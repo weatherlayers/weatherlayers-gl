@@ -1,15 +1,15 @@
-import { VERSION, CATALOG_URL } from '../_utils/build.js';
-import { loadTextureData, loadJson } from '../_utils/data.js';
-import type { TextureData } from '../_utils/data.js';
-import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } from '../_utils/datetime.js';
-import type { DatetimeISOString, DatetimeISOStringRange, OpenDatetimeISOStringRange, DurationISOString } from '../_utils/datetime.js';
-import type { ImageType } from '../_utils/image-type.js';
-import type { ImageUnscale } from '../_utils/image-unscale.js';
-import { UnitSystem } from '../_utils/unit-system.js';
-import type { UnitFormat } from '../_utils/unit-format.js';
-import type { Palette } from '../_utils/palette.js';
-import { StacProviderRole, StacAssetRole, StacLinkRel } from '../_utils/stac.js';
-import type { StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem } from '../_utils/stac.js';
+import { VERSION, CATALOG_URL } from './_utils/build.js';
+import { loadTextureData, loadJson } from './_utils/texture-data.js';
+import type { TextureData } from './_utils/texture-data.js';
+import { getDatetimeWeight, getClosestStartDatetime, getClosestEndDatetime } from './_utils/datetime.js';
+import type { DatetimeISOString, DatetimeISOStringRange, OpenDatetimeISOStringRange, DurationISOString } from './_utils/datetime.js';
+import type { ImageType } from './_utils/image-type.js';
+import type { ImageUnscale } from './_utils/image-unscale.js';
+import { UnitSystem } from './_utils/unit-system.js';
+import type { UnitFormat } from './_utils/unit-format.js';
+import type { Palette } from './_utils/palette.js';
+import { StacProviderRole, StacAssetRole, StacLinkRel } from './_utils/stac.js';
+import type { StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem } from './_utils/stac.js';
 
 export interface ClientConfig {
   url?: string;

@@ -5,11 +5,11 @@ import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/la
 import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
 import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions';
 import type { Texture } from '@luma.gl/core';
-import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
-import { loadTextureData } from '../../../_utils/data.js';
-import { createTextureCached } from '../../../_utils/texture.js';
-import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
-import type { IconStyle } from '../../../_utils/icon-style.js';
+import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../_utils/props.js';
+import { loadTextureData } from '../../../client/_utils/texture-data.js';
+import { createTextureCached } from '../../_utils/texture.js';
+import { isViewportInZoomBounds, getViewportAngle } from '../../_utils/viewport.js';
+import type { IconStyle } from '../../_utils/icon-style.js';
 import { FrontType, iconStyle } from './front-type.js';
 import { getFrontLine } from './front-line.js';
 import type { FrontLine, FrontIcon } from './front-line.js';

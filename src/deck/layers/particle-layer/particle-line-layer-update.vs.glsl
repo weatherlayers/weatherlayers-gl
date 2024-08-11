@@ -5,8 +5,8 @@
 precision highp float;
 #endif
 
-@include "../../../_utils/pixel.glsl"
-@include "../../../_utils/pixel-value.glsl"
+@include "../../_utils/pixel.glsl"
+@include "../../_utils/pixel-value.glsl"
 
 in vec3 sourcePosition;
 in vec4 sourceColor;

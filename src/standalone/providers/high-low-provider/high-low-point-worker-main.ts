@@ -1,9 +1,9 @@
-import { blur } from '../../../_utils/blur.js';
-import { distance } from '../../../_utils/geodesy.js';
-import type { FloatData } from '../../../_utils/data.js';
-import type { ImageProperties } from '../../../_utils/image-properties.js';
-import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
-import { getUnprojectFunction } from '../../../_utils/project.js';
+import { blur } from '../../../deck/_utils/blur.js';
+import { distance } from '../../../deck/_utils/geodesy.js';
+import type { FloatData } from '../../../client/_utils/texture-data.js';
+import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
+import { getRasterMagnitudeData } from '../../../deck/_utils/raster-data.js';
+import { getUnprojectFunction } from '../../../deck/_utils/project.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F

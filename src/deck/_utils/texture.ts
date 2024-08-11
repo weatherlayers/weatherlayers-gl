@@ -1,5 +1,5 @@
 import type { Device, Texture, TextureProps, TextureFormat } from '@luma.gl/core';
-import type { TextureData } from './data.js';
+import type { TextureData } from '../../client/_utils/texture-data.js';
 
 const cache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
 

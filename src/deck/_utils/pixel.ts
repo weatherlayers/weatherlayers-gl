@@ -1,6 +1,6 @@
 import { frac, add, dot, mul, mix } from './glsl.js';
 import { ImageInterpolation } from './image-interpolation.js';
-import type { TextureData } from './data.js';
+import type { TextureData } from '../../client/_utils/texture-data.js';
 
 type ImageDownscaleResolution = [width: number, height: number];
 

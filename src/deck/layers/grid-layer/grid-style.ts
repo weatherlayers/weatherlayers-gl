@@ -1,4 +1,4 @@
-import type { IconStyle } from '../../../_utils/icon-style.js';
+import type { IconStyle } from '../../_utils/icon-style.js';
 import arrowAtlas from './arrow.atlas.png';
 import arrowMapping from './arrow.mapping.json';
 import windBarbAtlas from './wind-barb.atlas.png';

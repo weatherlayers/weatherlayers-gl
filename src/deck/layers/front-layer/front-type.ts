@@ -1,4 +1,4 @@
-import type { IconStyle } from '../../../_utils/icon-style.js';
+import type { IconStyle } from '../../_utils/icon-style.js';
 import iconAtlas from './front-type.atlas.png';
 import iconMapping from './front-type.mapping.json';
 

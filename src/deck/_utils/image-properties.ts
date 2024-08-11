@@ -1,7 +1,7 @@
-import type { TextureData } from './data.js';
+import type { TextureData } from '../../client/_utils/texture-data.js';
 import type { ImageInterpolation } from './image-interpolation.js';
-import type { ImageType } from './image-type.js';
-import type { ImageUnscale } from './image-unscale.js';
+import type { ImageType } from '../../client/_utils/image-type.js';
+import type { ImageUnscale } from '../../client/_utils/image-unscale.js';
 
 export interface ImageProperties {
   image: TextureData;

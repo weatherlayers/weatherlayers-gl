@@ -1,6 +1,6 @@
 import { CompositeLayer } from '@deck.gl/core';
 import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import { withVerifyLicense } from '../../with-verify-license.js';
+import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
 import { HighLowCompositeLayer } from './high-low-composite-layer.js';
 import type { HighLowCompositeLayerProps } from './high-low-composite-layer.js';
 

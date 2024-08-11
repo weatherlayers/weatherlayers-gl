@@ -1,9 +1,9 @@
 import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
 import type { Texture } from '@luma.gl/core';
-import type { TextureData } from '../../../_utils/data.js';
-import { createTextureCached, createEmptyTextureCached } from '../../../_utils/texture.js';
-import { withVerifyLicense } from '../../with-verify-license.js';
+import type { TextureData } from '../../../client/_utils/texture-data.js';
+import { createTextureCached, createEmptyTextureCached } from '../../_utils/texture.js';
+import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
 import { ContourBitmapLayer } from './contour-bitmap-layer.js';
 import type { ContourBitmapLayerProps } from './contour-bitmap-layer.js';
 

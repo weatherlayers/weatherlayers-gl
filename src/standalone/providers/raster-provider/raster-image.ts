@@ -1,7 +1,7 @@
-import type { ImageProperties } from '../../../_utils/image-properties.js';
-import { getRasterMagnitudeData } from '../../../_utils/raster-data.js';
-import { parsePalette, type Palette } from '../../../_utils/palette.js';
-import { paletteColorToGl } from '../../../_utils/color.js';
+import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
+import { getRasterMagnitudeData } from '../../../deck/_utils/raster-data.js';
+import { parsePalette, type Palette } from '../../../client/_utils/palette.js';
+import { paletteColorToGl } from '../../../deck/_utils/color.js';
 
 export function getRasterImage(imageProperties: ImageProperties, palette: Palette): HTMLCanvasElement {
   const { image } = imageProperties;

@@ -3,13 +3,13 @@ import type { Position, DefaultProps, UpdateParameters, LayersList, CompositeLay
 import { TextLayer } from '@deck.gl/layers';
 import type { TextLayerProps } from '@deck.gl/layers';
 import { wrap } from 'comlink';
-import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../_utils/props.js';
-import { hashCodeString } from '../_utils/hashcode.js';
-import { getViewportAngle } from '../_utils/viewport.js';
-import { getViewportGridPositions } from '../_utils/viewport-grid.js';
-import createLicenseWorker from 'worker!../license/license-worker.js';
-import type { LicenseWorker } from '../license/license-worker.js';
-import type { License } from 'weatherlayers-license/src/license.js';
+import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../../_utils/props.js';
+import { hashCodeString } from '../../_utils/hashcode.js';
+import { getViewportAngle } from '../../_utils/viewport.js';
+import { getViewportGridPositions } from '../../_utils/viewport-grid.js';
+import { getLicense } from '../../_utils/license.js';
+import createLicenseWorker from 'worker!./license-worker.js';
+import type { LicenseWorker } from './license-worker.js';
 
 // https://anseki.github.io/gnirts/
 // @ts-ignore
@@ -22,15 +22,6 @@ const LOCATION: 'location' = (function(){var o=Array.prototype.slice.call(argume
 const HOSTNAME: 'hostname' = (17).toString(36).toLowerCase()+(function(){var u=Array.prototype.slice.call(arguments),y=u.shift();return u.reverse().map(function(o,V){return String.fromCharCode(o-y-61-V)}).join('')})(25,199,204,202,197)+(10).toString(36).toLowerCase()+(function(){var Z=Array.prototype.slice.call(arguments),O=Z.shift();return Z.reverse().map(function(F,T){return String.fromCharCode(F-O-49-T)}).join('')})(34,185,192);
 
 const licenseWorkerProxy = wrap<LicenseWorker>(createLicenseWorker());
-
-let license: License | null = null;
-
-export function setLicense(currentLicense: any): void {
-  if (typeof currentLicense.content !== 'object' || typeof currentLicense.signature !== 'string') {
-    throw new Error('Invalid license');
-  }
-  license = currentLicense;
-}
 
 export function withVerifyLicense<PropsT extends {}, LayerT extends typeof CompositeLayer<PropsT>>(layerName: string, defaultProps: DefaultProps<PropsT>) {
   return (layerClass: LayerT, _context: ClassDecoratorContext<LayerT>): LayerT => {
@@ -103,7 +94,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
 
       async #verifyLicense(): Promise<void> {
         // license is verified in a worker to split the stacktrace
-        const isLicenseValid = await licenseWorkerProxy[VERIFY_LICENSE](license, globalThis[LOCATION][HOSTNAME]);
+        const isLicenseValid = await licenseWorkerProxy[VERIFY_LICENSE](getLicense(), globalThis[LOCATION][HOSTNAME]);
 
         this.#isWatermarkEnabled = !isLicenseValid;
 

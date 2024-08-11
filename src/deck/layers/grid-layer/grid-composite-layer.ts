@@ -3,22 +3,22 @@ import type { Position, Color, LayerProps, DefaultProps, UpdateParameters, Compo
 import { TextLayer, IconLayer } from '@deck.gl/layers';
 import type { TextLayerProps, IconLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
 import type { Texture } from '@luma.gl/core';
-import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../../_utils/props.js';
-import type { TextFormatFunction } from '../../../_utils/props.js';
-import { loadTextureData } from '../../../_utils/data.js';
-import type { TextureData } from '../../../_utils/data.js';
-import { createTextureCached } from '../../../_utils/texture.js';
-import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
-import type { UnitFormat } from '../../../_utils/unit-format.js';
-import { isViewportInZoomBounds, getViewportAngle } from '../../../_utils/viewport.js';
-import { getViewportGridPositions } from '../../../_utils/viewport-grid.js';
-import { getRasterPoints } from '../../../_utils/raster-data.js';
-import type { RasterPointProperties } from '../../../_utils/raster-data.js';
-import { parsePalette, type Palette, type Scale } from '../../../_utils/palette.js';
-import { paletteColorToGl } from '../../../_utils/color.js';
-import type { IconStyle } from '../../../_utils/icon-style.js';
+import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, DEFAULT_ICON_SIZE, DEFAULT_ICON_COLOR, ensureDefaultProps } from '../../_utils/props.js';
+import type { TextFormatFunction } from '../../_utils/props.js';
+import { loadTextureData } from '../../../client/_utils/texture-data.js';
+import type { TextureData } from '../../../client/_utils/texture-data.js';
+import { createTextureCached } from '../../_utils/texture.js';
+import { ImageInterpolation } from '../../_utils/image-interpolation.js';
+import { ImageType } from '../../../client/_utils/image-type.js';
+import type { ImageUnscale } from '../../../client/_utils/image-unscale.js';
+import type { UnitFormat } from '../../../client/_utils/unit-format.js';
+import { isViewportInZoomBounds, getViewportAngle } from '../../_utils/viewport.js';
+import { getViewportGridPositions } from '../../_utils/viewport-grid.js';
+import { getRasterPoints } from '../../_utils/raster-data.js';
+import type { RasterPointProperties } from '../../_utils/raster-data.js';
+import { parsePalette, type Palette, type Scale } from '../../../client/_utils/palette.js';
+import { paletteColorToGl } from '../../_utils/color.js';
+import type { IconStyle } from '../../_utils/icon-style.js';
 import { GridStyle, GRID_ICON_STYLES } from './grid-style.js';
 
 type _GridCompositeLayerProps = CompositeLayerProps & {

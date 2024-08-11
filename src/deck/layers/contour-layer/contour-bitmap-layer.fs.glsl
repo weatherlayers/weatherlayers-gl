@@ -5,9 +5,9 @@
 precision highp float;
 #endif
 
-@include "../../../_utils/deck-bitmap-layer-decl.glsl"
-@include "../../../_utils/pixel.glsl"
-@include "../../../_utils/pixel-value.glsl"
+@include "../../_utils/deck-bitmap-layer-decl.glsl"
+@include "../../_utils/pixel.glsl"
+@include "../../_utils/pixel-value.glsl"
 
 uniform sampler2D imageTexture;
 uniform sampler2D imageTexture2;
@@ -27,7 +27,7 @@ uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
 
 void main(void) {
-  @include "../../../_utils/deck-bitmap-layer-main-start.glsl"
+  @include "../../_utils/deck-bitmap-layer-main-start.glsl"
   
   vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
@@ -71,5 +71,5 @@ void main(void) {
   }
   fragColor = vec4(targetColor.rgb, targetColor.a * contourOpacity * opacity);
 
-  @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
+  @include "../../_utils/deck-bitmap-layer-main-end.glsl"
 }

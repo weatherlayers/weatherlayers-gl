@@ -1,7 +1,7 @@
-import { TextureDataArray } from '../../../_utils/data.js';
-import type { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import type { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
+import { TextureDataArray } from '../../../client/_utils/texture-data.js';
+import type { ImageInterpolation } from '../../../deck/_utils/image-interpolation.js';
+import type { ImageType } from '../../../client/_utils/image-type.js';
+import type { ImageUnscale } from '../../../client/_utils/image-unscale.js';
 
 export class ContourLineWorker {
   getContourLineData(

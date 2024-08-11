@@ -2,14 +2,16 @@ import type { LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams }
 import { BitmapLayer } from '@deck.gl/layers';
 import type { BitmapLayerProps, BitmapBoundingBox, BitmapLayerPickingInfo } from '@deck.gl/layers';
 import type { Texture } from '@luma.gl/core';
-import { ensureDefaultProps } from '../../../_utils/props.js';
-import { ImageInterpolation } from '../../../_utils/image-interpolation.js';
-import { ImageType } from '../../../_utils/image-type.js';
-import type { ImageUnscale } from '../../../_utils/image-unscale.js';
-import { isViewportInZoomBounds } from '../../../_utils/viewport.js';
-import type { RasterPointProperties } from '../../../_utils/raster-data.js';
-import { parsePalette, createPaletteTexture, type Palette } from '../../../_utils/palette.js';
-import { createEmptyTextureCached } from '../../../_utils/texture.js';
+import { ensureDefaultProps } from '../../_utils/props.js';
+import { ImageInterpolation } from '../../_utils/image-interpolation.js';
+import { ImageType } from '../../../client/_utils/image-type.js';
+import type { ImageUnscale } from '../../../client/_utils/image-unscale.js';
+import { isViewportInZoomBounds } from '../../_utils/viewport.js';
+import type { RasterPointProperties } from '../../_utils/raster-data.js';
+import { parsePalette } from '../../../client/_utils/palette.js';
+import type { Palette } from '../../../client/_utils/palette.js';
+import { createPaletteTexture } from '../../_utils/palette-texture.js';
+import { createEmptyTextureCached } from '../../_utils/texture.js';
 import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {

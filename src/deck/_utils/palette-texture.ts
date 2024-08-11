@@ -1,6 +1,6 @@
 import type { Device, Texture } from '@luma.gl/core';
-import { colorRampCanvas } from 'cpt2js';
-import type { Scale } from 'cpt2js';
+import { colorRampCanvas } from '../../client/_utils/palette.js';
+import type { Scale } from '../../client/_utils/palette.js';
 
 export function createPaletteTexture(device: Device, paletteScale: Scale): { paletteBounds: readonly [number, number], paletteTexture: Texture } {
   const paletteDomain = paletteScale.domain() as unknown as number[];
@@ -18,6 +18,3 @@ export function createPaletteTexture(device: Device, paletteScale: Scale): { pal
 
   return { paletteBounds, paletteTexture };
 }
-
-export { parsePalette, colorRampCanvas } from 'cpt2js';
-export type { Palette, Scale } from 'cpt2js';

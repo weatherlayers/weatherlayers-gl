@@ -1,7 +1,7 @@
 import { Animation } from '../../_utils/animation.js';
 import type { AnimationConfig } from '../../_utils/animation.js';
-import { interpolateDatetime, getDatetimeWeight, formatDatetime } from '../../_utils/datetime.js';
-import type { DatetimeISOString, DatetimeFormatFunction } from '../../_utils/datetime.js';
+import { interpolateDatetime, getDatetimeWeight, formatDatetime } from '../../../client/_utils/datetime.js';
+import type { DatetimeISOString, DatetimeFormatFunction } from '../../../client/_utils/datetime.js';
 import { randomString } from '../../_utils/random-string.js';
 import { findLastIndex } from '../../_utils/array.js';
 import { Control } from '../control.js';

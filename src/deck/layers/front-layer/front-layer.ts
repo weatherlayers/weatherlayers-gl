@@ -1,6 +1,6 @@
 import { CompositeLayer } from '@deck.gl/core';
 import type { LayerProps, DefaultProps, LayersList } from '@deck.gl/core';
-import { withVerifyLicense } from '../../with-verify-license.js';
+import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
 import { FrontCompositeLayer } from './front-composite-layer.js';
 import type { FrontCompositeLayerProps } from './front-composite-layer.js';
 import { FrontType } from './front-type.js';

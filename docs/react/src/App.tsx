@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { DeckGL, MapView, TileLayer, BitmapLayer } from 'deck.gl';
 import { ClipExtension } from '@deck.gl/extensions';
 import { setLicense, offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
-import type { Dataset, DatasetData } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
+import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
 import { WEATHER_LAYERS_ACCESS_TOKEN } from '../../auth.js';
 import { BASEMAP_RASTER_STYLE_URL } from '../../basemap.js';

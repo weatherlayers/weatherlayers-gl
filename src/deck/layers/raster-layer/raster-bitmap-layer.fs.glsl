@@ -5,9 +5,9 @@
 precision highp float;
 #endif
 
-@include "../../../_utils/deck-bitmap-layer-decl.glsl"
-@include "../../../_utils/pixel.glsl"
-@include "../../../_utils/pixel-value.glsl"
+@include "../../_utils/deck-bitmap-layer-decl.glsl"
+@include "../../_utils/pixel.glsl"
+@include "../../_utils/pixel-value.glsl"
 
 uniform sampler2D imageTexture;
 uniform sampler2D imageTexture2;
@@ -23,7 +23,7 @@ uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
 
 void main(void) {
-  @include "../../../_utils/deck-bitmap-layer-main-start.glsl"
+  @include "../../_utils/deck-bitmap-layer-main-start.glsl"
   
   vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
   if (!hasPixelValue(pixel, imageUnscale)) {
@@ -44,7 +44,7 @@ void main(void) {
   vec4 color = texture(paletteTexture, vec2(paletteValue, 0.));
   fragColor = apply_opacity(color.rgb, color.a * opacity);
 
-  @include "../../../_utils/deck-bitmap-layer-main-end.glsl"
+  @include "../../_utils/deck-bitmap-layer-main-end.glsl"
 
   if (bool(picking.isActive) && !bool(picking.isAttribute)) {
     float directionValue = getPixelDirectionValue(pixel, imageTypeVector, imageUnscale);

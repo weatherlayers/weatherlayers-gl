@@ -126,11 +126,13 @@ export default commandLineArgs => {
     ['src/client/index.ts', 'dist/weatherlayers-client.js'],
     ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
     // standalone build is resource hungry (8GB heap), needs to be disabled on Cloudbuild free instances
-    ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
+    // ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
-    ...(!commandLineArgs.watch ? [
+    ...(!commandLineArgs.watch || commandLineArgs.format === 'cjs' ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),
       bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
+    ] : []),
+    ...(!commandLineArgs.watch || commandLineArgs.format === 'es' ? [
       bundle(entrypoint, filename, 'es', { resolve: true }),
       bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
       {
@@ -147,7 +149,9 @@ export default commandLineArgs => {
         ],
       },
     ] : []),
-    bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
-    bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
+    ...(!commandLineArgs.watch || !commandLineArgs.format || commandLineArgs.format === 'umd' ? [
+      bundle(entrypoint, filename, 'umd', { resolve: true, stats: true }),
+      bundle(entrypoint, filename, 'umd', { resolve: true, minimize: true }),
+    ] : [])
   ]).flat();
 };

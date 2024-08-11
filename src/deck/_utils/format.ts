@@ -1,6 +1,6 @@
 import { DirectionType } from './direction-type.js';
 import { DirectionFormat } from './direction-format.js';
-import type { UnitFormat } from './unit-format.js';
+import type { UnitFormat } from '../../client/_utils/unit-format.js';
 
 const CARDINALS = {
   [DirectionFormat.CARDINAL]: ['N', 'E', 'S', 'W'],

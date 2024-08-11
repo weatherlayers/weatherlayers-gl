@@ -1,6 +1,6 @@
 import type { Position } from '@deck.gl/core';
-import { distance as measureDistance, destinationPoint, initialBearing } from '../../../_utils/geodesy.js';
-import { findLastIndex } from '../../../_utils/array.js';
+import { distance as measureDistance, destinationPoint, initialBearing } from '../../_utils/geodesy.js';
+import { findLastIndex } from '../../_utils/array.js';
 
 const ICON_MIN_DISTANCE = 5000;
 const ICON_FACTOR = 3;

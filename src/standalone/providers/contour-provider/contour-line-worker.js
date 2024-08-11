@@ -2,10 +2,10 @@
 import { expose, transfer } from 'comlink';
 import { getContourLineDataMain } from './contour-line-worker-main.js';
 
-/** @typedef {import('../../../_utils/data.js').TextureDataArray} TextureDataArray */
-/** @typedef {import('../../../_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */
-/** @typedef {import('../../../_utils/image-type.js').ImageType} ImageType */
-/** @typedef {import('../../../_utils/image-unscale.js').ImageUnscale} ImageUnscale */
+/** @typedef {import('../../../client/_utils/texture-data.js').TextureDataArray} TextureDataArray */
+/** @typedef {import('../../../deck/_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */
+/** @typedef {import('../../../client/_utils/image-type.js').ImageType} ImageType */
+/** @typedef {import('../../../client/_utils/image-unscale.js').ImageUnscale} ImageUnscale */
 
 expose({
   /**
