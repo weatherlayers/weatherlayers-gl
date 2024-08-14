@@ -4,11 +4,13 @@ import arrowMapping from './arrow.mapping.json';
 import windBarbAtlas from './wind-barb.atlas.png';
 import windBarbMapping from './wind-barb.mapping.json';
 
-export enum GridStyle {
-  VALUE = 'VALUE',
-  ARROW = 'ARROW',
-  WIND_BARB = 'WIND_BARB',
-}
+export const GridStyle = {
+  VALUE: 'VALUE',
+  ARROW: 'ARROW',
+  WIND_BARB: 'WIND_BARB',
+} as const;
+
+export type GridStyle = (typeof GridStyle)[keyof typeof GridStyle];
 
 export const GRID_ICON_STYLES = new Map<GridStyle, IconStyle>([
   [GridStyle.ARROW, {

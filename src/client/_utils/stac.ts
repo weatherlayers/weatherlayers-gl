@@ -1,12 +1,14 @@
 import type { ImageType } from './image-type.js';
 import type { UnitDefinition } from './unit-definition.js';
 
-export enum StacProviderRole {
-  LICENSOR = 'licensor',
-  PRODUCER = 'producer',
-  PROCESSOR = 'processor',
-  HOST = 'host',
-}
+export const StacProviderRole = {
+  LICENSOR: 'licensor',
+  PRODUCER: 'producer',
+  PROCESSOR: 'processor',
+  HOST: 'host',
+} as const;
+
+export type StacProviderRole = (typeof StacProviderRole)[keyof typeof StacProviderRole];
 
 export interface StacProvider {
   name: string;
@@ -14,18 +16,20 @@ export interface StacProvider {
   url: string;
 }
 
-export enum StacLinkRel {
-  LICENSE = 'license',
-  SELF = 'self',
-  ROOT = 'root',
-  PARENT = 'parent',
-  CHILD = 'child',
-  ITEM = 'item',
-  COLLECTION = 'collection',
-  CONFORMANCE = 'conformance',
-  DATA = 'data',
-  SEARCH = 'search',
-}
+export const StacLinkRel = {
+  LICENSE: 'license',
+  SELF: 'self',
+  ROOT: 'root',
+  PARENT: 'parent',
+  CHILD: 'child',
+  ITEM: 'item',
+  COLLECTION: 'collection',
+  CONFORMANCE: 'conformance',
+  DATA: 'data',
+  SEARCH: 'search',
+} as const;
+
+export type StacLinkRel = (typeof StacLinkRel)[keyof typeof StacLinkRel];
 
 export interface StacLink {
   href: string;
@@ -34,12 +38,14 @@ export interface StacLink {
   datetime?: string; // deprecated, used by Virtual Gaia and WatchDuty
 }
 
-export enum StacAssetRole {
-  DATA = 'data',
-  OVERVIEW = 'overview',
-  THUMBNAIL = 'thumbnail',
-  PALETTE = 'palette',
-}
+export const StacAssetRole = {
+  DATA: 'data',
+  OVERVIEW: 'overview',
+  THUMBNAIL: 'thumbnail',
+  PALETTE: 'palette',
+} as const;
+
+export type StacAssetRole = (typeof StacAssetRole)[keyof typeof StacAssetRole];
 
 export interface StacAsset {
   href: string;

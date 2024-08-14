@@ -2,12 +2,14 @@ import type { IconStyle } from '../../_utils/icon-style.js';
 import iconAtlas from './front-type.atlas.png';
 import iconMapping from './front-type.mapping.json';
 
-export enum FrontType {
-  COLD = 'COLD',
-  WARM = 'WARM',
-  OCCLUDED = 'OCCLUDED',
-  STATIONARY = 'STATIONARY',
-}
+export const FrontType = {
+  COLD: 'COLD',
+  WARM: 'WARM',
+  OCCLUDED: 'OCCLUDED',
+  STATIONARY: 'STATIONARY',
+} as const;
+
+export type FrontType = (typeof FrontType)[keyof typeof FrontType];
 
 // icon anchor needs to be in the non-transparent part of the icon, to workaround for CollisionFilterExtension flickering
 // see https://github.com/visgl/deck.gl/pull/7679

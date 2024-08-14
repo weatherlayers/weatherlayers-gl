@@ -1,4 +1,6 @@
-export enum ImageType {
-  SCALAR = 'SCALAR',
-  VECTOR = 'VECTOR',
-}
+export const ImageType = {
+  SCALAR: 'SCALAR',
+  VECTOR: 'VECTOR',
+} as const;
+
+export type ImageType = (typeof ImageType)[keyof typeof ImageType];

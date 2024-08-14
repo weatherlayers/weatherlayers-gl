@@ -3,10 +3,12 @@ import createHighLowPointWorker from 'worker!./high-low-point-worker.js';
 import type { HighLowPointWorker } from './high-low-point-worker.js';
 import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
 
-export enum HighLowType {
-  LOW = 'L',
-  HIGH = 'H',
-}
+export const HighLowType = {
+  LOW: 'L',
+  HIGH: 'H',
+} as const;
+
+export type HighLowType = (typeof HighLowType)[keyof typeof HighLowType];
 
 export interface HighLowPointProperties {
   type: HighLowType;
