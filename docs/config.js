@@ -250,7 +250,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   };
 
   gui.addBinding(config, 'dataset', { options: getOptions([NO_DATA, ...config.datasets]) }).on('change', updateDatetimes);
-  gui.addBinding(config, 'datetimeRange', { options: getDatetimeRangeOptions([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) }).on('change', updateDatetimes);
+  gui.addBinding(config, 'datetimeRange', { options: getDatetimeRangeOptions([1, 2, 5, 10, 16]) }).on('change', updateDatetimes);
   gui.addBinding(config, 'datetimeStep', { options: getHourOptions([1, 3, 6, 12, 24]) }).on('change', updateDatetimes);
   datetime = gui.addBinding(config, 'datetime', { options: getDatetimeOptions([NO_DATA, ...config.datetimes]) }).on('change', update);
   if (deckgl) {
