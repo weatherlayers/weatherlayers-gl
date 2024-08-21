@@ -79,8 +79,12 @@ function getStacCollectionUnitFormat(stacCollection: DatasetStacCollection, unit
 }
 
 function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange): string {
-  const [start, end] = datetimeRange;
-  return `${start ?? '..'}/${end ?? '..'}`;
+  if (Array.isArray(datetimeRange) && datetimeRange.length === 2) {
+    const [start, end] = datetimeRange;
+    return `${start ?? '..'}/${end ?? '..'}`;
+  } else {
+    throw new Error('Invalid datetime range');
+  }
 }
 
 export class Client {
