@@ -92,7 +92,7 @@
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
         const {title, unitFormat, attribution, palette} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
         const currentDatetime = new Date().toISOString();
-        const {datetimes} = await client.loadDatasetSlice(dataset, config.datetimeRange, { datetimeStep: config.datetimeStep });
+        const {datetimes} = await client.loadDatasetSlice(dataset, config.datetimeRange.split('/'), { datetimeStep: config.datetimeStep });
         const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] && !forceUpdateDatetime ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
         await mercatorClient.loadDatasetSlice(dataset, datetimeRange);
