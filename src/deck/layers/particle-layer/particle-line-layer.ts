@@ -327,7 +327,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
       [updateVsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
       [updateVsTokens.imageUnscale]: imageUnscale ?? [0, 0],
-      [updateVsTokens.imageValueBounds]: [imageMinValue ?? NaN, imageMaxValue ?? NaN],
+      [updateVsTokens.imageValueBounds]: [imageMinValue ?? Number.MIN_SAFE_INTEGER, imageMaxValue ?? Number.MAX_SAFE_INTEGER],
       [updateVsTokens.bounds]: bounds,
 
       [updateVsTokens.numParticles]: numParticles,
