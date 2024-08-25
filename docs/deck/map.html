@@ -103,9 +103,10 @@
       // tooltip
       const tooltipControl = new WeatherLayers.TooltipControl({ followCursor: true });
       deckgl.setProps({
-        onLoad: () => tooltipControl.addTo(deckgl.getCanvas().parentElement),
+        onLoad: () => deckgl.getCanvas() && tooltipControl.addTo(deckgl.getCanvas().parentElement),
         onHover: event => tooltipControl.updatePickingInfo(event),
       });
+      deckgl.props.onLoad();
 
       // attribution
       const basemapAttributionControl = new WeatherLayers.AttributionControl({ attribution: BASEMAP_ATTRIBUTION });
