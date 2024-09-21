@@ -47,12 +47,19 @@ export const StacAssetRole = {
 
 export type StacAssetRole = (typeof StacAssetRole)[keyof typeof StacAssetRole];
 
-export interface StacAsset {
-  href: string;
+export interface StacCollectionItemAsset {
   type: string;
   roles: StacAssetRole[];
   data_type?: string;
   unit?: string;
+  'proj:code'?: string;
+  'proj:shape'?: [number, number];
+  'raster:scale'?: number;
+  'raster:offset'?: number;
+}
+
+export interface StacAsset extends StacCollectionItemAsset {
+  href: string;
 }
 
 export interface StacCatalog {
@@ -70,8 +77,8 @@ export interface StacCatalog {
   };
 }
 
-export interface StacCollections<StacCollectionT extends StacCollection = StacCollection> {
-  collections: StacCollectionT[];
+export interface StacCollections {
+  collections: StacCollection[];
   links: StacLink[];
 }
 
@@ -95,15 +102,19 @@ export interface StacCollection {
   summaries?: unknown; // deprecated, used by Virtual Gaia
   links: StacLink[];
   assets: { [key: string]: StacAsset };
+  item_assets?: { [key: string]: StacCollectionItemAsset };
+  'weatherLayers:imageType'?: ImageType; // used by WeatherLayers Cloud Client
+  'weatherLayers:imageUnscale'?: [number, number] | null; // used by WeatherLayers Cloud Client
+  'weatherLayers:units'?: UnitDefinition[]; // used by WeatherLayers Cloud Client
 }
 
-export interface StacItemCollection<StacItemT extends StacItem = StacItem> {
+export interface StacItemCollection {
   type: 'FeatureCollection';
-  features: StacItemT[];
+  features: StacItem[];
   links: StacLink[];
 }
 
-export interface StacItem<ExtraPropertiesT extends {} = {}, StacAssetT extends StacAsset = StacAsset> {
+export interface StacItem {
   type: 'Feature';
   stac_version: string;
   stac_extensions?: string[];
@@ -115,30 +126,10 @@ export interface StacItem<ExtraPropertiesT extends {} = {}, StacAssetT extends S
   bbox: [number, number, number, number];
   properties: {
     datetime: string;
-  } & ExtraPropertiesT;
+    'forecast:reference_datetime'?: string; // used by WeatherLayers Cloud Client
+    'forecast:horizon'?: string; // used by WeatherLayers Cloud Client
+  };
   links: StacLink[];
-  assets: { [key: string]: StacAssetT };
+  assets: { [key: string]: StacAsset };
   collection: string;
-}
-
-export type DatasetStacCollections = StacCollections<DatasetStacCollection>;
-
-export interface DatasetStacCollection extends StacCollection {
-  'weatherLayers:imageType': ImageType; // custom
-  'weatherLayers:imageUnscale': [number, number] | null; // custom
-  'weatherLayers:units': UnitDefinition[]; // custom
-}
-
-export type DatasetDataStacItemCollection = StacItemCollection<DatasetDataStacItem>;
-
-export type DatasetDataStacItem = StacItem<{
-  'forecast:reference_datetime': string;
-  'forecast:horizon': string;
-}, DatasetDataStacAsset>;
-
-export interface DatasetDataStacAsset extends StacAsset {
-  'proj:code': string;
-  'proj:shape': [number, number];
-  'raster:scale'?: number;
-  'raster:offset'?: number;
 }

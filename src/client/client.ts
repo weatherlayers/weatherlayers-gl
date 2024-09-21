@@ -9,7 +9,7 @@ import { UnitSystem } from './_utils/unit-system.js';
 import type { UnitFormat } from './_utils/unit-format.js';
 import type { Palette } from './_utils/palette.js';
 import { StacProviderRole, StacAssetRole, StacLinkRel } from './_utils/stac.js';
-import type { StacCatalog, DatasetStacCollections, DatasetStacCollection, DatasetDataStacItemCollection, DatasetDataStacItem } from './_utils/stac.js';
+import type { StacCatalog, StacCollections, StacCollection, StacItemCollection, StacItem } from './_utils/stac.js';
 
 export interface ClientConfig {
   url?: string;
@@ -49,7 +49,7 @@ export interface DatasetData {
   bounds: [number, number, number, number];
 }
 
-interface DatasetDataStacItemData {
+interface StacItemData {
   datetime: DatetimeISOString;
   referenceDatetime: DatetimeISOString;
   horizon: DurationISOString;
@@ -61,7 +61,7 @@ const DEFAULT_DATA_FORMAT = 'byte.png';
 const DEFAULT_UNIT_SYSTEM = UnitSystem.METRIC;
 const DEFAULT_ATTRIBUTION_LINK_CLASS = '';
 
-function getStacCollectionAttribution(stacCollection: DatasetStacCollection, attributionLinkClass: string): string {
+function getStacCollectionAttribution(stacCollection: StacCollection, attributionLinkClass: string): string {
   const producer = stacCollection.providers.find(x => x.roles.includes(StacProviderRole.PRODUCER));
   const processor = stacCollection.providers.find(x => x.roles.includes(StacProviderRole.PROCESSOR));
   const attribution = [
@@ -71,8 +71,8 @@ function getStacCollectionAttribution(stacCollection: DatasetStacCollection, att
   return attribution;
 }
 
-function getStacCollectionUnitFormat(stacCollection: DatasetStacCollection, unitSystem: UnitSystem): UnitFormat {
-  const units = stacCollection['weatherLayers:units'];
+function getStacCollectionUnitFormat(stacCollection: StacCollection, unitSystem: UnitSystem): UnitFormat {
+  const units = stacCollection['weatherLayers:units']!;
   const unitDefinition = units.find(unitFormat => unitFormat.system === unitSystem) ?? units.find(unitFormat => unitFormat.system === DEFAULT_UNIT_SYSTEM) ?? units[0];
   const {unit, scale, offset, decimals} = unitDefinition;
   return {unit, scale, offset, decimals};
@@ -90,8 +90,8 @@ function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange):
 export class Client {
   #config: ClientConfig;
   #cache = new Map<string, any>();
-  #datasetStacCollectionCache = new Map<string, DatasetStacCollection>();
-  #datasetDataStacItemCache = new Map<string, Map<DatetimeISOString, DatasetDataStacItem>>();
+  #datasetStacCollectionCache = new Map<string, StacCollection>();
+  #datasetDataStacItemCache = new Map<string, Map<DatetimeISOString, StacItem>>();
 
   constructor(config: ClientConfig) {
     this.#config = config;
@@ -121,11 +121,11 @@ export class Client {
     return url.toString();
   }
 
-  #cacheDatasetStacCollection(stacCollection: DatasetStacCollection): void {
+  #cacheDatasetStacCollection(stacCollection: StacCollection): void {
     this.#datasetStacCollectionCache.set(stacCollection.id, stacCollection);
   }
 
-  #cacheDatasetDataStacItem(dataset: string, stacItem: DatasetDataStacItem): void {
+  #cacheDatasetDataStacItem(dataset: string, stacItem: StacItem): void {
     if (!this.#datasetDataStacItemCache.has(dataset)) {
       this.#datasetDataStacItemCache.set(dataset, new Map());
     }
@@ -140,7 +140,7 @@ export class Client {
     return stacCatalog;
   }
 
-  async #loadDatasetStacCollections(config: ClientConfig = {}): Promise<DatasetStacCollection[]> {
+  async #loadDatasetStacCollections(config: ClientConfig = {}): Promise<StacCollection[]> {
     const stacCatalog = await this.#loadStacCatalog(config);
     const link = stacCatalog.links.find(x => x.rel === StacLinkRel.DATA);
     if (!link) {
@@ -148,7 +148,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(link.href, config);
-    const stacCollections = (await loadJson(authenticatedUrl, this.#cache) as DatasetStacCollections).collections;
+    const stacCollections = (await loadJson(authenticatedUrl, this.#cache) as StacCollections).collections;
 
     // cache
     for (const stacCollection of stacCollections) {
@@ -158,7 +158,7 @@ export class Client {
     return stacCollections;
   }
 
-  async #loadDatasetStacCollection(dataset: string, config: ClientConfig = {}): Promise<DatasetStacCollection> {
+  async #loadDatasetStacCollection(dataset: string, config: ClientConfig = {}): Promise<StacCollection> {
     await this.#loadDatasetStacCollections(config);
     let stacCollection = this.#datasetStacCollectionCache.get(dataset);
     if (!stacCollection) {
@@ -184,7 +184,7 @@ export class Client {
     return palette;
   }
 
-  async #searchDatasetDataStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, datetimeStep: number, config: ClientConfig = {}): Promise<DatasetDataStacItem[]> {
+  async #searchDatasetDataStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, datetimeStep: number, config: ClientConfig = {}): Promise<StacItem[]> {
     const stacCatalog = await this.#loadStacCatalog(config);
     const link = stacCatalog.links.find(x => x.rel === StacLinkRel.SEARCH);
     if (!link) {
@@ -198,7 +198,7 @@ export class Client {
       url.searchParams.set('datetime_step', `${datetimeStep}`);
     }
     const authenticatedUrl = this.#getAuthenticatedUrl(url.toString(), config);
-    const stacItems = (await loadJson(authenticatedUrl, this.#cache) as DatasetDataStacItemCollection).features;
+    const stacItems = (await loadJson(authenticatedUrl, this.#cache) as StacItemCollection).features;
 
     // cache
     for (const stacItem of stacItems) {
@@ -208,7 +208,7 @@ export class Client {
     return stacItems;
   }
 
-  async #loadDatasetDataStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetDataStacItem> {
+  async #loadDatasetDataStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
     const datetimeStep = config.datetimeStep ?? this.#config.datetimeStep ?? 1;
     let stacItem = this.#datasetDataStacItemCache.get(dataset)?.get(datetime);
     if (!stacItem) {
@@ -222,7 +222,7 @@ export class Client {
     return stacItem;
   }
 
-  async #loadDatasetDataStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetDataStacItemData> {
+  async #loadDatasetDataStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItemData> {
     const dataFormat = config.dataFormat ?? this.#config.dataFormat ?? DEFAULT_DATA_FORMAT;
     const stacItem = await this.#loadDatasetDataStacItem(dataset, datetime);
     const asset = stacItem.assets[`data.${dataFormat}`];
@@ -234,8 +234,8 @@ export class Client {
     const image = await loadTextureData(authenticatedUrl, this.#cache);
     return {
       datetime: stacItem.properties['datetime'],
-      referenceDatetime: stacItem.properties['forecast:reference_datetime'],
-      horizon: stacItem.properties['forecast:horizon'],
+      referenceDatetime: stacItem.properties['forecast:reference_datetime']!,
+      horizon: stacItem.properties['forecast:horizon']!,
       image,
     }
   }
@@ -315,8 +315,8 @@ export class Client {
       horizon2: data2 ? data2.horizon : null,
       image2: data2 ? data2.image : null,
       imageWeight: data2 ? getDatetimeWeight(data.datetime, data2.datetime, datetime) : 0,
-      imageType: stacCollection['weatherLayers:imageType'],
-      imageUnscale: data.image.data instanceof Uint8Array || data.image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale'] : null,
+      imageType: stacCollection['weatherLayers:imageType']!,
+      imageUnscale: data.image.data instanceof Uint8Array || data.image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale']! : null,
       bounds: stacCollection.extent.spatial.bbox[0],
     };
   }
