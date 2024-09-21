@@ -51,6 +51,8 @@ export interface StacAsset {
   href: string;
   type: string;
   roles: StacAssetRole[];
+  data_type?: string;
+  unit?: string;
 }
 
 export interface StacCatalog {
@@ -137,10 +139,6 @@ export type DatasetDataStacItem = StacItem<{
 export interface DatasetDataStacAsset extends StacAsset {
   'proj:code': string;
   'proj:shape': [number, number];
-  'raster:bands'?: {
-    data_type: string;
-    unit: string;
-    scale?: number;
-    offset?: number;
-  }[];
+  'raster:scale'?: number;
+  'raster:offset'?: number;
 }
