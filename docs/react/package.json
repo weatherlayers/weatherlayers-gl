@@ -14,7 +14,7 @@
     "deck.gl": "^9.0.29",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "weatherlayers-gl": "^2024.8.0"
+    "weatherlayers-gl": "^2024.9.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.8",
