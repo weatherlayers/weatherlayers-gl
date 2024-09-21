@@ -1,10 +1,6 @@
-float unscale(float min, float max, float value) {
-  return (value - min) / (max - min);
-}
-
 // see https://stackoverflow.com/a/27228836/1823988
 float atan2(float y, float x) {
-  return x == 0. ? sign(y) * PI / 2. : atan(y, x);
+  return x == 0. ? sign(y) * _PI / 2. : atan(y, x);
 }
 
 // see https://github.com/tensorflow/tfjs/pull/6107
@@ -61,7 +57,7 @@ float getPixelMagnitudeValue(vec4 pixel, float imageType, vec2 imageUnscale) {
 float getPixelDirectionValue(vec4 pixel, float imageType, vec2 imageUnscale) {
   if (imageType == 1.) {
     vec2 value = getPixelVectorValue(pixel, imageType, imageUnscale);
-    return mod((360. - (atan2(value.y, value.x) / PI * 180. + 180.)) - 270., 360.) / 360.;
+    return mod((360. - (atan2(value.y, value.x) / _PI * 180. + 180.)) - 270., 360.) / 360.;
   } else {
     return 0.;
   }

@@ -11,12 +11,62 @@ function minifyShader(code, id, minimize) {
   const nomangle = [
     // don't mangle deck.gl names
     'PI', 'EARTH_RADIUS',
-    'transparentColor', 'opacity', 'coordinateConversion', 'bounds',
     'geometry', 'uv', 'DECKGL_FILTER_COLOR',
-    'picking', 'isActive', 'isAttribute',
     // don't mangle WebGL2 functions
     'texture',
     'floatBitsToUint',
+    // don't mangle shader modules
+    'layer',
+    'opacity',
+
+    'picking',
+    'isActive',
+    'isAttribute',
+
+    'bitmap',
+    'bounds',
+    'coordinateConversion',
+    'transparentColor',
+    '_PI',
+    'apply_opacity',
+    'getUV',
+    'getUVWithCoordinateConversion',
+
+    'raster',
+    'imageTexture',
+    'imageTexture2',
+    'imageResolution',
+    'imageSmoothing',
+    'imageInterpolation',
+    'imageWeight',
+    'imageType',
+    'imageUnscale',
+    'imageMinValue',
+    'imageMaxValue',
+
+    'palette',
+    'paletteTexture',
+    'paletteBounds',
+    'paletteColor',
+    'getPaletteValue',
+    'applyPalette',
+
+    'contour',
+    'interval',
+    'majorInterval',
+    'width',
+
+    'particle',
+    'viewportGlobe',
+    'viewportGlobeCenter',
+    'viewportGlobeRadius',
+    'viewportBounds',
+    'viewportZoomChangeFactor',
+    'numParticles',
+    'maxAge',
+    'speedFactor',
+    'time',
+    'seed',
   ];
 
   // minify

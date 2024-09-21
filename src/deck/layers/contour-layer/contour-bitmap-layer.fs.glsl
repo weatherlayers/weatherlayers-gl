@@ -5,50 +5,37 @@
 precision highp float;
 #endif
 
-@include "../../_utils/deck-bitmap-layer-decl.glsl"
 @include "../../_utils/pixel.glsl"
 @include "../../_utils/pixel-value.glsl"
 
-uniform sampler2D imageTexture;
-uniform sampler2D imageTexture2;
-uniform vec2 imageResolution;
-uniform float imageSmoothing;
-uniform float imageInterpolation;
-uniform float imageWeight;
-uniform float imageType;
-uniform vec2 imageUnscale;
-uniform float imageMinValue;
-uniform float imageMaxValue;
+in vec2 vTexCoord;
+in vec2 vTexPos;
+out vec4 fragColor;
 
-uniform float interval;
-uniform float majorInterval;
-uniform float width;
-uniform vec4 color;
-uniform sampler2D paletteTexture;
-uniform vec2 paletteBounds;
+uniform float opacity; // TODO: replace with layer.opacity
 
 void main(void) {
-  @include "../../_utils/deck-bitmap-layer-main-start.glsl"
+  vec2 uv = getUVWithCoordinateConversion(vTexCoord, vTexPos);
   
-  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
-  if (!hasPixelValue(pixel, imageUnscale)) {
+  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, uv);
+  if (!hasPixelValue(pixel, raster.imageUnscale)) {
     // drop nodata
     discard;
   }
 
-  float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+  float value = getPixelMagnitudeValue(pixel, raster.imageType, raster.imageUnscale);
   if (
-    (!isNaN(imageMinValue) && value < imageMinValue) ||
-    (!isNaN(imageMaxValue) && value > imageMaxValue)
+    (!isNaN(raster.imageMinValue) && value < raster.imageMinValue) ||
+    (!isNaN(raster.imageMaxValue) && value > raster.imageMaxValue)
   ) {
     // drop value out of bounds
     discard;
   }
 
-  float majorIntervalRatio = majorInterval > interval ? floor(majorInterval / interval) : 1.; // majorInterval < interval: every contour is a major contour
-  float contourValue = value / interval;
+  float majorIntervalRatio = contour.majorInterval > contour.interval ? floor(contour.majorInterval / contour.interval) : 1.; // majorInterval < interval: every contour is a major contour
+  float contourValue = value / contour.interval;
   float contourMajor = (step(fract(contourValue / majorIntervalRatio), 0.1) + 1.) / 2.; // 1: major contour, 0.5: minor contour
-  float contourWidth = width * contourMajor; // minor contour: half width
+  float contourWidth = contour.width * contourMajor; // minor contour: half width
 
   // https://stackoverflow.com/a/30909828/1823988
   // https://forum.unity.com/threads/antialiased-grid-lines-fwidth.1010668/
@@ -63,14 +50,9 @@ void main(void) {
   float contourOpacityMajor = contourOpacity * contourMajor; // minor contour: half opacity
 
   // contourOpacityMajor += factor; // debug
-  vec4 targetColor;
-  if (paletteBounds[0] < paletteBounds[1]) {
-    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
-  } else {
-    targetColor = color;
-  }
+  vec4 targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
   fragColor = vec4(targetColor.rgb, targetColor.a * contourOpacityMajor * opacity);
 
-  @include "../../_utils/deck-bitmap-layer-main-end.glsl"
+  geometry.uv = uv;
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }

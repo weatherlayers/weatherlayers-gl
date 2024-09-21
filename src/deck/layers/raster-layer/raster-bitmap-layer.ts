@@ -12,7 +12,13 @@ import { parsePalette } from '../../../client/_utils/palette.js';
 import type { Palette } from '../../../client/_utils/palette.js';
 import { createPaletteTexture } from '../../_utils/palette-texture.js';
 import { createEmptyTextureCached } from '../../_utils/texture.js';
-import { sourceCode as fs, tokens as fsTokens } from './raster-bitmap-layer.fs.glsl';
+import { bitmapUniforms } from '../../shaderlib/bitmap/bitmap.js';
+import type { BitmapProps } from '../../shaderlib/bitmap/bitmap.js';
+import { rasterUniforms } from '../../shaderlib/raster/raster.js';
+import type { RasterProps } from '../../shaderlib/raster/raster.js';
+import { paletteUniforms } from '../../shaderlib/palette/palette.js';
+import type { PaletteProps } from '../../shaderlib/palette/palette.js';
+import { sourceCode as fs/*, tokens as fsTokens*/ } from './raster-bitmap-layer.fs.glsl';
 
 type _RasterBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture | null;
@@ -65,6 +71,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     return {
       ...parentShaders,
       fs,
+      modules: [...parentShaders.modules, bitmapUniforms, rasterUniforms, paletteUniforms],
     };
   }
 
@@ -88,24 +95,29 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     }
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
-      model.setBindings({
-        [fsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(device),
-        [fsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
-
-        [fsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(device),
-      });
-      model.setUniforms({
-        [fsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
-        [fsTokens.imageSmoothing]: imageSmoothing ?? 0,
-        [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
-        [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-        [fsTokens.imageType]: Object.values(ImageType).indexOf(imageType),
-        [fsTokens.imageUnscale]: imageUnscale ?? [0, 0],
-        [fsTokens.imageMinValue]: imageMinValue ?? Number.MIN_SAFE_INTEGER,
-        [fsTokens.imageMaxValue]: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-
-        [fsTokens.color]: [0, 0, 0, 0],
-        [fsTokens.paletteBounds]: paletteBounds ?? [0, 0],
+      model.shaderInputs.setProps({
+        // TODO: add back [fsTokens.xxx]
+        bitmap: {
+          ...super._getCoordinateUniforms() as {bounds: [number, number, number, number], coordinateConversion: number},
+          transparentColor: this.props.transparentColor.map(x => x / 255) as [number, number, number, number],
+        } satisfies BitmapProps,
+        raster: {
+          imageTexture: imageTexture ?? createEmptyTextureCached(device),
+          imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
+          imageResolution: [imageTexture.width, imageTexture.height],
+          imageSmoothing: imageSmoothing ?? 0,
+          imageInterpolation: Object.values(ImageInterpolation).indexOf(imageInterpolation),
+          imageWeight: imageTexture2 !== imageTexture ? imageWeight : 0,
+          imageType: Object.values(ImageType).indexOf(imageType),
+          imageUnscale: imageUnscale ?? [0, 0],
+          imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
+          imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
+        } satisfies RasterProps,
+        palette: {
+          paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
+          paletteBounds: paletteBounds ?? [0, 0],
+          paletteColor: [0, 0, 0, 0],
+        } satisfies PaletteProps,
       });
 
       this.props.image = imageTexture;

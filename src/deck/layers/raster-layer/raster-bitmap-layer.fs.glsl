@@ -5,57 +5,42 @@
 precision highp float;
 #endif
 
-@include "../../_utils/deck-bitmap-layer-decl.glsl"
 @include "../../_utils/pixel.glsl"
 @include "../../_utils/pixel-value.glsl"
 
-uniform sampler2D imageTexture;
-uniform sampler2D imageTexture2;
-uniform vec2 imageResolution;
-uniform float imageSmoothing;
-uniform float imageInterpolation;
-uniform float imageWeight;
-uniform float imageType;
-uniform vec2 imageUnscale;
-uniform float imageMinValue;
-uniform float imageMaxValue;
+in vec2 vTexCoord;
+in vec2 vTexPos;
+out vec4 fragColor;
 
-uniform vec4 color;
-uniform sampler2D paletteTexture;
-uniform vec2 paletteBounds;
+uniform float opacity; // TODO: replace with layer.opacity
 
 void main(void) {
-  @include "../../_utils/deck-bitmap-layer-main-start.glsl"
+  vec2 uv = getUVWithCoordinateConversion(vTexCoord, vTexPos);
   
-  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
-  if (!hasPixelValue(pixel, imageUnscale)) {
+  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, uv);
+  if (!hasPixelValue(pixel, raster.imageUnscale)) {
     // drop nodata
     discard;
   }
 
-  float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+  float value = getPixelMagnitudeValue(pixel, raster.imageType, raster.imageUnscale);
   if (
-    (!isNaN(imageMinValue) && value < imageMinValue) ||
-    (!isNaN(imageMaxValue) && value > imageMaxValue)
+    (!isNaN(raster.imageMinValue) && value < raster.imageMinValue) ||
+    (!isNaN(raster.imageMaxValue) && value > raster.imageMaxValue)
   ) {
     // drop value out of bounds
     discard;
   }
 
-  vec4 targetColor;
-  if (paletteBounds[0] < paletteBounds[1]) {
-    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
-  } else {
-    targetColor = color;
-  }
+  vec4 targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
   fragColor = apply_opacity(targetColor.rgb, targetColor.a * opacity);
 
-  @include "../../_utils/deck-bitmap-layer-main-end.glsl"
+  geometry.uv = uv;
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 
   if (bool(picking.isActive) && !bool(picking.isAttribute)) {
-    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    float directionValue = getPixelDirectionValue(pixel, imageType, imageUnscale);
+    float paletteValue = getPaletteValue(palette.paletteBounds[0], palette.paletteBounds[1], value);
+    float directionValue = getPixelDirectionValue(pixel, raster.imageType, raster.imageUnscale);
     fragColor = vec4(paletteValue, directionValue, 0, 1);
   }
 }

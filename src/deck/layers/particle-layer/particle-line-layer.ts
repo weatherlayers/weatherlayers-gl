@@ -13,7 +13,15 @@ import type { Palette } from '../../../client/_utils/palette.js';
 import { createPaletteTexture } from '../../_utils/palette-texture.js';
 import { deckColorToGl } from '../../_utils/color.js';
 import { createEmptyTextureCached } from '../../_utils/texture.js';
-import { sourceCode as updateVs, tokens as updateVsTokens } from './particle-line-layer-update.vs.glsl';
+import { bitmapUniforms, isRectangularBounds } from '../../shaderlib/bitmap/bitmap.js';
+import type { BitmapProps } from '../../shaderlib/bitmap/bitmap.js';
+import { rasterUniforms } from '../../shaderlib/raster/raster.js';
+import type { RasterProps } from '../../shaderlib/raster/raster.js';
+import { paletteUniforms } from '../../shaderlib/palette/palette.js';
+import type { PaletteProps } from '../../shaderlib/palette/palette.js';
+import { particleUniforms } from './particle-line-layer-update-uniforms.js';
+import type { ParticleProps } from './particle-line-layer-update-uniforms.js';
+import { sourceCode as updateVs/*, tokens as updateVsTokens*/ } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
@@ -35,13 +43,14 @@ type _ParticleLineLayerProps = LineLayerProps<unknown> & {
   minZoom: number | null;
   maxZoom: number | null;
 
+  palette: Palette | null;
+  color: Color | null;
+
   numParticles: number;
   maxAge: number;
   speedFactor: number;
 
   width: number;
-  color: Color | null;
-  palette: Palette | null;
   animate: boolean;
 };
 
@@ -61,12 +70,14 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   minZoom: { type: 'object', value: null },
   maxZoom: { type: 'object', value: 15 }, // drop rendering artifacts in high zoom levels due to a low precision
 
+  palette: { type: 'object', value: null },
+  color: { type: 'color', value: DEFAULT_LINE_COLOR },
+
   numParticles: { type: 'number', min: 1, max: 1000000, value: 5000 },
   maxAge: { type: 'number', min: 1, max: 255, value: 10 },
   speedFactor: { type: 'number', min: 0, max: 50, value: 1 },
 
   width: { type: 'number', value: DEFAULT_LINE_WIDTH },
-  color: { type: 'color', value: DEFAULT_LINE_COLOR },
   animate: true,
 
   wrapLongitude: true,
@@ -243,6 +254,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     // setup transform feedback for particles age0
     const transform = new BufferTransform(device, {
       vs: updateVs,
+      modules: [bitmapUniforms, rasterUniforms, paletteUniforms, particleUniforms],
       vertexCount: numParticles,
 
       attributes: {
@@ -283,7 +295,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
 
     const { device, viewport, timeline } = this.context;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, numParticles, maxAge, speedFactor, color } = ensureDefaultProps(this.props, defaultProps);
+    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, color, numParticles, maxAge, speedFactor } = ensureDefaultProps(this.props, defaultProps);
     const { paletteTexture, paletteBounds, numAgedInstances, sourcePositions, targetPositions, sourceColors, targetColors, transform, previousViewportZoom, previousTime } = this.state;
     if (!imageTexture || typeof numAgedInstances !== 'number' || !sourcePositions || !targetPositions || !sourceColors || !targetColors || !transform) {
       return;
@@ -308,38 +320,44 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     const currentSpeedFactor = speedFactor / 2 ** (viewport.zoom + 7);
 
     // update particle positions and colors age0
-    transform.model.setBindings({
-      [updateVsTokens.imageTexture]: imageTexture ?? createEmptyTextureCached(device),
-      [updateVsTokens.imageTexture2]: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
-
-      [updateVsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(device),
-    });
-    transform.model.setUniforms({
-      [updateVsTokens.viewportGlobe]: viewportGlobe ? 1 : 0,
-      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
-      [updateVsTokens.viewportGlobeRadius]: viewportGlobeRadius ?? 0,
-      [updateVsTokens.viewportBounds]: viewportBounds ? [viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]] : [0, 0, 0, 0],
-      [updateVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor ?? 0,
-
-      [updateVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
-      [updateVsTokens.imageSmoothing]: imageSmoothing ?? 0,
-      [updateVsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
-      [updateVsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-      [updateVsTokens.imageType]: Object.values(ImageType).indexOf(imageType),
-      [updateVsTokens.imageUnscale]: imageUnscale ?? [0, 0],
-      [updateVsTokens.imageMinValue]: imageMinValue ?? Number.MIN_SAFE_INTEGER,
-      [updateVsTokens.imageMaxValue]: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-      [updateVsTokens.bounds]: bounds,
-
-      [updateVsTokens.numParticles]: numParticles,
-      [updateVsTokens.maxAge]: maxAge,
-      [updateVsTokens.speedFactor]: currentSpeedFactor,
-
-      [updateVsTokens.color]: color ? deckColorToGl(color) : [0, 0, 0, 0],
-      [updateVsTokens.paletteBounds]: paletteBounds ?? [0, 0],
-
-      [updateVsTokens.time]: time,
-      [updateVsTokens.seed]: Math.random(),
+    transform.model.shaderInputs.setProps({
+      // TODO: add back [updateVsTokens.xxx]
+      bitmap: {
+        bounds: bounds,
+        coordinateConversion: 0, // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
+        transparentColor: [0, 0, 0, 0],
+      } satisfies BitmapProps,
+      raster: {
+        imageTexture: imageTexture ?? createEmptyTextureCached(device),
+        imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
+        imageResolution: [imageTexture.width, imageTexture.height],
+        imageSmoothing: imageSmoothing ?? 0,
+        imageInterpolation: Object.values(ImageInterpolation).indexOf(imageInterpolation),
+        imageWeight: imageTexture2 !== imageTexture ? imageWeight : 0,
+        imageType: Object.values(ImageType).indexOf(imageType),
+        imageUnscale: imageUnscale ?? [0, 0],
+        imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
+        imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
+      } satisfies RasterProps,
+      palette: {
+        paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
+        paletteBounds: paletteBounds ?? [0, 0],
+        paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
+      } satisfies PaletteProps,
+      particle: {
+        viewportGlobe: viewportGlobe ? 1 : 0,
+        viewportGlobeCenter: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
+        viewportGlobeRadius: viewportGlobeRadius ?? 0,
+        viewportBounds: viewportBounds ? [viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]] : [0, 0, 0, 0],
+        viewportZoomChangeFactor: viewportZoomChangeFactor ?? 0,
+  
+        numParticles: numParticles,
+        maxAge: maxAge,
+        speedFactor: currentSpeedFactor,
+  
+        time: time,
+        seed: Math.random(),
+      } satisfies ParticleProps,
     });
     transform.run({
       clearColor: false,
@@ -476,8 +494,4 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     this.setNeedsRedraw();
   }
-}
-
-function isRectangularBounds(bounds: BitmapBoundingBox): bounds is [number, number, number, number] {
-  return Number.isFinite(bounds[0]);
 }

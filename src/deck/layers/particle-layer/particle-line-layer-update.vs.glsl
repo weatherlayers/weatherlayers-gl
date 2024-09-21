@@ -13,35 +13,6 @@ in vec4 sourceColor;
 out vec3 targetPosition;
 out vec4 targetColor;
 
-uniform float viewportGlobe;
-uniform vec2 viewportGlobeCenter;
-uniform float viewportGlobeRadius;
-uniform vec4 viewportBounds;
-uniform float viewportZoomChangeFactor;
-
-uniform sampler2D imageTexture;
-uniform sampler2D imageTexture2;
-uniform vec2 imageResolution;
-uniform float imageSmoothing;
-uniform float imageInterpolation;
-uniform float imageWeight;
-uniform float imageType;
-uniform vec2 imageUnscale;
-uniform float imageMinValue;
-uniform float imageMaxValue;
-uniform vec4 bounds;
-
-uniform float numParticles;
-uniform float maxAge;
-uniform float speedFactor;
-
-uniform vec4 color;
-uniform sampler2D paletteTexture;
-uniform vec2 paletteBounds;
-
-uniform float time;
-uniform float seed;
-
 const vec2 DROP_POSITION = vec2(0);
 const vec4 DROP_COLOR = vec4(0);
 const vec4 HIDE_COLOR = vec4(1, 0, 0, 0);
@@ -89,16 +60,16 @@ vec2 randPoint(vec2 seed) {
 }
 
 vec2 randPointToPosition(vec2 point) {
-  if (viewportGlobe == 1.) {
+  if (particle.viewportGlobe == 1.) {
     point.x += 0.0001; // prevent generating point in the center
     point.x = sqrt(point.x); // uniform random distance, see https://twitter.com/keenanisalive/status/1529490555893428226
-    float dist = point.x * viewportGlobeRadius;
+    float dist = point.x * particle.viewportGlobeRadius;
     float bearing = point.y * 360.;
-    return destinationPoint(viewportGlobeCenter, dist, bearing);
+    return destinationPoint(particle.viewportGlobeCenter, dist, bearing);
   } else {
     point.y = smoothstep(0., 1., point.y); // uniform random latitude
-    vec2 viewportBoundsMin = viewportBounds.xy;
-    vec2 viewportBoundsMax = viewportBounds.zw;
+    vec2 viewportBoundsMin = particle.viewportBounds.xy;
+    vec2 viewportBoundsMax = particle.viewportBounds.zw;
     return mix(viewportBoundsMin, viewportBoundsMax, point);
   }
 }
@@ -110,7 +81,7 @@ vec2 movePositionBySpeed(vec2 position, vec2 speed) {
   float distortion = cos(radians(position.y));
 
   vec2 offset;
-  if (viewportGlobe == 1.) {
+  if (particle.viewportGlobe == 1.) {
     offset = vec2(speed.x / distortion, speed.y); // faster longitude
   } else {
     offset = vec2(speed.x, speed.y * distortion); // slower latitude
@@ -130,18 +101,9 @@ bool isPositionInBounds(vec2 position, vec4 bounds) {
   );
 }
 
-// imageTexture is in COORDINATE_SYSTEM.LNGLAT
-// no coordinate conversion needed
-vec2 getUV(vec2 pos) {
-  return vec2(
-    (pos.x - bounds[0]) / (bounds[2] - bounds[0]),
-    (pos.y - bounds[3]) / (bounds[1] - bounds[3])
-  );
-}
-
 void main() {
-  float particleIndex = mod(float(gl_VertexID), numParticles);
-  float particleAge = floor(float(gl_VertexID) / numParticles);
+  float particleIndex = mod(float(gl_VertexID), particle.numParticles);
+  float particleAge = floor(float(gl_VertexID) / particle.numParticles);
 
   // update particles age0
   // older particles age1-age(N-1) are copied with buffer.copyData
@@ -151,7 +113,7 @@ void main() {
 
   if (sourceColor == DROP_COLOR) {
     // generate random position to prevent converging particles
-    vec2 particleSeed = vec2(particleIndex * seed / numParticles);
+    vec2 particleSeed = vec2(particleIndex * particle.seed / particle.numParticles);
     vec2 point = randPoint(particleSeed);
     vec2 position = randPointToPosition(point);
     targetPosition.xy = position;
@@ -160,40 +122,40 @@ void main() {
     return;
   }
 
-  if (viewportZoomChangeFactor > 1. && mod(particleIndex, viewportZoomChangeFactor) >= 1.) {
+  if (particle.viewportZoomChangeFactor > 1. && mod(particleIndex, particle.viewportZoomChangeFactor) >= 1.) {
     // drop when zooming out
     targetPosition.xy = DROP_POSITION;
     targetColor = DROP_COLOR;
     return;
   }
 
-  if (abs(mod(particleIndex, maxAge + 2.) - mod(time, maxAge + 2.)) < 1.) {
+  if (abs(mod(particleIndex, particle.maxAge + 2.) - mod(particle.time, particle.maxAge + 2.)) < 1.) {
     // drop by maxAge, +2 because only non-randomized pairs are rendered
     targetPosition.xy = DROP_POSITION;
     targetColor = DROP_COLOR;
     return;
   }
 
-  if (!isPositionInBounds(sourcePosition.xy, bounds)) {
+  if (!isPositionInBounds(sourcePosition.xy, bitmap.bounds)) {
     // drop out of bounds
     targetPosition.xy = sourcePosition.xy;
     targetColor = HIDE_COLOR;
     return;
   }
 
-  vec2 uv = getUV(sourcePosition.xy);
-  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, imageResolution, imageSmoothing, imageInterpolation, imageWeight, uv);
-  if (!hasPixelValue(pixel, imageUnscale)) {
+  vec2 uv = getUV(sourcePosition.xy); // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
+  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, uv);
+  if (!hasPixelValue(pixel, raster.imageUnscale)) {
     // drop nodata
     targetPosition.xy = sourcePosition.xy;
     targetColor = HIDE_COLOR;
     return;
   }
 
-  float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
+  float value = getPixelMagnitudeValue(pixel, raster.imageType, raster.imageUnscale);
   if (
-    (!isNaN(imageMinValue) && value < imageMinValue) ||
-    (!isNaN(imageMaxValue) && value > imageMaxValue)
+    (!isNaN(raster.imageMinValue) && value < raster.imageMinValue) ||
+    (!isNaN(raster.imageMaxValue) && value > raster.imageMaxValue)
   ) {
     // drop value out of bounds
     targetPosition.xy = sourcePosition.xy;
@@ -202,15 +164,10 @@ void main() {
   }
 
   // update position
-  vec2 speed = getPixelVectorValue(pixel, imageType, imageUnscale) * speedFactor;
+  vec2 speed = getPixelVectorValue(pixel, raster.imageType, raster.imageUnscale) * particle.speedFactor;
   targetPosition.xy = movePositionBySpeed(sourcePosition.xy, speed);
   targetPosition.x = wrapLongitude(targetPosition.x);
 
   // update color
-  if (paletteBounds[0] < paletteBounds[1]) {
-    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
-  } else {
-    targetColor = color;
-  }
+  targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
 }
