@@ -135,7 +135,8 @@ export type DatasetDataStacItem = StacItem<{
 }, DatasetDataStacAsset>;
 
 export interface DatasetDataStacAsset extends StacAsset {
-  'proj:epsg': number;
+  'proj:code': string;
+  'proj:shape': [number, number];
   'raster:bands'?: {
     data_type: string;
     unit: string;
