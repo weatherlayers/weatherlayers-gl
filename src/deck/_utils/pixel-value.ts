@@ -9,7 +9,8 @@ export function hasPixelValue(pixel: number[], imageUnscale: ImageUnscale): bool
     // pixel[3] === 255 causes incorrect nodata pixels in Safari, because Canvas.getImageData returns different data from the original image, with lower values
     // - this happened in 2023.10.2, fixed in 2023.10.3, reverted in 2024.1.0, it's not happening anymore, why?
     // anything smaller causes interpolated nodata edges with linear interpolation
-    return pixel[3] === 255;
+    // pixel[3] >= 255 because sometimes the original value is slightly larger (255.00000000000003)
+    return pixel[3] >= 255;
   } else {
     return !isNaN(pixel[0]);
   }
