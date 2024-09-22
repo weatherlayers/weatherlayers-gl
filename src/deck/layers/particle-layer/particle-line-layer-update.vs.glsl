@@ -23,7 +23,7 @@ uniform sampler2D imageTexture;
 uniform sampler2D imageTexture2;
 uniform vec2 imageResolution;
 uniform float imageSmoothing;
-uniform int imageInterpolation;
+uniform float imageInterpolation;
 uniform float imageWeight;
 uniform bool imageTypeVector;
 uniform vec2 imageUnscale;

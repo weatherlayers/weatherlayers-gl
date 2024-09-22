@@ -60,17 +60,17 @@ vec4 getPixelNearest(sampler2D image, vec2 imageDownscaleResolution, vec2 uv) {
   return getPixel(image, imageDownscaleResolution, iuv, vec2(0, 0));
 }
 
-vec4 getPixelFilter(sampler2D image, vec2 imageDownscaleResolution, int imageInterpolation, vec2 uv) {
-  if (imageInterpolation == 2) {
+vec4 getPixelFilter(sampler2D image, vec2 imageDownscaleResolution, float imageInterpolation, vec2 uv) {
+  if (imageInterpolation == 2.) {
     return getPixelCubic(image, imageDownscaleResolution, uv);
-  } if (imageInterpolation == 1) {
+  } if (imageInterpolation == 1.) {
     return getPixelLinear(image, imageDownscaleResolution, uv);
   } else {
     return getPixelNearest(image, imageDownscaleResolution, uv);
   }
 }
 
-vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleResolution, int imageInterpolation, float imageWeight, vec2 uv) {
+vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleResolution, float imageInterpolation, float imageWeight, vec2 uv) {
   // offset
   // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
   vec2 uvWithOffset = vec2(uv.x + 0.5 / imageDownscaleResolution.x, uv.y);
@@ -84,7 +84,7 @@ vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleR
   }
 }
 
-vec4 getPixelSmoothInterpolate(sampler2D image, sampler2D image2, vec2 imageResolution, float imageSmoothing, int imageInterpolation, float imageWeight, vec2 uv) {
+vec4 getPixelSmoothInterpolate(sampler2D image, sampler2D image2, vec2 imageResolution, float imageSmoothing, float imageInterpolation, float imageWeight, vec2 uv) {
   // smooth by downscaling resolution
   float imageDownscaleResolutionFactor = 1. + max(0., imageSmoothing);
   vec2 imageDownscaleResolution = imageResolution / imageDownscaleResolutionFactor;
