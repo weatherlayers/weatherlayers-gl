@@ -13,7 +13,7 @@ in vec4 sourceColor;
 out vec3 targetPosition;
 out vec4 targetColor;
 
-uniform bool viewportGlobe;
+uniform float viewportGlobe;
 uniform vec2 viewportGlobeCenter;
 uniform float viewportGlobeRadius;
 uniform vec4 viewportBounds;
@@ -89,7 +89,7 @@ vec2 randPoint(vec2 seed) {
 }
 
 vec2 randPointToPosition(vec2 point) {
-  if (viewportGlobe) {
+  if (viewportGlobe == 1.) {
     point.x += 0.0001; // prevent generating point in the center
     point.x = sqrt(point.x); // uniform random distance, see https://twitter.com/keenanisalive/status/1529490555893428226
     float dist = point.x * viewportGlobeRadius;
@@ -110,7 +110,7 @@ vec2 movePositionBySpeed(vec2 position, vec2 speed) {
   float distortion = cos(radians(position.y));
 
   vec2 offset;
-  if (viewportGlobe) {
+  if (viewportGlobe == 1.) {
     offset = vec2(speed.x / distortion, speed.y); // faster longitude
   } else {
     offset = vec2(speed.x, speed.y * distortion); // slower latitude

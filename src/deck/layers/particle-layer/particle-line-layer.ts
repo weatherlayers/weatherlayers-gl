@@ -315,10 +315,10 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       [updateVsTokens.paletteTexture]: paletteTexture ?? createEmptyTextureCached(device),
     });
     transform.model.setUniforms({
-      [updateVsTokens.viewportGlobe]: viewportGlobe,
-      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter ?? [0, 0],
+      [updateVsTokens.viewportGlobe]: viewportGlobe ? 1 : 0,
+      [updateVsTokens.viewportGlobeCenter]: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
       [updateVsTokens.viewportGlobeRadius]: viewportGlobeRadius ?? 0,
-      [updateVsTokens.viewportBounds]: viewportBounds ?? [0, 0, 0, 0],
+      [updateVsTokens.viewportBounds]: viewportBounds ? [viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]] : [0, 0, 0, 0],
       [updateVsTokens.viewportZoomChangeFactor]: viewportZoomChangeFactor ?? 0,
 
       [updateVsTokens.imageResolution]: [imageTexture.width, imageTexture.height],
