@@ -27,7 +27,8 @@ uniform float imageInterpolation;
 uniform float imageWeight;
 uniform float imageType;
 uniform vec2 imageUnscale;
-uniform vec2 imageValueBounds;
+uniform float imageMinValue;
+uniform float imageMaxValue;
 uniform vec4 bounds;
 
 uniform float numParticles;
@@ -191,8 +192,8 @@ void main() {
 
   float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
   if (
-    (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
-    (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
+    (!isNaN(imageMinValue) && value < imageMinValue) ||
+    (!isNaN(imageMaxValue) && value > imageMaxValue)
   ) {
     // drop value out of bounds
     targetPosition.xy = sourcePosition.xy;
