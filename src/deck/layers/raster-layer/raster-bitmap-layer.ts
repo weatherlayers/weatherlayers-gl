@@ -104,6 +104,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
         [fsTokens.imageMinValue]: imageMinValue ?? Number.MIN_SAFE_INTEGER,
         [fsTokens.imageMaxValue]: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
 
+        [fsTokens.color]: [0, 0, 0, 0],
         [fsTokens.paletteBounds]: paletteBounds ?? [0, 0],
       });
 

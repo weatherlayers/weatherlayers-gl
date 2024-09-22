@@ -20,6 +20,7 @@ uniform vec2 imageUnscale;
 uniform float imageMinValue;
 uniform float imageMaxValue;
 
+uniform vec4 color;
 uniform sampler2D paletteTexture;
 uniform vec2 paletteBounds;
 
@@ -41,13 +42,19 @@ void main(void) {
     discard;
   }
 
-  float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
-  vec4 color = texture(paletteTexture, vec2(paletteValue, 0.));
-  fragColor = apply_opacity(color.rgb, color.a * opacity);
+  vec4 targetColor;
+  if (paletteBounds[0] < paletteBounds[1]) {
+    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
+    targetColor = texture(paletteTexture, vec2(paletteValue, 0.));
+  } else {
+    targetColor = color;
+  }
+  fragColor = apply_opacity(targetColor.rgb, targetColor.a * opacity);
 
   @include "../../_utils/deck-bitmap-layer-main-end.glsl"
 
   if (bool(picking.isActive) && !bool(picking.isAttribute)) {
+    float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
     float directionValue = getPixelDirectionValue(pixel, imageType, imageUnscale);
     fragColor = vec4(paletteValue, directionValue, 0, 1);
   }
