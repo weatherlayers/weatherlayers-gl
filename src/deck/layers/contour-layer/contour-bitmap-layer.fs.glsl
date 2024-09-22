@@ -55,14 +55,14 @@ void main(void) {
   // https://www.shadertoy.com/view/Mlfyz2
   float factor = abs(fract(contourValue + 0.5) - 0.5); // contour position, min 0: contour, max 0.5: between contours
   float dFactor = length(vec2(dFdx(contourValue), dFdy(contourValue))); // contour derivation, consistent width in screen space; dFdx, dFdy provides better constant thickness than fwidth
-  float contour = 1. - clamp((factor / dFactor) + 0.5 - contourWidth, 0., 1.);
+  float contourOpacity = 1. - clamp((factor / dFactor) + 0.5 - contourWidth, 0., 1.);
   if (dFactor == 0.) {
     // drop flat areas
-    contour = 0.;
+    contourOpacity = 0.;
   }
-  float contourOpacity = contour * contourMajor; // minor contour: half opacity
+  float contourOpacityMajor = contourOpacity * contourMajor; // minor contour: half opacity
 
-  // contourOpacity += factor; // debug
+  // contourOpacityMajor += factor; // debug
   vec4 targetColor;
   if (paletteBounds[0] < paletteBounds[1]) {
     float paletteValue = unscale(paletteBounds[0], paletteBounds[1], value);
@@ -70,7 +70,7 @@ void main(void) {
   } else {
     targetColor = color;
   }
-  fragColor = vec4(targetColor.rgb, targetColor.a * contourOpacity * opacity);
+  fragColor = vec4(targetColor.rgb, targetColor.a * contourOpacityMajor * opacity);
 
   @include "../../_utils/deck-bitmap-layer-main-end.glsl"
 }
