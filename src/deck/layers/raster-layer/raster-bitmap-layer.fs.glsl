@@ -15,7 +15,7 @@ uniform vec2 imageResolution;
 uniform float imageSmoothing;
 uniform float imageInterpolation;
 uniform float imageWeight;
-uniform bool imageTypeVector;
+uniform float imageType;
 uniform vec2 imageUnscale;
 uniform vec2 imageValueBounds;
 
@@ -31,7 +31,7 @@ void main(void) {
     discard;
   }
 
-  float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+  float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
   if (
     (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
     (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
@@ -47,7 +47,7 @@ void main(void) {
   @include "../../_utils/deck-bitmap-layer-main-end.glsl"
 
   if (bool(picking.isActive) && !bool(picking.isAttribute)) {
-    float directionValue = getPixelDirectionValue(pixel, imageTypeVector, imageUnscale);
+    float directionValue = getPixelDirectionValue(pixel, imageType, imageUnscale);
     fragColor = vec4(paletteValue, directionValue, 0, 1);
   }
 }

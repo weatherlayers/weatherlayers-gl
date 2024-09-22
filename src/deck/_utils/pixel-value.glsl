@@ -25,8 +25,8 @@ bool hasPixelValue(vec4 pixel, vec2 imageUnscale) {
   }
 }
 
-float getPixelScalarValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
-  if (imageTypeVector) {
+float getPixelScalarValue(vec4 pixel, float imageType, vec2 imageUnscale) {
+  if (imageType == 1.) {
     return 0.;
   } else {
     if (imageUnscale[0] < imageUnscale[1]) {
@@ -37,8 +37,8 @@ float getPixelScalarValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
   }
 }
 
-vec2 getPixelVectorValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
-  if (imageTypeVector) {
+vec2 getPixelVectorValue(vec4 pixel, float imageType, vec2 imageUnscale) {
+  if (imageType == 1.) {
     if (imageUnscale[0] < imageUnscale[1]) {
       return mix(vec2(imageUnscale[0]), vec2(imageUnscale[1]), pixel.xy);
     } else {
@@ -49,18 +49,18 @@ vec2 getPixelVectorValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
   }
 }
 
-float getPixelMagnitudeValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
-  if (imageTypeVector) {
-    vec2 value = getPixelVectorValue(pixel, imageTypeVector, imageUnscale);
+float getPixelMagnitudeValue(vec4 pixel, float imageType, vec2 imageUnscale) {
+  if (imageType == 1.) {
+    vec2 value = getPixelVectorValue(pixel, imageType, imageUnscale);
     return length(value);
   } else {
-    return getPixelScalarValue(pixel, imageTypeVector, imageUnscale);
+    return getPixelScalarValue(pixel, imageType, imageUnscale);
   }
 }
 
-float getPixelDirectionValue(vec4 pixel, bool imageTypeVector, vec2 imageUnscale) {
-  if (imageTypeVector) {
-    vec2 value = getPixelVectorValue(pixel, imageTypeVector, imageUnscale);
+float getPixelDirectionValue(vec4 pixel, float imageType, vec2 imageUnscale) {
+  if (imageType == 1.) {
+    vec2 value = getPixelVectorValue(pixel, imageType, imageUnscale);
     return mod((360. - (atan2(value.y, value.x) / PI * 180. + 180.)) - 270., 360.) / 360.;
   } else {
     return 0.;

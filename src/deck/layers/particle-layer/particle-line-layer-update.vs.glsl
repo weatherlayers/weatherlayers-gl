@@ -25,7 +25,7 @@ uniform vec2 imageResolution;
 uniform float imageSmoothing;
 uniform float imageInterpolation;
 uniform float imageWeight;
-uniform bool imageTypeVector;
+uniform float imageType;
 uniform vec2 imageUnscale;
 uniform vec2 imageValueBounds;
 uniform vec4 bounds;
@@ -189,7 +189,7 @@ void main() {
     return;
   }
 
-  float value = getPixelMagnitudeValue(pixel, imageTypeVector, imageUnscale);
+  float value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
   if (
     (!isNaN(imageValueBounds.x) && value < imageValueBounds.x) ||
     (!isNaN(imageValueBounds.y) && value > imageValueBounds.y)
@@ -201,7 +201,7 @@ void main() {
   }
 
   // update position
-  vec2 speed = getPixelVectorValue(pixel, imageTypeVector, imageUnscale) * speedFactor;
+  vec2 speed = getPixelVectorValue(pixel, imageType, imageUnscale) * speedFactor;
   targetPosition.xy = movePositionBySpeed(sourcePosition.xy, speed);
   targetPosition.x = wrapLongitude(targetPosition.x);
 

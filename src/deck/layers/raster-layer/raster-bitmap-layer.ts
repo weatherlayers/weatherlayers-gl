@@ -99,7 +99,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
         [fsTokens.imageSmoothing]: imageSmoothing ?? 0,
         [fsTokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(imageInterpolation),
         [fsTokens.imageWeight]: imageTexture2 !== imageTexture ? imageWeight : 0,
-        [fsTokens.imageTypeVector]: imageType === ImageType.VECTOR,
+        [fsTokens.imageType]: Object.values(ImageType).indexOf(imageType),
         [fsTokens.imageUnscale]: imageUnscale ?? [0, 0],
         [fsTokens.imageValueBounds]: [imageMinValue ?? Number.MIN_SAFE_INTEGER, imageMaxValue ?? Number.MAX_SAFE_INTEGER],
 
