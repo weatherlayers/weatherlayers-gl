@@ -1,9 +1,10 @@
 import type { Device, Texture, TextureProps, TextureFormat } from '@luma.gl/core';
 import type { TextureData } from '../../client/_utils/texture-data.js';
 
-const cache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
+const repeatCache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
+const clampCache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
 
-function getTextureProps(device: Device, image: TextureData): TextureProps {
+function getTextureProps(device: Device, image: TextureData, repeat: boolean): TextureProps {
   const { data, width, height } = image;
   const bandsCount = data.length / (width * height);
 
@@ -44,14 +45,15 @@ function getTextureProps(device: Device, image: TextureData): TextureProps {
       // custom interpolation in pixel.glsl
       magFilter: 'nearest',
       minFilter: 'nearest',
-      addressModeU: 'clamp-to-edge',
+      addressModeU: repeat ? 'repeat' : 'clamp-to-edge',
       addressModeV: 'clamp-to-edge',
       lodMaxClamp: 0,
     },
   };
 }
 
-export function createTextureCached(device: Device, image: TextureData): Texture {
+export function createTextureCached(device: Device, image: TextureData, repeat: boolean = false): Texture {
+  const cache = repeat ? repeatCache : clampCache;
   const cache2 = cache.get(device) ?? (() => {
     const cache2 = new WeakMap<TextureData, Texture>()
     cache.set(device, cache2);
@@ -59,7 +61,7 @@ export function createTextureCached(device: Device, image: TextureData): Texture
   })();
 
   const texture = cache2.get(image) ?? (() => {
-    const textureProps = getTextureProps(device, image);
+    const textureProps = getTextureProps(device, image, repeat);
     const texture = device.createTexture(textureProps);
     cache2.set(image, texture);
     return texture;

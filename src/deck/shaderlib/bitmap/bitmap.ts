@@ -82,3 +82,7 @@ export const bitmapUniforms = {
 export function isRectangularBounds(bounds: BitmapBoundingBox): bounds is [number, number, number, number] {
   return Number.isFinite(bounds[0]);
 }
+
+export function isRepeatBounds(bounds: BitmapBoundingBox): boolean {
+  return isRectangularBounds(bounds) && bounds[2] - bounds[0] === 360;
+}

@@ -3,6 +3,7 @@ import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@de
 import type { Texture } from '@luma.gl/core';
 import type { TextureData } from '../../../client/_utils/texture-data.js';
 import { createTextureCached, createEmptyTextureCached } from '../../_utils/texture.js';
+import { isRepeatBounds } from '../../shaderlib/bitmap/bitmap.js';
 import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
 import { ParticleLineLayer } from './particle-line-layer.js';
 import type { ParticleLineLayerProps } from './particle-line-layer.js';
@@ -56,7 +57,7 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageUnscale } = params.props;
+    const { image, image2, imageUnscale, bounds } = params.props;
 
     super.updateState(params);
 
@@ -68,8 +69,8 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
       const { device } = this.context;
       const { image, image2 } = this.props;
   
-      const imageTexture = image ? createTextureCached(device, image) : null;
-      const imageTexture2 = image2 ? createTextureCached(device, image2) : null;
+      const imageTexture = image ? createTextureCached(device, image, isRepeatBounds(bounds)) : null;
+      const imageTexture2 = image2 ? createTextureCached(device, image2, isRepeatBounds(bounds)) : null;
   
       this.setState({ imageTexture, imageTexture2 });
     }
