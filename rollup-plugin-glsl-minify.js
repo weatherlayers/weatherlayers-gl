@@ -6,86 +6,97 @@
 import { createFilter } from 'rollup-pluginutils';
 import { GlslMinify } from 'webpack-glsl-minify/build/minify.js';
 import { nodeReadFile, nodeDirname } from 'webpack-glsl-minify/build/node.js';
+import { fileURLToPath } from 'node:url';
 
-function minifyShader(code, id, minimize) {
+const modules = [
+  {
+    structName: 'bitmapUniforms',
+    uniformBufferName: 'bitmap',
+    path: './src/deck/shaderlib/bitmap-module/bitmap-module.glsl',
+  },
+  {
+    structName: 'rasterUniforms',
+    uniformBufferName: 'raster',
+    path: './src/deck/shaderlib/raster-module/raster-module.glsl',
+  },
+  {
+    structName: 'paletteUniforms',
+    uniformBufferName: 'palette',
+    path: './src/deck/shaderlib/palette-module/palette-module.glsl',
+  },
+  {
+    structName: 'contourUniforms',
+    uniformBufferName: 'contour',
+    path: './src/deck/layers/contour-layer/contour-module.glsl',
+  },
+  {
+    structName: 'particleUniforms',
+    uniformBufferName: 'particle',
+    path: './src/deck/layers/particle-layer/particle-module.glsl',
+  },
+];
+
+const modulesGlsl = modules.map(module => `@include "${module.path}"`).join('\n');
+
+async function minifyShader(code, id, minimize) {
   const nomangle = [
-    // don't mangle deck.gl names
-    'PI', 'EARTH_RADIUS',
-    'geometry', 'uv', 'DECKGL_FILTER_COLOR',
     // don't mangle WebGL2 functions
     'texture',
     'floatBitsToUint',
-    // don't mangle shader modules
-    'layer',
+
+    // don't mangle deck.gl names
+    'PI',
+    'EARTH_RADIUS',
+    'geometry',
+    'uv',
+    'DECKGL_FILTER_COLOR',
+
+    // don't mangle deck.gl shader modules
+    'layer', // upcoming in deck.gl 9.1
     'opacity',
 
     'picking',
     'isActive',
     'isAttribute',
 
-    'bitmap',
-    'bounds',
-    'coordinateConversion',
-    'transparentColor',
-    '_PI',
-    'apply_opacity',
-    'getUV',
-    'getUVWithCoordinateConversion',
-
-    'raster',
-    'imageTexture',
-    'imageTexture2',
-    'imageResolution',
-    'imageSmoothing',
-    'imageInterpolation',
-    'imageWeight',
-    'imageType',
-    'imageUnscale',
-    'imageMinValue',
-    'imageMaxValue',
-
-    'palette',
-    'paletteTexture',
-    'paletteBounds',
-    'paletteColor',
-    'getPaletteValue',
-    'applyPalette',
-
-    'contour',
-    'interval',
-    'majorInterval',
-    'width',
-
-    'particle',
-    'viewportGlobe',
-    'viewportGlobeCenter',
-    'viewportGlobeRadius',
-    'viewportBounds',
-    'viewportZoomChangeFactor',
-    'numParticles',
-    'maxAge',
-    'speedFactor',
-    'time',
-    'seed',
+    // don't mangle shader modules
+    ...modules.map(module => [module.structName, module.uniformBufferName]).flat(),
   ];
 
-  // minify
   const glsl = new GlslMinify({
     preserveDefines: true,
     preserveAll: !minimize,
     nomangle: nomangle,
   }, nodeReadFile, nodeDirname);
-  return glsl.executeFile({ path: id, contents: code });
+
+  // minify shader modules in the same GlslMinify instance to get their tokens
+  await glsl.executeFile({ path: fileURLToPath(import.meta.url), contents: modulesGlsl });
+
+  // minify shader
+  const result = await glsl.executeFile({ path: id, contents: code });
+  const tokens = getTokens(glsl.tokens);
+
+  return { sourceCode: result.sourceCode, tokens };
+}
+
+// use instead of tokenMap.getUniforms, because it doesn't support uniforms in UBOs (missing variableType) and nomangle in UBOs (not renamed)
+function getTokens(tokenMap) {
+  // filter only the tokens that have the type field set, or that have been renamed
+  const tokens = {};
+  for (const original in tokenMap.tokens) {
+    const token = tokenMap.tokens[original];
+    if (token.variableType || original !== token.variableName || tokenMap.options.nomangle.includes(original)) {
+      tokens[original] = token.variableName;
+    }
+  }
+  return tokens;
 }
 
 function generateCode(result) {
-  // extract minified uniform tokens
-  const tokens = Object.fromEntries(Object.entries(result.uniforms).map(([originalName, {variableName}]) => [originalName, variableName]));
-
   return `
     // eslint-disable
     export const sourceCode = ${JSON.stringify(result.sourceCode)};
-    export const tokens = ${JSON.stringify(tokens)};
+    export const tokens = ${JSON.stringify(result.tokens)};
   `;
 }
 

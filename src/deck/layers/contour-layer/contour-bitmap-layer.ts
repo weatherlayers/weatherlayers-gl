@@ -12,14 +12,10 @@ import type { Palette } from '../../../client/_utils/palette.js';
 import { createPaletteTexture } from '../../_utils/palette-texture.js';
 import { createEmptyTextureCached } from '../../_utils/texture.js';
 import { deckColorToGl } from '../../_utils/color.js';
-import { bitmapUniforms } from '../../shaderlib/bitmap/bitmap.js';
-import type { BitmapProps } from '../../shaderlib/bitmap/bitmap.js';
-import { rasterUniforms } from '../../shaderlib/raster/raster.js';
-import type { RasterProps } from '../../shaderlib/raster/raster.js';
-import { paletteUniforms } from '../../shaderlib/palette/palette.js';
-import type { PaletteProps } from '../../shaderlib/palette/palette.js';
-import { contourUniforms } from './contour-bitmap-layer-uniforms.js';
-import type { ContourProps } from './contour-bitmap-layer-uniforms.js';
+import { bitmapModule, getBitmapModuleUniforms } from '../../shaderlib/bitmap-module/bitmap-module.js';
+import { rasterModule, getRasterModuleUniforms } from '../../shaderlib/raster-module/raster-module.js';
+import { paletteModule, getPaletteModuleUniforms } from '../../shaderlib/palette-module/palette-module.js';
+import { contourModule, getContourModuleUniforms } from './contour-module.js';
 import { sourceCode as fs/*, tokens as fsTokens*/ } from './contour-bitmap-layer.fs.glsl';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
@@ -83,7 +79,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     return {
       ...parentShaders,
       fs,
-      modules: [...parentShaders.modules, bitmapUniforms, rasterUniforms, paletteUniforms, contourUniforms],
+      modules: [...parentShaders.modules, bitmapModule, rasterModule, paletteModule, contourModule],
     };
   }
 
@@ -108,12 +104,11 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.shaderInputs.setProps({
-        // TODO: add back [fsTokens.xxx]
-        bitmap: {
+        ...getBitmapModuleUniforms({
           ...super._getCoordinateUniforms() as {bounds: [number, number, number, number], coordinateConversion: number},
           transparentColor: this.props.transparentColor.map(x => x / 255) as [number, number, number, number],
-        } satisfies BitmapProps,
-        raster: {
+        }),
+        ...getRasterModuleUniforms({
           imageTexture: imageTexture ?? createEmptyTextureCached(device),
           imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
           imageResolution: [imageTexture.width, imageTexture.height],
@@ -124,17 +119,17 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
           imageUnscale: imageUnscale ?? [0, 0],
           imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
           imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-        } satisfies RasterProps,
-        palette: {
+        }),
+        ...getPaletteModuleUniforms({
           paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
           paletteBounds: paletteBounds ?? [0, 0],
           paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
-        } satisfies PaletteProps,
-        contour: {
+        }),
+        ...getContourModuleUniforms({
           interval: interval,
           majorInterval: majorInterval,
           width: width,
-        } satisfies ContourProps,
+        }),
       });
 
       this.props.image = imageTexture;

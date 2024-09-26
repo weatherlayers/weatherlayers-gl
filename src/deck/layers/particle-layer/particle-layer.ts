@@ -3,7 +3,7 @@ import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@de
 import type { Texture } from '@luma.gl/core';
 import type { TextureData } from '../../../client/_utils/texture-data.js';
 import { createTextureCached, createEmptyTextureCached } from '../../_utils/texture.js';
-import { isRepeatBounds } from '../../shaderlib/bitmap/bitmap.js';
+import { isRepeatBounds } from '../../shaderlib/bitmap-module/bitmap-module.js';
 import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
 import { ParticleLineLayer } from './particle-line-layer.js';
 import type { ParticleLineLayerProps } from './particle-line-layer.js';

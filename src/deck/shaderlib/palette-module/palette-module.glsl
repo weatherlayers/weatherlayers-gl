@@ -1,8 +1,3 @@
-import type { Texture } from '@luma.gl/core';
-import { glsl } from '@luma.gl/shadertools';
-import type { ShaderModule } from '@luma.gl/shadertools';
-
-const shader = glsl`\
 uniform sampler2D paletteTexture;
 
 uniform paletteUniforms {
@@ -22,20 +17,3 @@ vec4 applyPalette(sampler2D paletteTexture, vec2 paletteBounds, vec4 paletteColo
     return paletteColor;
   }
 }
-`;
-
-export type PaletteProps = {
-  paletteTexture: Texture;
-  paletteBounds: [number, number];
-  paletteColor: [number, number, number, number];
-};
-
-export const paletteUniforms = {
-  name: 'palette',
-  vs: shader,
-  fs: shader,
-  uniformTypes: {
-    paletteBounds: 'vec2<f32>',
-    paletteColor: 'vec4<f32>',
-  },
-} as const satisfies ShaderModule<PaletteProps>;

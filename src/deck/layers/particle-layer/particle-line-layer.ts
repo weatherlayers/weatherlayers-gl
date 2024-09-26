@@ -13,14 +13,10 @@ import type { Palette } from '../../../client/_utils/palette.js';
 import { createPaletteTexture } from '../../_utils/palette-texture.js';
 import { deckColorToGl } from '../../_utils/color.js';
 import { createEmptyTextureCached } from '../../_utils/texture.js';
-import { bitmapUniforms, isRectangularBounds } from '../../shaderlib/bitmap/bitmap.js';
-import type { BitmapProps } from '../../shaderlib/bitmap/bitmap.js';
-import { rasterUniforms } from '../../shaderlib/raster/raster.js';
-import type { RasterProps } from '../../shaderlib/raster/raster.js';
-import { paletteUniforms } from '../../shaderlib/palette/palette.js';
-import type { PaletteProps } from '../../shaderlib/palette/palette.js';
-import { particleUniforms } from './particle-line-layer-update-uniforms.js';
-import type { ParticleProps } from './particle-line-layer-update-uniforms.js';
+import { bitmapModule, getBitmapModuleUniforms, isRectangularBounds } from '../../shaderlib/bitmap-module/bitmap-module.js';
+import { rasterModule, getRasterModuleUniforms } from '../../shaderlib/raster-module/raster-module.js';
+import { paletteModule, getPaletteModuleUniforms } from '../../shaderlib/palette-module/palette-module.js';
+import { particleModule, getParticleModuleUniforms } from './particle-module.js';
 import { sourceCode as updateVs/*, tokens as updateVsTokens*/ } from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
@@ -254,7 +250,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     // setup transform feedback for particles age0
     const transform = new BufferTransform(device, {
       vs: updateVs,
-      modules: [bitmapUniforms, rasterUniforms, paletteUniforms, particleUniforms],
+      modules: [bitmapModule, rasterModule, paletteModule, particleModule],
       vertexCount: numParticles,
 
       attributes: {
@@ -321,13 +317,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     // update particle positions and colors age0
     transform.model.shaderInputs.setProps({
-      // TODO: add back [updateVsTokens.xxx]
-      bitmap: {
+      ...getBitmapModuleUniforms({
         bounds: bounds,
         coordinateConversion: 0, // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
         transparentColor: [0, 0, 0, 0],
-      } satisfies BitmapProps,
-      raster: {
+      }),
+      ...getRasterModuleUniforms({
         imageTexture: imageTexture ?? createEmptyTextureCached(device),
         imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
         imageResolution: [imageTexture.width, imageTexture.height],
@@ -338,13 +333,13 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
         imageUnscale: imageUnscale ?? [0, 0],
         imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
         imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-      } satisfies RasterProps,
-      palette: {
+      }),
+      ...getPaletteModuleUniforms({
         paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
         paletteBounds: paletteBounds ?? [0, 0],
         paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
-      } satisfies PaletteProps,
-      particle: {
+      }),
+      ...getParticleModuleUniforms({
         viewportGlobe: viewportGlobe ? 1 : 0,
         viewportGlobeCenter: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
         viewportGlobeRadius: viewportGlobeRadius ?? 0,
@@ -357,7 +352,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   
         time: time,
         seed: Math.random(),
-      } satisfies ParticleProps,
+      }),
     });
     transform.run({
       clearColor: false,
