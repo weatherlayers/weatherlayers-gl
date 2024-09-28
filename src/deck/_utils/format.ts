@@ -1,6 +1,6 @@
-import { DirectionType } from './direction-type.js';
-import { DirectionFormat } from './direction-format.js';
-import type { UnitFormat } from '../../client/_utils/unit-format.js';
+import {DirectionType} from './direction-type.js';
+import {DirectionFormat} from './direction-format.js';
+import type {UnitFormat} from '../../client/_utils/unit-format.js';
 
 const CARDINALS = {
   [DirectionFormat.CARDINAL]: ['N', 'E', 'S', 'W'],
@@ -12,7 +12,7 @@ export function formatValue(value: number, unitFormat: UnitFormat | null | undef
   if (!unitFormat) {
     return `${Math.round(value)}`;
   }
-  const { scale = 1, offset = 0, decimals = 0 } = unitFormat;
+  const {scale = 1, offset = 0, decimals = 0} = unitFormat;
   const formattedValue = scale * value + offset;
   const roundedFormattedValue = decimals ? Math.round(formattedValue * 10 ** decimals) / 10 ** decimals : Math.round(formattedValue);
   return `${roundedFormattedValue}`;

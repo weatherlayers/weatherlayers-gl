@@ -1,6 +1,6 @@
-import type { ShaderModule } from '@luma.gl/shadertools';
-import type { BitmapBoundingBox } from '@deck.gl/layers';
-import { sourceCode, tokens } from './bitmap-module.glsl';
+import type {ShaderModule} from '@luma.gl/shadertools';
+import type {BitmapBoundingBox} from '@deck.gl/layers';
+import {sourceCode, tokens} from './bitmap-module.glsl';
 
 export type BitmapModuleProps = {
   bounds: [number, number, number, number];

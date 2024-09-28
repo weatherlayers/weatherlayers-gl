@@ -12,7 +12,7 @@ export abstract class Control<ControlConfig> {
   }
 
   updateConfig(config: Partial<ControlConfig>): void {
-    this.setConfig({ ...this.getConfig(), ...config });
+    this.setConfig({...this.getConfig(), ...config});
   }
 
   abstract getConfig(): ControlConfig;

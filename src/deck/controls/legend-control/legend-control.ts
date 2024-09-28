@@ -1,7 +1,7 @@
-import { formatValue, formatUnit } from '../../_utils/format.js';
-import type { UnitFormat } from '../../../client/_utils/unit-format.js';
-import { parsePalette, colorRampCanvas, type Palette } from '../../../client/_utils/palette.js';
-import { Control } from '../control.js';
+import {formatValue, formatUnit} from '../../_utils/format.js';
+import type {UnitFormat} from '../../../client/_utils/unit-format.js';
+import {parsePalette, colorRampCanvas, type Palette} from '../../../client/_utils/palette.js';
+import {Control} from '../control.js';
 import './legend-control.css';
 
 export interface LegendControlConfig {
@@ -44,7 +44,7 @@ export class LegendControl extends Control<LegendControlConfig> {
   }
 
   getConfig(): LegendControlConfig {
-    return { ...this.#config };
+    return {...this.#config};
   }
 
   setConfig(config: LegendControlConfig): void {

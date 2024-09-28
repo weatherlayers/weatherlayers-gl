@@ -1,12 +1,12 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import type { Texture } from '@luma.gl/core';
-import type { TextureData } from '../../../client/_utils/texture-data.js';
-import { createTextureCached, createEmptyTextureCached } from '../../_utils/texture.js';
-import { isRepeatBounds } from '../../shaderlib/bitmap-module/bitmap-module.js';
-import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
-import { ParticleLineLayer } from './particle-line-layer.js';
-import type { ParticleLineLayerProps } from './particle-line-layer.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core';
+import type {Texture} from '@luma.gl/core';
+import type {TextureData} from '../../../client/_utils/texture-data.js';
+import {createTextureCached, createEmptyTextureCached} from '../../_utils/texture.js';
+import {isRepeatBounds} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
+import {ParticleLineLayer} from './particle-line-layer.js';
+import type {ParticleLineLayerProps} from './particle-line-layer.js';
 
 type _ParticleLayerProps = ParticleLineLayerProps & {
   image: TextureData | null;
@@ -20,8 +20,8 @@ const defaultProps: DefaultProps<ParticleLayerProps> = {
 
   imageTexture: undefined,
   imageTexture2: undefined,
-  image: { type: 'object', value: null }, // object instead of image to allow reading raw data
-  image2: { type: 'object', value: null }, // object instead of image to allow reading raw data
+  image: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
 @withVerifyLicense('ParticleLayer', defaultProps)
@@ -35,8 +35,8 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
   };
 
   renderLayers(): LayersList {
-    const { device } = this.context;
-    const { props, imageTexture, imageTexture2 } = this.state;
+    const {device} = this.context;
+    const {props, imageTexture, imageTexture2} = this.state;
     if (!props || !imageTexture) {
       return [];
     }
@@ -57,7 +57,7 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageUnscale, bounds } = params.props;
+    const {image, image2, imageUnscale, bounds} = params.props;
 
     super.updateState(params);
 
@@ -66,15 +66,15 @@ export class ParticleLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<E
     }
 
     if (image !== params.oldProps.image || image2 !== params.oldProps.image2) {
-      const { device } = this.context;
-      const { image, image2 } = this.props;
+      const {device} = this.context;
+      const {image, image2} = this.props;
   
       const imageTexture = image ? createTextureCached(device, image, isRepeatBounds(bounds)) : null;
       const imageTexture2 = image2 ? createTextureCached(device, image2, isRepeatBounds(bounds)) : null;
   
-      this.setState({ imageTexture, imageTexture2 });
+      this.setState({imageTexture, imageTexture2});
     }
 
-    this.setState({ props: params.props });
+    this.setState({props: params.props});
   }
 }

@@ -1,6 +1,6 @@
-import type { Texture } from '@luma.gl/core';
-import type { ShaderModule } from '@luma.gl/shadertools';
-import { sourceCode, tokens } from './raster-module.glsl';
+import type {Texture} from '@luma.gl/core';
+import type {ShaderModule} from '@luma.gl/shadertools';
+import {sourceCode, tokens} from './raster-module.glsl';
 
 export type RasterModuleProps = {
   imageTexture: Texture;

@@ -1,22 +1,22 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import { TextLayer } from '@deck.gl/layers';
-import type { TextLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
-import { CollisionFilterExtension } from '@deck.gl/extensions';
-import type { CollisionFilterExtensionProps } from '@deck.gl/extensions';
-import { DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../_utils/props.js';
-import type { TextFormatFunction } from '../../_utils/props.js';
-import type { TextureData } from '../../../client/_utils/texture-data.js';
-import { ImageInterpolation } from '../../_utils/image-interpolation.js';
-import { ImageType } from '../../../client/_utils/image-type.js';
-import type { ImageUnscale } from '../../../client/_utils/image-unscale.js';
-import type { UnitFormat } from '../../../client/_utils/unit-format.js';
-import { randomString } from '../../_utils/random-string.js';
-import { isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle } from '../../_utils/viewport.js';
-import { parsePalette, type Palette, type Scale } from '../../../client/_utils/palette.js';
-import { paletteColorToGl } from '../../_utils/color.js';
-import { getHighLowPoints, HighLowType } from '../../../standalone/providers/high-low-provider/high-low-point.js';
-import type { HighLowPointProperties } from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList} from '@deck.gl/core';
+import {TextLayer} from '@deck.gl/layers';
+import type {TextLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
+import {CollisionFilterExtension} from '@deck.gl/extensions';
+import type {CollisionFilterExtensionProps} from '@deck.gl/extensions';
+import {DEFAULT_TEXT_FORMAT_FUNCTION, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
+import type {TextFormatFunction} from '../../_utils/props.js';
+import type {TextureData} from '../../../client/_utils/texture-data.js';
+import {ImageInterpolation} from '../../_utils/image-interpolation.js';
+import {ImageType} from '../../../client/_utils/image-type.js';
+import type {ImageUnscale} from '../../../client/_utils/image-unscale.js';
+import type {UnitFormat} from '../../../client/_utils/unit-format.js';
+import {randomString} from '../../_utils/random-string.js';
+import {isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle} from '../../_utils/viewport.js';
+import {parsePalette, type Palette, type Scale} from '../../../client/_utils/palette.js';
+import {paletteColorToGl} from '../../_utils/color.js';
+import {getHighLowPoints, HighLowType} from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import type {HighLowPointProperties} from '../../../standalone/providers/high-low-provider/high-low-point.js';
 
 const HIGH_LOW_LABEL_COLLISION_GROUP = 'high-low-label';
 
@@ -57,29 +57,29 @@ type _HighLowCompositeLayerProps = CompositeLayerProps & {
 export type HighLowCompositeLayerProps = _HighLowCompositeLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<HighLowCompositeLayerProps> = {
-  image: { type: 'object', value: null }, // object instead of image to allow reading raw data
-  image2: { type: 'object', value: null }, // object instead of image to allow reading raw data
-  imageSmoothing: { type: 'number', value: 0 },
-  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
-  imageWeight: { type: 'number', value: 0 },
-  imageType: { type: 'object', value: ImageType.SCALAR },
-  imageUnscale: { type: 'array', value: null },
-  imageMinValue: { type: 'object', value: null },
-  imageMaxValue: { type: 'object', value: null },
-  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
-  minZoom: { type: 'object', value: null },
-  maxZoom: { type: 'object', value: null },
+  image: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
+  imageSmoothing: {type: 'number', value: 0},
+  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
+  imageWeight: {type: 'number', value: 0},
+  imageType: {type: 'object', value: ImageType.SCALAR},
+  imageUnscale: {type: 'array', value: null},
+  imageMinValue: {type: 'object', value: null},
+  imageMaxValue: {type: 'object', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  minZoom: {type: 'object', value: null},
+  maxZoom: {type: 'object', value: null},
 
-  radius: { type: 'number', value: 0 },
+  radius: {type: 'number', value: 0},
 
-  unitFormat: { type: 'object', value: null },
-  textFormatFunction: { type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION },
-  textFontFamily: { type: 'object', value: DEFAULT_TEXT_FONT_FAMILY },
-  textSize: { type: 'number', value: DEFAULT_TEXT_SIZE },
-  textColor: { type: 'color', value: DEFAULT_TEXT_COLOR },
-  textOutlineWidth: { type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH },
-  textOutlineColor: { type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR },
-  palette: { type: 'object', value: null },
+  unitFormat: {type: 'object', value: null},
+  textFormatFunction: {type: 'function', value: DEFAULT_TEXT_FORMAT_FUNCTION},
+  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
+  textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
+  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
+  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
+  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
+  palette: {type: 'object', value: null},
 };
 
 export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_HighLowCompositeLayerProps>> {
@@ -98,14 +98,14 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   };
 
   renderLayers(): LayersList {
-    const { viewport } = this.context;
-    const { props, visiblePoints, minValue, maxValue } = this.state;
+    const {viewport} = this.context;
+    const {props, visiblePoints, minValue, maxValue} = this.state;
     if (!props || !visiblePoints || typeof minValue !== 'number' || typeof maxValue !== 'number') {
       return [];
     }
 
-    const { unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor } = ensureDefaultProps(props, defaultProps);
-    const { paletteScale } = this.state;
+    const {unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor} = ensureDefaultProps(props, defaultProps);
+    const {paletteScale} = this.state;
 
     return [
       new TextLayer(this.getSubLayerProps({
@@ -120,13 +120,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
         outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
         fontFamily: textFontFamily,
-        fontSettings: { sdf: true },
+        fontSettings: {sdf: true},
         billboard: false,
 
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
         collisionGroup: HIGH_LOW_LABEL_COLLISION_GROUP,
-        collisionTestProps: { sizeScale: 5 },
+        collisionTestProps: {sizeScale: 5},
         getCollisionPriority: (d: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>) => getHighLowPointCollisionPriority(d, minValue, maxValue),
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
       new TextLayer(this.getSubLayerProps({
@@ -141,13 +141,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
         outlineWidth: textOutlineWidth,
         outlineColor: textOutlineColor,
         fontFamily: textFontFamily,
-        fontSettings: { sdf: true },
+        fontSettings: {sdf: true},
         billboard: false,
         
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
         collisionGroup: HIGH_LOW_LABEL_COLLISION_GROUP,
-        collisionTestProps: { sizeScale: 5 },
+        collisionTestProps: {sizeScale: 5},
         getCollisionPriority: (d: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>) => getHighLowPointCollisionPriority(d, minValue, maxValue),
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
     ];
@@ -158,7 +158,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette, visible } = params.props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette, visible} = params.props;
 
     super.updateState(params);
 
@@ -212,11 +212,11 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       this.#redrawVisibleFeatures();
     }
 
-    this.setState({ props: params.props });
+    this.setState({props: params.props});
   }
 
   async #updateFeatures(): Promise<void> {
-    const { image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageMinValue, imageMaxValue, imageWeight, bounds, radius } = ensureDefaultProps(this.props, defaultProps);
+    const {image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageMinValue, imageMaxValue, imageWeight, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
     }
@@ -224,7 +224,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const requestId = randomString();
     this.state.requestId = requestId;
 
-    const imageProperties = { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const imageProperties = {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue};
     const points = (await getHighLowPoints(imageProperties, bounds as GeoJSON.BBox, radius)).features;
 
     // discard displaying obsolete points
@@ -236,15 +236,15 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
 
-    this.setState({ points, minValue, maxValue });
+    this.setState({points, minValue, maxValue});
 
     this.#updateVisibleFeatures();
   }
 
   #updateVisibleFeatures(): void {
-    const { viewport } = this.context;
-    const { minZoom, maxZoom } = ensureDefaultProps(this.props, defaultProps);
-    const { points } = this.state;
+    const {viewport} = this.context;
+    const {minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
+    const {points} = this.state;
     if (!points) {
       return;
     }
@@ -256,13 +256,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       visiblePoints = [];
     }
 
-    this.setState({ visiblePoints });
+    this.setState({visiblePoints});
   }
 
   #updatePalette(): void {
-    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
-      this.setState({ paletteScale: undefined });
+      this.setState({paletteScale: undefined});
 
       this.#redrawVisibleFeatures();
       return;
@@ -270,12 +270,12 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
 
     const paletteScale = parsePalette(palette);
 
-    this.setState({ paletteScale });
+    this.setState({paletteScale});
 
     this.#redrawVisibleFeatures();
   }
 
   #redrawVisibleFeatures(): void {
-    this.setState({ visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints });
+    this.setState({visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints});
   }
 }

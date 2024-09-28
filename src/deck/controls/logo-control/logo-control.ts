@@ -1,4 +1,4 @@
-import { Control } from '../control.js';
+import {Control} from '../control.js';
 import './logo-control.css';
 
 export interface LogoControlConfig {}
@@ -31,7 +31,7 @@ export class LogoControl extends Control<LogoControlConfig> {
   }
 
   getConfig(): LogoControlConfig {
-    return { ...this.#config };
+    return {...this.#config};
   }
 
   setConfig(config: LogoControlConfig): void {

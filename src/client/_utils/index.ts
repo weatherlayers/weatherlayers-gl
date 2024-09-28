@@ -1,5 +1,5 @@
-export { VERSION, DATETIME } from './build.js';
-export { setLibrary } from './library.js';
+export {VERSION, DATETIME} from './build.js';
+export {setLibrary} from './library.js';
 export * from './texture-data.js';
 export * from './datetime.js';
 export * from './image-type.js';

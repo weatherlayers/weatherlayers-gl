@@ -1,4 +1,4 @@
 {
-  "COLD": { "x": 2, "y": 2, "width": 50, "height": 38, "anchorY": 35, "mask": true },
-  "WARM": { "x": 54, "y": 2, "width": 50, "height": 38, "anchorY": 35, "mask": true }
+  "COLD": {"x": 2, "y": 2, "width": 50, "height": 38, "anchorY": 35, "mask": true},
+  "WARM": {"x": 54, "y": 2, "width": 50, "height": 38, "anchorY": 35, "mask": true}
 }

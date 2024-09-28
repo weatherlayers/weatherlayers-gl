@@ -1,11 +1,11 @@
-import type { Device, Texture, TextureProps, TextureFormat } from '@luma.gl/core';
-import type { TextureData } from '../../client/_utils/texture-data.js';
+import type {Device, Texture, TextureProps, TextureFormat} from '@luma.gl/core';
+import type {TextureData} from '../../client/_utils/texture-data.js';
 
 const repeatCache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
 const clampCache = new WeakMap<Device, WeakMap<TextureData, Texture>>();
 
 function getTextureProps(device: Device, image: TextureData, repeat: boolean): TextureProps {
-  const { data, width, height } = image;
+  const {data, width, height} = image;
   const bandsCount = data.length / (width * height);
 
   let format: TextureFormat;
@@ -74,7 +74,7 @@ let emptyTexture: Texture | null = null;
 
 export function createEmptyTextureCached(device: Device): Texture {
   if (!emptyTexture) {
-    emptyTexture = device.createTexture({ data: new Uint8Array(), width: 0, height: 0, mipmaps: false });
+    emptyTexture = device.createTexture({data: new Uint8Array(), width: 0, height: 0, mipmaps: false});
   }
   return emptyTexture;
 }

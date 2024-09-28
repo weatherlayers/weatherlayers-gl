@@ -15,6 +15,6 @@ export async function getLibrary(name: string): Promise<unknown> {
       case 'geotiff': return await import('geotiff');
     }
   } catch (e) {
-    throw new Error(`Optional dependency '${name}' is missing, install it with a package manager or provide with \`WeatherLayersClient.setLibrary('${name}', library)\``, { cause: e });
+    throw new Error(`Optional dependency '${name}' is missing, install it with a package manager or provide with \`WeatherLayersClient.setLibrary('${name}', library)\``, {cause: e});
   }
 }

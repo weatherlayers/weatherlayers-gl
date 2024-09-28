@@ -1,10 +1,10 @@
 import * as d3Contours from 'd3-contour';
 import lineclip from 'lineclip';
-import { blur } from '../../../deck/_utils/blur.js';
-import type { FloatData } from '../../../client/_utils/texture-data.js';
-import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
-import { getRasterMagnitudeData } from '../../../deck/_utils/raster-data.js';
-import { getUnprojectFunction } from '../../../deck/_utils/project.js';
+import {blur} from '../../../deck/_utils/blur.js';
+import type {FloatData} from '../../../client/_utils/texture-data.js';
+import type {ImageProperties} from '../../../deck/_utils/image-properties.js';
+import {getRasterMagnitudeData} from '../../../deck/_utils/raster-data.js';
+import {getUnprojectFunction} from '../../../deck/_utils/project.js';
 
 /**
  * wrap data around the world by repeating the data in the west and east
@@ -33,7 +33,7 @@ function getLineBbox(line: GeoJSON.Position[]): GeoJSON.BBox {
   return bbox;
 }
 
-function computeContours(data: Float32Array, width: number, height: number, interval: number): { coordinates: GeoJSON.Position[], value: number }[] {
+function computeContours(data: Float32Array, width: number, height: number, interval: number): {coordinates: GeoJSON.Position[], value: number}[] {
   const min = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.min(prev, curr) : prev, Infinity);
   const max = Array.from(data).reduce((prev, curr) => !isNaN(curr) ? Math.max(prev, curr) : prev, -Infinity);
   const minThreshold = Math.ceil(min / interval) * interval;
@@ -48,7 +48,7 @@ function computeContours(data: Float32Array, width: number, height: number, inte
   let contours = originalContours.map(contour => {
     const coordinates = contour.coordinates.flat();
     return coordinates.map(coordinates => {
-      return { coordinates, value: contour.value };
+      return {coordinates, value: contour.value};
     });
   }).flat();
 
@@ -58,7 +58,7 @@ function computeContours(data: Float32Array, width: number, height: number, inte
   contours = contours.map(contour => {
     const lines = lineclip.polyline(contour.coordinates, unframeBounds);
     return lines.map(line => {
-      return { coordinates: line, value: contour.value };
+      return {coordinates: line, value: contour.value};
     });
   }).flat();
 
@@ -73,7 +73,7 @@ function computeContours(data: Float32Array, width: number, height: number, inte
 }
 
 function getContourLineData(floatData: FloatData, bounds: GeoJSON.BBox, interval: number): Float32Array {
-  let { data, width, height } = floatData;
+  let {data, width, height} = floatData;
   const repeat = bounds[0] === -180 && bounds[2] === 180;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -102,14 +102,14 @@ function getContourLineData(floatData: FloatData, bounds: GeoJSON.BBox, interval
       point = unproject(point);
       return point;
     })
-    return { coordinates, value: contour.value };
+    return {coordinates, value: contour.value};
   })
   
   if (repeat) {
     contours = contours.map(contour => {
       const lines = lineclip.polyline(contour.coordinates, bounds);
       return lines.map(line => {
-        return { coordinates: line, value: contour.value };
+        return {coordinates: line, value: contour.value};
       });
     }).flat();
   }

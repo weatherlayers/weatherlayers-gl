@@ -1,18 +1,18 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, LayersList } from '@deck.gl/core';
-import { PathLayer, IconLayer, TextLayer } from '@deck.gl/layers';
-import type { PathLayerProps, IconLayerProps, TextLayerProps } from '@deck.gl/layers';
-import { CollisionFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
-import type { CollisionFilterExtensionProps, PathStyleExtensionProps } from '@deck.gl/extensions';
-import type { Texture } from '@luma.gl/core';
-import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps } from '../../_utils/props.js';
-import { loadTextureData } from '../../../client/_utils/texture-data.js';
-import { createTextureCached } from '../../_utils/texture.js';
-import { isViewportInZoomBounds, getViewportAngle } from '../../_utils/viewport.js';
-import type { IconStyle } from '../../_utils/icon-style.js';
-import { FrontType, iconStyle } from './front-type.js';
-import { getFrontLine } from './front-line.js';
-import type { FrontLine, FrontIcon } from './front-line.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, LayerExtension, UpdateParameters, LayersList} from '@deck.gl/core';
+import {PathLayer, IconLayer, TextLayer} from '@deck.gl/layers';
+import type {PathLayerProps, IconLayerProps, TextLayerProps} from '@deck.gl/layers';
+import {CollisionFilterExtension, PathStyleExtension} from '@deck.gl/extensions';
+import type {CollisionFilterExtensionProps, PathStyleExtensionProps} from '@deck.gl/extensions';
+import type {Texture} from '@luma.gl/core';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
+import {loadTextureData} from '../../../client/_utils/texture-data.js';
+import {createTextureCached} from '../../_utils/texture.js';
+import {isViewportInZoomBounds, getViewportAngle} from '../../_utils/viewport.js';
+import type {IconStyle} from '../../_utils/icon-style.js';
+import {FrontType, iconStyle} from './front-type.js';
+import {getFrontLine} from './front-line.js';
+import type {FrontLine, FrontIcon} from './front-line.js';
 
 const DEFAULT_WIDTH = 2;
 const DEFAULT_COLD_COLOR: Color = [0, 0, 255];
@@ -47,19 +47,19 @@ type _FrontCompositeLayerProps<DataT> = CompositeLayerProps & {
 export type FrontCompositeLayerProps<DataT> = _FrontCompositeLayerProps<DataT> & LayerProps;
 
 const defaultProps: DefaultProps<FrontCompositeLayerProps<any>> = {
-  data: { type: 'array', value: [] },
-  minZoom: { type: 'object', value: null },
-  maxZoom: { type: 'object', value: null },
+  data: {type: 'array', value: []},
+  minZoom: {type: 'object', value: null},
+  maxZoom: {type: 'object', value: null},
 
-  getType: { type: 'function', value: null },
-  getPath: { type: 'function', value: null },
-  width: { type: 'number', value: DEFAULT_WIDTH },
-  coldColor: { type: 'color', value: DEFAULT_COLD_COLOR },
-  warmColor: { type: 'color', value: DEFAULT_WARM_COLOR },
-  occludedColor: { type: 'color', value: DEFAULT_OCCLUDED_COLOR },
-  iconSize: { type: 'number', value: DEFAULT_ICON_SIZE },
+  getType: {type: 'function', value: null},
+  getPath: {type: 'function', value: null},
+  width: {type: 'number', value: DEFAULT_WIDTH},
+  coldColor: {type: 'color', value: DEFAULT_COLD_COLOR},
+  warmColor: {type: 'color', value: DEFAULT_WARM_COLOR},
+  occludedColor: {type: 'color', value: DEFAULT_OCCLUDED_COLOR},
+  iconSize: {type: 'number', value: DEFAULT_ICON_SIZE},
 
-  _debug: { type: 'boolean', value: false },
+  _debug: {type: 'boolean', value: false},
 };
 
 export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_FrontCompositeLayerProps<DataT>>> {
@@ -77,23 +77,23 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
   };
 
   renderLayers(): LayersList {
-    const { viewport } = this.context;
-    const { props, visibleFrontLines, visibleDebugFrontPoints } = this.state;
+    const {viewport} = this.context;
+    const {props, visibleFrontLines, visibleDebugFrontPoints} = this.state;
     if (!props || !visibleFrontLines || !visibleDebugFrontPoints) {
       return [];
     }
 
-    const { getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(props, defaultProps);
+    const {getType, getPath, width, coldColor, warmColor, occludedColor, iconSize, _debug: debug} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(props, defaultProps);
     if (!getType || !getPath) {
       return [];
     }
 
-    const { iconStyle, iconAtlasTexture } = this.state;
+    const {iconStyle, iconAtlasTexture} = this.state;
     if (!iconStyle || !iconAtlasTexture) {
       return [];
     }
 
-    const FrontTypeToColor: { [key in FrontType]: Color } = {
+    const FrontTypeToColor: {[key in FrontType]: Color} = {
       [FrontType.COLD]: coldColor,
       [FrontType.WARM]: warmColor,
       [FrontType.OCCLUDED]: occludedColor,
@@ -119,7 +119,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
         getWidth: width,
         widthUnits: 'pixels',
 
-        extensions: [new PathStyleExtension({ dash: true, highPrecisionDash: true })] as LayerExtension<any>[],
+        extensions: [new PathStyleExtension({dash: true, highPrecisionDash: true})] as LayerExtension<any>[],
         getDashArray: [DEFAULT_ICON_SIZE * 3, DEFAULT_ICON_SIZE * 3],
       } satisfies PathLayerProps<FrontLine<DataT>> & PathStyleExtensionProps<FrontLine<DataT>>)),
 
@@ -150,7 +150,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
         extensions: [new CollisionFilterExtension()],
         collisionEnabled: true,
         collisionGroup: FRONT_ICON_COLLISION_GROUP,
-        collisionTestProps: { sizeScale: 5 },
+        collisionTestProps: {sizeScale: 5},
         getCollisionPriority: (d: FrontIcon<DataT>) => d.priority,
       } satisfies IconLayerProps<FrontIcon<DataT>> & CollisionFilterExtensionProps<FrontIcon<DataT>>)),
 
@@ -166,7 +166,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
           outlineWidth: DEFAULT_TEXT_OUTLINE_WIDTH,
           outlineColor: DEFAULT_TEXT_OUTLINE_COLOR,
           fontFamily: DEFAULT_TEXT_FONT_FAMILY,
-          fontSettings: { sdf: true },
+          fontSettings: {sdf: true},
           billboard: false,
         } satisfies TextLayerProps<DebugFrontPoint<DataT>>)),
       ] : []),
@@ -178,7 +178,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { data, getType, getPath, minZoom, maxZoom } = params.props;
+    const {data, getType, getPath, minZoom, maxZoom} = params.props;
 
     super.updateState(params);
 
@@ -211,37 +211,37 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       this.#updateVisibleFeatures();
     }
 
-    this.setState({ props: params.props });
+    this.setState({props: params.props});
   }
 
   async #updateIconStyle(): Promise<void> {
-    const { device } = this.context;
+    const {device} = this.context;
 
-    this.setState({ iconStyle });
+    this.setState({iconStyle});
     
     const iconAtlasTexture = createTextureCached(device, await loadTextureData(iconStyle.iconAtlas));
 
-    this.setState({ iconAtlasTexture });
+    this.setState({iconAtlasTexture});
   }
 
   #updateFeatures(): void {
-    const { data, getPath } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
+    const {data, getPath} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     if (!getPath) {
       return;
     }
 
     const frontLines: FrontLine<DataT>[] = data.map(d => getFrontLine(d, getPath(d)));
-    const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({ d, position, index })));
+    const debugFrontPoints: DebugFrontPoint<DataT>[] = data.flatMap(d => getPath(d).map((position, index) => ({d, position, index})));
 
-    this.setState({ frontLines, debugFrontPoints });
+    this.setState({frontLines, debugFrontPoints});
 
     this.#updateVisibleFeatures();
   }
 
   #updateVisibleFeatures(): void {
-    const { viewport } = this.context;
-    const { minZoom, maxZoom } = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
-    const { frontLines, debugFrontPoints } = this.state;
+    const {viewport} = this.context;
+    const {minZoom, maxZoom} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
+    const {frontLines, debugFrontPoints} = this.state;
     if (!frontLines || !debugFrontPoints) {
       return;
     }
@@ -256,6 +256,6 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       visibleDebugFrontPoints = [];
     }
 
-    this.setState({ visibleFrontLines, visibleDebugFrontPoints });
+    this.setState({visibleFrontLines, visibleDebugFrontPoints});
   }
 }

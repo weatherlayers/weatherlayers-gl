@@ -1,15 +1,15 @@
-import { blur } from '../../../deck/_utils/blur.js';
-import { distance } from '../../../deck/_utils/geodesy.js';
-import type { FloatData } from '../../../client/_utils/texture-data.js';
-import type { ImageProperties } from '../../../deck/_utils/image-properties.js';
-import { getRasterMagnitudeData } from '../../../deck/_utils/raster-data.js';
-import { getUnprojectFunction } from '../../../deck/_utils/project.js';
+import {blur} from '../../../deck/_utils/blur.js';
+import {distance} from '../../../deck/_utils/geodesy.js';
+import type {FloatData} from '../../../client/_utils/texture-data.js';
+import type {ImageProperties} from '../../../deck/_utils/image-properties.js';
+import {getRasterMagnitudeData} from '../../../deck/_utils/raster-data.js';
+import {getUnprojectFunction} from '../../../deck/_utils/project.js';
 
 /**
  * inspired by https://sourceforge.net/p/wxmap2/svn/473/tree//trunk/app/src/opengrads/extensions/mf/ftn_clhilo.F
  */
 function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius: number): Float32Array {
-  let { data, width, height } = floatData;
+  let {data, width, height} = floatData;
   const radiusKm = radius * 1000;
   const unproject = getUnprojectFunction(width, height, bounds);
 
@@ -17,8 +17,8 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
   data = blur(data, width, height);
 
   // find highs and lows
-  let highs: { position: GeoJSON.Position, value: number }[] = [];
-  let lows: { position: GeoJSON.Position, value: number }[] = [];
+  let highs: {position: GeoJSON.Position, value: number}[] = [];
+  let lows: {position: GeoJSON.Position, value: number}[] = [];
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const i = x + y * width;
@@ -38,7 +38,7 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
       ) {
         const point = [x, y];
         const position = unproject(point);
-        highs.push({ position, value });
+        highs.push({position, value});
       }
 
       if (
@@ -54,7 +54,7 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
       ) {
         const point = [x, y];
         const position = unproject(point);
-        lows.push({ position, value });
+        lows.push({position, value});
       }
     }
   }
@@ -62,7 +62,7 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
   lows = lows.sort((a, b) => a.value - b.value);
 
   // remove proximate highs
-  const filteredHighs: ({ position: GeoJSON.Position, value: number } | undefined)[] = [...highs];
+  const filteredHighs: ({position: GeoJSON.Position, value: number} | undefined)[] = [...highs];
   for (let i = 0; i < filteredHighs.length; i++) {
     const high = filteredHighs[i];
     if (high) {
@@ -74,10 +74,10 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
       }
     }
   }
-  highs = filteredHighs.filter(x => !!x) as { position: GeoJSON.Position, value: number }[];
+  highs = filteredHighs.filter(x => !!x) as {position: GeoJSON.Position, value: number}[];
 
   // remove proximate lows
-  const filteredLows: ({ position: GeoJSON.Position, value: number } | undefined)[] = [...lows];
+  const filteredLows: ({position: GeoJSON.Position, value: number} | undefined)[] = [...lows];
   for (let i = 0; i < filteredLows.length; i++) {
     const low = filteredLows[i];
     if (low) {
@@ -89,7 +89,7 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
       }
     }
   }
-  lows = filteredLows.filter(x => !!x) as { position: GeoJSON.Position, value: number }[];
+  lows = filteredLows.filter(x => !!x) as {position: GeoJSON.Position, value: number}[];
 
   const highLowPointData = new Float32Array([
     highs.length,

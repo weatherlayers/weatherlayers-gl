@@ -1,6 +1,6 @@
 export * from '../../client/_utils/index.js';
 
-export { setLicense } from './license.js';
+export {setLicense} from './license.js';
 export * from './props.js';
 export * from './animation.js';
 export * from './format.js';

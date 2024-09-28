@@ -1,6 +1,6 @@
-import type { Position } from '@deck.gl/core';
-import { distance as measureDistance, destinationPoint, initialBearing } from '../../_utils/geodesy.js';
-import { findLastIndex } from '../../_utils/array.js';
+import type {Position} from '@deck.gl/core';
+import {distance as measureDistance, destinationPoint, initialBearing} from '../../_utils/geodesy.js';
+import {findLastIndex} from '../../_utils/array.js';
 
 const ICON_MIN_DISTANCE = 5000;
 const ICON_FACTOR = 3;
@@ -64,12 +64,12 @@ export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT
       const direction = 90 - bearing;
       const priority = 100 - depth; // top levels have highest priority
   
-      icons.push({ distance, position, direction, priority });
+      icons.push({distance, position, direction, priority});
     }
   }
   icons = icons.sort((a, b) => a.distance - b.distance);
 
-  const alternatingIcons: FrontIcon<DataT>[] = icons.map((icon, i) => ({ d, ...icon, alternate: i % 2 === 0 }));
-  const line = { d, startPosition: path[0], endPosition: path[path.length - 1], icons: alternatingIcons };
+  const alternatingIcons: FrontIcon<DataT>[] = icons.map((icon, i) => ({d, ...icon, alternate: i % 2 === 0}));
+  const line = {d, startPosition: path[0], endPosition: path[path.length - 1], icons: alternatingIcons};
   return line;
 }

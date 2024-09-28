@@ -1,5 +1,5 @@
-import type { ShaderModule } from '@luma.gl/shadertools';
-import { sourceCode, tokens } from './particle-module.glsl';
+import type {ShaderModule} from '@luma.gl/shadertools';
+import {sourceCode, tokens} from './particle-module.glsl';
 
 export type ParticleModuleProps = {
   viewportGlobe: number;

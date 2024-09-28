@@ -1,5 +1,5 @@
-import type { ShaderModule } from '@luma.gl/shadertools';
-import { sourceCode, tokens } from './contour-module.glsl';
+import type {ShaderModule} from '@luma.gl/shadertools';
+import {sourceCode, tokens} from './contour-module.glsl';
 
 export type ContourModuleProps = {
   interval: number;

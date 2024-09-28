@@ -1,9 +1,9 @@
 import assert from 'node:assert';
 import test from 'node:test';
 
-import { formatDirection } from './format.js';
-import { DirectionType } from './direction-type.js';
-import { DirectionFormat } from './direction-format.js';
+import {formatDirection} from './format.js';
+import {DirectionType} from './direction-type.js';
+import {DirectionFormat} from './direction-format.js';
 
 const DELTA = 0.000001;
 

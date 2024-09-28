@@ -1,15 +1,15 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { Position, DefaultProps, UpdateParameters, LayersList, CompositeLayerProps } from '@deck.gl/core';
-import { TextLayer } from '@deck.gl/layers';
-import type { TextLayerProps } from '@deck.gl/layers';
-import { wrap } from 'comlink';
-import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR } from '../../_utils/props.js';
-import { hashCodeString } from '../../_utils/hashcode.js';
-import { getViewportAngle } from '../../_utils/viewport.js';
-import { getViewportGridPositions } from '../../_utils/viewport-grid.js';
-import { getLicense } from '../../_utils/license.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {Position, DefaultProps, UpdateParameters, LayersList, CompositeLayerProps} from '@deck.gl/core';
+import {TextLayer} from '@deck.gl/layers';
+import type {TextLayerProps} from '@deck.gl/layers';
+import {wrap} from 'comlink';
+import {DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR} from '../../_utils/props.js';
+import {hashCodeString} from '../../_utils/hashcode.js';
+import {getViewportAngle} from '../../_utils/viewport.js';
+import {getViewportGridPositions} from '../../_utils/viewport-grid.js';
+import {getLicense} from '../../_utils/license.js';
 import createLicenseWorker from 'worker!./license-worker.js';
-import type { LicenseWorker } from './license-worker.js';
+import type {LicenseWorker} from './license-worker.js';
 
 // https://anseki.github.io/gnirts/
 // @ts-ignore
@@ -47,7 +47,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       renderLayers(): LayersList {
-        const { viewport } = this.context;
+        const {viewport} = this.context;
         // create the base layer without calling this.getSubLayerProps, so that the base layer id can stay with the original id
         // @ts-ignore
         const baseLayer: CompositeLayer<PropsT> = new layerClass(this.props);
@@ -67,7 +67,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
             outlineColor: DEFAULT_TEXT_OUTLINE_COLOR,
             fontFamily: DEFAULT_TEXT_FONT_FAMILY,
             fontWeight: 'bold',
-            fontSettings: { sdf: true },
+            fontSettings: {sdf: true},
             billboard: false,
             opacity: 0.01,
           } satisfies TextLayerProps<Position>);
@@ -102,7 +102,7 @@ export function withVerifyLicense<PropsT extends {}, LayerT extends typeof Compo
       }
 
       #updateWatermarkPositions(): void {
-        const { viewport } = this.context;
+        const {viewport} = this.context;
     
         if (this.#isWatermarkEnabled) {
           this.#watermarkPositions = getViewportGridPositions(viewport, 1);

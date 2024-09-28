@@ -1,9 +1,9 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
-import { GridCompositeLayer } from './grid-composite-layer.js';
-import type { GridCompositeLayerProps } from './grid-composite-layer.js';
-import { GridStyle } from './grid-style.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core';
+import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
+import {GridCompositeLayer} from './grid-composite-layer.js';
+import type {GridCompositeLayerProps} from './grid-composite-layer.js';
+import {GridStyle} from './grid-style.js';
 
 type _GridLayerProps = GridCompositeLayerProps;
 
@@ -19,7 +19,7 @@ export class GridLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Extra
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const { props } = this.state;
+    const {props} = this.state;
     if (!props) {
       return [];
     }
@@ -32,7 +32,7 @@ export class GridLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Extra
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, imageUnscale } = params.props;
+    const {image, imageUnscale} = params.props;
 
     super.updateState(params);
 
@@ -40,8 +40,8 @@ export class GridLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Extra
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    this.setState({ props: params.props });
+    this.setState({props: params.props});
   }
 }
 
-export { GridStyle };
+export {GridStyle};

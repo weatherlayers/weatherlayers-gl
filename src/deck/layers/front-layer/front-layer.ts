@@ -1,9 +1,9 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { LayerProps, DefaultProps, LayersList } from '@deck.gl/core';
-import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
-import { FrontCompositeLayer } from './front-composite-layer.js';
-import type { FrontCompositeLayerProps } from './front-composite-layer.js';
-import { FrontType } from './front-type.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {LayerProps, DefaultProps, LayersList} from '@deck.gl/core';
+import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
+import {FrontCompositeLayer} from './front-composite-layer.js';
+import type {FrontCompositeLayerProps} from './front-composite-layer.js';
+import {FrontType} from './front-type.js';
 
 type _FrontLayerProps<DataT> = FrontCompositeLayerProps<DataT>;
 
@@ -27,4 +27,4 @@ export class FrontLayer<DataT = any, ExtraPropsT extends {} = {}> extends Compos
   }
 }
 
-export { FrontType };
+export {FrontType};

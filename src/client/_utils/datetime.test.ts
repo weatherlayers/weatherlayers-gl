@@ -1,8 +1,8 @@
 import assert from 'node:assert';
 import test from 'node:test';
 
-import { interpolateDatetime, getDatetimeWeight } from './datetime.js';
-import type { DatetimeISOString } from './datetime.js';
+import {interpolateDatetime, getDatetimeWeight} from './datetime.js';
+import type {DatetimeISOString} from './datetime.js';
 
 test('interpolateDatetime', () => {
   const rows = [

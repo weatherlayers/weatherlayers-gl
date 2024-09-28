@@ -1,10 +1,10 @@
-import type { ImageProperties } from './image-properties.js';
-import { ImageInterpolation } from './image-interpolation.js';
-import { ImageType } from '../../client/_utils/image-type.js';
-import { getProjectFunction } from './project.js';
-import { hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue } from './pixel-value.js';
-import { getPixelInterpolate, getImageDownscaleResolution } from './pixel.js';
-import type { FloatData } from '../../client/_utils/texture-data.js';
+import type {ImageProperties} from './image-properties.js';
+import {ImageInterpolation} from './image-interpolation.js';
+import {ImageType} from '../../client/_utils/image-type.js';
+import {getProjectFunction} from './project.js';
+import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from './pixel-value.js';
+import {getPixelInterpolate, getImageDownscaleResolution} from './pixel.js';
+import type {FloatData} from '../../client/_utils/texture-data.js';
 
 export interface RasterPointProperties {
   value: number;
@@ -19,12 +19,12 @@ function isPositionInBounds(position: GeoJSON.Position, bounds: GeoJSON.BBox): b
 }
 
 function createRasterPoint(position: GeoJSON.Position, properties: RasterPointProperties): GeoJSON.Feature<GeoJSON.Point, RasterPointProperties> {
-  return { type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties };
+  return {type: 'Feature', geometry: { type: 'Point', coordinates: position }, properties};
 }
 
 export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSON.BBox, positions: GeoJSON.Position[]): GeoJSON.FeatureCollection<GeoJSON.Point, RasterPointProperties> {
-  const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue } = imageProperties;
-  const { width, height } = image;
+  const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue} = imageProperties;
+  const {width, height} = image;
   const project = getProjectFunction(width, height, bounds);
 
   // smooth by downscaling resolution
@@ -33,7 +33,7 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
   const rasterPoints = positions.map(position => {
     if (!isPositionInBounds(position, bounds)) {
       // drop position out of bounds
-      return createRasterPoint(position, { value: NaN });
+      return createRasterPoint(position, {value: NaN});
     }
 
     const point = project(position);
@@ -44,7 +44,7 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
 
     if (!hasPixelValue(pixel, imageUnscale)) {
       // drop nodata
-      return createRasterPoint(position, { value: NaN });
+      return createRasterPoint(position, {value: NaN});
     }
 
     const value = getPixelMagnitudeValue(pixel, imageType, imageUnscale);
@@ -53,23 +53,23 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
       (typeof imageMaxValue === 'number' && !isNaN(imageMaxValue) && value > imageMaxValue)
     ) {
       // drop value out of bounds
-      return createRasterPoint(position, { value: NaN });
+      return createRasterPoint(position, {value: NaN});
     }
 
     if (imageType === ImageType.VECTOR) {
       const direction = getPixelDirectionValue(pixel, imageType, imageUnscale);
-      return createRasterPoint(position, { value, direction });
+      return createRasterPoint(position, {value, direction});
     } else {
-      return createRasterPoint(position, { value });
+      return createRasterPoint(position, {value});
     }
   });
 
-  return { type: 'FeatureCollection', features: rasterPoints };
+  return {type: 'FeatureCollection', features: rasterPoints};
 }
 
 export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatData {
-  const { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue } = imageProperties;
-  const { width, height } = image;
+  const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue} = imageProperties;
+  const {width, height} = image;
 
   // interpolation for entire data is slow, fallback to NEAREST interpolation + blur in worker
   // CPU speed (image 1440x721):
@@ -111,5 +111,5 @@ export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatD
     }
   }
 
-  return { data: magnitudeData, width, height };
+  return {data: magnitudeData, width, height};
 }

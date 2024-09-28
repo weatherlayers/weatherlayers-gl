@@ -1,8 +1,8 @@
-import { CompositeLayer } from '@deck.gl/core';
-import type { LayerProps, DefaultProps, UpdateParameters, LayersList } from '@deck.gl/core';
-import { withVerifyLicense } from '../with-verify-license/with-verify-license.js';
-import { HighLowCompositeLayer } from './high-low-composite-layer.js';
-import type { HighLowCompositeLayerProps } from './high-low-composite-layer.js';
+import {CompositeLayer} from '@deck.gl/core';
+import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core';
+import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
+import {HighLowCompositeLayer} from './high-low-composite-layer.js';
+import type {HighLowCompositeLayerProps} from './high-low-composite-layer.js';
 
 type _HighLowLayerProps = HighLowCompositeLayerProps;
 
@@ -18,7 +18,7 @@ export class HighLowLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
   static defaultProps = defaultProps;
 
   renderLayers(): LayersList {
-    const { props } = this.state;
+    const {props} = this.state;
     if (!props) {
       return [];
     }
@@ -31,7 +31,7 @@ export class HighLowLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { image, imageUnscale } = params.props;
+    const {image, imageUnscale} = params.props;
 
     super.updateState(params);
 
@@ -39,6 +39,6 @@ export class HighLowLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
       throw new Error('imageUnscale can be applied to Uint8 data only');
     }
 
-    this.setState({ props: params.props });
+    this.setState({props: params.props});
   }
 }

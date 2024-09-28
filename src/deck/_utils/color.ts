@@ -1,4 +1,4 @@
-import type { Color } from '@deck.gl/core';
+import type {Color} from '@deck.gl/core';
 
 export function deckColorToGl(color: Color): [number, number, number, number] {
   return [color[0] / 255, color[1] / 255, color[2] / 255, (color[3] ?? 255) / 255] as const;

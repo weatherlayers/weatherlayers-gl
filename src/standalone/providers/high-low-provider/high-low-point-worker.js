@@ -1,6 +1,6 @@
 // TODO: fix Rollup build config to use TS instead of JS
-import { expose, transfer } from 'comlink';
-import { getHighLowPointDataMain } from './high-low-point-worker-main.js';
+import {expose, transfer} from 'comlink';
+import {getHighLowPointDataMain} from './high-low-point-worker-main.js';
 
 /** @typedef {import('../../../client/_utils/texture-data.js').TextureDataArray} TextureDataArray */
 /** @typedef {import('../../../deck/_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */
@@ -27,9 +27,9 @@ expose({
    * @returns {Float32Array}
    */
   getHighLowPointData(data, width, height, data2, width2, height2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, radius) {
-    const image = { data, width, height };
-    const image2 = data2 ? { data: data2, width: width2, height: height2 } : null;
-    const imageProperties = { image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue };
+    const image = {data, width, height};
+    const image2 = data2 ? {data: data2, width: width2, height: height2} : null;
+    const imageProperties = {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue};
     const highLowPointData = getHighLowPointDataMain(imageProperties, bounds, radius);
     return transfer(highLowPointData, [highLowPointData.buffer]);
   }

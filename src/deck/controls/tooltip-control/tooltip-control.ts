@@ -1,11 +1,11 @@
-import type { PickingInfo } from '@deck.gl/core';
-import { formatValueWithUnit, formatDirection } from '../../_utils/format.js';
-import type { UnitFormat } from '../../../client/_utils/unit-format.js';
-import { DirectionType } from '../../_utils/direction-type.js';
-import { DirectionFormat } from '../../_utils/direction-format.js';
-import { Placement } from '../../_utils/placement.js';
-import type { RasterPointProperties } from '../../_utils/raster-data.js';
-import { Control } from '../control.js';
+import type {PickingInfo} from '@deck.gl/core';
+import {formatValueWithUnit, formatDirection} from '../../_utils/format.js';
+import type {UnitFormat} from '../../../client/_utils/unit-format.js';
+import {DirectionType} from '../../_utils/direction-type.js';
+import {DirectionFormat} from '../../_utils/direction-format.js';
+import {Placement} from '../../_utils/placement.js';
+import type {RasterPointProperties} from '../../_utils/raster-data.js';
+import {Control} from '../control.js';
 import './tooltip-control.css';
 
 export interface TooltipControlConfig {
@@ -57,7 +57,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
   }
 
   getConfig(): TooltipControlConfig {
-    return { ...this.#config };
+    return {...this.#config};
   }
 
   setConfig(config: TooltipControlConfig): void {
@@ -112,7 +112,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       return;
     }
 
-    const { value, direction } = rasterPointProperties ?? {};
+    const {value, direction} = rasterPointProperties ?? {};
 
     this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
     this.#container.setAttribute(FOLLOW_CURSOR_PLACEMENT_ATTRIBUTE, this.#config.followCursorPlacement ?? Placement.BOTTOM);
@@ -134,7 +134,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     }
   }
 
-  updatePickingInfo(pickingInfo: PickingInfo & { raster?: RasterPointProperties }): void {
+  updatePickingInfo(pickingInfo: PickingInfo & {raster?: RasterPointProperties}): void {
     if (!this.#container || !this.#value || !this.#direction) {
       return;
     }
@@ -193,7 +193,7 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       }
 
       // hide on panning
-      document.addEventListener('mousedown', () => this.update(undefined), { once: true });
+      document.addEventListener('mousedown', () => this.update(undefined), {once: true});
     } else {
       this.#container.style.left = '';
       this.#container.style.top = '';

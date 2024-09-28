@@ -1,4 +1,4 @@
-import type { License } from 'weatherlayers-license/src/license.js';
+import type {License} from 'weatherlayers-license/src/license.js';
 
 let license: License | null = null;
 

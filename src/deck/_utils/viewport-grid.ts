@@ -1,10 +1,10 @@
-import type { Viewport } from '@deck.gl/core';
+import type {Viewport} from '@deck.gl/core';
 import SphericalMercator from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import * as geokdbush from 'geokdbush';
-import { isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds } from './viewport.js';
-import { wrapLongitude } from './bounds.js';
+import {isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport.js';
+import {wrapLongitude} from './bounds.js';
 
 const GLOBAL_POSITIONS_AT_ZOOM_CACHE = new Map<number, GeoJSON.Position[]>();
 const GLOBAL_INDEX_AT_ZOOM_CACHE = new Map<number, KDBush>();
@@ -43,7 +43,7 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
   zoom = Math.min(Math.max(zoom - 2, 0), MAX_ICOMESH_ZOOM);
 
   const globalPositions = GLOBAL_POSITIONS_AT_ZOOM_CACHE.get(zoom) ?? (() => {
-    const { uv } = icomesh(zoom, true);
+    const {uv} = icomesh(zoom, true);
 
     const globalPositions = [];
     for (let i = 0; i < uv.length; i += 2) {
@@ -85,7 +85,7 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
 }
 
 function generateGrid(bounds: GeoJSON.BBox, zoom: number): GeoJSON.Position[] {
-  const mercator = new SphericalMercator({ size: 1, antimeridian: true });
+  const mercator = new SphericalMercator({size: 1, antimeridian: true});
 
   const gridBounds = [...mercator.px([bounds[0], bounds[1]], zoom), ...mercator.px([bounds[2], bounds[3]], zoom)];
   [gridBounds[1], gridBounds[3]] = [gridBounds[3], gridBounds[1]];

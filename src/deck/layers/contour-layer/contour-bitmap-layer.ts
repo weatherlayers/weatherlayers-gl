@@ -1,22 +1,22 @@
-import type { Color, LayerProps, DefaultProps, UpdateParameters } from '@deck.gl/core';
-import { BitmapLayer } from '@deck.gl/layers';
-import type { BitmapLayerProps, BitmapBoundingBox } from '@deck.gl/layers';
-import type { Texture } from '@luma.gl/core';
-import { DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps } from '../../_utils/props.js';
-import { ImageInterpolation } from '../../_utils/image-interpolation.js';
-import { ImageType } from '../../../client/_utils/image-type.js';
-import type { ImageUnscale } from '../../../client/_utils/image-unscale.js';
-import { isViewportInZoomBounds } from '../../_utils/viewport.js';
-import { parsePalette } from '../../../client/_utils/palette.js';
-import type { Palette } from '../../../client/_utils/palette.js';
-import { createPaletteTexture } from '../../_utils/palette-texture.js';
-import { createEmptyTextureCached } from '../../_utils/texture.js';
-import { deckColorToGl } from '../../_utils/color.js';
-import { bitmapModule, getBitmapModuleUniforms } from '../../shaderlib/bitmap-module/bitmap-module.js';
-import { rasterModule, getRasterModuleUniforms } from '../../shaderlib/raster-module/raster-module.js';
-import { paletteModule, getPaletteModuleUniforms } from '../../shaderlib/palette-module/palette-module.js';
-import { contourModule, getContourModuleUniforms } from './contour-module.js';
-import { sourceCode as fs/*, tokens as fsTokens*/ } from './contour-bitmap-layer.fs.glsl';
+import type {Color, LayerProps, DefaultProps, UpdateParameters} from '@deck.gl/core';
+import {BitmapLayer} from '@deck.gl/layers';
+import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
+import type {Texture} from '@luma.gl/core';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
+import {ImageInterpolation} from '../../_utils/image-interpolation.js';
+import {ImageType} from '../../../client/_utils/image-type.js';
+import type {ImageUnscale} from '../../../client/_utils/image-unscale.js';
+import {isViewportInZoomBounds} from '../../_utils/viewport.js';
+import {parsePalette} from '../../../client/_utils/palette.js';
+import type {Palette} from '../../../client/_utils/palette.js';
+import {createPaletteTexture} from '../../_utils/palette-texture.js';
+import {createEmptyTextureCached} from '../../_utils/texture.js';
+import {deckColorToGl} from '../../_utils/color.js';
+import {bitmapModule, getBitmapModuleUniforms} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {rasterModule, getRasterModuleUniforms} from '../../shaderlib/raster-module/raster-module.js';
+import {paletteModule, getPaletteModuleUniforms} from '../../shaderlib/palette-module/palette-module.js';
+import {contourModule, getContourModuleUniforms} from './contour-module.js';
+import {sourceCode as fs/*, tokens as fsTokens*/} from './contour-bitmap-layer.fs.glsl';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture | null;
@@ -43,25 +43,25 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
 export type ContourBitmapLayerProps = _ContourBitmapLayerProps & LayerProps;
 
 const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
-  imageTexture: { type: 'object', value: null },
-  imageTexture2: { type: 'object', value: null },
-  imageSmoothing: { type: 'number', value: 0 },
-  imageInterpolation: { type: 'object', value: ImageInterpolation.CUBIC },
-  imageWeight: { type: 'number', value: 0 },
-  imageType: { type: 'object', value: ImageType.SCALAR },
-  imageUnscale: { type: 'object', value: null },
-  imageMinValue: { type: 'object', value: null },
-  imageMaxValue: { type: 'object', value: null },
-  bounds: { type: 'array', value: [-180, -90, 180, 90], compare: true },
-  minZoom: { type: 'object', value: null },
-  maxZoom: { type: 'object', value: 10 }, // drop rendering artifacts in high zoom levels due to a low precision
+  imageTexture: {type: 'object', value: null},
+  imageTexture2: {type: 'object', value: null},
+  imageSmoothing: {type: 'number', value: 0},
+  imageInterpolation: {type: 'object', value: ImageInterpolation.CUBIC},
+  imageWeight: {type: 'number', value: 0},
+  imageType: {type: 'object', value: ImageType.SCALAR},
+  imageUnscale: {type: 'object', value: null},
+  imageMinValue: {type: 'object', value: null},
+  imageMaxValue: {type: 'object', value: null},
+  bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
+  minZoom: {type: 'object', value: null},
+  maxZoom: {type: 'object', value: 10}, // drop rendering artifacts in high zoom levels due to a low precision
 
-  palette: { type: 'object', value: null },
-  color: { type: 'color', value: DEFAULT_LINE_COLOR },
+  palette: {type: 'object', value: null},
+  color: {type: 'color', value: DEFAULT_LINE_COLOR},
 
-  interval: { type: 'number', value: 0 },
-  majorInterval: { type: 'number', value: 0 },
-  width: { type: 'number', value: DEFAULT_LINE_WIDTH },
+  interval: {type: 'number', value: 0},
+  majorInterval: {type: 'number', value: 0},
+  width: {type: 'number', value: DEFAULT_LINE_WIDTH},
 };
 
 export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_ContourBitmapLayerProps>> {
@@ -84,7 +84,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const { palette } = params.props;
+    const {palette} = params.props;
 
     super.updateState(params);
 
@@ -94,10 +94,10 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   }
 
   draw(opts: any): void {
-    const { device, viewport } = this.context;
-    const { model } = this.state;
-    const { imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, color, interval, majorInterval, width } = ensureDefaultProps(this.props, defaultProps);
-    const { paletteTexture, paletteBounds } = this.state;
+    const {device, viewport} = this.context;
+    const {model} = this.state;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, color, interval, majorInterval, width} = ensureDefaultProps(this.props, defaultProps);
+    const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
     }
@@ -139,16 +139,16 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   }
 
   #updatePalette(): void {
-    const { device } = this.context;
-    const { palette } = ensureDefaultProps(this.props, defaultProps);
+    const {device} = this.context;
+    const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
-      this.setState({ paletteTexture: undefined, paletteBounds: undefined });
+      this.setState({paletteTexture: undefined, paletteBounds: undefined});
       return;
     }
 
     const paletteScale = parsePalette(palette);
-    const { paletteBounds, paletteTexture } = createPaletteTexture(device, paletteScale);
+    const {paletteBounds, paletteTexture} = createPaletteTexture(device, paletteScale);
 
-    this.setState({ paletteTexture, paletteBounds });
+    this.setState({paletteTexture, paletteBounds});
   }
 }

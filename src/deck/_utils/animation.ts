@@ -16,7 +16,7 @@ export class Animation {
   }
 
   getConfig(): AnimationConfig {
-    return { ...this.#config };
+    return {...this.#config};
   }
 
   setConfig(config: AnimationConfig): void {
@@ -24,7 +24,7 @@ export class Animation {
   }
 
   updateConfig(config: Partial<AnimationConfig>): void {
-    this.setConfig({ ...this.#config, ...config });
+    this.setConfig({...this.#config, ...config});
   }
 
   get running(): boolean {

@@ -1,6 +1,6 @@
-import type { Texture } from '@luma.gl/core';
-import type { ShaderModule } from '@luma.gl/shadertools';
-import { sourceCode, tokens } from './palette-module.glsl';
+import type {Texture} from '@luma.gl/core';
+import type {ShaderModule} from '@luma.gl/shadertools';
+import {sourceCode, tokens} from './palette-module.glsl';
 
 export type PaletteModuleProps = {
   paletteTexture: Texture;

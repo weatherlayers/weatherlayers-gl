@@ -1,5 +1,5 @@
-import type { TypedArrayWithDimensions } from 'geotiff';
-import { getLibrary } from './library.js';
+import type {TypedArrayWithDimensions} from 'geotiff';
+import {getLibrary} from './library.js';
 
 export type TextureDataArray = Uint8Array | Uint8ClampedArray | Float32Array;
 
@@ -47,7 +47,7 @@ async function loadImage(url: string): Promise<TextureData> {
   try {
     await image.decode();
   } catch (e) {
-    throw new Error(`Image ${url} can't be decoded.`, { cause: e });
+    throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
 
   const canvas = document.createElement('canvas');
@@ -56,9 +56,9 @@ async function loadImage(url: string): Promise<TextureData> {
   const context = canvas.getContext('2d')!;
   context.drawImage(image, 0, 0);
   const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-  const { data, width, height } = imageData;
+  const {data, width, height} = imageData;
 
-  const textureData = { data, width, height };
+  const textureData = {data, width, height};
   return textureData;
 }
 
@@ -68,13 +68,13 @@ async function loadGeotiff(url: string): Promise<TextureData> {
   let geotiff;
   try {
     // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
-    geotiff = await GeoTIFF.fromUrl(url, { allowFullFile: true, blockSize: Number.MAX_SAFE_INTEGER });
+    geotiff = await GeoTIFF.fromUrl(url, {allowFullFile: true, blockSize: Number.MAX_SAFE_INTEGER});
   } catch (e) {
-    throw new Error(`Image ${url} can't be decoded.`, { cause: e });
+    throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
   const geotiffImage = await geotiff.getImage(0);
 
-  const sourceData = await geotiffImage.readRasters({ interleave: true }) as TypedArrayWithDimensions;
+  const sourceData = await geotiffImage.readRasters({interleave: true}) as TypedArrayWithDimensions;
   if (!(sourceData instanceof Uint8Array || sourceData instanceof Uint8ClampedArray || sourceData instanceof Float32Array)) {
     throw new Error('Unsupported data format');
   }
@@ -84,7 +84,7 @@ async function loadGeotiff(url: string): Promise<TextureData> {
   const width = geotiffImage.getWidth();
   const height = geotiffImage.getHeight();
 
-  const textureData = { data, width, height };
+  const textureData = {data, width, height};
   return textureData;
 }
 

@@ -1,4 +1,4 @@
-import { Control } from '../control.js';
+import {Control} from '../control.js';
 import './attribution-control.css';
 
 export interface AttributionControlConfig {
@@ -33,7 +33,7 @@ export class AttributionControl extends Control<AttributionControlConfig> {
   }
 
   getConfig(): AttributionControlConfig {
-    return { ...this.#config };
+    return {...this.#config};
   }
 
   setConfig(config: AttributionControlConfig): void {
