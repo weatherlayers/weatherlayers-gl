@@ -12,8 +12,10 @@
   "dependencies": {
     "@deck.gl/extensions": "^9.0.29",
     "deck.gl": "^9.0.29",
+    "maplibre-gl": "^4.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-map-gl": "^7.1.7",
     "weatherlayers-gl": "^2024.9.0"
   },
   "devDependencies": {
