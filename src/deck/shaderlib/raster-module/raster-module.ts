@@ -33,19 +33,17 @@ export const rasterModule = {
   },
 } as const satisfies ShaderModule<RasterModuleUniforms>;
 
-export function getRasterModuleUniforms(props: RasterModuleProps): {[rasterModule.name]: RasterModuleUniforms} {
+export function getRasterModuleUniforms(props: RasterModuleProps): RasterModuleUniforms {
   return {
-    [rasterModule.name]: {
-      [tokens.imageTexture]: props.imageTexture,
-      [tokens.imageTexture2]: props.imageTexture2,
-      [tokens.imageResolution]: props.imageResolution,
-      [tokens.imageSmoothing]: props.imageSmoothing,
-      [tokens.imageInterpolation]: props.imageInterpolation,
-      [tokens.imageWeight]: props.imageWeight,
-      [tokens.imageType]: props.imageType,
-      [tokens.imageUnscale]: props.imageUnscale,
-      [tokens.imageMinValue]: props.imageMinValue,
-      [tokens.imageMaxValue]: props.imageMaxValue,
-    },
+    [tokens.imageTexture]: props.imageTexture,
+    [tokens.imageTexture2]: props.imageTexture2,
+    [tokens.imageResolution]: props.imageResolution,
+    [tokens.imageSmoothing]: props.imageSmoothing,
+    [tokens.imageInterpolation]: props.imageInterpolation,
+    [tokens.imageWeight]: props.imageWeight,
+    [tokens.imageType]: props.imageType,
+    [tokens.imageUnscale]: props.imageUnscale,
+    [tokens.imageMinValue]: props.imageMinValue,
+    [tokens.imageMaxValue]: props.imageMaxValue,
   };
 }

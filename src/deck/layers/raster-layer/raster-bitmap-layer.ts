@@ -93,11 +93,11 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.shaderInputs.setProps({
-        ...getBitmapModuleUniforms({
+        [bitmapModule.name]: getBitmapModuleUniforms({
           ...super._getCoordinateUniforms() as {bounds: [number, number, number, number], coordinateConversion: number},
           transparentColor: this.props.transparentColor.map(x => x / 255) as [number, number, number, number],
         }),
-        ...getRasterModuleUniforms({
+        [rasterModule.name]: getRasterModuleUniforms({
           imageTexture: imageTexture ?? createEmptyTextureCached(device),
           imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
           imageResolution: [imageTexture.width, imageTexture.height],
@@ -109,7 +109,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
           imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
           imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
         }),
-        ...getPaletteModuleUniforms({
+        [paletteModule.name]: getPaletteModuleUniforms({
           paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
           paletteBounds: paletteBounds ?? [0, 0],
           paletteColor: [0, 0, 0, 0],

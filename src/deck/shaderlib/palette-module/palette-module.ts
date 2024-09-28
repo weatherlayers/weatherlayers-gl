@@ -20,12 +20,10 @@ export const paletteModule = {
   },
 } as const satisfies ShaderModule<PaletteModuleUniforms>;
 
-export function getPaletteModuleUniforms(props: PaletteModuleProps): {[paletteModule.name]: PaletteModuleUniforms} {
+export function getPaletteModuleUniforms(props: PaletteModuleProps): PaletteModuleUniforms {
   return {
-    [paletteModule.name]: {
-      [tokens.paletteTexture]: props.paletteTexture,
-      [tokens.paletteBounds]: props.paletteBounds,
-      [tokens.paletteColor]: props.paletteColor,
-    },
+    [tokens.paletteTexture]: props.paletteTexture,
+    [tokens.paletteBounds]: props.paletteBounds,
+    [tokens.paletteColor]: props.paletteColor,
   };
 }

@@ -20,12 +20,10 @@ export const contourModule = {
   },
 } as const satisfies ShaderModule<ContourModuleUniforms>;
 
-export function getContourModuleUniforms(props: ContourModuleProps): {[contourModule.name]: ContourModuleUniforms} {
+export function getContourModuleUniforms(props: ContourModuleProps): ContourModuleUniforms {
   return {
-    [contourModule.name]: {
-      [tokens.interval]: props.interval,
-      [tokens.majorInterval]: props.majorInterval,
-      [tokens.width]: props.width,
-    },
+    [tokens.interval]: props.interval,
+    [tokens.majorInterval]: props.majorInterval,
+    [tokens.width]: props.width,
   };
 }

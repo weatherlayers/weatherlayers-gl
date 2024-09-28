@@ -21,13 +21,11 @@ export const bitmapModule = {
   },
 } as const satisfies ShaderModule<BitmapModuleUniforms>;
 
-export function getBitmapModuleUniforms(props: BitmapModuleProps): {[bitmapModule.name]: BitmapModuleUniforms} {
+export function getBitmapModuleUniforms(props: BitmapModuleProps): BitmapModuleUniforms {
   return {
-    [bitmapModule.name]: {
-      [tokens.bounds]: props.bounds,
-      [tokens.coordinateConversion]: props.coordinateConversion,
-      [tokens.transparentColor]: props.transparentColor,
-    },
+    [tokens.bounds]: props.bounds,
+    [tokens.coordinateConversion]: props.coordinateConversion,
+    [tokens.transparentColor]: props.transparentColor,
   };
 }
 

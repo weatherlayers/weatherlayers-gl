@@ -38,21 +38,19 @@ export const particleModule = {
   },
 } as const satisfies ShaderModule<ParticleModuleUniforms>;
 
-export function getParticleModuleUniforms(props: ParticleModuleProps): {[particleModule.name]: ParticleModuleUniforms} {
+export function getParticleModuleUniforms(props: ParticleModuleProps): ParticleModuleUniforms {
   return {
-    [particleModule.name]: {
-      [tokens.viewportGlobe]: props.viewportGlobe,
-      [tokens.viewportGlobeCenter]: props.viewportGlobeCenter,
-      [tokens.viewportGlobeRadius]: props.viewportGlobeRadius,
-      [tokens.viewportBounds]: props.viewportBounds,
-      [tokens.viewportZoomChangeFactor]: props.viewportZoomChangeFactor,
+    [tokens.viewportGlobe]: props.viewportGlobe,
+    [tokens.viewportGlobeCenter]: props.viewportGlobeCenter,
+    [tokens.viewportGlobeRadius]: props.viewportGlobeRadius,
+    [tokens.viewportBounds]: props.viewportBounds,
+    [tokens.viewportZoomChangeFactor]: props.viewportZoomChangeFactor,
 
-      [tokens.numParticles]: props.numParticles,
-      [tokens.maxAge]: props.maxAge,
-      [tokens.speedFactor]: props.speedFactor,
+    [tokens.numParticles]: props.numParticles,
+    [tokens.maxAge]: props.maxAge,
+    [tokens.speedFactor]: props.speedFactor,
 
-      [tokens.time]: props.time,
-      [tokens.seed]: props.seed,
-    },
+    [tokens.time]: props.time,
+    [tokens.seed]: props.seed,
   };
 }

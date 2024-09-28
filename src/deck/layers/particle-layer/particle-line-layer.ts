@@ -317,12 +317,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     // update particle positions and colors age0
     transform.model.shaderInputs.setProps({
-      ...getBitmapModuleUniforms({
+      [bitmapModule.name]: getBitmapModuleUniforms({
         bounds: bounds,
         coordinateConversion: 0, // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
         transparentColor: [0, 0, 0, 0],
       }),
-      ...getRasterModuleUniforms({
+      [rasterModule.name]: getRasterModuleUniforms({
         imageTexture: imageTexture ?? createEmptyTextureCached(device),
         imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
         imageResolution: [imageTexture.width, imageTexture.height],
@@ -334,12 +334,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
         imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
         imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
       }),
-      ...getPaletteModuleUniforms({
+      [paletteModule.name]: getPaletteModuleUniforms({
         paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
         paletteBounds: paletteBounds ?? [0, 0],
         paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
       }),
-      ...getParticleModuleUniforms({
+      [particleModule.name]: getParticleModuleUniforms({
         viewportGlobe: viewportGlobe ? 1 : 0,
         viewportGlobeCenter: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
         viewportGlobeRadius: viewportGlobeRadius ?? 0,
