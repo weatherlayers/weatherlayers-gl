@@ -6,17 +6,20 @@ import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../../client/_utils/image-type.js';
 import type {ImageUnscale} from '../../../client/_utils/image-unscale.js';
-import {isViewportInZoomBounds} from '../../_utils/viewport.js';
+import {isViewportGlobe, isViewportInZoomBounds} from '../../_utils/viewport.js';
 import {parsePalette} from '../../../client/_utils/palette.js';
 import type {Palette} from '../../../client/_utils/palette.js';
 import {createPaletteTexture} from '../../_utils/palette-texture.js';
 import {createEmptyTextureCached} from '../../_utils/texture.js';
-import {deckColorToGl} from '../../_utils/color.js';
-import {bitmapModule, getBitmapModuleUniforms} from '../../shaderlib/bitmap-module/bitmap-module.js';
-import {rasterModule, getRasterModuleUniforms} from '../../shaderlib/raster-module/raster-module.js';
-import {paletteModule, getPaletteModuleUniforms} from '../../shaderlib/palette-module/palette-module.js';
-import {contourModule, getContourModuleUniforms} from './contour-module.js';
-import {sourceCode as fs/*, tokens as fsTokens*/} from './contour-bitmap-layer.fs.glsl';
+import {bitmapModule} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import type {BitmapModuleProps} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {rasterModule} from '../../shaderlib/raster-module/raster-module.js';
+import type {RasterModuleProps} from '../../shaderlib/raster-module/raster-module.js';
+import {paletteModule} from '../../shaderlib/palette-module/palette-module.js';
+import type {PaletteModuleProps} from '../../shaderlib/palette-module/palette-module.js';
+import {contourModule} from './contour-module.js';
+import type {ContourModuleProps} from './contour-module.js';
+import {sourceCode as fs} from './contour-bitmap-layer.fs.glsl';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture | null;
@@ -96,40 +99,32 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const {device, viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, color, interval, majorInterval, width} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
     }
 
+    // viewport
+    const viewportGlobe = isViewportGlobe(viewport);
+
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       model.shaderInputs.setProps({
-        [bitmapModule.name]: getBitmapModuleUniforms({
-          ...super._getCoordinateUniforms() as {bounds: [number, number, number, number], coordinateConversion: number},
-          transparentColor: this.props.transparentColor.map(x => x / 255) as [number, number, number, number],
-        }),
-        [rasterModule.name]: getRasterModuleUniforms({
+        [bitmapModule.name]: {
+          viewportGlobe, bounds, _imageCoordinateSystem, transparentColor,
+        } satisfies BitmapModuleProps,
+        [rasterModule.name]: {
           imageTexture: imageTexture ?? createEmptyTextureCached(device),
-          imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
-          imageResolution: [imageTexture.width, imageTexture.height],
-          imageSmoothing: imageSmoothing ?? 0,
-          imageInterpolation: Object.values(ImageInterpolation).indexOf(imageInterpolation),
-          imageWeight: imageTexture2 !== imageTexture ? imageWeight : 0,
-          imageType: Object.values(ImageType).indexOf(imageType),
-          imageUnscale: imageUnscale ?? [0, 0],
-          imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
-          imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-        }),
-        [paletteModule.name]: getPaletteModuleUniforms({
+          imageTexture2: imageTexture2 ?? createEmptyTextureCached(device),
+          imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue,
+        } satisfies RasterModuleProps,
+        [paletteModule.name]: {
           paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
-          paletteBounds: paletteBounds ?? [0, 0],
-          paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
-        }),
-        [contourModule.name]: getContourModuleUniforms({
-          interval: interval,
-          majorInterval: majorInterval,
-          width: width,
-        }),
+          paletteBounds, paletteColor: color,
+        } satisfies PaletteModuleProps,
+        [contourModule.name]: {
+          interval, majorInterval, width,
+        } satisfies ContourModuleProps,
       });
 
       this.props.image = imageTexture;

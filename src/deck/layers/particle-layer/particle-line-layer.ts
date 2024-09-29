@@ -1,3 +1,4 @@
+import {COORDINATE_SYSTEM} from '@deck.gl/core';
 import type {Color, LayerProps, DefaultProps, UpdateParameters, LayerContext} from '@deck.gl/core';
 import {LineLayer} from '@deck.gl/layers';
 import type {LineLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
@@ -11,13 +12,16 @@ import {isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewport
 import {parsePalette} from '../../../client/_utils/palette.js';
 import type {Palette} from '../../../client/_utils/palette.js';
 import {createPaletteTexture} from '../../_utils/palette-texture.js';
-import {deckColorToGl} from '../../_utils/color.js';
 import {createEmptyTextureCached} from '../../_utils/texture.js';
-import {bitmapModule, getBitmapModuleUniforms, isRectangularBounds} from '../../shaderlib/bitmap-module/bitmap-module.js';
-import {rasterModule, getRasterModuleUniforms} from '../../shaderlib/raster-module/raster-module.js';
-import {paletteModule, getPaletteModuleUniforms} from '../../shaderlib/palette-module/palette-module.js';
-import {particleModule, getParticleModuleUniforms} from './particle-module.js';
-import {sourceCode as updateVs/*, tokens as updateVsTokens*/} from './particle-line-layer-update.vs.glsl';
+import {bitmapModule} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import type {BitmapModuleProps} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {rasterModule} from '../../shaderlib/raster-module/raster-module.js';
+import type {RasterModuleProps} from '../../shaderlib/raster-module/raster-module.js';
+import {paletteModule} from '../../shaderlib/palette-module/palette-module.js';
+import type {PaletteModuleProps} from '../../shaderlib/palette-module/palette-module.js';
+import {particleModule} from './particle-module.js';
+import type {ParticleModuleProps} from './particle-module.js';
+import {sourceCode as updateVs} from './particle-line-layer-update.vs.glsl';
 
 const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
@@ -296,9 +300,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     if (!imageTexture || typeof numAgedInstances !== 'number' || !sourcePositions || !targetPositions || !sourceColors || !targetColors || !transform) {
       return;
     }
-    if (!isRectangularBounds(bounds)) {
-      throw new Error('_imageCoordinateSystem only supports rectangular bounds');
-    }
 
     const time = timeline.getTime();
     if (typeof previousTime === 'number' && time < previousTime + 1000 / FPS) {
@@ -307,9 +308,9 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     // viewport
     const viewportGlobe = isViewportGlobe(viewport);
-    const viewportGlobeCenter = isViewportGlobe(viewport) ? getViewportGlobeCenter(viewport) : null;
-    const viewportGlobeRadius = isViewportGlobe(viewport) ? getViewportGlobeRadius(viewport) : null;
-    const viewportBounds = isViewportMercator(viewport) ? getViewportBounds(viewport) : null;
+    const viewportGlobeCenter = isViewportGlobe(viewport) ? getViewportGlobeCenter(viewport) : undefined;
+    const viewportGlobeRadius = isViewportGlobe(viewport) ? getViewportGlobeRadius(viewport) : undefined;
+    const viewportBounds = isViewportMercator(viewport) ? getViewportBounds(viewport) : undefined;
     const viewportZoomChangeFactor = 2 ** ((typeof previousViewportZoom === 'number' ? previousViewportZoom - viewport.zoom : 0) * 4);
 
     // speed factor for current zoom level
@@ -317,42 +318,23 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     // update particle positions and colors age0
     transform.model.shaderInputs.setProps({
-      [bitmapModule.name]: getBitmapModuleUniforms({
-        bounds: bounds,
-        coordinateConversion: 0, // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
-        transparentColor: [0, 0, 0, 0],
-      }),
-      [rasterModule.name]: getRasterModuleUniforms({
+      [bitmapModule.name]: {
+        viewportGlobe, bounds, _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+      } satisfies BitmapModuleProps,
+      [rasterModule.name]: {
         imageTexture: imageTexture ?? createEmptyTextureCached(device),
-        imageTexture2: (imageTexture2 !== imageTexture ? imageTexture2 : null) ?? createEmptyTextureCached(device),
-        imageResolution: [imageTexture.width, imageTexture.height],
-        imageSmoothing: imageSmoothing ?? 0,
-        imageInterpolation: Object.values(ImageInterpolation).indexOf(imageInterpolation),
-        imageWeight: imageTexture2 !== imageTexture ? imageWeight : 0,
-        imageType: Object.values(ImageType).indexOf(imageType),
-        imageUnscale: imageUnscale ?? [0, 0],
-        imageMinValue: imageMinValue ?? Number.MIN_SAFE_INTEGER,
-        imageMaxValue: imageMaxValue ?? Number.MAX_SAFE_INTEGER,
-      }),
-      [paletteModule.name]: getPaletteModuleUniforms({
+        imageTexture2: imageTexture2 ?? createEmptyTextureCached(device),
+        imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue,
+      } satisfies RasterModuleProps,
+      [paletteModule.name]: {
         paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
-        paletteBounds: paletteBounds ?? [0, 0],
-        paletteColor: color ? deckColorToGl(color) : [0, 0, 0, 0],
-      }),
-      [particleModule.name]: getParticleModuleUniforms({
-        viewportGlobe: viewportGlobe ? 1 : 0,
-        viewportGlobeCenter: viewportGlobeCenter ? [viewportGlobeCenter[0], viewportGlobeCenter[1]] : [0, 0],
-        viewportGlobeRadius: viewportGlobeRadius ?? 0,
-        viewportBounds: viewportBounds ? [viewportBounds[0], viewportBounds[1], viewportBounds[2], viewportBounds[3]] : [0, 0, 0, 0],
-        viewportZoomChangeFactor: viewportZoomChangeFactor ?? 0,
-  
-        numParticles: numParticles,
-        maxAge: maxAge,
-        speedFactor: currentSpeedFactor,
-  
-        time: time,
-        seed: Math.random(),
-      }),
+        paletteBounds, paletteColor: color,
+      } satisfies PaletteModuleProps,
+      [particleModule.name]: {
+        viewportGlobe, viewportGlobeCenter, viewportGlobeRadius, viewportBounds, viewportZoomChangeFactor,
+        numParticles, maxAge, speedFactor: currentSpeedFactor,
+        time, seed: Math.random(),
+      } satisfies ParticleModuleProps,
     });
     transform.run({
       clearColor: false,

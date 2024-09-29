@@ -1,21 +1,37 @@
 import type {Texture} from '@luma.gl/core';
 import type {ShaderModule} from '@luma.gl/shadertools';
+import {ImageInterpolation} from '../../_utils/image-interpolation.js';
+import {ImageType} from '../../../client/_utils/image-type.js';
 import {sourceCode, tokens} from './raster-module.glsl';
 
 export type RasterModuleProps = {
   imageTexture: Texture;
-  imageTexture2: Texture;
-  imageResolution: [number, number];
-  imageSmoothing: number;
-  imageInterpolation: number;
-  imageWeight: number;
-  imageType: number;
-  imageUnscale: [number, number];
-  imageMinValue: number;
-  imageMaxValue: number;
+  imageTexture2?: Texture;
+  imageSmoothing?: number | null;
+  imageInterpolation?: ImageInterpolation | null;
+  imageWeight?: number | null;
+  imageType?: ImageType | null;
+  imageUnscale?: [number, number] | null;
+  imageMinValue?: number | null;
+  imageMaxValue?: number | null;
 };
 
-export type RasterModuleUniforms = {[K in keyof typeof tokens]: any};
+type RasterModuleUniforms = {[K in keyof typeof tokens]: any};
+
+function getUniforms(props: Partial<RasterModuleProps> = {}): RasterModuleUniforms {
+  return {
+    [tokens.imageTexture]: props.imageTexture,
+    [tokens.imageTexture2]: props.imageTexture2,
+    [tokens.imageResolution]: props.imageTexture ? [props.imageTexture.width, props.imageTexture.height] : [0, 0],
+    [tokens.imageSmoothing]: props.imageSmoothing ?? 0,
+    [tokens.imageInterpolation]: Object.values(ImageInterpolation).indexOf(props.imageInterpolation ?? ImageInterpolation.NEAREST),
+    [tokens.imageWeight]: props.imageTexture2 !== props.imageTexture && props.imageWeight ? props.imageWeight : 0,
+    [tokens.imageType]: Object.values(ImageType).indexOf(props.imageType ?? ImageType.SCALAR),
+    [tokens.imageUnscale]: props.imageUnscale ?? [0, 0],
+    [tokens.imageMinValue]: props.imageMinValue ?? Number.MIN_SAFE_INTEGER,
+    [tokens.imageMaxValue]: props.imageMaxValue ?? Number.MAX_SAFE_INTEGER,
+  };
+}
 
 export const rasterModule = {
   name: 'raster',
@@ -31,19 +47,5 @@ export const rasterModule = {
     [tokens.imageMinValue]: 'f32',
     [tokens.imageMaxValue]: 'f32',
   },
-} as const satisfies ShaderModule<RasterModuleUniforms>;
-
-export function getRasterModuleUniforms(props: RasterModuleProps): RasterModuleUniforms {
-  return {
-    [tokens.imageTexture]: props.imageTexture,
-    [tokens.imageTexture2]: props.imageTexture2,
-    [tokens.imageResolution]: props.imageResolution,
-    [tokens.imageSmoothing]: props.imageSmoothing,
-    [tokens.imageInterpolation]: props.imageInterpolation,
-    [tokens.imageWeight]: props.imageWeight,
-    [tokens.imageType]: props.imageType,
-    [tokens.imageUnscale]: props.imageUnscale,
-    [tokens.imageMinValue]: props.imageMinValue,
-    [tokens.imageMaxValue]: props.imageMaxValue,
-  };
-}
+  getUniforms,
+} as const satisfies ShaderModule<RasterModuleProps, RasterModuleUniforms>;

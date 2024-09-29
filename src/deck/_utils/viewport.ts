@@ -21,7 +21,7 @@ export function isViewportInZoomBounds(viewport: Viewport, minZoom: number | nul
   return true;
 }
 
-export function getViewportGlobeCenter(viewport: GlobeViewport): GeoJSON.Position {
+export function getViewportGlobeCenter(viewport: GlobeViewport): [number, number] {
   return [viewport.longitude, viewport.latitude];
 }
 
@@ -45,7 +45,7 @@ export function getViewportGlobeRadius(viewport: GlobeViewport): number {
   return viewportGlobeRadius;
 }
 
-export function getViewportBounds(viewport: WebMercatorViewport): GeoJSON.BBox {
+export function getViewportBounds(viewport: WebMercatorViewport): [number, number, number, number] {
   return wrapBounds(viewport.getBounds());
 }
 
@@ -64,7 +64,7 @@ export function getViewportClipExtensions(viewport: Viewport): LayerExtension[] 
   return !isViewportGlobe(viewport) ? [new ClipExtension()] : [];
 }
 
-export function getViewportClipBounds(viewport: WebMercatorViewport, bounds: GeoJSON.BBox): GeoJSON.BBox;
-export function getViewportClipBounds(viewport: Viewport, bounds: GeoJSON.BBox): GeoJSON.BBox | null {
+export function getViewportClipBounds(viewport: WebMercatorViewport, bounds: [number, number, number, number]): [number, number, number, number];
+export function getViewportClipBounds(viewport: Viewport, bounds: [number, number, number, number]): [number, number, number, number] | null {
   return isViewportMercator(viewport) ? clipBounds(bounds) : null;
 }

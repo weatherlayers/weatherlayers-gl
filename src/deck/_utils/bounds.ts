@@ -13,7 +13,7 @@ export function wrapLongitude(lng: number, minLng?: number): number {
   return wrappedLng;
 }
 
-export function wrapBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
+export function wrapBounds(bounds: [number, number, number, number]): [number, number, number, number] {
   // wrap longitude
   const minLng = bounds[2] - bounds[0] < 360 ? wrapLongitude(bounds[0]) : -180;
   const maxLng = bounds[2] - bounds[0] < 360 ? wrapLongitude(bounds[2], minLng) : 180;
@@ -21,11 +21,10 @@ export function wrapBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const mercatorBounds: GeoJSON.BBox = [minLng, minLat, maxLng, maxLat];
-  return mercatorBounds;
+  return [minLng, minLat, maxLng, maxLat];
 }
 
-export function clipBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
+export function clipBounds(bounds: [number, number, number, number]): [number, number, number, number] {
   // fill longitude gap between repeats
   const minLng = bounds[0] - 1;
   const maxLng = bounds[2] + 1;
@@ -33,6 +32,5 @@ export function clipBounds(bounds: GeoJSON.BBox): GeoJSON.BBox {
   const minLat = Math.max(bounds[1], -85.051129);
   const maxLat = Math.min(bounds[3], 85.051129);
 
-  const clipBounds: GeoJSON.BBox = [minLng, minLat, maxLng, maxLat];
-  return clipBounds;
+  return [minLng, minLat, maxLng, maxLat];
 }
