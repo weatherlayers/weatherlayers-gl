@@ -24,6 +24,10 @@ const GRID_LAYER_DATASET_CONFIG = {
   'gfswave/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_merged/tidal_currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
+  'cmems_wav/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'cmems_sst/sea_surface_temperature': { style: WeatherLayers.GridStyle.VALUE },
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
@@ -35,6 +39,10 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'gfswave/swell3': { speedFactor: 2, width: 5 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
+  'cmems_wav/waves': { speedFactor: 2, width: 5 },
+  'cmems_wav/swell': { speedFactor: 2, width: 5 },
+  'cmems_wav/swell2': { speedFactor: 2, width: 5 },
+  'cmems_wav/swell3': { speedFactor: 2, width: 5 },
 };
 const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
@@ -45,6 +53,10 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'gfswave/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
+  'cmems_wav/waves': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav/swell': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
 };
 
 const CURRENT_DATETIME = new Date().toISOString();
