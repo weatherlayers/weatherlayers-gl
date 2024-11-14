@@ -28,6 +28,14 @@ const GRID_LAYER_DATASET_CONFIG = {
   'cmems_wav/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'cmems_wav/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'cmems_wav/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_med/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_med/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_med/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_med/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_nws/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_nws/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_nws/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'cmems_wav_nws/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'cmems_sst/sea_surface_temperature': { style: WeatherLayers.GridStyle.VALUE },
 };
 const PARTICLE_LAYER_DATASET_CONFIG = {
@@ -43,6 +51,14 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'cmems_wav/swell': { speedFactor: 2, width: 5 },
   'cmems_wav/swell2': { speedFactor: 2, width: 5 },
   'cmems_wav/swell3': { speedFactor: 2, width: 5 },
+  'cmems_wav_med/waves': { speedFactor: 2, width: 5 },
+  'cmems_wav_med/swell': { speedFactor: 2, width: 5 },
+  'cmems_wav_med/swell2': { speedFactor: 2, width: 5 },
+  'cmems_wav_med/swell3': { speedFactor: 2, width: 5 },
+  'cmems_wav_nws/waves': { speedFactor: 2, width: 5 },
+  'cmems_wav_nws/swell': { speedFactor: 2, width: 5 },
+  'cmems_wav_nws/swell2': { speedFactor: 2, width: 5 },
+  'cmems_wav_nws/swell3': { speedFactor: 2, width: 5 },
 };
 const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
@@ -57,6 +73,14 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'cmems_wav/swell': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_wav/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_wav/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_med/waves': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_med/swell': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_med/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_med/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_nws/waves': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_nws/swell': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_nws/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
+  'cmems_wav_nws/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
 };
 
 const CURRENT_DATETIME = new Date().toISOString();
