@@ -1,5 +1,5 @@
 import type {Viewport} from '@deck.gl/core';
-import SphericalMercator from '@mapbox/sphericalmercator';
+import {SphericalMercator} from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import * as geokdbush from 'geokdbush';

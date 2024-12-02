@@ -11,8 +11,8 @@ Here is a list of the third party libraries used in WeatherLayers GL together wi
 | @deck.gl/layers | 9.0.29 | https://github.com/visgl/deck.gl | MIT | https://github.com/visgl/deck.gl/blob/master/LICENSE |
 | @luma.gl/core | 9.0.27 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
 | @luma.gl/engine | 9.0.27 | https://github.com/visgl/luma.gl | MIT | https://github.com/visgl/luma.gl/blob/master/LICENSE |
-| @mapbox/sphericalmercator | 1.2.0 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
-| comlink | 4.4.1 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
+| @mapbox/sphericalmercator | 2.0.1 | https://github.com/mapbox/sphericalmercator | BSD-3-Clause | https://github.com/mapbox/sphericalmercator/blob/master/LICENSE.md |
+| comlink | 4.4.2 | https://github.com/GoogleChromeLabs/comlink | Apache-2.0 | https://github.com/GoogleChromeLabs/comlink/blob/main/LICENSE |
 | cpt2js | 1.5.3 | https://github.com/weatherlayers/cpt2js | MPL-2.0 | https://github.com/weatherlayers/cpt2js/blob/main/LICENSE |
 | geodesy-fn | 1.0.1 | https://github.com/zakjan/geodesy-fn | MIT | https://github.com/zakjan/geodesy-fn/blob/main/LICENSE |
 | geokdbush | 2.0.1 | https://github.com/mourner/geokdbush | ISC | https://github.com/mourner/geokdbush/blob/main/LICENSE |
