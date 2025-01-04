@@ -35,6 +35,7 @@ export interface StacLink {
   href: string;
   rel: StacLinkRel;
   type: string;
+  title?: string;
   datetime?: string; // deprecated, used by Virtual Gaia and WatchDuty
 }
 
@@ -101,7 +102,7 @@ export interface StacCollection {
   };
   summaries?: unknown; // deprecated, used by Virtual Gaia
   links: StacLink[];
-  assets: {[key: string]: StacAsset};
+  assets?: {[key: string]: StacAsset};
   item_assets?: {[key: string]: StacCollectionItemAsset};
   'weatherLayers:imageType'?: ImageType; // used by WeatherLayers Cloud Client
   'weatherLayers:imageUnscale'?: [number, number] | null; // used by WeatherLayers Cloud Client

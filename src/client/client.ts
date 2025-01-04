@@ -173,7 +173,7 @@ export class Client {
 
   async #loadDatasetStacCollectionPalette(dataset: string, config: ClientConfig = {}): Promise<Palette> {
     const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
-    const asset = Object.values(stacCollection.assets).find(x => x.roles.includes(StacAssetRole.PALETTE) && x.type === 'application/json');
+    const asset = Object.values(stacCollection.assets ?? {}).find(x => x.roles.includes(StacAssetRole.PALETTE) && x.type === 'application/json');
     if (!asset) {
       throw new Error(`STAC Collection ${dataset} palette asset not found`);
     }
