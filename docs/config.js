@@ -8,10 +8,16 @@ const CONTOUR_LAYER_DATASET_CONFIG = {
   'gfs/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'gfs/apparent_temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'gfs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'hrrr_conus/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'hrrr_conus/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'hrrr_alaska/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'hrrr_alaska/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'cmems_sst/sea_surface_temperature': { interval: 2, majorInterval: 10 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'gfs/pressure_mean_sea_level': { radius: 2000 },
+  'hrrr_conus/pressure_mean_sea_level': { radius: 2000 },
+  'hrrr_alaska/pressure_mean_sea_level': { radius: 2000 },
 };
 const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
@@ -22,6 +28,12 @@ const GRID_LAYER_DATASET_CONFIG = {
   'gfswave/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'gfswave/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'gfswave/swell3': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'hrrr_conus/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'hrrr_conus/wind_80m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'hrrr_conus/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'hrrr_alaska/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'hrrr_alaska/wind_80m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'hrrr_alaska/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_merged/tidal_currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_med/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
@@ -47,6 +59,10 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'gfswave/swell': { speedFactor: 2, width: 5 },
   'gfswave/swell2': { speedFactor: 2, width: 5 },
   'gfswave/swell3': { speedFactor: 2, width: 5 },
+  'hrrr_conus/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'hrrr_conus/wind_80m_above_ground': { speedFactor: 3, width: 2 },
+  'hrrr_alaska/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'hrrr_alaska/wind_80m_above_ground': { speedFactor: 3, width: 2 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
   'cmems_phy_med/currents': { speedFactor: 50, width: 2 },
@@ -71,6 +87,10 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'gfswave/swell': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfswave/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfswave/swell3': { directionType: WeatherLayers.DirectionType.INWARD },
+  'hrrr_conus/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'hrrr_conus/wind_80m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'hrrr_alaska/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'hrrr_alaska/wind_80m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_med/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
