@@ -349,9 +349,9 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     // update particle positions age1-age(N-1)
     // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
     commandEncoder.copyBufferToBuffer({
-      source: sourcePositions,
+      sourceBuffer: sourcePositions,
       sourceOffset: 0,
-      destination: targetPositions,
+      destinationBuffer: targetPositions,
       destinationOffset: numParticles * 4 * 3,
       size: numAgedInstances * 4 * 3,
     });
@@ -360,9 +360,9 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     // copy age0-age(N-2) colors to age1-age(N-1) colors
     // needs a duplicate copy buffer, because read and write regions overlap
     commandEncoder.copyBufferToBuffer({
-      source: sourceColors,
+      sourceBuffer: sourceColors,
       sourceOffset: 0,
-      destination: targetColors,
+      destinationBuffer: targetColors,
       destinationOffset: numParticles * 4 * 4,
       size: numAgedInstances * 4 * 4,
     });

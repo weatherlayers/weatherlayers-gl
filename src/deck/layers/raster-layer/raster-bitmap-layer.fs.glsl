@@ -12,8 +12,6 @@ in vec2 vTexCoord;
 in vec2 vTexPos;
 out vec4 fragColor;
 
-uniform float opacity; // TODO: replace with layer.opacity
-
 void main(void) {
   vec2 uv = getUVWithCoordinateConversion(vTexCoord, vTexPos);
   
@@ -33,7 +31,7 @@ void main(void) {
   }
 
   vec4 targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
-  fragColor = apply_opacity(targetColor.rgb, targetColor.a * opacity);
+  fragColor = apply_opacity(targetColor.rgb, targetColor.a * layer.opacity);
 
   geometry.uv = uv;
   DECKGL_FILTER_COLOR(fragColor, geometry);

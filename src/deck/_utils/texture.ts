@@ -74,7 +74,7 @@ let emptyTexture: Texture | null = null;
 
 export function createEmptyTextureCached(device: Device): Texture {
   if (!emptyTexture) {
-    emptyTexture = device.createTexture({data: new Uint8Array(), width: 0, height: 0, mipmaps: false});
+    emptyTexture = device.createTexture({data: new Uint8Array(4), width: 1, height: 1, mipmaps: false});
   }
   return emptyTexture;
 }

@@ -64,7 +64,7 @@ function getUniforms(props: Partial<BitmapModuleProps> = {}): BitmapModuleUnifor
 }
 
 export const bitmapModule = {
-  name: 'bitmap',
+  name: 'bitmap2',
   vs: sourceCode,
   fs: sourceCode,
   uniformTypes: {

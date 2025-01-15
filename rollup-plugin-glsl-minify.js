@@ -10,8 +10,8 @@ import { fileURLToPath } from 'node:url';
 
 const modules = [
   {
-    structName: 'bitmapUniforms',
-    uniformBufferName: 'bitmap',
+    structName: 'bitmap2Uniforms',
+    uniformBufferName: 'bitmap2',
     path: './src/deck/shaderlib/bitmap-module/bitmap-module.glsl',
   },
   {
@@ -52,7 +52,7 @@ async function minifyShader(code, id, minimize) {
     'DECKGL_FILTER_COLOR',
 
     // don't mangle deck.gl shader modules
-    'layer', // upcoming in deck.gl 9.1
+    'layer',
     'opacity',
 
     'picking',

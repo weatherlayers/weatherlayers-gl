@@ -17,9 +17,11 @@ const vec2 DROP_POSITION = vec2(0);
 const vec4 DROP_COLOR = vec4(0);
 const vec4 HIDE_COLOR = vec4(1, 0, 0, 0);
 
+const float _EARTH_RADIUS = 6370972.0; // meters
+
 // see https://github.com/chrisveness/geodesy/blob/master/latlon-spherical.js#L360
 vec2 destinationPoint(vec2 from, float dist, float bearing) {
-  float d = dist / EARTH_RADIUS;
+  float d = dist / _EARTH_RADIUS;
   float r = radians(bearing);
 
   float y1 = radians(from.y);
@@ -136,7 +138,7 @@ void main() {
     return;
   }
 
-  if (!isPositionInBounds(sourcePosition.xy, bitmap.bounds)) {
+  if (!isPositionInBounds(sourcePosition.xy, bitmap2.bounds)) {
     // drop out of bounds
     targetPosition.xy = sourcePosition.xy;
     targetColor = HIDE_COLOR;

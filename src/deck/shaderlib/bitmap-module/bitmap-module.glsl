@@ -1,8 +1,8 @@
-uniform bitmapUniforms {
+uniform bitmap2Uniforms {
   vec4 bounds;
   float coordinateConversion;
   vec4 transparentColor;
-} bitmap;
+} bitmap2;
 
 // copied from https://github.com/visgl/deck.gl/blob/master/modules/layers/src/bitmap-layer/bitmap-layer-fragment.ts
 
@@ -35,22 +35,22 @@ vec2 mercator_to_lnglat(vec2 xy) {
 // blend with background color
 // TODO: update with https://github.com/visgl/deck.gl/pull/7441
 vec4 apply_opacity(vec3 color, float alpha) {
-  return mix(bitmap.transparentColor, vec4(color, 1.0), alpha);
+  return mix(bitmap2.transparentColor, vec4(color, 1.0), alpha);
 }
 
 vec2 getUV(vec2 pos) {
   return vec2(
-    (pos.x - bitmap.bounds[0]) / (bitmap.bounds[2] - bitmap.bounds[0]),
-    (pos.y - bitmap.bounds[3]) / (bitmap.bounds[1] - bitmap.bounds[3])
+    (pos.x - bitmap2.bounds[0]) / (bitmap2.bounds[2] - bitmap2.bounds[0]),
+    (pos.y - bitmap2.bounds[3]) / (bitmap2.bounds[1] - bitmap2.bounds[3])
   );
 }
 
 vec2 getUVWithCoordinateConversion(vec2 texCoord, vec2 texPos) {
   vec2 uv = texCoord;
-  if (bitmap.coordinateConversion < -0.5) {
+  if (bitmap2.coordinateConversion < -0.5) {
     vec2 lnglat = mercator_to_lnglat(texPos);
     uv = getUV(lnglat);
-  } else if (bitmap.coordinateConversion > 0.5) {
+  } else if (bitmap2.coordinateConversion > 0.5) {
     vec2 commonPos = lnglat_to_mercator(texPos);
     uv = getUV(commonPos);
   }
