@@ -66,6 +66,7 @@
       });
       updateBasemapVectorStyle(map);
       await new Promise(resolve => map.on('load', resolve));
+      map.setProjection({ type: 'globe' });
       const beforeId = map.style._order.find(layerId => map.style._layers[layerId].type === 'symbol');
 
       // interleaved deck.gl
@@ -175,8 +176,6 @@
               palette,
               opacity: config.raster.opacity,
               pickable: true,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-181, -85.051129, 181, 85.051129],
               beforeId,
             }),
             new WeatherLayers.ContourLayer({
@@ -200,8 +199,6 @@
               color: cssToColor(config.contour.color),
               palette: config.contour.palette ? palette : null,
               opacity: config.contour.opacity,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-181, -85.051129, 181, 85.051129],
               beforeId,
             }),
             new WeatherLayers.GridLayer({
@@ -256,8 +253,6 @@
               palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-181, -85.051129, 181, 85.051129],
               getPolygonOffset: () => [0, -1000],
               beforeId,
             }),
