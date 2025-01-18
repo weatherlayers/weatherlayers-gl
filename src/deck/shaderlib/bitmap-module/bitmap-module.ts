@@ -24,11 +24,11 @@ function isRectangularBounds(bounds: BitmapBoundingBox): bounds is [number, numb
 function _getCoordinateUniforms(props: Partial<BitmapModuleProps> = {}): {coordinateConversion: number; bounds: [number, number, number, number]} {
   const {LNGLAT, CARTESIAN, DEFAULT} = COORDINATE_SYSTEM;
   let {viewportGlobe, bounds, _imageCoordinateSystem: imageCoordinateSystem} = props;
-  if (imageCoordinateSystem !== DEFAULT) {
-    if (!isRectangularBounds(bounds!)) {
-      throw new Error('_imageCoordinateSystem only supports rectangular bounds');
-    }
+  if (!isRectangularBounds(bounds!)) {
+    throw new Error('_imageCoordinateSystem only supports rectangular bounds');
+  }
 
+  if (imageCoordinateSystem !== DEFAULT) {
     // The default behavior (linearly interpolated tex coords)
     const defaultImageCoordinateSystem = viewportGlobe ? LNGLAT : CARTESIAN;
     imageCoordinateSystem = imageCoordinateSystem === LNGLAT ? LNGLAT : CARTESIAN;
@@ -47,10 +47,7 @@ function _getCoordinateUniforms(props: Partial<BitmapModuleProps> = {}): {coordi
       };
     }
   }
-  return {
-    coordinateConversion: 0,
-    bounds: [0, 0, 0, 0]
-  };
+  return {coordinateConversion: 0, bounds}; // bounds are used by particle layer in globe
 }
 
 function getUniforms(props: Partial<BitmapModuleProps> = {}): BitmapModuleUniforms {
