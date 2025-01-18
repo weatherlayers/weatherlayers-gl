@@ -93,9 +93,7 @@
       externalRenderers.add(view, deckRenderer);
       const deckgl = window.deckgl = await waitForDeck(() => deckRenderer.resources?.deck);
       deckgl.setProps({
-        views: [
-          new deck._GlobeView(),
-        ],
+        views: [new deck._GlobeView()],
       });
 
       // rotate

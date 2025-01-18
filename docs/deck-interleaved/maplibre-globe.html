@@ -72,9 +72,8 @@
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({
         interleaved: true,
-        views: [
-          new deck._GlobeView(),
-        ],
+        // creating a custom GlobeView without id=mapbox fixes BitmapLayer artifacts, but is incompatible with interleaving Maplibre and deck.gl layers
+        views: [new deck._GlobeView()],
         layers: [],
       });
       map.addControl(deckLayer);
