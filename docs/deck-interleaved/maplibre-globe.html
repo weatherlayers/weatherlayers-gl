@@ -199,6 +199,9 @@
               color: cssToColor(config.contour.color),
               palette: config.contour.palette ? palette : null,
               opacity: config.contour.opacity,
+              parameters: {
+                cullMode: 'none',
+              },
               beforeId,
             }),
             new WeatherLayers.GridLayer({
@@ -228,6 +231,9 @@
               iconColor: cssToColor(config.grid.iconColor),
               palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,
+              parameters: {
+                cullMode: 'none',
+              },
               beforeId,
             }),
             new WeatherLayers.ParticleLayer({
@@ -253,7 +259,9 @@
               palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
-              getPolygonOffset: () => [0, -1000],
+              parameters: {
+                cullMode: 'none',
+              },
               beforeId,
             }),
           ],
