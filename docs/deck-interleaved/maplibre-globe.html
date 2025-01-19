@@ -61,8 +61,8 @@
       const map = new maplibregl.Map({
         container: 'maplibre',
         style: BASEMAP_VECTOR_STYLE_URL,
-        center: [30, 10],
-        zoom: 1,
+        center: [7, 46],
+        zoom: 1.5,
       });
       updateBasemapVectorStyle(map);
       await new Promise(resolve => map.on('load', resolve));
