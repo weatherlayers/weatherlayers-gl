@@ -104,6 +104,7 @@
       // overlaid deck.gl
       const deckLayer = new deck.MapboxOverlay({
         interleaved: false,
+        views: [new deck._GlobeView({ resolution: 5 })],
         layers: [],
       });
       map.addControl(deckLayer);
