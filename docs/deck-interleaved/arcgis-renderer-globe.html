@@ -97,11 +97,11 @@
       });
 
       // rotate
-      const rotateAnimation = new WeatherLayers.Animation(() => {
+      const rotateAnimation = new WeatherLayers.Animation({ onUpdate: () => {
         const camera = view.camera.clone();
         camera.position.longitude += 0.3;
         view.goTo(camera, { animate: false });
-      });
+      }});
 
       // info panels
       const infoControl = new InfoControl();

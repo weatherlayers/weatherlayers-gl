@@ -71,9 +71,9 @@
       let highLowLayer;
 
       // rotate
-      const rotateAnimation = new WeatherLayers.Animation(() => {
+      const rotateAnimation = new WeatherLayers.Animation({ onUpdate: () => {
         viewer.camera.rotateRight(0.3 / 180 * Math.PI);
-      });
+      }});
 
       // logo
       const logoControl = new WeatherLayers.LogoControl();

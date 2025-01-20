@@ -74,11 +74,11 @@
       });
 
       // rotate
-      const rotateAnimation = new WeatherLayers.Animation(() => {
+      const rotateAnimation = new WeatherLayers.Animation({ onUpdate: () => {
         const initialViewState = { ...deckgl.props.initialViewState };
         initialViewState.longitude += 0.3;
         deckgl.setProps({ initialViewState });
-      });
+      }});
 
       // info panels
       const infoControl = new InfoControl();

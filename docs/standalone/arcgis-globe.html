@@ -111,11 +111,11 @@
       let highLowLayer;
 
       // rotate
-      const rotateAnimation = new WeatherLayers.Animation(() => {
+      const rotateAnimation = new WeatherLayers.Animation({ onUpdate: () => {
         const camera = view.camera.clone();
         camera.position.longitude += 0.3;
         view.goTo(camera, { animate: false });
-      });
+      }});
 
       // logo
       const logoControl = new WeatherLayers.LogoControl();
@@ -137,7 +137,7 @@
         const {datetimes} = await client.loadDatasetSlice(dataset, config.datetimeRange.split('/'), { datetimeStep: config.datetimeStep });
         const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] && !forceUpdateDatetime ? config.datetime : datetimes[0];
         const {image, imageType, imageUnscale, bounds} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
-        await mercatorClient.loadDatasetSlice(dataset, datetimeRange);
+        await mercatorClient.loadDatasetSlice(dataset, config.datetimeRange.split('/'), { datetimeStep: config.datetimeStep });
         const {image: mercatorImage} = await mercatorClient.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         config.datetimes = datetimes;
