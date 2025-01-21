@@ -44,7 +44,7 @@ const FILL_LAYERS = [
 export function updateBasemapVectorStyle(map) {
   map.on('style.load', () => {
     for (let layer of TEXT_LAYERS) {
-      map.setPaintProperty(layer, 'text-color', '#555');
+      map.setPaintProperty(layer, 'text-color', '#ccc');
     }
     for (let layer of LINE_LAYERS) {
       map.setPaintProperty(layer, 'line-color', '#222');
