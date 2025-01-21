@@ -10,16 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@deck.gl/extensions": "^9.0.31",
-    "@deck.gl/mapbox": "^9.0.31",
-    "deck.gl": "^9.0.31",
-    "mapbox-gl": "^3.7.0",
-    "maplibre-gl": "^4.7.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "@deck.gl/extensions": "^9.1.0",
+    "@deck.gl/mapbox": "^9.1.0",
+    "deck.gl": "^9.1.0",
+    "mapbox-gl": "^3.9.3",
+    "maplibre-gl": "^5.0.1",
+    "prop-types": "^15.8.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-fps-stats": "^0.3.1",
-    "react-map-gl": "^7.1.7",
-    "weatherlayers-gl": "^2024.9.0"
+    "react-map-gl": "^7.1.8",
+    "weatherlayers-gl": "^2025.1.0-alpha.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.8",
