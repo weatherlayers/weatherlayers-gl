@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Map, useControl } from 'react-map-gl/maplibre';
+import { Map, useControl } from '@vis.gl/react-maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapView } from 'deck.gl';
 import type { DeckProps } from 'deck.gl';
