@@ -161,7 +161,9 @@
               palette: config.highLow.palette ? palette : null,
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
-              getPolygonOffset: () => [0, -1000],
+              parameters: {
+                cullMode: 'none',
+              },
               beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.RasterLayer({
@@ -205,9 +207,6 @@
               color: cssToColor(config.contour.color),
               palette: config.contour.palette ? palette : null,
               opacity: config.contour.opacity,
-              parameters: {
-                cullMode: 'none',
-              },
               beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.GridLayer({
