@@ -128,6 +128,16 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
       });
 
       this.props.image = imageTexture;
+
+      // clear stencil buffer before bitmap rendering, because Maplibre uses stencil buffer
+      // TODO: remove once https://github.com/visgl/deck.gl/issues/9357 is resolved
+      const renderPass = device.beginRenderPass({
+        clearColor: false,
+        clearStencil: 0,
+      });
+      renderPass.end();
+      device.submit();
+
       super.draw(opts);
       this.props.image = null;
     }
