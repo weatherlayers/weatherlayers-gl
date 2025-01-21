@@ -10,7 +10,7 @@ import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
 import { WEATHER_LAYERS_ACCESS_TOKEN, MAPBOX_ACCESS_TOKEN } from '../../auth.js';
-import { BASEMAP_VECTOR_STYLE_URL } from '../../basemap.js';
+import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID } from '../../basemap.js';
 import LICENSE from '../../license.json';
 
 const DATASET = 'gfs/wind_10m_above_ground';
@@ -78,6 +78,7 @@ export default function Maplibre() {
             pickable: true,
             extensions: [new ClipExtension()],
             clipBounds: [-181, -85.051129, 181, 85.051129],
+            beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
           }),
           new ParticleLayer({
             id: 'particle',
@@ -97,6 +98,7 @@ export default function Maplibre() {
             extensions: [new ClipExtension()],
             clipBounds: [-180, -85.051129, 180, 85.051129],
             getPolygonOffset: () => [0, -1000],
+            beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
           }),
         ]}
       />

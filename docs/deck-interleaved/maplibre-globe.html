@@ -39,7 +39,7 @@
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, cssToColor, waitForDeck } from '../config.js';
-    import { BASEMAP_VECTOR_STYLE_URL, updateBasemapVectorStyle } from '../basemap.js';
+    import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID, updateBasemapVectorStyle } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -66,7 +66,6 @@
       updateBasemapVectorStyle(map);
       await new Promise(resolve => map.on('load', resolve));
       map.setProjection({ type: 'globe' });
-      const beforeId = map.style._order.find(layerId => map.style._layers[layerId].type === 'symbol');
 
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({
@@ -163,7 +162,7 @@
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
               getPolygonOffset: () => [0, -1000],
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
@@ -183,7 +182,7 @@
               palette,
               opacity: config.raster.opacity,
               pickable: true,
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
@@ -209,7 +208,7 @@
               parameters: {
                 cullMode: 'none',
               },
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
@@ -241,7 +240,7 @@
               parameters: {
                 cullMode: 'none',
               },
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.ParticleLayer({
               id: 'particle',
@@ -269,7 +268,7 @@
               parameters: {
                 cullMode: 'none',
               },
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
           ],
         });

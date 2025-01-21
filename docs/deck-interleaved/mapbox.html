@@ -39,7 +39,7 @@
   <script type="module">
     import { WEATHER_LAYERS_ACCESS_TOKEN, MAPBOX_ACCESS_TOKEN } from '../auth.js';
     import { NO_DATA, initConfig, initGui, cssToColor, waitForDeck } from '../config.js';
-    import { BASEMAP_VECTOR_STYLE_URL, updateBasemapVectorStyle } from '../basemap.js';
+    import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID, updateBasemapVectorStyle } from '../basemap.js';
     import { InfoControl } from '../info-control.js';
     import { FpsControl } from '../fps-control.js';
 
@@ -66,8 +66,6 @@
       });
       updateBasemapVectorStyle(map);
       await new Promise(resolve => map.on('load', resolve));
-      
-      const beforeId = map.style._order.find(layerId => map.style._layers[layerId].type === 'symbol');
 
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({
@@ -156,7 +154,7 @@
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
               getPolygonOffset: () => [0, -1000],
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
@@ -178,7 +176,7 @@
               pickable: true,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.ContourLayer({
               id: 'contour',
@@ -203,7 +201,7 @@
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
@@ -232,7 +230,7 @@
               iconColor: cssToColor(config.grid.iconColor),
               palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.ParticleLayer({
               id: 'particle',
@@ -260,7 +258,7 @@
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
               getPolygonOffset: () => [0, -1000],
-              beforeId,
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
           ],
         });

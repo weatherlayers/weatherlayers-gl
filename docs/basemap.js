@@ -3,6 +3,7 @@
 
 export const BASEMAP_RASTER_STYLE_URL = 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png';
 export const BASEMAP_VECTOR_STYLE_URL = 'https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway_label';
 export const BASEMAP_ATTRIBUTION = '© <a href="https://carto.com/about-carto/" target="_blank" rel="noopener">CARTO</a>, © <a href="http://www.openstreetmap.org/about/" target="_blank">OpenStreetMap</a> contributors';
 
 const TEXT_LAYERS = [

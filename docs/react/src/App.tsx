@@ -9,9 +9,9 @@ export default function App() {
     <div className="relative w-full h-full">
       {/*
       <Deck />
-      <Maplibre />
-      */}
       <Mapbox />
+      */}
+      <Maplibre />
       <FPSStats top='auto' right={0} bottom={0} left='auto' />
     </div>
   );
