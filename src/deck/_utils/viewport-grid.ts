@@ -10,15 +10,16 @@ const GLOBAL_POSITIONS_AT_ZOOM_CACHE = new Map<number, GeoJSON.Position[]>();
 const GLOBAL_INDEX_AT_ZOOM_CACHE = new Map<number, KDBush>();
 
 export function getViewportGridPositions(viewport: Viewport, zoomOffset: number = 0): GeoJSON.Position[] {
-  const zoom = Math.floor(viewport.zoom + (isViewportGlobe(viewport) ? 1 : 0) + zoomOffset);
   let positions: GeoJSON.Position[];
   if (isViewportGlobe(viewport)) {
     const viewportGlobeCenter = getViewportGlobeCenter(viewport);
     const viewportGlobeRadius = getViewportGlobeRadius(viewport);
-    positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, zoom);
+    const viewportZoom = Math.floor(viewport.focalDistance + zoomOffset + 1); // using viewport.focalDistance instead of viewport.zoom because it varies
+    positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, viewportZoom);
   } else if (isViewportMercator(viewport)) {
     const viewportBounds = getViewportBounds(viewport);
-    positions = generateGrid(viewportBounds, zoom);
+    const viewportZoom = Math.floor(viewport.zoom + zoomOffset);
+    positions = generateGrid(viewportBounds, viewportZoom);
   } else {
     throw new Error('Invalid state');
   }
