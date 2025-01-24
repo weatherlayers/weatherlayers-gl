@@ -8,7 +8,7 @@ export function getProjectFunction(width: number, height: number, bounds: GeoJSO
   return position => {
     const [lng, lat] = position;
     const x = (lng - origin[0]) / lngResolution;
-    const y = -(lat - origin[1]) / latResolution;
+    const y = (origin[1] - lat) / latResolution;
     const point = [x, y];
     return point;
   };

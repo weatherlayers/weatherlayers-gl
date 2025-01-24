@@ -9,9 +9,9 @@ function getPixel(image: TextureData, imageDownscaleResolution: ImageDownscaleRe
   const bandsCount = data.length / (width * height);
 
   const uvX = (iuvX + offsetX + 0.5) / imageDownscaleResolution[0];
-  const uvY = (Math.max(0, iuvY) + offsetY + 0.5) / imageDownscaleResolution[1]; // workaround for iuvY = -1, TODO: investigate
-  const x = Math.floor(uvX * width);
-  const y = Math.floor(uvY * height);
+  const uvY = (iuvY + offsetY + 0.5) / imageDownscaleResolution[1];
+  const x = Math.max(0, Math.min(width - 1, Math.floor(uvX * width)));
+  const y = Math.max(0, Math.min(height - 1, Math.floor(uvY * height)));
 
   return new Array(bandsCount).fill(undefined).map((_, band) => {
     return data[(x + y * width) * bandsCount + band];

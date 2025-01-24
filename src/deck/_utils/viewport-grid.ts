@@ -46,7 +46,7 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
   const globalPositions = GLOBAL_POSITIONS_AT_ZOOM_CACHE.get(zoom) ?? (() => {
     const {uv} = icomesh(zoom, true);
 
-    const globalPositions = [];
+    const globalPositions: GeoJSON.Position[] = [];
     for (let i = 0; i < uv.length; i += 2) {
       const uvX = uv[i];
       const uvY = uv[i + 1];
@@ -56,7 +56,6 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
         continue;
       }
       // avoid invalid grid points at the poles
-      // TODO: keep one point, fix grid point direction at the poles
       if (uvY <= 0 || uvY >= 1) {
         continue;
       }
@@ -66,6 +65,11 @@ function generateGlobeGrid(center: GeoJSON.Position, radius: number, zoom: numbe
 
       globalPositions.push([positionX, positionY]);
     }
+
+    // add simple grid points at poles
+    globalPositions.push([0, -90]);
+    globalPositions.push([0, 90]);
+
     return globalPositions;
   })();
 
