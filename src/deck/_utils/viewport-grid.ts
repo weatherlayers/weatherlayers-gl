@@ -14,7 +14,7 @@ export function getViewportGridPositions(viewport: Viewport, zoomOffset: number 
   if (isViewportGlobe(viewport)) {
     const viewportGlobeCenter = getViewportGlobeCenter(viewport);
     const viewportGlobeRadius = getViewportGlobeRadius(viewport);
-    const viewportZoom = Math.floor(viewport.focalDistance + zoomOffset + 1); // using viewport.focalDistance instead of viewport.zoom because it varies
+    const viewportZoom = Math.floor(Math.log2(viewport.scale) + zoomOffset + 1); // viewport.zoom varies by latitude, using Math.log2(viewport.scale) instead because it is multiplied by scaleAdjust
     positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, viewportZoom);
   } else if (isViewportMercator(viewport)) {
     const viewportBounds = getViewportBounds(viewport);
