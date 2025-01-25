@@ -49,6 +49,12 @@ export function getViewportBounds(viewport: WebMercatorViewport): [number, numbe
   return wrapBounds(viewport.getBounds());
 }
 
+// viewport.zoom varies by latitude, using Math.log2(viewport.scale) instead because it is multiplied by scaleAdjust
+// TODO: report deck.gl bug
+export function getViewportZoom(viewport: Viewport): number {
+  return isViewportGlobe(viewport) ? Math.log2(viewport.scale) : viewport.zoom;
+}
+
 // TODO: report deck.gl bug
 export function getViewportPixelOffset(viewport: Viewport, offset: number): number {
   return offset * (isViewportGlobe(viewport) ? -1 : 1);

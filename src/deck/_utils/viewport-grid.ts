@@ -3,7 +3,7 @@ import {SphericalMercator} from '@mapbox/sphericalmercator';
 import icomesh from 'icomesh';
 import KDBush from 'kdbush';
 import * as geokdbush from 'geokdbush';
-import {isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from './viewport.js';
+import {isViewportGlobe, isViewportMercator, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom} from './viewport.js';
 import {wrapLongitude} from './bounds.js';
 
 const GLOBAL_POSITIONS_AT_ZOOM_CACHE = new Map<number, GeoJSON.Position[]>();
@@ -14,12 +14,12 @@ export function getViewportGridPositions(viewport: Viewport, zoomOffset: number 
   if (isViewportGlobe(viewport)) {
     const viewportGlobeCenter = getViewportGlobeCenter(viewport);
     const viewportGlobeRadius = getViewportGlobeRadius(viewport);
-    const viewportZoom = Math.floor(Math.log2(viewport.scale) + zoomOffset + 1); // viewport.zoom varies by latitude, using Math.log2(viewport.scale) instead because it is multiplied by scaleAdjust
-    positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, viewportZoom);
+    const gridZoom = Math.floor(getViewportZoom(viewport) + zoomOffset + 1);
+    positions = generateGlobeGrid(viewportGlobeCenter, viewportGlobeRadius, gridZoom);
   } else if (isViewportMercator(viewport)) {
     const viewportBounds = getViewportBounds(viewport);
-    const viewportZoom = Math.floor(viewport.zoom + zoomOffset);
-    positions = generateGrid(viewportBounds, viewportZoom);
+    const gridZoom = Math.floor(getViewportZoom(viewport) + zoomOffset);
+    positions = generateGrid(viewportBounds, gridZoom);
   } else {
     throw new Error('Invalid state');
   }

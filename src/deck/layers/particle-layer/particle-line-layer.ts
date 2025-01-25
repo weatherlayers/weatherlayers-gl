@@ -8,7 +8,7 @@ import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../../client/_utils/image-type.js';
 import type {ImageUnscale} from '../../../client/_utils/image-unscale.js';
-import {isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds} from '../../_utils/viewport.js';
+import {isViewportGlobe, isViewportMercator, isViewportInZoomBounds, getViewportGlobeCenter, getViewportGlobeRadius, getViewportBounds, getViewportZoom} from '../../_utils/viewport.js';
 import {parsePalette} from '../../../client/_utils/palette.js';
 import type {Palette} from '../../../client/_utils/palette.js';
 import {createPaletteTexture} from '../../_utils/palette-texture.js';
@@ -311,10 +311,10 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     const viewportGlobeCenter = isViewportGlobe(viewport) ? getViewportGlobeCenter(viewport) : undefined;
     const viewportGlobeRadius = isViewportGlobe(viewport) ? getViewportGlobeRadius(viewport) : undefined;
     const viewportBounds = isViewportMercator(viewport) ? getViewportBounds(viewport) : undefined;
-    const viewportZoomChangeFactor = 2 ** ((typeof previousViewportZoom === 'number' ? previousViewportZoom - viewport.zoom : 0) * 4);
+    const viewportZoomChangeFactor = 2 ** ((typeof previousViewportZoom === 'number' ? previousViewportZoom - getViewportZoom(viewport) : 0) * 4);
 
     // speed factor for current zoom level
-    const currentSpeedFactor = speedFactor / 2 ** (viewport.zoom + 7);
+    const currentSpeedFactor = speedFactor / 2 ** (getViewportZoom(viewport) + 7);
 
     // update particle positions and colors age0
     transform.model.shaderInputs.setProps({
@@ -374,7 +374,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     // console.log(new Float32Array(sourcePositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), new Float32Array(targetPositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), sourceColors.readSyncWebGL().slice(0, 4 * 4 * 1));
 
-    this.state.previousViewportZoom = viewport.zoom;
+    this.state.previousViewportZoom = getViewportZoom(viewport);
     this.state.previousTime = time;
   }
 
