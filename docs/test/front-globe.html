@@ -134,8 +134,8 @@
                 });
               },
               parameters: {
-                cull: true,
-                depthTest: false,
+                cullMode: 'back', // enable culling to avoid rendering on both sides of the globe
+                depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
               },
             }),
             new WeatherLayers.RasterLayer({

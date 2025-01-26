@@ -130,6 +130,11 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           iconAtlas: iconAtlasTexture,
           iconMapping: iconStyle.iconMapping,
           billboard: false,
+          parameters: {
+            cullMode: 'front', // enable culling to avoid rendering on both sides of the globe; front-face culling because it seems deck.gl uses a wrong winding order and setting frontFace: 'cw' throws "GL_INVALID_ENUM: Enum 0x0000 is currently not supported."
+            depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
+            ...this.props.parameters,
+          },
         } satisfies IconLayerProps<GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>>)),
       ];
     } else {
@@ -147,6 +152,11 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           fontFamily: textFontFamily,
           fontSettings: {sdf: true},
           billboard: false,
+          parameters: {
+            cullMode: 'front', // enable culling to avoid rendering on both sides of the globe; front-face culling because it seems deck.gl uses a wrong winding order and setting frontFace: 'cw' throws "GL_INVALID_ENUM: Enum 0x0000 is currently not supported."
+            depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
+            ...this.props.parameters,
+          },
         } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, RasterPointProperties>>)),
       ];
     }

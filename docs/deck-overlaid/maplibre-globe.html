@@ -233,9 +233,6 @@
               palette: config.highLow.palette ? palette : null,
               textOutlineWidth: config.highLow.textOutlineWidth,
               opacity: config.highLow.opacity,
-              parameters: {
-                cullMode: 'none',
-              },
             }),
             new WeatherLayers.GridLayer({
               id: 'grid',
@@ -264,9 +261,6 @@
               iconColor: cssToColor(config.grid.iconColor),
               palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,
-              parameters: {
-                cullMode: 'none',
-              },
             }),
             new WeatherLayers.ParticleLayer({
               id: 'particle',
@@ -291,9 +285,6 @@
               palette: config.particle.palette ? palette : null,
               opacity: config.particle.opacity,
               animate: config.particle.animate,
-              parameters: {
-                cullMode: 'none',
-              },
             }),
           ],
         });

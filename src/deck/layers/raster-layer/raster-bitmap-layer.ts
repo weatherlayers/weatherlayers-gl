@@ -112,18 +112,15 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
           paletteBounds,
         } satisfies PaletteModuleProps,
       });
+      
+      model.setParameters({
+        ...model.parameters,
+        cullMode: 'back', // enable culling to avoid rendering on both sides of the globe
+        depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
+        ...this.props.parameters,
+      });
 
       this.props.image = imageTexture;
-
-      // clear stencil buffer before bitmap rendering, because Maplibre uses stencil buffer
-      // TODO: remove once https://github.com/visgl/deck.gl/issues/9357 is resolved
-      const renderPass = device.beginRenderPass({
-        clearColor: false,
-        clearStencil: 0,
-      });
-      renderPass.end();
-      device.submit();
-
       super.draw(opts);
       this.props.image = null;
     }
