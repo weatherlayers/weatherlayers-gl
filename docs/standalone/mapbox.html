@@ -58,7 +58,7 @@
       let gui;
 
       // Mapbox
-      const map = new mapboxgl.Map({
+      const map = window.map = new mapboxgl.Map({
         container: 'mapbox',
         accessToken: MAPBOX_ACCESS_TOKEN,
         style: BASEMAP_VECTOR_STYLE_URL,

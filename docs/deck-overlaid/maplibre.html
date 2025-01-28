@@ -57,7 +57,7 @@
       let gui;
 
       // Mapbox
-      const map = new maplibregl.Map({
+      const map = window.map = new maplibregl.Map({
         container: 'maplibre',
         style: BASEMAP_VECTOR_STYLE_URL,
         center: [30, 10],
