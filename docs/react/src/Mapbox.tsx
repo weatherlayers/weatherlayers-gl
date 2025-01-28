@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Map, useControl } from 'react-map-gl';
+import { Map, useControl } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapView } from 'deck.gl';
 import type { DeckProps } from 'deck.gl';

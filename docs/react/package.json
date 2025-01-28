@@ -12,15 +12,14 @@
   "dependencies": {
     "@deck.gl/extensions": "^9.1.0",
     "@deck.gl/mapbox": "^9.1.0",
-    "@vis.gl/react-maplibre": "^1.0.0-alpha.4",
     "deck.gl": "^9.1.0",
     "mapbox-gl": "^3.9.3",
-    "maplibre-gl": "^5.0.1",
+    "maplibre-gl": "^5.1.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-fps-stats": "^0.3.1",
-    "react-map-gl": "^7.1.8",
+    "react-map-gl": "^8.0.0-alpha.2",
     "weatherlayers-gl": "^2025.1.0"
   },
   "devDependencies": {

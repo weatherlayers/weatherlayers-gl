@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Map, useControl } from '@vis.gl/react-maplibre';
+import { Map, useControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { _GlobeView as GlobeView } from 'deck.gl';
 import type { DeckProps } from 'deck.gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
-import { ClipExtension } from '@deck.gl/extensions';
 import { setLicense, offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
@@ -92,9 +91,6 @@ export default function Maplibre() {
             width: 2,
             opacity: 0.2,
             animate: true,
-            parameters: {
-              cullMode: 'none',
-            },
             beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
           }),
         ]}
