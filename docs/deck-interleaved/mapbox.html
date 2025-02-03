@@ -64,8 +64,8 @@
         center: [30, 10],
         zoom: 1,
       });
+      await new Promise(resolve => map.once('style.load', resolve));
       updateBasemapVectorStyle(map);
-      await new Promise(resolve => map.on('load', resolve));
 
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({

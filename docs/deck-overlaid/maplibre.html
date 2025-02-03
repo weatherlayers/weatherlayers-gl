@@ -78,8 +78,8 @@
         bearing: 0,
         */
       });
+      await new Promise(resolve => map.once('style.load', resolve));
       updateBasemapVectorStyle(map);
-      await new Promise(resolve => map.on('load', resolve));
       /*
       // screenshot, banner
       // hide borders

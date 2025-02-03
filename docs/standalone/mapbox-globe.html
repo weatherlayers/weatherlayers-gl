@@ -66,8 +66,8 @@
         zoom: 3,
         projection: 'globe',
       });
+      await new Promise(resolve => map.once('style.load', resolve));
       updateBasemapVectorStyle(map);
-      await new Promise(resolve => map.on('load', resolve));
 
       let rasterLayer;
       let contourLayer;

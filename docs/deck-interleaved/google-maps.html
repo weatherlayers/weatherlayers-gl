@@ -63,7 +63,7 @@
         backgroundColor: 'none',
         disableDefaultUI: true,
       });
-      await new Promise(resolve => map.addListener('tilesloaded', resolve));
+      await new Promise(resolve => google.maps.event.addListenerOnce(map, 'tilesloaded', resolve));
 
       // interleaved deck.gl
       const deckLayer = new deck.GoogleMapsOverlay({

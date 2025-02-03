@@ -10,7 +10,7 @@ import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
 import { WEATHER_LAYERS_ACCESS_TOKEN, MAPBOX_ACCESS_TOKEN } from '../../auth.js';
-import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID } from '../../basemap.js';
+import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID, updateBasemapVectorStyle } from '../../basemap.js';
 import LICENSE from '../../license.json';
 
 const DATASET = 'gfs/wind_10m_above_ground';
@@ -58,6 +58,7 @@ export default function Maplibre() {
         latitude: 10,
         zoom: 0,
       }}
+      onLoad={e => updateBasemapVectorStyle(e.target)}
     >
       <DeckGLOverlay
         interleaved

@@ -42,15 +42,13 @@ const FILL_LAYERS = [
 ];
 
 export function updateBasemapVectorStyle(map) {
-  map.on('style.load', () => {
-    for (let layer of TEXT_LAYERS) {
-      map.setPaintProperty(layer, 'text-color', '#ccc');
-    }
-    for (let layer of LINE_LAYERS) {
-      map.setPaintProperty(layer, 'line-color', '#222');
-    }
-    for (let layer of FILL_LAYERS) {
-      map.setPaintProperty(layer, 'fill-color', '#222');
-    }
-  });
+  for (let layer of TEXT_LAYERS) {
+    map.setPaintProperty(layer, 'text-color', '#ccc');
+  }
+  for (let layer of LINE_LAYERS) {
+    map.setPaintProperty(layer, 'line-color', '#222');
+  }
+  for (let layer of FILL_LAYERS) {
+    map.setPaintProperty(layer, 'fill-color', '#222');
+  }
 }

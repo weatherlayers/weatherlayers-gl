@@ -63,8 +63,8 @@
         center: [7, 46],
         zoom: 1.5,
       });
+      await new Promise(resolve => map.once('style.load', resolve));
       updateBasemapVectorStyle(map);
-      await new Promise(resolve => map.on('load', resolve));
       map.setProjection({ type: 'globe' });
 
       // interleaved deck.gl
