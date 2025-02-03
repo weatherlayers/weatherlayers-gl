@@ -19,7 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-fps-stats": "^0.3.1",
-    "react-map-gl": "^8.0.0-alpha.2",
+    "react-map-gl": "^8.0.0",
     "weatherlayers-gl": "^2025.1.0"
   },
   "devDependencies": {
