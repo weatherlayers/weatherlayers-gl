@@ -1,5 +1,5 @@
-import type {ImageType} from './image-type.js';
-import type {UnitDefinition} from './unit-definition.js';
+import type {ImageType} from '../deck/_utils/image-type.js';
+import type {UnitDefinition} from '../deck/_utils/unit-definition.js';
 
 export const StacProviderRole = {
   LICENSOR: 'licensor',

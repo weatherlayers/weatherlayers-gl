@@ -2,10 +2,10 @@
 import {expose, transfer} from 'comlink';
 import {getHighLowPointDataMain} from './high-low-point-worker-main.js';
 
-/** @typedef {import('../../../client/_utils/texture-data.js').TextureDataArray} TextureDataArray */
+/** @typedef {import('../../../deck/_utils/texture-data.js').TextureDataArray} TextureDataArray */
 /** @typedef {import('../../../deck/_utils/image-interpolation.js').ImageInterpolation} ImageInterpolation */
-/** @typedef {import('../../../client/_utils/image-type.js').ImageType} ImageType */
-/** @typedef {import('../../../client/_utils/image-unscale.js').ImageUnscale} ImageUnscale */
+/** @typedef {import('../../../deck/_utils/image-type.js').ImageType} ImageType */
+/** @typedef {import('../../../deck/_utils/image-unscale.js').ImageUnscale} ImageUnscale */
 
 expose({
   /**

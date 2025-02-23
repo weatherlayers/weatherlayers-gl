@@ -1,10 +1,10 @@
 import type {ImageProperties} from './image-properties.js';
 import {ImageInterpolation} from './image-interpolation.js';
-import {ImageType} from '../../client/_utils/image-type.js';
+import {ImageType} from './image-type.js';
 import {getProjectFunction} from './project.js';
 import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from './pixel-value.js';
 import {getPixelInterpolate, getImageDownscaleResolution} from './pixel.js';
-import type {FloatData} from '../../client/_utils/texture-data.js';
+import type {FloatData} from './texture-data.js';
 
 export interface RasterPointProperties {
   value: number;

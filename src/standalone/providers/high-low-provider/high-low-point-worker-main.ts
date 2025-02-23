@@ -1,6 +1,6 @@
 import {blur} from '../../../deck/_utils/blur.js';
 import {distance} from '../../../deck/_utils/geodesy.js';
-import type {FloatData} from '../../../client/_utils/texture-data.js';
+import type {FloatData} from '../../../deck/_utils/texture-data.js';
 import type {ImageProperties} from '../../../deck/_utils/image-properties.js';
 import {getRasterMagnitudeData} from '../../../deck/_utils/raster-data.js';
 import {getUnprojectFunction} from '../../../deck/_utils/project.js';

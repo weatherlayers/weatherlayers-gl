@@ -1,7 +1,7 @@
 import type {Texture} from '@luma.gl/core';
 import type {ShaderModule} from '@luma.gl/shadertools';
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
-import {ImageType} from '../../../client/_utils/image-type.js';
+import {ImageType} from '../../_utils/image-type.js';
 import {sourceCode, tokens} from './raster-module.glsl';
 
 export type RasterModuleProps = {

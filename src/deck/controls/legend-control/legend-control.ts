@@ -1,6 +1,6 @@
 import {formatValue, formatUnit} from '../../_utils/format.js';
-import type {UnitFormat} from '../../../client/_utils/unit-format.js';
-import {parsePalette, colorRampCanvas, type Palette} from '../../../client/_utils/palette.js';
+import type {UnitFormat} from '../../_utils/unit-format.js';
+import {parsePalette, colorRampCanvas, type Palette} from '../../_utils/palette.js';
 import {Control} from '../control.js';
 import './legend-control.css';
 

@@ -1,2 +1,2 @@
-export * from './_utils/index.js';
+export * from './_utils.js';
 export * from './client.js';

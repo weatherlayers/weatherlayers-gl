@@ -1,4 +1,4 @@
-import {DATETIME} from '../../../client/_utils/build.js';
+import {DATETIME} from '../../_utils/build.js';
 import {verifyLicense} from 'weatherlayers-license/src/license.js';
 import type {License} from 'weatherlayers-license/src/license.js';
 
