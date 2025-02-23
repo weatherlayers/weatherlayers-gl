@@ -29,7 +29,7 @@ function bundle(entrypoint, filename, format, options = {}) {
   }
 
   const bundleClient = filename.includes('client');
-  const bundleGl = filename.includes('deck') || filename.includes('standalone');
+  const bundleGl = filename.includes('deck');
   if (!bundleClient && !bundleGl) {
     throw new Error('Invalid state');
   }
@@ -70,7 +70,6 @@ function bundle(entrypoint, filename, format, options = {}) {
         ...Object.keys(pkg.dependencies),
         '@babel/runtime/helpers/defineProperty',
         'rollup-plugin-worker-factory/src/browser.js',
-        'leaflet-polylinedecorator/src/patternUtils.js',
       ] : []),
     ],
     plugins: [
@@ -125,8 +124,6 @@ export default commandLineArgs => {
   return [
     ['src/client/index.ts', 'dist/weatherlayers-client.js'],
     ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
-    // standalone build is resource hungry (8GB heap), needs to be disabled on Cloudbuild free instances
-    // ['src/standalone/index.ts', 'dist/weatherlayers-standalone.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch || commandLineArgs.format === 'cjs' ? [
       bundle(entrypoint, filename, 'cjs', { resolve: true }),

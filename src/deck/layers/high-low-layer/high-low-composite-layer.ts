@@ -15,8 +15,8 @@ import {randomString} from '../../_utils/random-string.js';
 import {isViewportInZoomBounds, getViewportPixelOffset, getViewportAngle} from '../../_utils/viewport.js';
 import {parsePalette, type Palette, type Scale} from '../../_utils/palette.js';
 import {paletteColorToGl} from '../../_utils/color.js';
-import {getHighLowPoints, HighLowType} from '../../../standalone/providers/high-low-provider/high-low-point.js';
-import type {HighLowPointProperties} from '../../../standalone/providers/high-low-provider/high-low-point.js';
+import {getHighLowPoints, HighLowType} from './high-low-point.js';
+import type {HighLowPointProperties} from './high-low-point.js';
 
 const HIGH_LOW_LABEL_COLLISION_GROUP = 'high-low-label';
 

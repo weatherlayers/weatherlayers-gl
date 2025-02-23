@@ -1,10 +1,10 @@
-import {TextureDataArray} from '../../../deck/_utils/texture-data.js';
-import type {ImageInterpolation} from '../../../deck/_utils/image-interpolation.js';
-import type {ImageType} from '../../../deck/_utils/image-type.js';
-import type {ImageUnscale} from '../../../deck/_utils/image-unscale.js';
+import {TextureDataArray} from '../../_utils/texture-data.js';
+import type {ImageInterpolation} from '../../_utils/image-interpolation.js';
+import type {ImageType} from '../../_utils/image-type.js';
+import type {ImageUnscale} from '../../_utils/image-unscale.js';
 
-export class ContourLineWorker {
-  getContourLineData(
+export class HighLowPointWorker {
+  getHighLowPointData(
     data: TextureDataArray,
     width: number,
     height: number,
@@ -19,6 +19,6 @@ export class ContourLineWorker {
     imageMinValue: number | null,
     imageMaxValue: number | null,
     bounds: GeoJSON.BBox,
-    interval: number
+    radius: number
   ): Float32Array;
 }
