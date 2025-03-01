@@ -288,30 +288,29 @@ export class Client {
     return {datetimes};
   }
 
-  async loadDatasetDataNow(dataset: string, config: ClientConfig = {}): Promise<DatasetData> {
-    const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
-    const data = await this.#loadDatasetDataStacItemDataNow(dataset, config);
-
-    return {
-      datetime: data.datetime,
-      referenceDatetime: data.referenceDatetime,
-      horizon: data.horizon,
-      image: data.image,
-      datetime2: null,
-      referenceDatetime2: null,
-      horizon2: null,
-      image2: null,
-      imageWeight: 0,
-      imageType: stacCollection['weatherLayers:imageType']!,
-      imageUnscale: data.image.data instanceof Uint8Array || data.image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale']! : null,
-      bounds: stacCollection.extent.spatial.bbox[0],
-    };
-  }
-
-  async loadDatasetData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
+  async loadDatasetData(dataset: string, datetime?: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
     const datetimeStep = config.datetimeStep ?? this.#config.datetimeStep ?? 1;
     const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
     const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+
+    if (!datetime) {
+      const data = await this.#loadDatasetDataStacItemDataNow(dataset, config);
+
+      return {
+        datetime: data.datetime,
+        referenceDatetime: data.referenceDatetime,
+        horizon: data.horizon,
+        image: data.image,
+        datetime2: null,
+        referenceDatetime2: null,
+        horizon2: null,
+        image2: null,
+        imageWeight: 0,
+        imageType: stacCollection['weatherLayers:imageType']!,
+        imageUnscale: data.image.data instanceof Uint8Array || data.image.data instanceof Uint8ClampedArray ? stacCollection['weatherLayers:imageUnscale']! : null,
+        bounds: stacCollection.extent.spatial.bbox[0],
+      };
+    }
 
     let stacItems = this.#datasetDataStacItemCache.has(dataset) ? Array.from(this.#datasetDataStacItemCache.get(dataset)!.values()) : [];
     let datetimes = stacItems.map(x => x.properties.datetime).sort();
