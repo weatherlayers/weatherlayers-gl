@@ -13,12 +13,14 @@
     "particle"
   ],
   "author": "WeatherLayers.com <info@weatherlayers.com>",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "(MPL-2.0 OR LicenseRef-LICENSE_TERMS_OF_USE.md)",
   "homepage": "https://weatherlayers.com/",
   "bugs": {
     "email": "support@weatherlayers.com"
   },
   "files": [
+    "LICENSE.md",
+    "LICENSE_TERMS_OF_USE.md",
     "dist/**/*.min.cjs",
     "dist/**/*.min.js",
     "dist/**/*.d.ts"

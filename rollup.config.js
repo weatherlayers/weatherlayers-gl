@@ -40,6 +40,7 @@ function bundle(entrypoint, filename, format, options = {}) {
     ...(bundleGl ? [`WeatherLayers GL ${pkg.version}`] : []),
     '',
     ...(bundleClient ? ['A valid access token is required to use the library. Contact support@weatherlayers.com for details.'] : []),
+    ...(bundleGl ? ['Package and source code is dual-licensed, the choice of license is MPL-2.0 or our License Terms of Use. Contact support@weatherlayers.com for details.'] : []),
     '',
     'Homepage - https://weatherlayers.com/',
     'Demo - https://demo.weatherlayers.com/',
