@@ -4,7 +4,6 @@ import type {Texture} from '@luma.gl/core';
 import type {TextureData} from '../../_utils/texture-data.js';
 import {createTextureCached, createEmptyTextureCached} from '../../_utils/texture.js';
 import {isRepeatBounds} from '../../shaderlib/bitmap-module/bitmap-module.js';
-import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
 import {RasterBitmapLayer} from './raster-bitmap-layer.js';
 import type {RasterBitmapLayerProps} from './raster-bitmap-layer.js';
 
@@ -26,7 +25,6 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
 };
 
-@withVerifyLicense('RasterLayer', defaultProps)
 export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_RasterLayerProps>> {
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;

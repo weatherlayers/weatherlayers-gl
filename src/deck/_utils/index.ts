@@ -1,6 +1,5 @@
 export {VERSION, DATETIME} from './build.js';
 export {setLibrary} from './library.js';
-export {setLicense} from './license.js';
 export * from './props.js';
 export * from './animation.js';
 export * from './format.js';

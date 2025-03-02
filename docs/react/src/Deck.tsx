@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import { DeckGL, MapView, TileLayer, BitmapLayer } from 'deck.gl';
 import { ClipExtension } from '@deck.gl/extensions';
-import { setLicense, offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
+import { offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
 import { WEATHER_LAYERS_ACCESS_TOKEN } from '../../auth.js';
 import { BASEMAP_RASTER_STYLE_URL } from '../../basemap.js';
-import LICENSE from '../../license.json';
 
 const DATASET = 'gfs/wind_10m_above_ground';
 const CURRENT_DATETIME = new Date().toISOString();
 
-setLicense(LICENSE);
 const client = new Client({
   accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
 });

@@ -4,7 +4,6 @@ import type {Texture} from '@luma.gl/core';
 import type {TextureData} from '../../_utils/texture-data.js';
 import {createTextureCached, createEmptyTextureCached} from '../../_utils/texture.js';
 import {isRepeatBounds} from '../../shaderlib/bitmap-module/bitmap-module.js';
-import {withVerifyLicense} from '../with-verify-license/with-verify-license.js';
 import {ContourBitmapLayer} from './contour-bitmap-layer.js';
 import type {ContourBitmapLayerProps} from './contour-bitmap-layer.js';
 
@@ -24,7 +23,6 @@ const defaultProps: DefaultProps<ContourLayerProps> = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 };
 
-@withVerifyLicense('ContourLayer', defaultProps)
 export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_ContourLayerProps>> {
   static layerName = 'ContourLayer';
   static defaultProps = defaultProps;

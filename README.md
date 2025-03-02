@@ -2,8 +2,6 @@
 
 Weather Visualization Layers and Controls for deck.gl
 
-A valid license file is required to use the library in production. Contact [support@weatherlayers.com](mailto:support@weatherlayers.com) for details.
-
 * [Homepage](https://weatherlayers.com/)
 * [Demo](https://demo.weatherlayers.com/)
 * [Docs](https://docs.weatherlayers.com/)

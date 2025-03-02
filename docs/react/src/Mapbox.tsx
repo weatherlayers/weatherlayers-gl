@@ -5,18 +5,16 @@ import { MapView } from 'deck.gl';
 import type { DeckProps } from 'deck.gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ClipExtension } from '@deck.gl/extensions';
-import { setLicense, offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
+import { offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
 import { WEATHER_LAYERS_ACCESS_TOKEN, MAPBOX_ACCESS_TOKEN } from '../../auth.js';
 import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID, updateBasemapVectorStyle } from '../../basemap.js';
-import LICENSE from '../../license.json';
 
 const DATASET = 'gfs/wind_10m_above_ground';
 const CURRENT_DATETIME = new Date().toISOString();
 
-setLicense(LICENSE);
 const client = new Client({
   accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
 });

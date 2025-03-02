@@ -48,9 +48,6 @@
     WeatherLayersClient.setLibrary('geotiff', GeoTIFF);
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const LICENSE = await (await fetch('../license.json')).json();
-      WeatherLayers.setLicense(LICENSE);
-      
       const datasets = await client.loadCatalog();
       const config = await initConfig({ datasets, deckgl: true });
       let gui;
