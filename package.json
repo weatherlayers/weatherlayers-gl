@@ -19,7 +19,6 @@
     "email": "support@weatherlayers.com"
   },
   "files": [
-    "LEGAL_NOTICES.md",
     "dist/**/*.min.cjs",
     "dist/**/*.min.js",
     "dist/**/*.d.ts"
@@ -47,8 +46,7 @@
     "build": "rimraf dist && NODE_OPTIONS=--max-old-space-size=8192 rollup -c",
     "dev": "NODE_OPTIONS=--max-old-space-size=8192 rollup -c -w",
     "test": "tsx --test src/**/*.test.ts",
-    "prepublishOnly": "./prepublish.sh",
-    "postpublish": "./postpublish.sh"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@mapbox/sphericalmercator": "^2.0.1",

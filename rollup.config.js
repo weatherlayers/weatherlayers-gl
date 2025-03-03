@@ -125,12 +125,12 @@ export default commandLineArgs => {
     ['src/deck/index.ts', 'dist/weatherlayers-deck.js'],
   ].map(([entrypoint, filename]) => [
     ...(!commandLineArgs.watch || commandLineArgs.format === 'cjs' ? [
-      bundle(entrypoint, filename, 'cjs', { resolve: true }),
-      bundle(entrypoint, filename, 'cjs', { resolve: true, minimize: true }),
+      bundle(entrypoint, filename, 'cjs'),
+      bundle(entrypoint, filename, 'cjs', { minimize: true }),
     ] : []),
     ...(!commandLineArgs.watch || commandLineArgs.format === 'es' ? [
-      bundle(entrypoint, filename, 'es', { resolve: true }),
-      bundle(entrypoint, filename, 'es', { resolve: true, minimize: true }),
+      bundle(entrypoint, filename, 'es'),
+      bundle(entrypoint, filename, 'es', { minimize: true }),
       {
         input: entrypoint,
         output: {
