@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { _GlobeView as GlobeView } from 'deck.gl';
 import type { DeckProps } from 'deck.gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
-import { offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
+import { RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
 import type { Dataset, DatasetData } from 'weatherlayers-gl/client';
 
@@ -12,7 +12,6 @@ import { WEATHER_LAYERS_ACCESS_TOKEN } from '../../auth.js';
 import { BASEMAP_VECTOR_STYLE_URL, BASEMAP_VECTOR_LAYER_BEFORE_ID, updateBasemapVectorStyle } from '../../basemap.js';
 
 const DATASET = 'gfs/wind_10m_above_ground';
-const CURRENT_DATETIME = new Date().toISOString();
 
 const client = new Client({
   accessToken: WEATHER_LAYERS_ACCESS_TOKEN,
@@ -31,9 +30,7 @@ export default function Maplibre() {
   useEffect(() => {
     const load = async () => {
       const dataset = await client.loadDataset(DATASET);
-      const {datetimes} = await client.loadDatasetSlice(DATASET, offsetDatetimeRange(CURRENT_DATETIME, 0, 24));
-      const datetime = datetimes[0];
-      const datasetData = await client.loadDatasetData(DATASET, datetime);
+      const datasetData = await client.loadDatasetData(DATASET);
 
       setDataset(dataset);
       setDatasetData(datasetData);
