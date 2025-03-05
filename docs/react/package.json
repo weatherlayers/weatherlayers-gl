@@ -14,7 +14,7 @@
     "@deck.gl/mapbox": "^9.1.4",
     "deck.gl": "^9.1.4",
     "mapbox-gl": "^3.10.0",
-    "maplibre-gl": "^5.1.1",
+    "maplibre-gl": "^5.2.0",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
