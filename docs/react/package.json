@@ -20,7 +20,7 @@
     "react-dom": "^19.0.0",
     "react-fps-stats": "^0.3.1",
     "react-map-gl": "^8.0.1",
-    "weatherlayers-gl": "^2025.1.0"
+    "weatherlayers-gl": "^2025.3.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.10",
@@ -36,6 +36,6 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.10",
     "typescript": "^5.8.2",
-    "vite": "^5.4.7"
+    "vite": "^6.2.0"
   }
 }
