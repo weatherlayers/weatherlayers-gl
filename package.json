@@ -28,16 +28,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/weatherlayers-deck.min.cjs",
-      "import": "./dist/weatherlayers-deck.min.js",
+      "types": "./dist/weatherlayers-deck.d.ts",
       "script": "./dist/weatherlayers-deck.umd.min.js",
-      "types": "./dist/weatherlayers-deck.d.ts"
+      "import": "./dist/weatherlayers-deck.min.js",
+      "require": "./dist/weatherlayers-deck.min.cjs"
     },
     "./client": {
-      "require": "./dist/weatherlayers-client.min.cjs",
-      "import": "./dist/weatherlayers-client.min.js",
+      "types": "./dist/weatherlayers-client.d.ts",
       "script": "./dist/weatherlayers-client.umd.min.js",
-      "types": "./dist/weatherlayers-client.d.ts"
+      "import": "./dist/weatherlayers-client.min.js",
+      "require": "./dist/weatherlayers-client.min.cjs"
     }
   },
   "main": "./dist/weatherlayers-deck.min.cjs",
