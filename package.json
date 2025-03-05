@@ -1,6 +1,6 @@
 {
   "name": "weatherlayers-gl",
-  "version": "2025.1.0",
+  "version": "2025.3.0-alpha.0",
   "description": "WeatherLayers GL - Weather Visualization Layers for deck.gl",
   "keywords": [
     "deck.gl",
