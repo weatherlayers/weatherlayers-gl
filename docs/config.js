@@ -28,6 +28,7 @@ const HIGH_LOW_LAYER_DATASET_CONFIG = {
 const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'gfs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'gfs/wind_gust_surface': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'gfs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfs/apparent_temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfswave/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
@@ -67,6 +68,7 @@ const GRID_LAYER_DATASET_CONFIG = {
 const PARTICLE_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
   'gfs/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'gfs/wind_gust_surface': { speedFactor: 3, width: 2 },
   'gfswave/waves': { speedFactor: 2, width: 5 },
   'gfswave/swell': { speedFactor: 2, width: 5 },
   'gfswave/swell2': { speedFactor: 2, width: 5 },
@@ -99,6 +101,7 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
 const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfs/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'gfs/wind_gust_surface': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfswave/waves': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfswave/swell': { directionType: WeatherLayers.DirectionType.INWARD },
   'gfswave/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
