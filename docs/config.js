@@ -43,6 +43,7 @@ const GRID_LAYER_DATASET_CONFIG = {
   'hrrr_alaska/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'ecmwf_ifs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_ifs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'ecmwf_ifs/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_ifs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'ecmwf_aifs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_aifs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
@@ -79,6 +80,7 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'hrrr_alaska/wind_80m_above_ground': { speedFactor: 3, width: 2 },
   'ecmwf_ifs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
   'ecmwf_ifs/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'ecmwf_ifs/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
   'ecmwf_aifs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
   'ecmwf_aifs/wind_100m_above_ground': { speedFactor: 3, width: 2 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
@@ -112,6 +114,7 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'hrrr_alaska/wind_80m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_ifs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_ifs/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'ecmwf_ifs/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_aifs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_aifs/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
