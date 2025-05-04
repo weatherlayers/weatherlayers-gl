@@ -113,11 +113,10 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
         'vs:#decl': (parentShaders.inject?.['vs:#decl'] || '') + `
           in float instanceOpacities;
           out float drop;
-          const vec4 DROP_COLOR = vec4(0);
-          const vec4 HIDE_COLOR = vec4(1, 0, 0, 0);
+          const float DROP_POSITION_Z = -1.;
         `,
         'vs:#main-start': (parentShaders.inject?.['vs:#main-start'] || '') + `
-          drop = float(instanceColors == DROP_COLOR || instanceColors == HIDE_COLOR);
+          drop = float(instanceSourcePositions.z == DROP_POSITION_Z || instanceTargetPositions.z == DROP_POSITION_Z);
         `,
         'vs:DECKGL_FILTER_COLOR': (parentShaders.inject?.['vs:DECKGL_FILTER_COLOR'] || '') + `
           color.a = color.a * instanceOpacities;

@@ -13,9 +13,8 @@ in vec4 sourceColor;
 out vec3 targetPosition;
 out vec4 targetColor;
 
-const vec2 DROP_POSITION = vec2(0);
-const vec4 DROP_COLOR = vec4(0);
-const vec4 HIDE_COLOR = vec4(1, 0, 0, 0);
+const float DROP_POSITION_Z = -1.;
+const vec4 HIDE_COLOR = vec4(0);
 
 const float _EARTH_RADIUS = 6370972.0; // meters
 
@@ -113,7 +112,7 @@ void main() {
     return;
   }
 
-  if (sourceColor == DROP_COLOR) {
+  if (sourcePosition.z == DROP_POSITION_Z) {
     // generate random position to prevent converging particles
     vec2 particleSeed = vec2(particleIndex * particle.seed / particle.numParticles);
     vec2 point = randPoint(particleSeed);
@@ -126,15 +125,17 @@ void main() {
 
   if (particle.viewportZoomChangeFactor > 1. && mod(particleIndex, particle.viewportZoomChangeFactor) >= 1.) {
     // drop when zooming out
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
+    targetPosition.xy = sourcePosition.xy;
+    targetPosition.z = DROP_POSITION_Z;
+    targetColor = HIDE_COLOR;
     return;
   }
 
   if (abs(mod(particleIndex, particle.maxAge + 2.) - mod(particle.time, particle.maxAge + 2.)) < 1.) {
     // drop by maxAge, +2 because only non-randomized pairs are rendered
-    targetPosition.xy = DROP_POSITION;
-    targetColor = DROP_COLOR;
+    targetPosition.xy = sourcePosition.xy;
+    targetPosition.z = DROP_POSITION_Z;
+    targetColor = HIDE_COLOR;
     return;
   }
 
