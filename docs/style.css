@@ -83,7 +83,7 @@ body.google-maps #bottom-right {
 }
 .tp-dfwv {
   width: 340px !important;
-  max-height: calc(100vh - 94.5px - 2 * 8px);
+  max-height: calc(100dvh - 94.5px - 2 * 8px);
   overflow-y: auto;
   -webkit-mask-image: linear-gradient(to bottom, black 99%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 99%, transparent 100%);
