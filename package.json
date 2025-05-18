@@ -58,7 +58,8 @@
     "geodesy-fn": "^1.1.0",
     "geokdbush": "^2.0.1",
     "icomesh": "^1.1.0",
-    "kdbush": "^4.0.2"
+    "kdbush": "^4.0.2",
+    "rollup-plugin-worker-factory": "^0.5.7"
   },
   "devDependencies": {
     "@babel/core": "^7.27.1",
@@ -94,7 +95,6 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-visualizer": "^5.14.0",
-    "rollup-plugin-worker-factory": "^0.5.7",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "webpack-glsl-minify": "^1.5.0"
