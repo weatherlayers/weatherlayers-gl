@@ -15,6 +15,10 @@ const defaultProps: DefaultProps<FrontLayerProps<any>> = {
 export class FrontLayer<DataT = any, ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_FrontLayerProps<DataT>>> {
   static layerName = 'FrontLayer';
   static defaultProps = defaultProps;
+  
+  declare state: CompositeLayer['state'] & {
+    props?: FrontLayerProps<DataT>;
+  };
 
   renderLayers(): LayersList {
     return [

@@ -147,7 +147,7 @@ void main() {
   }
 
   vec2 uv = getUV(sourcePosition.xy); // imageTexture is in COORDINATE_SYSTEM.LNGLAT, no coordinate conversion needed
-  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, uv);
+  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, bitmap2.isRepeatBounds, uv);
   if (!hasPixelValue(pixel, raster.imageUnscale)) {
     // drop nodata
     targetPosition.xy = sourcePosition.xy;

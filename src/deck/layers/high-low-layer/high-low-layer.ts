@@ -14,6 +14,10 @@ export type HighLowLayerProps = _HighLowLayerProps & LayerProps;
 export class HighLowLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_HighLowLayerProps>> {
   static layerName = 'HighLowLayer';
   static defaultProps = defaultProps;
+    
+  declare state: CompositeLayer['state'] & {
+    props?: HighLowLayerProps;
+  };
 
   renderLayers(): LayersList {
     const {props} = this.state;

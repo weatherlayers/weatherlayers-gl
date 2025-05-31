@@ -5,17 +5,11 @@ import {getProjectFunction} from './project.js';
 import {hasPixelValue, getPixelMagnitudeValue, getPixelDirectionValue} from './pixel-value.js';
 import {getPixelInterpolate, getImageDownscaleResolution} from './pixel.js';
 import type {FloatData} from './texture-data.js';
+import {isRepeatBounds, isPositionInBounds} from './bounds.js';
 
 export interface RasterPointProperties {
   value: number;
   direction?: number;
-}
-
-function isPositionInBounds(position: GeoJSON.Position, bounds: GeoJSON.BBox): boolean {
-  return (
-    (position[0] >= bounds[0] && position[0] <= bounds[2]) &&
-    (position[1] >= bounds[1] && position[1] <= bounds[3])
-  );
 }
 
 function createRasterPoint(position: GeoJSON.Position, properties: RasterPointProperties): GeoJSON.Feature<GeoJSON.Point, RasterPointProperties> {
@@ -30,6 +24,8 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
+  const isRepeatBoundsCache = isRepeatBounds(bounds);
+
   const rasterPoints = positions.map(position => {
     if (!isPositionInBounds(position, bounds)) {
       // drop position out of bounds
@@ -40,7 +36,7 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
 
     const uvX = point[0] / width;
     const uvY = point[1] / height;
-    const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+    const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, isRepeatBoundsCache, uvX, uvY);
 
     if (!hasPixelValue(pixel, imageUnscale)) {
       // drop nodata
@@ -67,7 +63,7 @@ export function getRasterPoints(imageProperties: ImageProperties, bounds: GeoJSO
   return {type: 'FeatureCollection', features: rasterPoints};
 }
 
-export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatData {
+export function getRasterMagnitudeData(imageProperties: ImageProperties, bounds: GeoJSON.BBox): FloatData {
   const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue} = imageProperties;
   const {width, height} = image;
 
@@ -82,6 +78,8 @@ export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatD
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
+  const isRepeatBoundsCache = isRepeatBounds(bounds);
+
   const magnitudeData = new Float32Array(width * height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -89,7 +87,7 @@ export function getRasterMagnitudeData(imageProperties: ImageProperties): FloatD
 
       const uvX = x / width;
       const uvY = y / height;
-      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, effectiveImageInterpolation, imageWeight, uvX, uvY);
+      const pixel = getPixelInterpolate(image, image2, imageDownscaleResolution, effectiveImageInterpolation, imageWeight, isRepeatBoundsCache, uvX, uvY);
 
       if (!hasPixelValue(pixel, imageUnscale)) {
         // drop nodata

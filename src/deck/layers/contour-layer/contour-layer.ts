@@ -3,7 +3,7 @@ import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck
 import type {Texture} from '@luma.gl/core';
 import type {TextureData} from '../../_utils/texture-data.js';
 import {createTextureCached, createEmptyTextureCached} from '../../_utils/texture.js';
-import {isRepeatBounds} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {isRepeatBounds} from '../../_utils/bounds.js';
 import {ContourBitmapLayer} from './contour-bitmap-layer.js';
 import type {ContourBitmapLayerProps} from './contour-bitmap-layer.js';
 
@@ -28,6 +28,7 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
   static defaultProps = defaultProps;
 
   declare state: CompositeLayer['state'] & {
+    props?: ContourLayerProps;
     imageTexture?: Texture;
     imageTexture2?: Texture;
   };
@@ -68,8 +69,8 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
       const {device} = this.context;
       const {image, image2} = this.props;
   
-      const imageTexture = image ? createTextureCached(device, image, isRepeatBounds(bounds)) : null;
-      const imageTexture2 = image2 ? createTextureCached(device, image2, isRepeatBounds(bounds)) : null;
+      const imageTexture = image ? createTextureCached(device, image, isRepeatBounds(bounds as GeoJSON.BBox)) : null;
+      const imageTexture2 = image2 ? createTextureCached(device, image2, isRepeatBounds(bounds as GeoJSON.BBox)) : null;
   
       this.setState({imageTexture, imageTexture2});
     }

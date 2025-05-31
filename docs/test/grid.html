@@ -81,18 +81,23 @@
 
       // config
       async function update(forceUpdateDatetime) {
-        const image = await WeatherLayers.loadTextureData('wind_data.png');
-        const imageType = WeatherLayers.ImageType.VECTOR;
-        const imageUnscale = [-128, 127];
+        const resolution = 30; // 1, 2, 3, 6, 9, 18, 30, 45, 90
+        const width = 360 / resolution;
+        const height = 180 / resolution + 1;
+        if (width % 2 !== 0) {
+          throw new Error('Width must be even number');
+        }
+        if (height % 2 === 0) {
+          throw new Error('Height must be odd number');
+        }
+        const data = new Array(width * height).fill(undefined).map((_, i) => i % 2 === (width % 2 ? 0 : Math.floor(i / width) % 2));
+        const image = {data: new Float32Array(data), width, height};
+        const imageInterpolation = WeatherLayers.ImageInterpolation.NEAREST;
+        const imageType = WeatherLayers.ImageType.SCALAR;
         const bounds = [-180, -90, 180, 90];
-        const unitFormat = { unit: 'm/s' };
         const palette = [
-          [0, [255, 255, 255]],
-          [5, [127, 255, 255]],
-          [10, [127, 255, 127]],
-          [15, [255, 255, 127]],
-          [20, [255, 127, 127]],
-          [25, [127, 0, 0]],
+          [0, [255, 0, 0]],
+          [1, [0, 255, 0]],
         ];
 
         deckgl.setProps({
@@ -116,12 +121,8 @@
               id: 'raster',
               // data properties
               image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
+              imageInterpolation,
               imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.raster.enabled,
@@ -132,100 +133,23 @@
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
             }),
-            new WeatherLayers.ContourLayer({
-              id: 'contour',
-              // data properties
-              image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
-              bounds,
-              // style properties
-              visible: config.contour.enabled,
-              interval: config.contour.interval,
-              majorInterval: config.contour.majorInterval,
-              width: config.contour.width,
-              color: cssToColor(config.contour.color),
-              palette: config.contour.palette ? palette : null,
-              opacity: config.contour.opacity,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-181, -85.051129, 181, 85.051129],
-            }),
-            new WeatherLayers.HighLowLayer({
-              id: 'highLow',
-              // data properties
-              image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
-              bounds,
-              // style properties
-              visible: config.highLow.enabled && !timelineControl.running,
-              unitFormat,
-              radius: config.highLow.radius,
-              textSize: config.highLow.textSize,
-              textColor: cssToColor(config.highLow.textColor),
-              textOutlineWidth: config.highLow.textOutlineWidth,
-              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
-              palette: config.highLow.palette ? palette : null,
-              opacity: config.highLow.opacity,
-            }),
             new WeatherLayers.GridLayer({
               id: 'grid',
               // data properties
               image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
+              imageInterpolation,
               imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
               bounds,
               // style properties
               visible: config.grid.enabled,
-              style: config.grid.style,
-              density: config.grid.density,
-              unitFormat,
-              textSize: config.grid.textSize,
-              textColor: cssToColor(config.grid.textColor),
-              textOutlineWidth: config.grid.textOutlineWidth,
-              textOutlineColor: cssToColor(config.grid.textOutlineColor),
-              iconBounds: config.grid.iconBounds,
-              iconSize: config.grid.style === WeatherLayers.GridStyle.ARROW ? [config.grid.iconSize / 8, config.grid.iconSize] : config.grid.iconSize,
-              iconColor: cssToColor(config.grid.iconColor),
-              palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,
             }),
-            new WeatherLayers.ParticleLayer({
-              id: 'particle',
-              // data properties
-              image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
-              bounds,
-              // style properties
-              visible: config.particle.enabled,
-              numParticles: config.particle.numParticles,
-              maxAge: config.particle.maxAge,
-              speedFactor: config.particle.speedFactor,
-              width: config.particle.width,
-              color: cssToColor(config.particle.color),
-              palette: config.particle.palette ? palette : null,
-              opacity: config.particle.opacity,
-              animate: config.particle.animate,
-              extensions: [new deck.ClipExtension()],
-              clipBounds: [-181, -85.051129, 181, 85.051129],
-              getPolygonOffset: () => [0, -1000],
+            new deck.ScatterplotLayer({
+              data: [[0, 0]],
+              getPosition: d => d.position,
+              getRadius: 4,
+              getFillColor: [255, 0, 0],
+              radiusUnits: 'pixels',
             }),
           ],
         });

@@ -1,5 +1,6 @@
 uniform bitmap2Uniforms {
   vec4 bounds;
+  bool isRepeatBounds;
   float coordinateConversion;
   vec4 transparentColor;
 } bitmap2;

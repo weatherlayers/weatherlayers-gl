@@ -1,4 +1,4 @@
-import {frac, add, dot, mul, mix} from './glsl.js';
+import {frac, add, dot, mul, mixOne, mix} from './glsl.js';
 import {ImageInterpolation} from './image-interpolation.js';
 import type {TextureData} from './texture-data.js';
 
@@ -96,11 +96,14 @@ function getPixelFilter(image: TextureData, imageDownscaleResolution: ImageDowns
   }
 }
 
-export function getPixelInterpolate(image: TextureData, image2: TextureData | null, imageDownscaleResolution: ImageDownscaleResolution, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
+export function getPixelInterpolate(image: TextureData, image2: TextureData | null, imageDownscaleResolution: ImageDownscaleResolution, imageInterpolation: ImageInterpolation, imageWeight: number, isRepeatBounds: boolean, uvX: number, uvY: number): number[] {
   // offset
   // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
-  const uvWithOffsetX = uvX + 0.5 / imageDownscaleResolution[0];
-  const uvWithOffsetY = uvY;
+  const uvWithOffsetX = isRepeatBounds ?
+    uvX + 0.5 / imageDownscaleResolution[0] :
+    mixOne(0 + 0.5 / imageDownscaleResolution[0], 1 - 0.5 / imageDownscaleResolution[0], uvX);
+  const uvWithOffsetY =
+    mixOne(0 + 0.5 / imageDownscaleResolution[1], 1 - 0.5 / imageDownscaleResolution[1], uvY);
 
   if (image2 && imageWeight > 0) {
     const pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffsetX, uvWithOffsetY);
@@ -116,11 +119,11 @@ export function getImageDownscaleResolution(width: number, height: number, image
   return [width / imageDownscaleResolutionFactor, height / imageDownscaleResolutionFactor];
 }
 
-export function getPixelSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, uvX: number, uvY: number): number[] {
+export function getPixelSmoothInterpolate(image: TextureData, image2: TextureData | null, imageSmoothing: number, imageInterpolation: ImageInterpolation, imageWeight: number, isRepeatBounds: boolean, uvX: number, uvY: number): number[] {
   const {width, height} = image;
 
   // smooth by downscaling resolution
   const imageDownscaleResolution = getImageDownscaleResolution(width, height, imageSmoothing);
 
-  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, uvX, uvY);
+  return getPixelInterpolate(image, image2, imageDownscaleResolution, imageInterpolation, imageWeight, isRepeatBounds, uvX, uvY);
 }

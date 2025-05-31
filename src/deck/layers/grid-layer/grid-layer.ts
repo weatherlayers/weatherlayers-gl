@@ -15,6 +15,10 @@ export type GridLayerProps = _GridLayerProps & LayerProps;
 export class GridLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_GridLayerProps>> {
   static layerName = 'GridLayer';
   static defaultProps = defaultProps;
+    
+  declare state: CompositeLayer['state'] & {
+    props?: GridLayerProps;
+  };
 
   renderLayers(): LayersList {
     const {props} = this.state;

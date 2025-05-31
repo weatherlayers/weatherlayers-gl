@@ -4,6 +4,7 @@ import type {CoordinateSystem} from '@deck.gl/core';
 import type {Color} from '@deck.gl/core';
 import type {BitmapBoundingBox} from '@deck.gl/layers';
 import {deckColorToGl} from '../../_utils/color.js';
+import {isRepeatBounds} from '../../_utils/bounds.js';
 import {sourceCode, tokens} from './bitmap-module.glsl';
 
 export type BitmapModuleProps = {
@@ -69,6 +70,7 @@ function getUniforms(props: Partial<BitmapModuleProps> = {}): BitmapModuleUnifor
 
   return {
     [tokens.bounds]: bounds,
+    [tokens.isRepeatBounds]: isRepeatBounds(bounds) ? 1 : 0,
     [tokens.coordinateConversion]: coordinateConversion,
     [tokens.transparentColor]: props.transparentColor ? deckColorToGl(props.transparentColor) : [0, 0, 0, 0],
   };
@@ -80,12 +82,9 @@ export const bitmapModule = {
   fs: sourceCode,
   uniformTypes: {
     [tokens.bounds]: 'vec4<f32>',
+    [tokens.isRepeatBounds]: 'f32',
     [tokens.coordinateConversion]: 'f32',
     [tokens.transparentColor]: 'vec4<f32>',
   },
   getUniforms,
 } as const satisfies ShaderModule<BitmapModuleProps, BitmapModuleUniforms>;
-
-export function isRepeatBounds(bounds: BitmapBoundingBox): boolean {
-  return isRectangularBounds(bounds) && bounds[2] - bounds[0] === 360;
-}

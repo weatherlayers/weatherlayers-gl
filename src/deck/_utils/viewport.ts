@@ -1,7 +1,7 @@
 import type {Viewport, WebMercatorViewport, _GlobeViewport as GlobeViewport, LayerExtension} from '@deck.gl/core';
 import {ClipExtension} from '@deck.gl/extensions';
 import {distance} from './geodesy.js';
-import {wrapBounds, clipBounds} from './bounds.js';
+import {MERCATOR_BOUNDS, wrapBounds, clipBounds, isPositionInBounds} from './bounds.js';
 
 export function isViewportGlobe(viewport: Viewport): viewport is GlobeViewport {
   return !!viewport.resolution;
@@ -73,4 +73,8 @@ export function getViewportClipExtensions(viewport: Viewport): LayerExtension[] 
 export function getViewportClipBounds(viewport: WebMercatorViewport, bounds: [number, number, number, number]): [number, number, number, number];
 export function getViewportClipBounds(viewport: Viewport, bounds: [number, number, number, number]): [number, number, number, number] | null {
   return isViewportMercator(viewport) ? clipBounds(bounds) : null;
+}
+
+export function getViewportPositions(viewport: Viewport, positions: GeoJSON.Position[]): GeoJSON.Position[] {
+  return !isViewportGlobe(viewport) ? positions.filter(position => isPositionInBounds(position, MERCATOR_BOUNDS)) : positions;
 }

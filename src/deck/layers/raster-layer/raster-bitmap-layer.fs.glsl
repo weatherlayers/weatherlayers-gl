@@ -15,7 +15,7 @@ out vec4 fragColor;
 void main(void) {
   vec2 uv = getUVWithCoordinateConversion(vTexCoord, vTexPos);
   
-  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, uv);
+  vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, bitmap2.isRepeatBounds, uv);
   if (!hasPixelValue(pixel, raster.imageUnscale)) {
     // drop nodata
     discard;

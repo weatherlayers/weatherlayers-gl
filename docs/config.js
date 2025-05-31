@@ -175,6 +175,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     raster: {
       enabled: false,
+      gridEnabled: false,
       opacity: 0.2,
     },
     contour: {
@@ -373,6 +374,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addBinding(config.raster, 'enabled').on('change', update);
+  raster.addBinding(config.raster, 'gridEnabled').on('change', update);
   // raster.addBinding(config.raster, 'palette').on('change', update);
   raster.addBinding(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 

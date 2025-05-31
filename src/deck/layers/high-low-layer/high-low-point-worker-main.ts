@@ -102,7 +102,7 @@ function getHighLowPointData(floatData: FloatData, bounds: GeoJSON.BBox, radius:
 }
 
 export function getHighLowPointDataMain(imageProperties: ImageProperties, bounds: GeoJSON.BBox, radius: number): Float32Array {
-  const magnitudeData = getRasterMagnitudeData(imageProperties);
+  const magnitudeData = getRasterMagnitudeData(imageProperties, bounds);
   const highLowPointData = getHighLowPointData(magnitudeData, bounds, radius);
   return highLowPointData;
 }
