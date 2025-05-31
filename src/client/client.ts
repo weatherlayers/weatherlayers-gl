@@ -136,7 +136,7 @@ export class Client {
   async #loadStacCatalog(config: ClientConfig = {}): Promise<StacCatalog> {
     const url = config.url ?? this.#config.url ?? DEFAULT_URL;
     const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog`, config);
-    const stacCatalog = await loadJson(authenticatedUrl, this.#cache) as StacCatalog;
+    const stacCatalog = await loadJson(authenticatedUrl, {cache: this.#cache}) as StacCatalog;
 
     return stacCatalog;
   }
@@ -149,7 +149,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(link.href, config);
-    const stacCollections = (await loadJson(authenticatedUrl, this.#cache) as StacCollections).collections;
+    const stacCollections = (await loadJson(authenticatedUrl, {cache: this.#cache}) as StacCollections).collections;
 
     // cache
     for (const stacCollection of stacCollections) {
@@ -180,7 +180,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.#config);
-    const palette = await loadJson(authenticatedUrl, this.#cache) as Palette;
+    const palette = await loadJson(authenticatedUrl, {cache: this.#cache}) as Palette;
 
     return palette;
   }
@@ -199,7 +199,7 @@ export class Client {
       url.searchParams.set('datetime_step', `${datetimeStep}`);
     }
     const authenticatedUrl = this.#getAuthenticatedUrl(url.toString(), config);
-    const stacItems = (await loadJson(authenticatedUrl, this.#cache) as StacItemCollection).features;
+    const stacItems = (await loadJson(authenticatedUrl, {cache: this.#cache}) as StacItemCollection).features;
 
     // cache
     for (const stacItem of stacItems) {
@@ -231,7 +231,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.#config);
-    const image = await loadTextureData(authenticatedUrl, this.#cache);
+    const image = await loadTextureData(authenticatedUrl, {cache: this.#cache});
     return {
       datetime: stacItem.properties['datetime'],
       referenceDatetime: stacItem.properties['forecast:reference_datetime']!,
@@ -248,7 +248,7 @@ export class Client {
     }
 
     const authenticatedUrl = this.#getAuthenticatedUrl(link.href, this.#config);
-    const stacItem = await loadJson(authenticatedUrl, this.#cache) as StacItem;
+    const stacItem = await loadJson(authenticatedUrl, {cache: this.#cache}) as StacItem;
 
     return await this.#loadStacItemData(stacItem, config);
   }

@@ -17,8 +17,16 @@ export interface FloatData {
   height: number;
 }
 
-export type LoadFunction<T> = (url: string) => Promise<T>;
-export type CachedLoadFunction<T> = (url: string, cache?: Map<string, T | Promise<T>> | false) => T | Promise<T>;
+export interface LoadOptions {
+  headers?: Record<string, string>;
+}
+
+export interface CachedLoadOptions<T> extends LoadOptions {
+  cache?: Map<string, T | Promise<T>> | false;
+}
+
+export type LoadFunction<T> = (url: string, options?: LoadOptions) => Promise<T>;
+export type CachedLoadFunction<T> = (url: string, options?: CachedLoadOptions<T>) => Promise<T>;
 
 const DEFAULT_CACHE = new Map<string, any>();
 
@@ -40,14 +48,39 @@ function maskData(data: TextureDataArray, nodata: number | null): TextureDataArr
   return maskedData;
 }
 
-async function loadImage(url: string): Promise<TextureData> {
+async function sha256(data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const dataArray = encoder.encode(data);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-256', dataArray);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+async function loadImage(url: string, options?: LoadOptions): Promise<TextureData> {
+  // if custom headers are provided, load the url as blob
+  let blobUrl: string | undefined;
+  if (options?.headers) {
+    const response = await fetch(url, {headers: options.headers});
+    if (!response.ok) {
+      throw new Error(`URL ${url} can't be loaded. Status: ${response.status}`);
+    }
+    const blob = await response.blob();
+    blobUrl = URL.createObjectURL(blob);
+  }
+
+  // otherwise, load the url as image, to allow for a lower CSP policy
   const image = new Image();
-  image.src = url;
+  image.src = blobUrl ?? url;
   image.crossOrigin = 'anonymous';
   try {
     await image.decode();
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, {cause: e});
+  } finally {
+    if (blobUrl) {
+      URL.revokeObjectURL(blobUrl);
+    }
   }
 
   const canvas = document.createElement('canvas');
@@ -62,13 +95,16 @@ async function loadImage(url: string): Promise<TextureData> {
   return textureData;
 }
 
-async function loadGeotiff(url: string): Promise<TextureData> {
+async function loadGeotiff(url: string, options?: LoadOptions): Promise<TextureData> {
   const GeoTIFF = await getLibrary('geotiff');
 
   let geotiff;
   try {
-    // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
-    geotiff = await GeoTIFF.fromUrl(url, {allowFullFile: true, blockSize: Number.MAX_SAFE_INTEGER});
+    geotiff = await GeoTIFF.fromUrl(url, {
+      allowFullFile: true,
+      blockSize: Number.MAX_SAFE_INTEGER, // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
+      fetch: (url: string, init?: RequestInit) => fetch(url, {...init, headers: {...init?.headers, ...options?.headers}}),
+    });
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
@@ -89,35 +125,42 @@ async function loadGeotiff(url: string): Promise<TextureData> {
 }
 
 function loadCached<T>(loadFunction: LoadFunction<T>): CachedLoadFunction<T> {
-  return (url, cache = DEFAULT_CACHE) => {
-    if (cache === false) {
+  return async (url: string, options?: CachedLoadOptions<T>) => {
+    if (options?.cache === false) {
       return loadFunction(url);
     }
 
-    const dataOrPromise = cache.get(url);
+    const cache = options?.cache ?? DEFAULT_CACHE;
+    const cacheKey = await sha256(url + JSON.stringify(options?.headers));
+    const dataOrPromise = cache.get(cacheKey);
     if (dataOrPromise) {
       return dataOrPromise;
     }
     
-    const dataPromise = loadFunction(url);
-    cache.set(url, dataPromise);
+    const optionsWithoutCache = {...options, cache: undefined};
+    const dataPromise = loadFunction(url, optionsWithoutCache);
+    cache.set(cacheKey, dataPromise);
     dataPromise.then(data => {
-      cache.set(url, data);
+      cache.set(cacheKey, data);
     });
     return dataPromise;
   };
 }
 
-export const loadTextureData = loadCached(url => {
+export const loadTextureData = loadCached(async (url: string, options?: LoadOptions) => {
   if (url.includes('.png') || url.includes('.webp') || url.includes('image/png') || url.includes('image/webp')) {
-    return loadImage(url);
+    return loadImage(url, options);
   } else if (url.includes('.tif') || url.includes('image/tif')) {
-    return loadGeotiff(url);
+    return loadGeotiff(url, options);
   } else {
     throw new Error('Unsupported data format');
   }
 });
 
-export const loadJson = loadCached(async url => {
-  return (await fetch(url)).json();
+export const loadJson = loadCached(async (url: string, options?: LoadOptions)  => {
+  const response = await fetch(url, {headers: options?.headers});
+  if (!response.ok) {
+    throw new Error(`URL ${url} can't be loaded. Status: ${response.status}`);
+  }
+  return response.json();
 });
