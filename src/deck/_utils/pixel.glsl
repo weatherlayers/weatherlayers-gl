@@ -73,8 +73,6 @@ vec4 getPixelFilter(sampler2D image, vec2 imageDownscaleResolution, float imageI
 vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleResolution, float imageInterpolation, float imageWeight, bool isRepeatBounds, vec2 uv) {
   // offset
   // test case: gfswave/significant_wave_height, Gibraltar (36, -5.5)
-  // vec2 uvWithOffset = vec2(uv.x + 0.5 / imageDownscaleResolution.x, uv.y);
-  // vec2 uvWithOffset = mix(0. + 0.5 / imageDownscaleResolution, 1. - 0.5 / imageDownscaleResolution, uv);
   vec2 uvWithOffset;
   uvWithOffset.x = isRepeatBounds ?
     uv.x + 0.5 / imageDownscaleResolution.x :
