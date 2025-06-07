@@ -71,9 +71,13 @@ async function loadImage(url: string, options?: LoadOptions): Promise<TextureDat
 
   // otherwise, load the url as image, to allow for a lower CSP policy
   const image = new Image();
-  image.src = blobUrl ?? url;
-  image.crossOrigin = 'anonymous';
   try {
+    await new Promise((resolve, reject) => {
+      image.addEventListener('load', resolve);
+      image.addEventListener('error', reject);
+      image.crossOrigin = 'anonymous';
+      image.src = blobUrl ?? url;
+    });
     await image.decode();
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, {cause: e});
