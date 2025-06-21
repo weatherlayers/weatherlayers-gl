@@ -16,9 +16,14 @@ const CONTOUR_LAYER_DATASET_CONFIG = {
   'ecmwf_ifs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'ecmwf_aifs/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'ecmwf_aifs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'meteofrance_arpege/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'meteofrance_arpege/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'meteofrance_arpege_eu/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'meteofrance_arpege_eu/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'meteofrance_arome/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'meteofrance_arome/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'meteofrance_arome_hd/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'meteofrance_arome_hd/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'cmems_sst/sea_surface_temperature': { interval: 2, majorInterval: 10 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
@@ -27,7 +32,10 @@ const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'hrrr_alaska/pressure_mean_sea_level': { radius: 2000 },
   'ecmwf_ifs/pressure_mean_sea_level': { radius: 2000 },
   'ecmwf_aifs/pressure_mean_sea_level': { radius: 2000 },
+  'meteofrance_arpege/pressure_mean_sea_level': { radius: 2000 },
+  'meteofrance_arpege_eu/pressure_mean_sea_level': { radius: 2000 },
   'meteofrance_arome/pressure_mean_sea_level': { radius: 2000 },
+  'meteofrance_arome_hd/pressure_mean_sea_level': { radius: 2000 },
 };
 const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
@@ -54,11 +62,21 @@ const GRID_LAYER_DATASET_CONFIG = {
   'ecmwf_aifs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_aifs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_aifs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'meteofrance_arpege/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'meteofrance_arpege_eu/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege_eu/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege_eu/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arpege_eu/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'meteofrance_arome/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arome/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'meteofrance_arome/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'meteofrance_arome/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'meteofrance_arome_hd/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'meteofrance_arome_hd/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'meteofrance_arome_hd/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'meteofrance_arome_hd/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_merged/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
@@ -99,10 +117,18 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'ecmwf_ifs/wind_gust_surface': { speedFactor: 3, width: 2 },
   'ecmwf_aifs/wind_10m_above_ground': { speedFactor: 3, width: 2 },
   'ecmwf_aifs/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege_eu/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege_eu/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arpege_eu/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
   'meteofrance_arome/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arome/wind_100m_above_ground': { speedFactor: 3, width: 2 },
   'meteofrance_arome/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
   'meteofrance_arome_hd/wind_10m_above_ground': { speedFactor: 3, width: 2 },
   'meteofrance_arome_hd/wind_100m_above_ground': { speedFactor: 3, width: 2 },
+  'meteofrance_arome_hd/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
@@ -141,10 +167,18 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'ecmwf_ifs/wind_gust_surface': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_aifs/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'ecmwf_aifs/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege_eu/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege_eu/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arpege_eu/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_arome/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arome/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_arome/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_arome_hd/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_arome_hd/wind_100m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'meteofrance_arome_hd/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
