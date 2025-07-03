@@ -6,47 +6,47 @@ export interface LogoControlConfig {}
 const CONTROL_CLASS = 'weatherlayers-logo-control';
 
 export class LogoControl extends Control<LogoControlConfig> {
-  #config: LogoControlConfig;
-  #container: HTMLElement | undefined = undefined;
+  private _config: LogoControlConfig;
+  private _container: HTMLElement | undefined = undefined;
 
   constructor(config: LogoControlConfig = {} as LogoControlConfig) {
     super();
-    this.#config = config;
+    this._config = config;
   }
 
   protected onAdd(): HTMLElement {
-    this.#container = document.createElement('div');
-    this.#container.classList.add(CONTROL_CLASS);
+    this._container = document.createElement('div');
+    this._container.classList.add(CONTROL_CLASS);
 
-    this.setConfig(this.#config);
+    this.setConfig(this._config);
 
-    return this.#container;
+    return this._container;
   }
 
   protected onRemove(): void {
-    if (this.#container && this.#container.parentNode) {
-      this.#container.parentNode.removeChild(this.#container);
-      this.#container = undefined;
+    if (this._container && this._container.parentNode) {
+      this._container.parentNode.removeChild(this._container);
+      this._container = undefined;
     }
   }
 
   getConfig(): LogoControlConfig {
-    return {...this.#config};
+    return {...this._config};
   }
 
   setConfig(config: LogoControlConfig): void {
-    if (!this.#container) {
+    if (!this._container) {
       return;
     }
 
-    this.#config = config;
+    this._config = config;
 
-    this.#container.innerHTML = '';
+    this._container.innerHTML = '';
   
     const a = document.createElement('a');
     a.href = 'https://weatherlayers.com';
     a.target = '_blank';
     a.ariaLabel = 'WeatherLayers';
-    this.#container.appendChild(a);
+    this._container.appendChild(a);
   }
 }

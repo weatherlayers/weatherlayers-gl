@@ -28,40 +28,40 @@ const HAS_VALUE_CLASS = 'has-value';
 const HAS_DIRECTION_CLASS = 'has-direction';
 
 export class TooltipControl extends Control<TooltipControlConfig> {
-  #config: TooltipControlConfig;
-  #container: HTMLElement | undefined = undefined;
-  #value: HTMLElement | undefined = undefined;
-  #direction: HTMLElement | undefined = undefined;
-  #directionIcon: HTMLElement | undefined = undefined;
-  #directionText: HTMLElement | undefined = undefined;
+  private _config: TooltipControlConfig;
+  private _container: HTMLElement | undefined = undefined;
+  private _value: HTMLElement | undefined = undefined;
+  private _direction: HTMLElement | undefined = undefined;
+  private _directionIcon: HTMLElement | undefined = undefined;
+  private _directionText: HTMLElement | undefined = undefined;
 
   constructor(config: TooltipControlConfig = {} as TooltipControlConfig) {
     super();
-    this.#config = config;
+    this._config = config;
   }
 
   protected onAdd(): HTMLElement {
-    this.#container = document.createElement('div');
-    this.#container.classList.add(CONTROL_CLASS);
+    this._container = document.createElement('div');
+    this._container.classList.add(CONTROL_CLASS);
 
-    this.setConfig(this.#config);
+    this.setConfig(this._config);
 
-    return this.#container;
+    return this._container;
   }
 
   protected onRemove(): void {
-    if (this.#container && this.#container.parentNode) {
-      this.#container.parentNode.removeChild(this.#container);
-      this.#container = undefined;
+    if (this._container && this._container.parentNode) {
+      this._container.parentNode.removeChild(this._container);
+      this._container = undefined;
     }
   }
 
   getConfig(): TooltipControlConfig {
-    return {...this.#config};
+    return {...this._config};
   }
 
   setConfig(config: TooltipControlConfig): void {
-    if (!this.#container) {
+    if (!this._container) {
       return;
     }
     
@@ -72,70 +72,70 @@ export class TooltipControl extends Control<TooltipControlConfig> {
 
     // prevent update if no config changed
     if (
-      this.#container.children.length > 0 &&
-      this.#config.directionType === config.directionType &&
-      this.#config.directionFormat === config.directionFormat &&
-      this.#config.unitFormat === config.unitFormat &&
-      this.#config.followCursor === config.followCursor &&
-      this.#config.followCursorOffset === config.followCursorOffset &&
-      this.#config.followCursorPlacement === config.followCursorPlacement
+      this._container.children.length > 0 &&
+      this._config.directionType === config.directionType &&
+      this._config.directionFormat === config.directionFormat &&
+      this._config.unitFormat === config.unitFormat &&
+      this._config.followCursor === config.followCursor &&
+      this._config.followCursorOffset === config.followCursorOffset &&
+      this._config.followCursorPlacement === config.followCursorPlacement
     ) {
       return;
     }
     
-    this.#config = config;
+    this._config = config;
 
-    this.#container.innerHTML = '';
+    this._container.innerHTML = '';
 
     const div = document.createElement('div');
-    this.#container.appendChild(div);
+    this._container.appendChild(div);
   
-    this.#value = document.createElement('span');
-    this.#value.classList.add(VALUE_CLASS);
-    div.appendChild(this.#value);
+    this._value = document.createElement('span');
+    this._value.classList.add(VALUE_CLASS);
+    div.appendChild(this._value);
 
-    this.#direction = document.createElement('span');
-    this.#direction.classList.add(DIRECTION_CLASS);
-    div.appendChild(this.#direction);
+    this._direction = document.createElement('span');
+    this._direction.classList.add(DIRECTION_CLASS);
+    div.appendChild(this._direction);
 
-    this.#directionIcon = document.createElement('span');
-    this.#directionIcon.classList.add(DIRECTION_ICON_CLASS);
-    this.#direction.appendChild(this.#directionIcon);
+    this._directionIcon = document.createElement('span');
+    this._directionIcon.classList.add(DIRECTION_ICON_CLASS);
+    this._direction.appendChild(this._directionIcon);
 
-    this.#directionText = document.createElement('span');
-    this.#directionText.classList.add(DIRECTION_TEXT_CLASS);
-    this.#direction.appendChild(this.#directionText);
+    this._directionText = document.createElement('span');
+    this._directionText.classList.add(DIRECTION_TEXT_CLASS);
+    this._direction.appendChild(this._directionText);
   }
 
   update(rasterPointProperties: RasterPointProperties | undefined): void {
-    if (!this.#container || !this.#value || !this.#directionIcon || !this.#directionText) {
+    if (!this._container || !this._value || !this._directionIcon || !this._directionText) {
       return;
     }
 
     const {value, direction} = rasterPointProperties ?? {};
 
-    this.#container.classList.toggle(FOLLOW_CURSOR_CLASS, this.#config.followCursor ?? false);
-    this.#container.setAttribute(FOLLOW_CURSOR_PLACEMENT_ATTRIBUTE, this.#config.followCursorPlacement ?? Placement.BOTTOM);
-    this.#container.classList.toggle(HAS_VALUE_CLASS, typeof value !== 'undefined');
-    this.#container.classList.toggle(HAS_DIRECTION_CLASS, typeof direction !== 'undefined');
+    this._container.classList.toggle(FOLLOW_CURSOR_CLASS, this._config.followCursor ?? false);
+    this._container.setAttribute(FOLLOW_CURSOR_PLACEMENT_ATTRIBUTE, this._config.followCursorPlacement ?? Placement.BOTTOM);
+    this._container.classList.toggle(HAS_VALUE_CLASS, typeof value !== 'undefined');
+    this._container.classList.toggle(HAS_DIRECTION_CLASS, typeof direction !== 'undefined');
 
     if (typeof value !== 'undefined') {
-      this.#value.innerHTML = formatValueWithUnit(value, this.#config.unitFormat);
+      this._value.innerHTML = formatValueWithUnit(value, this._config.unitFormat);
     } else {
-      this.#value.innerHTML = '';
+      this._value.innerHTML = '';
     }
 
     if (typeof direction !== 'undefined') {
-      this.#directionIcon.style.transform = `rotate(${(direction + 180) % 360}deg)`;
-      this.#directionText.innerHTML = formatDirection(direction, this.#config.directionType ?? DirectionType.INWARD, this.#config.directionFormat ?? DirectionFormat.VALUE);
+      this._directionIcon.style.transform = `rotate(${(direction + 180) % 360}deg)`;
+      this._directionText.innerHTML = formatDirection(direction, this._config.directionType ?? DirectionType.INWARD, this._config.directionFormat ?? DirectionFormat.VALUE);
     } else {
-      this.#directionIcon.style.transform = '';
-      this.#directionText.innerHTML = '';
+      this._directionIcon.style.transform = '';
+      this._directionText.innerHTML = '';
     }
   }
 
   updatePickingInfo(pickingInfo: PickingInfo & {raster?: RasterPointProperties}): void {
-    if (!this.#container || !this.#value || !this.#direction) {
+    if (!this._container || !this._value || !this._direction) {
       return;
     }
 
@@ -147,14 +147,14 @@ export class TooltipControl extends Control<TooltipControlConfig> {
     this.update(pickingInfo.raster);
     const hasDirection = typeof pickingInfo.raster?.direction !== 'undefined';
 
-    const div = this.#container.firstChild! as HTMLElement;
-    if (this.#config.followCursor) {
+    const div = this._container.firstChild! as HTMLElement;
+    if (this._config.followCursor) {
       const divBounds = div.getBoundingClientRect();
-      const valueBounds = this.#value.getBoundingClientRect();
+      const valueBounds = this._value.getBoundingClientRect();
 
       // update position
-      const followCursorOffset = this.#config.followCursorOffset ?? 16;
-      const followCursorPlacement = this.#config.followCursorPlacement ?? Placement.BOTTOM;
+      const followCursorOffset = this._config.followCursorOffset ?? 16;
+      const followCursorPlacement = this._config.followCursorPlacement ?? Placement.BOTTOM;
 
       let containerX = pickingInfo.x;
       let containerY = pickingInfo.y;
@@ -169,12 +169,12 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       } else {
         throw new Error(`Invalid placement ${followCursorPlacement}`);
       }
-      this.#container.style.left = `${containerX}px`;
-      this.#container.style.top = `${containerY}px`;
+      this._container.style.left = `${containerX}px`;
+      this._container.style.top = `${containerY}px`;
 
       if (followCursorPlacement === Placement.BOTTOM || followCursorPlacement === Placement.TOP) {
         const divPaddingLeft = parseFloat(window.getComputedStyle(div).paddingLeft);
-        const directionMarginLeft = parseFloat(window.getComputedStyle(this.#direction).marginLeft);
+        const directionMarginLeft = parseFloat(window.getComputedStyle(this._direction).marginLeft);
         const divX = -(divPaddingLeft + (hasDirection ? valueBounds.width + directionMarginLeft : valueBounds.width / 2));
         div.style.left = `${divX}px`;
       }
@@ -195,8 +195,8 @@ export class TooltipControl extends Control<TooltipControlConfig> {
       // hide on panning
       document.addEventListener('mousedown', () => this.update(undefined), {once: true});
     } else {
-      this.#container.style.left = '';
-      this.#container.style.top = '';
+      this._container.style.left = '';
+      this._container.style.top = '';
       div.style.left = '';
       div.style.top = '';
     }

@@ -92,7 +92,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     super.updateState(params);
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePalette();
+      this._updatePalette();
     }
   }
 
@@ -140,7 +140,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     }
   }
 
-  #updatePalette(): void {
+  private _updatePalette(): void {
     const {device} = this.context;
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {

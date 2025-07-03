@@ -134,7 +134,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   initializeState(): void {
     super.initializeState();
 
-    this.#setupTransformFeedback();
+    this._setupTransformFeedback();
 
     const attributeManager = this.getAttributeManager()!;
     attributeManager.remove(['instanceSourcePositions', 'instanceTargetPositions', 'instanceColors', 'instanceWidths']);
@@ -168,7 +168,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     super.updateState(params);
 
     if (imageType !== ImageType.VECTOR || !numParticles || !maxAge || !width) {
-      this.#deleteTransformFeedback();
+      this._deleteTransformFeedback();
       return;
     }
 
@@ -178,16 +178,16 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       maxAge !== params.oldProps.maxAge ||
       width !== params.oldProps.width
     ) {
-      this.#setupTransformFeedback();
+      this._setupTransformFeedback();
     }
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePalette();
+      this._updatePalette();
     }
   }
 
   finalizeState(context: LayerContext): void {
-    this.#deleteTransformFeedback();
+    this._deleteTransformFeedback();
 
     super.finalizeState(context);
   }
@@ -234,11 +234,11 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
   }
 
-  #setupTransformFeedback(): void {
+  private _setupTransformFeedback(): void {
     const {device} = this.context;
     const {initialized} = this.state;
     if (initialized) {
-      this.#deleteTransformFeedback();
+      this._deleteTransformFeedback();
     }
 
     const {numParticles, maxAge} = ensureDefaultProps(this.props, defaultProps);
@@ -294,7 +294,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     });
   }
 
-  #runTransformFeedback(): void {
+  private _runTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -376,7 +376,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     commandEncoder.finish();
     commandEncoder.destroy();
 
-    this.#swapTransformFeedback();
+    this._swapTransformFeedback();
 
     // console.log(new Float32Array(sourcePositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), new Float32Array(targetPositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), sourceColors.readSyncWebGL().slice(0, 4 * 4 * 1));
 
@@ -385,7 +385,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   }
 
   // see https://github.com/visgl/luma.gl/pull/1883
-  #swapTransformFeedback(): void {
+  private _swapTransformFeedback(): void {
     const {sourcePositions, targetPositions, sourceColors, targetColors, transform} = this.state;
     if (!sourcePositions || !targetPositions || !sourceColors || !targetColors || !transform) {
       return;
@@ -406,7 +406,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     });
   }
 
-  #resetTransformFeedback(): void {
+  private _resetTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -423,7 +423,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     targetColors.write(new Float32Array(numInstances * 4));
   }
 
-  #deleteTransformFeedback(): void {
+  private _deleteTransformFeedback(): void {
     const {initialized} = this.state;
     if (!initialized) {
       return;
@@ -452,7 +452,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     });
   }
 
-  #updatePalette(): void {
+  private _updatePalette(): void {
     const {device} = this.context;
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
@@ -467,13 +467,13 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   }
 
   step(): void {
-    this.#runTransformFeedback();
+    this._runTransformFeedback();
 
     this.setNeedsRedraw();
   }
 
   clear(): void {
-    this.#resetTransformFeedback();
+    this._resetTransformFeedback();
 
     this.setNeedsRedraw();
   }

@@ -193,14 +193,14 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
     }
 
     if (!this.state.iconStyle) {
-      this.#updateIconStyle();
+      this._updateIconStyle();
     }
 
     if (
       data !== params.oldProps.data ||
       getPath !== params.oldProps.getPath
     ) {
-      this.#updateFeatures();
+      this._updateFeatures();
     }
 
     if (
@@ -208,13 +208,13 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
       maxZoom !== params.oldProps.maxZoom ||
       params.changeFlags.viewportChanged
     ) {
-      this.#updateVisibleFeatures();
+      this._updateVisibleFeatures();
     }
 
     this.setState({props: params.props});
   }
 
-  async #updateIconStyle(): Promise<void> {
+  private async _updateIconStyle(): Promise<void> {
     const {device} = this.context;
 
     this.setState({iconStyle});
@@ -224,7 +224,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
     this.setState({iconAtlasTexture});
   }
 
-  #updateFeatures(): void {
+  private _updateFeatures(): void {
     const {data, getPath} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     if (!getPath) {
       return;
@@ -235,10 +235,10 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
 
     this.setState({frontLines, debugFrontPoints});
 
-    this.#updateVisibleFeatures();
+    this._updateVisibleFeatures();
   }
 
-  #updateVisibleFeatures(): void {
+  private _updateVisibleFeatures(): void {
     const {viewport} = this.context;
     const {minZoom, maxZoom} = ensureDefaultProps<FrontCompositeLayerProps<DataT>>(this.props, defaultProps);
     const {frontLines, debugFrontPoints} = this.state;

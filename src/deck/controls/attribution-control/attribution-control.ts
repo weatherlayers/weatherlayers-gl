@@ -8,36 +8,36 @@ export interface AttributionControlConfig {
 const CONTROL_CLASS = 'weatherlayers-attribution-control';
 
 export class AttributionControl extends Control<AttributionControlConfig> {
-  #config: AttributionControlConfig;
-  #container: HTMLElement | undefined = undefined;
+  private _config: AttributionControlConfig;
+  private _container: HTMLElement | undefined = undefined;
 
   constructor(config: AttributionControlConfig = {} as AttributionControlConfig) {
     super();
-    this.#config = config;
+    this._config = config;
   }
 
   protected onAdd(): HTMLElement {
-    this.#container = document.createElement('div');
-    this.#container.classList.add(CONTROL_CLASS);
+    this._container = document.createElement('div');
+    this._container.classList.add(CONTROL_CLASS);
 
-    this.setConfig(this.#config);
+    this.setConfig(this._config);
 
-    return this.#container;
+    return this._container;
   }
 
   protected onRemove(): void {
-    if (this.#container && this.#container.parentNode) {
-      this.#container.parentNode.removeChild(this.#container);
-      this.#container = undefined;
+    if (this._container && this._container.parentNode) {
+      this._container.parentNode.removeChild(this._container);
+      this._container = undefined;
     }
   }
 
   getConfig(): AttributionControlConfig {
-    return {...this.#config};
+    return {...this._config};
   }
 
   setConfig(config: AttributionControlConfig): void {
-    if (!this.#container) {
+    if (!this._container) {
       return;
     }
 
@@ -48,15 +48,15 @@ export class AttributionControl extends Control<AttributionControlConfig> {
 
     // prevent update if no config changed
     if (
-      this.#container.children.length > 0 &&
-      this.#config.attribution === config.attribution
+      this._container.children.length > 0 &&
+      this._config.attribution === config.attribution
     ) {
       return;
     }
 
-    this.#config = config;
-    const attribution = this.#config.attribution;
+    this._config = config;
+    const attribution = this._config.attribution;
 
-    this.#container.innerHTML = `<div>${attribution}</div>`;
+    this._container.innerHTML = `<div>${attribution}</div>`;
   }
 }

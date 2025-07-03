@@ -167,7 +167,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
   }
 
   initializeState(): void {
-    this.#updatePositions();
+    this._updatePositions();
   }
 
   updateState(params: UpdateParameters<this>): void {
@@ -187,14 +187,14 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       !this.state.iconStyle ||
       style !== params.oldProps.style
     ) {
-      this.#updateIconStyle();
+      this._updateIconStyle();
     }
 
     if (
       density !== params.oldProps.density ||
       params.changeFlags.viewportChanged
     ) {
-      this.#updatePositions();
+      this._updatePositions();
     }
 
     if (
@@ -209,7 +209,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       imageMaxValue !== params.oldProps.imageMaxValue ||
       visible !== params.oldProps.visible
     ) {
-      this.#updateFeatures();
+      this._updateFeatures();
     }
 
     if (
@@ -217,11 +217,11 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       maxZoom !== params.oldProps.maxZoom ||
       params.changeFlags.viewportChanged
     ) {
-      this.#updateVisibleFeatures();
+      this._updateVisibleFeatures();
     }
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePalette();
+      this._updatePalette();
     }
 
     if (
@@ -235,13 +235,13 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
       iconSize !== params.oldProps.iconSize ||
       iconColor !== params.oldProps.iconColor
     ) {
-      this.#redrawVisibleFeatures();
+      this._redrawVisibleFeatures();
     }
 
     this.setState({props: params.props});
   }
 
-  async #updateIconStyle(): Promise<void> {
+  private async _updateIconStyle(): Promise<void> {
     const {device} = this.context;
     const {style} = ensureDefaultProps(this.props, defaultProps);
 
@@ -261,7 +261,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     this.setState({iconAtlasTexture});
   }
 
-  #updatePositions(): void {
+  private _updatePositions(): void {
     const {viewport} = this.context;
     const {density} = ensureDefaultProps(this.props, defaultProps);
 
@@ -269,10 +269,10 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
     this.setState({positions});
 
-    this.#updateFeatures();
+    this._updateFeatures();
   }
 
-  #updateFeatures(): void {
+  private _updateFeatures(): void {
     const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds} = ensureDefaultProps(this.props, defaultProps);
     const {positions} = this.state;
     if (!image || !positions) {
@@ -284,10 +284,10 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
     this.setState({points});
 
-    this.#updateVisibleFeatures();
+    this._updateVisibleFeatures();
   }
 
-  #updateVisibleFeatures(): void {
+  private _updateVisibleFeatures(): void {
     const {viewport} = this.context;
     const {minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
     const {points} = this.state;
@@ -305,12 +305,12 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     this.setState({visiblePoints});
   }
 
-  #updatePalette(): void {
+  private _updatePalette(): void {
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
       this.setState({paletteScale: undefined});
 
-      this.#redrawVisibleFeatures();
+      this._redrawVisibleFeatures();
       return;
     }
 
@@ -318,10 +318,10 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
 
     this.setState({paletteScale});
 
-    this.#redrawVisibleFeatures();
+    this._redrawVisibleFeatures();
   }
 
-  #redrawVisibleFeatures(): void {
+  private _redrawVisibleFeatures(): void {
     this.setState({visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints});
   }
 }

@@ -195,7 +195,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       radius !== params.oldProps.radius ||
       visible !== params.oldProps.visible
     ) {
-      this.#updateFeatures();
+      this._updateFeatures();
     }
 
     if (
@@ -203,11 +203,11 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       maxZoom !== params.oldProps.maxZoom ||
       params.changeFlags.viewportChanged
     ) {
-      this.#updateVisibleFeatures();
+      this._updateVisibleFeatures();
     }
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePalette();
+      this._updatePalette();
     }
 
     if (
@@ -219,13 +219,13 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       textOutlineWidth !== params.oldProps.textOutlineWidth ||
       textOutlineColor !== params.oldProps.textOutlineColor
     ) {
-      this.#redrawVisibleFeatures();
+      this._redrawVisibleFeatures();
     }
 
     this.setState({props: params.props});
   }
 
-  async #updateFeatures(): Promise<void> {
+  private async _updateFeatures(): Promise<void> {
     const {image, image2, imageSmoothing, imageInterpolation, imageType, imageUnscale, imageMinValue, imageMaxValue, imageWeight, bounds, radius} = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;
@@ -248,10 +248,10 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
 
     this.setState({points, minValue, maxValue});
 
-    this.#updateVisibleFeatures();
+    this._updateVisibleFeatures();
   }
 
-  #updateVisibleFeatures(): void {
+  private _updateVisibleFeatures(): void {
     const {viewport} = this.context;
     const {minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
     const {points} = this.state;
@@ -269,12 +269,12 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     this.setState({visiblePoints});
   }
 
-  #updatePalette(): void {
+  private _updatePalette(): void {
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
       this.setState({paletteScale: undefined});
 
-      this.#redrawVisibleFeatures();
+      this._redrawVisibleFeatures();
       return;
     }
 
@@ -282,10 +282,10 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
 
     this.setState({paletteScale});
 
-    this.#redrawVisibleFeatures();
+    this._redrawVisibleFeatures();
   }
 
-  #redrawVisibleFeatures(): void {
+  private _redrawVisibleFeatures(): void {
     this.setState({visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints});
   }
 }

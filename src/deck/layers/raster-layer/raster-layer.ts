@@ -108,13 +108,13 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
       image !== params.oldProps.image ||
       gridEnabled !== params.oldProps.gridEnabled
     ) {
-      this.#updateFeatures();
+      this._updateFeatures();
     }
 
     this.setState({props: params.props});
   }
 
-  #updateFeatures(): void {
+  private _updateFeatures(): void {
     const {image, bounds, gridEnabled} = ensureDefaultProps(this.props, defaultProps);
     if (!image) {
       return;

@@ -81,7 +81,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     super.updateState(params);
 
     if (palette !== params.oldProps.palette) {
-      this.#updatePalette();
+      this._updatePalette();
     }
   }
 
@@ -126,7 +126,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     }
   }
 
-  #updatePalette(): void {
+  private _updatePalette(): void {
     const {device} = this.context;
     const {palette} = ensureDefaultProps(this.props, defaultProps);
     if (!palette) {
@@ -140,11 +140,11 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     this.setState({paletteTexture, paletteBounds});
   }
 
-  #getRasterMagnitudeValue(color: Uint8Array, paletteBounds: [number, number]): number {
+  private _getRasterMagnitudeValue(color: Uint8Array, paletteBounds: [number, number]): number {
     return paletteBounds[0] + color[0] / 255 * (paletteBounds[1] - paletteBounds[0]);
   }
 
-  #getRasterDirectionValue(color: Uint8Array): number {
+  private _getRasterDirectionValue(color: Uint8Array): number {
     const {imageType} = ensureDefaultProps(this.props, defaultProps);
     if (imageType === ImageType.VECTOR) {
       return color[1] / 255 * 360;
@@ -162,9 +162,9 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
     }
 
     let rasterPointProperties: RasterPointProperties;
-    const value = this.#getRasterMagnitudeValue(info.color, paletteBounds ?? [0, 0]);
+    const value = this._getRasterMagnitudeValue(info.color, paletteBounds ?? [0, 0]);
     if (imageType === ImageType.VECTOR) {
-      const direction = this.#getRasterDirectionValue(info.color);
+      const direction = this._getRasterDirectionValue(info.color);
       rasterPointProperties = {value, direction};
     } else {
       rasterPointProperties = {value};

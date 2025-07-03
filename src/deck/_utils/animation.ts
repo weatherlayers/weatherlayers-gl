@@ -6,32 +6,32 @@ export interface AnimationConfig {
 }
 
 export class Animation {
-  #config: AnimationConfig;
-  #running: boolean = false;
-  #raf: ReturnType<typeof window.requestAnimationFrame> | undefined = undefined;
-  #lastFrameTime: number = 0;
+  private _config: AnimationConfig;
+  private _running: boolean = false;
+  private _raf: ReturnType<typeof window.requestAnimationFrame> | undefined = undefined;
+  private _lastFrameTime: number = 0;
 
   constructor(config: AnimationConfig) {
-    this.#config = config;
+    this._config = config;
   }
 
   getConfig(): AnimationConfig {
-    return {...this.#config};
+    return {...this._config};
   }
 
   setConfig(config: AnimationConfig): void {
-    this.#config = config;
+    this._config = config;
   }
 
   updateConfig(config: Partial<AnimationConfig>): void {
-    this.setConfig({...this.#config, ...config});
+    this.setConfig({...this._config, ...config});
   }
 
   get running(): boolean {
-    return this.#running;
+    return this._running;
   }
 
-  toggle(running: boolean = !this.#running): void {
+  toggle(running: boolean = !this._running): void {
     if (running) {
       this.start();
     } else {
@@ -40,39 +40,39 @@ export class Animation {
   }
 
   start(): void {
-    if (this.#running) {
+    if (this._running) {
       return;
     }
 
-    this.#running = true;
-    this.#raf = window.requestAnimationFrame(() => this.step());
+    this._running = true;
+    this._raf = window.requestAnimationFrame(() => this.step());
   }
 
   stop(): void {
-    if (!this.#running) {
+    if (!this._running) {
       return;
     }
 
-    this.#running = false;
-    if (this.#raf) {
-      window.cancelAnimationFrame(this.#raf);
-      this.#raf = undefined;
+    this._running = false;
+    if (this._raf) {
+      window.cancelAnimationFrame(this._raf);
+      this._raf = undefined;
     }
   }
 
   step(): void {
-    const fps = this.#config.fps ?? DEFAULT_FPS;
+    const fps = this._config.fps ?? DEFAULT_FPS;
     const fpsInterval = 1000 / fps;
 
     const now = Date.now();
-    const elapsed = now - this.#lastFrameTime;
+    const elapsed = now - this._lastFrameTime;
     if (elapsed > fpsInterval) {
-      this.#lastFrameTime = now - (elapsed % fpsInterval);
-      this.#config.onUpdate();
+      this._lastFrameTime = now - (elapsed % fpsInterval);
+      this._config.onUpdate();
     }
 
-    if (this.#running) {
-      this.#raf = window.requestAnimationFrame(() => this.step());
+    if (this._running) {
+      this._raf = window.requestAnimationFrame(() => this.step());
     }
   }
 }

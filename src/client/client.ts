@@ -89,29 +89,29 @@ function serializeDatetimeISOStringRange(datetimeRange: DatetimeISOStringRange):
 }
 
 export class Client {
-  #config: ClientConfig;
-  #cache = new Map<string, any>();
-  #datasetStacCollectionCache = new Map<string, StacCollection>();
-  #datasetDataStacItemCache = new Map<string, Map<DatetimeISOString, StacItem>>();
+  private _config: ClientConfig;
+  private _cache = new Map<string, any>();
+  private _datasetStacCollectionCache = new Map<string, StacCollection>();
+  private _datasetDataStacItemCache = new Map<string, Map<DatetimeISOString, StacItem>>();
 
   constructor(config: ClientConfig) {
-    this.#config = config;
+    this._config = config;
   }
 
   getConfig(): ClientConfig {
-    return {...this.#config};
+    return {...this._config};
   }
 
   setConfig(config: ClientConfig): void {
-    this.#config = config;
+    this._config = config;
   }
 
   updateConfig(config: Partial<ClientConfig>): void {
-    this.setConfig({...this.#config, ...config});
+    this.setConfig({...this._config, ...config});
   }
 
-  #getAuthenticatedUrl(path: string, config: ClientConfig = {}): string {
-    const accessToken = config.accessToken ?? this.#config.accessToken ?? null;
+  private _getAuthenticatedUrl(path: string, config: ClientConfig = {}): string {
+    const accessToken = config.accessToken ?? this._config.accessToken ?? null;
     const url = new URL(path);
     if (!url.searchParams.has('access_token') && accessToken != null) {
       url.searchParams.set('access_token', accessToken);
@@ -122,71 +122,71 @@ export class Client {
     return url.toString();
   }
 
-  #cacheDatasetStacCollection(stacCollection: StacCollection): void {
-    this.#datasetStacCollectionCache.set(stacCollection.id, stacCollection);
+  private _cacheDatasetStacCollection(stacCollection: StacCollection): void {
+    this._datasetStacCollectionCache.set(stacCollection.id, stacCollection);
   }
 
-  #cacheDatasetDataStacItem(dataset: string, stacItem: StacItem): void {
-    if (!this.#datasetDataStacItemCache.has(dataset)) {
-      this.#datasetDataStacItemCache.set(dataset, new Map());
+  private _cacheDatasetDataStacItem(dataset: string, stacItem: StacItem): void {
+    if (!this._datasetDataStacItemCache.has(dataset)) {
+      this._datasetDataStacItemCache.set(dataset, new Map());
     }
-    this.#datasetDataStacItemCache.get(dataset)!.set(stacItem.properties.datetime, stacItem);
+    this._datasetDataStacItemCache.get(dataset)!.set(stacItem.properties.datetime, stacItem);
   }
 
-  async #loadStacCatalog(config: ClientConfig = {}): Promise<StacCatalog> {
-    const url = config.url ?? this.#config.url ?? DEFAULT_URL;
-    const authenticatedUrl = this.#getAuthenticatedUrl(`${url}/catalog`, config);
-    const stacCatalog = await loadJson(authenticatedUrl, {cache: this.#cache}) as StacCatalog;
+  private async _loadStacCatalog(config: ClientConfig = {}): Promise<StacCatalog> {
+    const url = config.url ?? this._config.url ?? DEFAULT_URL;
+    const authenticatedUrl = this._getAuthenticatedUrl(`${url}/catalog`, config);
+    const stacCatalog = await loadJson(authenticatedUrl, {cache: this._cache}) as StacCatalog;
 
     return stacCatalog;
   }
 
-  async #loadDatasetStacCollections(config: ClientConfig = {}): Promise<StacCollection[]> {
-    const stacCatalog = await this.#loadStacCatalog(config);
+  private async _loadDatasetStacCollections(config: ClientConfig = {}): Promise<StacCollection[]> {
+    const stacCatalog = await this._loadStacCatalog(config);
     const link = stacCatalog.links.find(x => x.rel === StacLinkRel.DATA);
     if (!link) {
       throw new Error('STAC Catalog data link not found');
     }
 
-    const authenticatedUrl = this.#getAuthenticatedUrl(link.href, config);
-    const stacCollections = (await loadJson(authenticatedUrl, {cache: this.#cache}) as StacCollections).collections;
+    const authenticatedUrl = this._getAuthenticatedUrl(link.href, config);
+    const stacCollections = (await loadJson(authenticatedUrl, {cache: this._cache}) as StacCollections).collections;
 
     // cache
     for (const stacCollection of stacCollections) {
-      this.#cacheDatasetStacCollection(stacCollection);
+      this._cacheDatasetStacCollection(stacCollection);
     }
 
     return stacCollections;
   }
 
-  async #loadDatasetStacCollection(dataset: string, config: ClientConfig = {}): Promise<StacCollection> {
-    await this.#loadDatasetStacCollections(config);
-    let stacCollection = this.#datasetStacCollectionCache.get(dataset);
+  private async _loadDatasetStacCollection(dataset: string, config: ClientConfig = {}): Promise<StacCollection> {
+    await this._loadDatasetStacCollections(config);
+    let stacCollection = this._datasetStacCollectionCache.get(dataset);
     if (!stacCollection) {
       throw new Error(`STAC Collection ${dataset} not found`);
     }
 
     // cache
-    this.#cacheDatasetStacCollection(stacCollection);
+    this._cacheDatasetStacCollection(stacCollection);
 
     return stacCollection;
   }
 
-  async #loadDatasetStacCollectionPalette(dataset: string, config: ClientConfig = {}): Promise<Palette> {
-    const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+  private async _loadDatasetStacCollectionPalette(dataset: string, config: ClientConfig = {}): Promise<Palette> {
+    const stacCollection = await this._loadDatasetStacCollection(dataset, config);
     const asset = Object.values(stacCollection.assets ?? {}).find(x => x.roles.includes(StacAssetRole.PALETTE) && x.type === 'application/json');
     if (!asset) {
       throw new Error(`STAC Collection ${dataset} palette asset not found`);
     }
 
-    const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.#config);
-    const palette = await loadJson(authenticatedUrl, {cache: this.#cache}) as Palette;
+    const authenticatedUrl = this._getAuthenticatedUrl(asset.href, this._config);
+    const palette = await loadJson(authenticatedUrl, {cache: this._cache}) as Palette;
 
     return palette;
   }
 
-  async #searchDatasetDataStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, datetimeStep: number, config: ClientConfig = {}): Promise<StacItem[]> {
-    const stacCatalog = await this.#loadStacCatalog(config);
+  private async _searchDatasetDataStacItems(dataset: string, datetimeRange: DatetimeISOStringRange, datetimeStep: number, config: ClientConfig = {}): Promise<StacItem[]> {
+    const stacCatalog = await this._loadStacCatalog(config);
     const link = stacCatalog.links.find(x => x.rel === StacLinkRel.SEARCH);
     if (!link) {
       throw new Error('STAC Catalog search link not found');
@@ -198,22 +198,22 @@ export class Client {
     if (typeof datetimeStep === 'number' && datetimeStep > 1) {
       url.searchParams.set('datetime_step', `${datetimeStep}`);
     }
-    const authenticatedUrl = this.#getAuthenticatedUrl(url.toString(), config);
-    const stacItems = (await loadJson(authenticatedUrl, {cache: this.#cache}) as StacItemCollection).features;
+    const authenticatedUrl = this._getAuthenticatedUrl(url.toString(), config);
+    const stacItems = (await loadJson(authenticatedUrl, {cache: this._cache}) as StacItemCollection).features;
 
     // cache
     for (const stacItem of stacItems) {
-      this.#cacheDatasetDataStacItem(dataset, stacItem);
+      this._cacheDatasetDataStacItem(dataset, stacItem);
     }
 
     return stacItems;
   }
 
-  async #loadDatasetDataStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
-    const datetimeStep = config.datetimeStep ?? this.#config.datetimeStep ?? 1;
-    let stacItem = this.#datasetDataStacItemCache.get(dataset)?.get(datetime);
+  private async _loadDatasetDataStacItem(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItem> {
+    const datetimeStep = config.datetimeStep ?? this._config.datetimeStep ?? 1;
+    let stacItem = this._datasetDataStacItemCache.get(dataset)?.get(datetime);
     if (!stacItem) {
-      const stacItems = await this.#searchDatasetDataStacItems(dataset, [datetime, datetime], datetimeStep, config);
+      const stacItems = await this._searchDatasetDataStacItems(dataset, [datetime, datetime], datetimeStep, config);
       stacItem = stacItems[0];
     }
     if (!stacItem) {
@@ -223,15 +223,15 @@ export class Client {
     return stacItem;
   }
 
-  async #loadStacItemData(stacItem: StacItem, config: ClientConfig = {}): Promise<StacItemData> {
-    const dataFormat = config.dataFormat ?? this.#config.dataFormat ?? DEFAULT_DATA_FORMAT;
+  private async _loadStacItemData(stacItem: StacItem, config: ClientConfig = {}): Promise<StacItemData> {
+    const dataFormat = config.dataFormat ?? this._config.dataFormat ?? DEFAULT_DATA_FORMAT;
     const asset = stacItem.assets[`data.${dataFormat}`];
     if (!asset) {
       throw new Error(`STAC Item data asset not found`);
     }
 
-    const authenticatedUrl = this.#getAuthenticatedUrl(asset.href, this.#config);
-    const image = await loadTextureData(authenticatedUrl, {cache: this.#cache});
+    const authenticatedUrl = this._getAuthenticatedUrl(asset.href, this._config);
+    const image = await loadTextureData(authenticatedUrl, {cache: this._cache});
     return {
       datetime: stacItem.properties['datetime'],
       referenceDatetime: stacItem.properties['forecast:reference_datetime']!,
@@ -240,35 +240,35 @@ export class Client {
     };
   }
 
-  async #loadDatasetDataStacItemDataNow(dataset: string, config: ClientConfig = {}): Promise<StacItemData> {
-    const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+  private async _loadDatasetDataStacItemDataNow(dataset: string, config: ClientConfig = {}): Promise<StacItemData> {
+    const stacCollection = await this._loadDatasetStacCollection(dataset, config);
     const link = stacCollection.links.find(x => x.rel === StacLinkRel.ITEM && x.datetime === NOW_DATETIME);
     if (!link) {
       throw new Error('STAC Collection now item link not found');
     }
 
-    const authenticatedUrl = this.#getAuthenticatedUrl(link.href, this.#config);
-    const stacItem = await loadJson(authenticatedUrl, {cache: this.#cache}) as StacItem;
+    const authenticatedUrl = this._getAuthenticatedUrl(link.href, this._config);
+    const stacItem = await loadJson(authenticatedUrl, {cache: this._cache}) as StacItem;
 
-    return await this.#loadStacItemData(stacItem, config);
+    return await this._loadStacItemData(stacItem, config);
   }
 
-  async #loadDatasetDataStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItemData> {
-    const stacItem = await this.#loadDatasetDataStacItem(dataset, datetime);
-    return await this.#loadStacItemData(stacItem, config);
+  private async _loadDatasetDataStacItemData(dataset: string, datetime: DatetimeISOString, config: ClientConfig = {}): Promise<StacItemData> {
+    const stacItem = await this._loadDatasetDataStacItem(dataset, datetime);
+    return await this._loadStacItemData(stacItem, config);
   }
 
   async loadCatalog(config: ClientConfig = {}): Promise<string[]> {
-    const stacCollections = await this.#loadDatasetStacCollections(config);
+    const stacCollections = await this._loadDatasetStacCollections(config);
     const datasetIds = stacCollections.map(stacCollection => stacCollection.id);
     return datasetIds;
   }
 
   async loadDataset(dataset: string, config: ClientConfig = {}): Promise<Dataset> {
-    const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+    const stacCollection = await this._loadDatasetStacCollection(dataset, config);
 
-    const unitSystem = config.unitSystem ?? this.#config.unitSystem ?? DEFAULT_UNIT_SYSTEM;
-    const attributionLinkClass = config.attributionLinkClass ?? this.#config.attributionLinkClass ?? DEFAULT_ATTRIBUTION_LINK_CLASS;
+    const unitSystem = config.unitSystem ?? this._config.unitSystem ?? DEFAULT_UNIT_SYSTEM;
+    const attributionLinkClass = config.attributionLinkClass ?? this._config.attributionLinkClass ?? DEFAULT_ATTRIBUTION_LINK_CLASS;
 
     return {
       title: stacCollection.title,
@@ -276,25 +276,25 @@ export class Client {
       attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
       datetimeRange: stacCollection.extent.temporal.interval[0],
       datetimes: stacCollection.links.filter(x => x.rel === StacLinkRel.ITEM).map(x => x.datetime).filter(x => !!x) as DatetimeISOString[],
-      palette: await this.#loadDatasetStacCollectionPalette(dataset),
+      palette: await this._loadDatasetStacCollectionPalette(dataset),
     };
   }
 
   async loadDatasetSlice(dataset: string, datetimeRange: DatetimeISOStringRange, config: ClientConfig = {}): Promise<DatasetSlice> {
-    const datetimeStep = config.datetimeStep ?? this.#config.datetimeStep ?? 1;
-    const stacItems = await this.#searchDatasetDataStacItems(dataset, datetimeRange, datetimeStep, config);
+    const datetimeStep = config.datetimeStep ?? this._config.datetimeStep ?? 1;
+    const stacItems = await this._searchDatasetDataStacItems(dataset, datetimeRange, datetimeStep, config);
     const datetimes = stacItems.map(x => x.properties.datetime);
 
     return {datetimes};
   }
 
   async loadDatasetData(dataset: string, datetime?: DatetimeISOString, config: ClientConfig = {}): Promise<DatasetData> {
-    const datetimeStep = config.datetimeStep ?? this.#config.datetimeStep ?? 1;
-    const datetimeInterpolate = config.datetimeInterpolate ?? this.#config.datetimeInterpolate ?? false;
-    const stacCollection = await this.#loadDatasetStacCollection(dataset, config);
+    const datetimeStep = config.datetimeStep ?? this._config.datetimeStep ?? 1;
+    const datetimeInterpolate = config.datetimeInterpolate ?? this._config.datetimeInterpolate ?? false;
+    const stacCollection = await this._loadDatasetStacCollection(dataset, config);
 
     if (!datetime) {
-      const data = await this.#loadDatasetDataStacItemDataNow(dataset, config);
+      const data = await this._loadDatasetDataStacItemDataNow(dataset, config);
 
       return {
         datetime: data.datetime,
@@ -312,10 +312,10 @@ export class Client {
       };
     }
 
-    let stacItems = this.#datasetDataStacItemCache.has(dataset) ? Array.from(this.#datasetDataStacItemCache.get(dataset)!.values()) : [];
+    let stacItems = this._datasetDataStacItemCache.has(dataset) ? Array.from(this._datasetDataStacItemCache.get(dataset)!.values()) : [];
     let datetimes = stacItems.map(x => x.properties.datetime).sort();
     if (!datetimes.length || datetimes[0] > datetime || datetimes[datetimes.length - 1] < datetime) {
-      stacItems = await this.#searchDatasetDataStacItems(dataset, [datetime, datetime], datetimeStep, config);
+      stacItems = await this._searchDatasetDataStacItems(dataset, [datetime, datetime], datetimeStep, config);
       datetimes = stacItems.map(x => x.properties.datetime).sort();
     }
     if (!datetimes.length) {
@@ -338,8 +338,8 @@ export class Client {
     }
 
     const [data, data2] = await Promise.all([
-      this.#loadDatasetDataStacItemData(dataset, startDatetime, config),
-      datetimeInterpolate && endDatetime ? this.#loadDatasetDataStacItemData(dataset, endDatetime, config) : null,
+      this._loadDatasetDataStacItemData(dataset, startDatetime, config),
+      datetimeInterpolate && endDatetime ? this._loadDatasetDataStacItemData(dataset, endDatetime, config) : null,
     ]);
 
     return {
