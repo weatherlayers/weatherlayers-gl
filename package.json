@@ -29,17 +29,15 @@
   "exports": {
     ".": {
       "types": "./dist/weatherlayers-deck.d.ts",
-      "browser": "./dist/weatherlayers-deck.umd.min.js",
+      "script": "./dist/weatherlayers-deck.umd.min.js",
       "import": "./dist/weatherlayers-deck.min.js",
-      "require": "./dist/weatherlayers-deck.min.cjs",
-      "default": "./dist/weatherlayers-deck.min.js"
+      "require": "./dist/weatherlayers-deck.min.cjs"
     },
     "./client": {
       "types": "./dist/weatherlayers-client.d.ts",
-      "browser": "./dist/weatherlayers-client.umd.min.js",
+      "script": "./dist/weatherlayers-client.umd.min.js",
       "import": "./dist/weatherlayers-client.min.js",
-      "require": "./dist/weatherlayers-client.min.cjs",
-      "default": "./dist/weatherlayers-client.min.js"
+      "require": "./dist/weatherlayers-client.min.cjs"
     }
   },
   "main": "./dist/weatherlayers-deck.min.cjs",
