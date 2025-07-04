@@ -172,5 +172,6 @@ void main() {
   targetPosition.x = wrapLongitude(targetPosition.x);
 
   // update color
+  targetColor = sourceColor; // dummy use so that sourceColor attribute is detected by shader layout introspection in WEBGLRenderPipeline
   targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
 }
