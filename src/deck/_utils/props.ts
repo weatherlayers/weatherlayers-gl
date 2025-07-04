@@ -23,10 +23,14 @@ export function ensureDefaultProps<PropsT extends {}>(props: PropsT, defaultProp
   for (const key in props) {
     if (props[key] === undefined && key in defaultProps) {
       const defaultProp = defaultProps[key] as any;
-      if (defaultProp && 'value' in defaultProp) {
-        propsInstance[key] = defaultProp.value;
-      } else {
-        propsInstance[key] = defaultProp;
+      if (defaultProp) {
+        if ('value' in defaultProp) {
+          if (defaultProp.value) {
+            propsInstance[key] = defaultProp.value;
+          }
+        } else {
+          propsInstance[key] = defaultProp;
+        }
       }
     }
   }
