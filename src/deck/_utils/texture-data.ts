@@ -49,15 +49,6 @@ function maskData(data: TextureDataArray, nodata: number | null): TextureDataArr
   return maskedData;
 }
 
-async function sha256(data: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const dataArray = encoder.encode(data);
-  const hashBuffer = await window.crypto.subtle.digest('SHA-256', dataArray);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
-
 const imageDecodeQueue = new Queue();
 
 async function loadImage(url: string, options?: LoadOptions): Promise<TextureData> {
@@ -146,7 +137,7 @@ function loadCached<T>(loadFunction: LoadFunction<T>): CachedLoadFunction<T> {
     }
 
     const cache = options?.cache ?? DEFAULT_CACHE;
-    const cacheKey = await sha256(url + JSON.stringify(options?.headers));
+    const cacheKey = url + (options?.headers ? ':' + JSON.stringify(options?.headers) : '');
     const dataOrPromise = cache.get(cacheKey);
     if (dataOrPromise) {
       return dataOrPromise;
