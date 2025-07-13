@@ -1,5 +1,6 @@
 import type {TypedArrayWithDimensions} from 'geotiff';
 import {getLibrary} from './library.js';
+import {Queue} from './queue.js';
 
 export type TextureDataArray = Uint8Array | Uint8ClampedArray | Float32Array;
 
@@ -57,6 +58,8 @@ async function sha256(data: string): Promise<string> {
   return hashHex;
 }
 
+const imageDecodeQueue = new Queue();
+
 async function loadImage(url: string, options?: LoadOptions): Promise<TextureData> {
   // if custom headers are provided, load the url as blob
   let blobUrl: string | undefined;
@@ -78,13 +81,21 @@ async function loadImage(url: string, options?: LoadOptions): Promise<TextureDat
       image.crossOrigin = 'anonymous';
       image.src = blobUrl ?? url;
     });
-    await image.decode();
   } catch (e) {
-    throw new Error(`Image ${url} can't be decoded.`, {cause: e});
+    throw new Error(`URL ${url} can't be loaded.`, {cause: e});
   } finally {
     if (blobUrl) {
       URL.revokeObjectURL(blobUrl);
     }
+  }
+
+  // decode images in a global queue to ensure only a single decode runs at a time
+  // fixes "Image can't be decoded" error by avoiding multiple parallel decodes to hit a memory limit
+  // see https://issues.chromium.org/issues/40676514
+  try {
+    await imageDecodeQueue.run(() => image.decode());
+  } catch (e) {
+    throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
 
   const canvas = document.createElement('canvas');
