@@ -1,4 +1,4 @@
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
 import image from '@rollup/plugin-image';
