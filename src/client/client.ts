@@ -57,7 +57,7 @@ interface StacItemData {
 }
 
 const DEFAULT_URL = CATALOG_URL;
-const DEFAULT_DATA_FORMAT = 'byte.png';
+const DEFAULT_DATA_FORMAT = 'byte.webp';
 const DEFAULT_UNIT_SYSTEM = UnitSystem.METRIC;
 const DEFAULT_ATTRIBUTION_LINK_CLASS = '';
 const NOW_DATETIME = '!now';
