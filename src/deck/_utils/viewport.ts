@@ -11,6 +11,7 @@ export function isViewportMercator(viewport: Viewport): viewport is WebMercatorV
   return !isViewportGlobe(viewport);
 }
 
+// use layerFilter instead, see https://github.com/visgl/deck.gl/issues/9409#issuecomment-2666820517
 export function isViewportInZoomBounds(viewport: Viewport, minZoom: number | null, maxZoom: number | null): boolean {
   if (minZoom != null && viewport.zoom < minZoom) {
     return false;
@@ -55,12 +56,12 @@ export function getViewportZoom(viewport: Viewport): number {
   return isViewportGlobe(viewport) ? Math.log2(viewport.scale) : viewport.zoom;
 }
 
-// TODO: report deck.gl bug
+// see https://github.com/visgl/deck.gl/issues/9592
 export function getViewportPixelOffset(viewport: Viewport, offset: number): number {
   return offset * (isViewportGlobe(viewport) ? -1 : 1);
 }
 
-// TODO: report deck.gl bug
+// see https://github.com/visgl/deck.gl/issues/9592
 export function getViewportAngle(viewport: Viewport, angle: number): number {
   return angle + (isViewportGlobe(viewport) ? 180 : 0);
 }
