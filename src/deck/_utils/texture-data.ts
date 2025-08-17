@@ -20,6 +20,7 @@ export interface FloatData {
 
 export interface LoadOptions {
   headers?: Record<string, string>;
+  signal?: AbortSignal;
 }
 
 export interface CachedLoadOptions<T> extends LoadOptions {
@@ -54,8 +55,8 @@ const imageDecodeQueue = new Queue();
 async function loadImage(url: string, options?: LoadOptions): Promise<TextureData> {
   // if custom headers are provided, load the url as blob
   let blobUrl: string | undefined;
-  if (options?.headers) {
-    const response = await fetch(url, {headers: options.headers});
+  if (options?.headers || options?.signal) {
+    const response = await fetch(url, {headers: options.headers, signal: options.signal});
     if (!response.ok) {
       throw new Error(`URL ${url} can't be loaded. Status: ${response.status}`);
     }
@@ -110,13 +111,13 @@ async function loadGeotiff(url: string, options?: LoadOptions): Promise<TextureD
       allowFullFile: true,
       blockSize: Number.MAX_SAFE_INTEGER, // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
       fetch: (url: string, init?: RequestInit) => fetch(url, {...init, headers: {...init?.headers, ...options?.headers}}),
-    });
+    }, options?.signal);
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
   const geotiffImage = await geotiff.getImage(0);
 
-  const sourceData = await geotiffImage.readRasters({interleave: true}) as TypedArrayWithDimensions;
+  const sourceData = await geotiffImage.readRasters({interleave: true, signal: options?.signal}) as TypedArrayWithDimensions;
   if (!(sourceData instanceof Uint8Array || sourceData instanceof Uint8ClampedArray || sourceData instanceof Float32Array)) {
     throw new Error('Unsupported data format');
   }
