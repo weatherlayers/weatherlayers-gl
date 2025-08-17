@@ -378,6 +378,7 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
 
     this._swapTransformFeedback();
 
+    // debug logging position buffer content
     // console.log(new Float32Array(sourcePositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), new Float32Array(targetPositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), sourceColors.readSyncWebGL().slice(0, 4 * 4 * 1));
 
     this.state.previousViewportZoom = getViewportZoom(viewport);
