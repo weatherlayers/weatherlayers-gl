@@ -29,6 +29,7 @@ export interface Dataset {
   title: string;
   unitFormat: UnitFormat;
   attribution: string;
+  bounds: [number, number, number, number];
   datetimeRange: OpenDatetimeISOStringRange;
   datetimes: DatetimeISOString[]; // deprecated, use `loadDatasetSlice` instead
   palette: Palette;
@@ -278,6 +279,7 @@ export class Client {
       title: stacCollection.title,
       unitFormat: getStacCollectionUnitFormat(stacCollection, unitSystem),
       attribution: getStacCollectionAttribution(stacCollection, attributionLinkClass),
+      bounds: stacCollection.extent.spatial.bbox[0],
       datetimeRange: stacCollection.extent.temporal.interval[0],
       datetimes: stacCollection.links.filter(x => x.rel === StacLinkRel.ITEM).map(x => x.datetime).filter(x => !!x) as DatetimeISOString[],
       palette: await this._loadDatasetStacCollectionPalette(dataset),
