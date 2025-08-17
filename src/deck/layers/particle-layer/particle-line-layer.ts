@@ -161,9 +161,14 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {imageType, numParticles, maxAge, width, palette} = params.props;
+    const {imageType, numParticles, maxAge, width, palette, visible} = params.props;
 
     super.updateState(params);
+
+    if (!visible) {
+      this._deleteTransformFeedback();
+      return;
+    }
 
     if (imageType !== ImageType.VECTOR || !numParticles || !maxAge || !width) {
       this._deleteTransformFeedback();
@@ -174,7 +179,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       imageType !== params.oldProps.imageType ||
       numParticles !== params.oldProps.numParticles ||
       maxAge !== params.oldProps.maxAge ||
-      width !== params.oldProps.width
+      width !== params.oldProps.width ||
+      visible !== params.oldProps.visible
     ) {
       this._setupTransformFeedback();
     }
