@@ -134,8 +134,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
   initializeState(): void {
     super.initializeState();
 
-    this._setupTransformFeedback();
-
     const attributeManager = this.getAttributeManager()!;
     attributeManager.remove(['instanceSourcePositions', 'instanceTargetPositions', 'instanceColors', 'instanceWidths']);
     attributeManager.addInstanced({

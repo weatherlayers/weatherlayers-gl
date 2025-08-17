@@ -166,10 +166,6 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
     return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
   }
 
-  initializeState(): void {
-    this._updatePositions();
-  }
-
   updateState(params: UpdateParameters<this>): void {
     const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, style, density, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, iconSize, iconColor, palette, visible} = params.props;
 
