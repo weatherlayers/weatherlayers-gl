@@ -33,6 +33,42 @@ void main(void) {
   vec4 targetColor = applyPalette(paletteTexture, palette.paletteBounds, palette.paletteColor, value);
   fragColor = apply_opacity(targetColor.rgb, targetColor.a * layer.opacity);
 
+  // render border at texture edges if enabled
+  if (bool(raster.borderEnabled)) {
+    // render border line
+    vec2 pixelSize = vec2(length(dFdx(uv)), length(dFdy(uv)));
+    vec2 borderWidth = raster.borderWidth / 2.0 * pixelSize;
+    if ((uv.x < borderWidth.x || uv.x > 1.0 - borderWidth.x) || (uv.y < borderWidth.y || uv.y > 1.0 - borderWidth.y)) {
+      fragColor = apply_opacity(raster.borderColor.rgb, raster.borderColor.a * layer.opacity * 2.);
+    }
+  }
+
+  // render grid at texel centers if enabled
+  if (bool(raster.gridEnabled)) {
+    // copied from getPixelSmoothInterpolate
+    float imageDownscaleResolutionFactor = 1. + max(0., raster.imageSmoothing);
+    vec2 imageDownscaleResolution = raster.imageResolution / imageDownscaleResolutionFactor;
+
+    // copied from getPixelInterpolate
+    vec2 uvWithOffset;
+    uvWithOffset.x = bitmap2.isRepeatBounds ?
+      uv.x + 0.5 / imageDownscaleResolution.x :
+      mix(0. + 0.5 / imageDownscaleResolution.x, 1. - 0.5 / imageDownscaleResolution.x, uv.x);
+    uvWithOffset.y =
+      mix(0. + 0.5 / imageDownscaleResolution.y, 1. - 0.5 / imageDownscaleResolution.y, uv.y);
+
+    // copied from getPixelLinear
+    vec2 tuv = uvWithOffset * imageDownscaleResolution - 0.5;
+    vec2 fuv = fract(tuv);
+
+    // render grid dot
+    vec2 pixelSize = vec2(length(dFdx(uv)), length(dFdy(uv)));
+    vec2 gridSize = raster.gridSize / 2.0 * pixelSize * raster.imageResolution;
+    if ((fuv.x < gridSize.x || fuv.x > 1.0 - gridSize.x) && (fuv.y < gridSize.y || fuv.y > 1.0 - gridSize.y)) {
+      fragColor = apply_opacity(raster.gridColor.rgb, raster.gridColor.a * layer.opacity * 2.);
+    }
+  }
+
   geometry.uv = uv;
   DECKGL_FILTER_COLOR(fragColor, geometry);
 

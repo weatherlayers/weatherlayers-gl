@@ -1,8 +1,8 @@
-import type {LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams} from '@deck.gl/core';
+import type {Color, LayerProps, DefaultProps, UpdateParameters, GetPickingInfoParams} from '@deck.gl/core';
 import {BitmapLayer} from '@deck.gl/layers';
 import type {BitmapLayerProps, BitmapBoundingBox, BitmapLayerPickingInfo} from '@deck.gl/layers';
 import type {Texture} from '@luma.gl/core';
-import {ensureDefaultProps} from '../../_utils/props.js';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../_utils/image-type.js';
 import type {ImageUnscale} from '../../_utils/image-unscale.js';
@@ -35,6 +35,12 @@ type _RasterBitmapLayerProps = BitmapLayerProps & {
   maxZoom: number | null;
 
   palette: Palette | null;
+  borderEnabled: boolean | null;
+  borderWidth: number | null;
+  borderColor: Color | null;
+  gridEnabled: boolean | null;
+  gridSize: number | null;
+  gridColor: Color | null;
 };
 
 export type RasterBitmapLayerProps = _RasterBitmapLayerProps & LayerProps;
@@ -54,6 +60,12 @@ const defaultProps: DefaultProps<RasterBitmapLayerProps> = {
   maxZoom: {type: 'object', value: null},
 
   palette: {type: 'object', value: null},
+  borderEnabled: {type: 'boolean', value: false},
+  borderWidth: {type: 'number', value: DEFAULT_LINE_WIDTH},
+  borderColor: {type: 'color', value: DEFAULT_LINE_COLOR},
+  gridEnabled: {type: 'boolean', value: false},
+  gridSize: {type: 'number', value: DEFAULT_LINE_WIDTH},
+  gridColor: {type: 'color', value: DEFAULT_LINE_COLOR},
 };
 
 export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_RasterBitmapLayerProps>> {
@@ -88,7 +100,7 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
   draw(opts: any): void {
     const {device, viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, borderEnabled, borderWidth, borderColor, gridEnabled, gridSize, gridColor} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
@@ -106,6 +118,8 @@ export class RasterBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<
           imageTexture: imageTexture ?? createEmptyTextureCached(device),
           imageTexture2: imageTexture2 ?? createEmptyTextureCached(device),
           imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue,
+          borderEnabled, borderWidth, borderColor,
+          gridEnabled, gridSize, gridColor,
         } satisfies RasterModuleProps,
         [paletteModule.name]: {
           paletteTexture: paletteTexture ?? createEmptyTextureCached(device),

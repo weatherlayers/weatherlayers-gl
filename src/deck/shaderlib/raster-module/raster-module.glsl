@@ -10,4 +10,10 @@ uniform rasterUniforms {
   vec2 imageUnscale;
   float imageMinValue;
   float imageMaxValue;
+  float borderEnabled;
+  float borderWidth;
+  vec4 borderColor;
+  float gridEnabled;
+  float gridSize;
+  vec4 gridColor;
 } raster;

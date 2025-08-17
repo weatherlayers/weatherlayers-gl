@@ -248,7 +248,12 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
 
     raster: {
       enabled: false,
+      borderEnabled: false,
+      borderWidth: 1,
+      borderColor: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       gridEnabled: false,
+      gridSize: 1,
+      gridColor: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       opacity: 0.2,
     },
     contour: {
@@ -447,8 +452,13 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
 
   const raster = gui.addFolder({ title: 'Raster layer', expanded: true });
   raster.addBinding(config.raster, 'enabled').on('change', update);
-  raster.addBinding(config.raster, 'gridEnabled').on('change', update);
   // raster.addBinding(config.raster, 'palette').on('change', update);
+  raster.addBinding(config.raster, 'borderEnabled').on('change', update);
+  raster.addBinding(config.raster, 'borderWidth', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+  raster.addBinding(config.raster, 'borderColor').on('change', update);
+  raster.addBinding(config.raster, 'gridEnabled').on('change', update);
+  raster.addBinding(config.raster, 'gridSize', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
+  raster.addBinding(config.raster, 'gridColor').on('change', update);
   raster.addBinding(config.raster, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const contour = gui.addFolder({ title: 'Contour layer', expanded: true });

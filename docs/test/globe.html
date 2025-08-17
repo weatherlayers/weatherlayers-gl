@@ -134,7 +134,12 @@
               // style properties
               visible: config.raster.enabled,
               palette,
+              borderEnabled: config.raster.borderEnabled,
+              borderWidth: config.raster.borderWidth,
+              borderColor: cssToColor(config.raster.borderColor),
               gridEnabled: config.raster.gridEnabled,
+              gridSize: config.raster.gridSize,
+              gridColor: cssToColor(config.raster.gridColor),
               opacity: config.raster.opacity,
               pickable: !isMetalWebGl2(),
             }),

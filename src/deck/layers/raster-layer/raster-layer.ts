@@ -1,9 +1,6 @@
 import {CompositeLayer, COORDINATE_SYSTEM} from '@deck.gl/core';
 import type {LayerProps, DefaultProps, UpdateParameters, LayersList} from '@deck.gl/core';
-import {ScatterplotLayer} from '@deck.gl/layers';
 import type {Texture} from '@luma.gl/core';
-import {ensureDefaultProps} from '../../_utils/props.js';
-import {getViewportPositions} from '../../_utils/viewport.js';
 import type {TextureData} from '../../_utils/texture-data.js';
 import {createTextureCached, createEmptyTextureCached} from '../../_utils/texture.js';
 import {isRepeatBounds} from '../../_utils/bounds.js';
@@ -14,7 +11,6 @@ type _RasterLayerProps = RasterBitmapLayerProps & {
   image: TextureData | null;
   image2: TextureData | null;
 
-  gridEnabled: boolean | null;
 };
 
 export type RasterLayerProps = _RasterLayerProps & LayerProps;
@@ -28,7 +24,6 @@ const defaultProps: DefaultProps<RasterLayerProps> = {
   image2: {type: 'object', value: null}, // object instead of image to allow reading raw data
 
   bounds: {type: 'array', value: [-180, -90, 180, 90], compare: true},
-  gridEnabled: {type: 'boolean', value: false},
 };
 
 export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<ExtraPropsT & Required<_RasterLayerProps>> {
@@ -49,25 +44,6 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
       return [];
     }
 
-    const {gridEnabled} = ensureDefaultProps(props, defaultProps);
-    let gridLayer;
-    if (gridEnabled) {
-      const {positions} = this.state;
-
-      gridLayer = new ScatterplotLayer({
-        data: positions,
-        getPosition: d => d,
-        getRadius: 1,
-        getFillColor: [255, 255, 255],
-        radiusUnits: 'pixels',
-        opacity: 0.2,
-        parameters: {
-          depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
-          ...this.props.parameters,
-        },
-      });
-    }
-
     return [
       new RasterBitmapLayer(this.props, this.getSubLayerProps({
         ...{
@@ -81,12 +57,11 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
         image: createEmptyTextureCached(device),
         image2: createEmptyTextureCached(device),
       })),
-      ...(gridLayer ? [gridLayer] : []),
     ];
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, image2, imageUnscale, bounds, gridEnabled} = params.props;
+    const {image, image2, imageUnscale, bounds} = params.props;
 
     super.updateState(params);
 
@@ -104,36 +79,6 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
       this.setState({imageTexture, imageTexture2});
     }
 
-    if (
-      image !== params.oldProps.image ||
-      gridEnabled !== params.oldProps.gridEnabled
-    ) {
-      this._updateFeatures();
-    }
-
     this.setState({props: params.props});
-  }
-
-  private _updateFeatures(): void {
-    const {image, bounds, gridEnabled} = ensureDefaultProps(this.props, defaultProps);
-    if (!image) {
-      return;
-    }
-
-    if (gridEnabled) {
-      const startPosition: GeoJSON.Position = [bounds[0] as number, bounds[1] as number];
-      const endPosition: GeoJSON.Position = [bounds[2] as number, bounds[3] as number];
-      const boundsWidth = endPosition[0] - startPosition[0];
-      const boundsHeight = endPosition[1] - startPosition[1];
-      const width = image.width;
-      const height = image.height;
-      const deltaWidth = boundsWidth / (width - (isRepeatBounds(bounds as GeoJSON.BBox) ? 0 : 1));
-      const deltaHeight = boundsHeight / (height - 1);
-      const positions = new Array(width * height).fill(undefined)
-        .map((_, i) => [startPosition[0] + (i % width) * deltaWidth, startPosition[1] + Math.floor(i / width) * deltaHeight]);
-      const viewportPositions = getViewportPositions(this.context.viewport, positions);
-  
-      this.setState({positions: viewportPositions});
-    }
   }
 }
