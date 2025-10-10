@@ -7,7 +7,9 @@ export function createPaletteTexture(device: Device, paletteScale: Scale): {pale
   const paletteBounds = [paletteDomain[0], paletteDomain[paletteDomain.length - 1]] as const;
   const paletteCanvas = colorRampCanvas(paletteScale);
   const paletteTexture = device.createTexture({
-    data: paletteCanvas,
+    width: paletteCanvas.width,
+    height: paletteCanvas.height,
+    mipLevels: 1,
     sampler: {
       magFilter: 'linear',
       minFilter: 'linear',
@@ -15,6 +17,7 @@ export function createPaletteTexture(device: Device, paletteScale: Scale): {pale
       addressModeV: 'clamp-to-edge',
     },
   });
+  paletteTexture.copyExternalImage({image: paletteCanvas});
 
   return {paletteBounds, paletteTexture};
 }

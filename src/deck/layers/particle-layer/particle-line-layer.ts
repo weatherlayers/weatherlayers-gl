@@ -376,7 +376,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       size: numAgedInstances * 4 * 4,
     });
 
-    commandEncoder.finish();
+    const commandBuffer = commandEncoder.finish();
+    device.submit(commandBuffer);
     commandEncoder.destroy();
 
     this._swapTransformFeedback();

@@ -145,6 +145,7 @@ export class FrontCompositeLayer<DataT = any, ExtraPropsT extends {} = {}> exten
           : getViewportAngle(viewport, d.direction),
         iconAtlas: iconAtlasTexture,
         iconMapping: iconStyle.iconMapping,
+        sizeBasis: 'height',
         billboard: false,
 
         extensions: [new CollisionFilterExtension()],

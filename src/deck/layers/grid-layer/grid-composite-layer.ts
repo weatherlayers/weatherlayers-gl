@@ -129,6 +129,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
           getAngle: d => getViewportAngle(viewport, d.properties.direction ? 360 - d.properties.direction : 0),
           iconAtlas: iconAtlasTexture,
           iconMapping: iconStyle.iconMapping,
+          sizeBasis: 'height',
           billboard: false,
           parameters: {
             cullMode: 'front', // enable culling to avoid rendering on both sides of the globe; front-face culling because it seems deck.gl uses a wrong winding order and setting frontFace: 'cw' throws "GL_INVALID_ENUM: Enum 0x0000 is currently not supported."
