@@ -222,12 +222,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
         instanceTargetPositions64Low: new Float32Array([0, 0, 0]),
         instanceWidths: new Float32Array([width]),
       });
-      
-      model.setParameters({
-        ...model.parameters,
-        cullMode: 'front', // enable culling to avoid rendering on both sides of the globe; front-face culling because it seems deck.gl uses a wrong winding order and setting frontFace: 'cw' throws "GL_INVALID_ENUM: Enum 0x0000 is currently not supported."
-        ...this.props.parameters,
-      });
 
       super.draw(opts);
 

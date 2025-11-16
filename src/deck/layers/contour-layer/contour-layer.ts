@@ -46,8 +46,12 @@ export class ContourLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ex
           id: 'bitmap',
           imageTexture,
           imageTexture2,
-
           _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+          parameters: {
+            cullMode: 'back', // enable culling to avoid rendering on both sides of the globe
+            depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
+            ...this.props.parameters,
+          },
         } satisfies Partial<ContourBitmapLayerProps>,
 
         image: createEmptyTextureCached(device),

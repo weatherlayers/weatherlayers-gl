@@ -50,8 +50,12 @@ export class RasterLayer<ExtraPropsT extends {} = {}> extends CompositeLayer<Ext
           id: 'bitmap',
           imageTexture,
           imageTexture2,
-
           _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+          parameters: {
+            cullMode: 'back', // enable culling to avoid rendering on both sides of the globe
+            depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
+            ...this.props.parameters,
+          },
         } satisfies Partial<RasterLayerProps>,
 
         image: createEmptyTextureCached(device),
