@@ -6,11 +6,14 @@ const DEFAULT_DATASET = 'gfs/wind_10m_above_ground';
 
 const CONTOUR_LAYER_DATASET_CONFIG = {
   'gfs/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'gfs/temperature_500mb': { interval: 2, majorInterval: 10 },
   'gfs/apparent_temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'gfs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'hrrr_conus/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'hrrr_conus/temperature_500mb': { interval: 2, majorInterval: 10 },
   'hrrr_conus/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'hrrr_alaska/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
+  'hrrr_alaska/temperature_500mb': { interval: 2, majorInterval: 10 },
   'hrrr_alaska/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'ecmwf_ifs/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'ecmwf_ifs/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
@@ -43,6 +46,7 @@ const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_tropopause': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'gfs/wind_gust_surface': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'gfs/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'gfs/temperature_500mb': { style: WeatherLayers.GridStyle.VALUE },
   'gfs/apparent_temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
   'gfswave/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'gfswave/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
@@ -52,10 +56,12 @@ const GRID_LAYER_DATASET_CONFIG = {
   'hrrr_conus/wind_80m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'hrrr_conus/wind_gust_surface': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'hrrr_conus/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'hrrr_conus/temperature_500mb': { style: WeatherLayers.GridStyle.VALUE },
   'hrrr_alaska/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'hrrr_alaska/wind_80m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'hrrr_alaska/wind_gust_surface': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'hrrr_alaska/temperature_2m_above_ground': { style: WeatherLayers.GridStyle.VALUE },
+  'hrrr_alaska/temperature_500mb': { style: WeatherLayers.GridStyle.VALUE },
   'ecmwf_ifs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_ifs/wind_100m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
   'ecmwf_ifs/wind_gust_surface': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
