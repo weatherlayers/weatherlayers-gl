@@ -58,7 +58,7 @@ export function createTextureCached(device: Device, image: TextureData, repeat: 
         lodMaxClamp: 0,
       },
     });
-    texture.copyImageData({data: image.data, bytesPerRow: image.width}); // override bytesPerRow, see https://github.com/visgl/luma.gl/pull/2456
+    texture.copyImageData({data: image.data});
     cache2.set(image, texture);
     return texture;
   })();
