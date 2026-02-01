@@ -66,6 +66,7 @@
       // interleaved deck.gl
       const deckLayer = new deck.MapboxOverlay({
         interleaved: true,
+        _renderLayersInGroups: true,
         layers: [],
       });
       map.addControl(deckLayer);
@@ -125,33 +126,6 @@
 
         deckLayer.setProps({
           layers: [
-            // HighLowLayer must be before RasterLayer and ContourLayer in MapLibre interleaved, see https://docs.weatherlayers.com/weatherlayers-gl/troubleshooting
-            new WeatherLayers.HighLowLayer({
-              id: 'highLow',
-              // data properties
-              image,
-              image2,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageWeight,
-              imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
-              bounds,
-              // style properties
-              visible: config.highLow.enabled && !timelineControl.running,
-              unitFormat,
-              radius: config.highLow.radius,
-              textSize: config.highLow.textSize,
-              textColor: cssToColor(config.highLow.textColor),
-              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
-              textOutlineWidth: config.highLow.textOutlineWidth,
-              palette: config.highLow.palette ? palette : null,
-              opacity: config.highLow.opacity,
-              getPolygonOffset: () => [0, -1000],
-              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
-            }),
             new WeatherLayers.RasterLayer({
               id: 'raster',
               // data properties
@@ -203,6 +177,32 @@
               opacity: config.contour.opacity,
               extensions: [new deck.ClipExtension()],
               clipBounds: [-181, -85.051129, 181, 85.051129],
+              beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
+            }),
+            new WeatherLayers.HighLowLayer({
+              id: 'highLow',
+              // data properties
+              image,
+              image2,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageWeight,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
+              visible: config.highLow.enabled && !timelineControl.running,
+              unitFormat,
+              radius: config.highLow.radius,
+              textSize: config.highLow.textSize,
+              textColor: cssToColor(config.highLow.textColor),
+              textOutlineColor: cssToColor(config.highLow.textOutlineColor),
+              textOutlineWidth: config.highLow.textOutlineWidth,
+              palette: config.highLow.palette ? palette : null,
+              opacity: config.highLow.opacity,
+              getPolygonOffset: () => [0, -1000],
               beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
             }),
             new WeatherLayers.GridLayer({
