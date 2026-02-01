@@ -1,5 +1,5 @@
 import {CompositeLayer} from '@deck.gl/core';
-import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList} from '@deck.gl/core';
+import type {Position, Color, LayerProps, DefaultProps, CompositeLayerProps, UpdateParameters, LayersList, FilterContext} from '@deck.gl/core';
 import {TextLayer} from '@deck.gl/layers';
 import type {TextLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
 import {CollisionFilterExtension} from '@deck.gl/extensions';
@@ -91,16 +91,14 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     paletteScale?: Scale;
     positions?: GeoJSON.Position[];
     points?: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
-    visiblePositions?: GeoJSON.Position[];
-    visiblePoints?: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
     minValue?: number;
     maxValue?: number;
   };
 
   renderLayers(): LayersList {
     const {viewport} = this.context;
-    const {props, visiblePoints, minValue, maxValue} = this.state;
-    if (!props || !visiblePoints || typeof minValue !== 'number' || typeof maxValue !== 'number') {
+    const {props, points, minValue, maxValue} = this.state;
+    if (!props || !points || typeof minValue !== 'number' || typeof maxValue !== 'number') {
       return [];
     }
 
@@ -110,7 +108,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     return [
       new TextLayer(this.getSubLayerProps({
         id: 'type',
-        data: visiblePoints,
+        data: points,
         getPixelOffset: [0, -getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => d.properties.type,
@@ -136,7 +134,7 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       } satisfies TextLayerProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>> & CollisionFilterExtensionProps<GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>>)),
       new TextLayer(this.getSubLayerProps({
         id: 'value',
-        data: visiblePoints,
+        data: points,
         getPixelOffset: [0, getViewportPixelOffset(viewport, (textSize * 1.2) / 2)],
         getPosition: d => d.geometry.coordinates as Position,
         getText: d => textFormatFunction(d.properties.value, unitFormat),
@@ -163,19 +161,20 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     ];
   }
 
-  shouldUpdateState(params: UpdateParameters<this>): boolean {
-    return super.shouldUpdateState(params) || params.changeFlags.viewportChanged;
+  filterSubLayer(params: FilterContext): boolean {
+    const {viewport} = params;
+    const {minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
+    return isViewportInZoomBounds(viewport, minZoom, maxZoom);
   }
 
   updateState(params: UpdateParameters<this>): void {
-    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, minZoom, maxZoom, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette, visible} = params.props;
+    const {image, image2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, radius, unitFormat, textFormatFunction, textFontFamily, textSize, textColor, textOutlineWidth, textOutlineColor, palette, visible} = params.props;
 
     super.updateState(params);
 
     if (!radius || !visible) {
       this.setState({
         points: undefined,
-        visiblePoints: undefined,
         minValue: undefined,
         maxValue: undefined,
       });
@@ -196,14 +195,6 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
       visible !== params.oldProps.visible
     ) {
       this._updateFeatures();
-    }
-
-    if (
-      minZoom !== params.oldProps.minZoom ||
-      maxZoom !== params.oldProps.maxZoom ||
-      params.changeFlags.viewportChanged
-    ) {
-      this._updateVisibleFeatures();
     }
 
     if (palette !== params.oldProps.palette) {
@@ -247,26 +238,6 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
     const maxValue = Math.max(...values);
 
     this.setState({points, minValue, maxValue});
-
-    this._updateVisibleFeatures();
-  }
-
-  private _updateVisibleFeatures(): void {
-    const {viewport} = this.context;
-    const {minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
-    const {points} = this.state;
-    if (!points) {
-      return;
-    }
-
-    let visiblePoints: GeoJSON.Feature<GeoJSON.Point, HighLowPointProperties>[];
-    if (isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
-      visiblePoints = points;
-    } else {
-      visiblePoints = [];
-    }
-
-    this.setState({visiblePoints});
   }
 
   private _updatePalette(): void {
@@ -286,6 +257,6 @@ export class HighLowCompositeLayer<ExtraPropsT extends {} = {}> extends Composit
   }
 
   private _redrawVisibleFeatures(): void {
-    this.setState({visiblePoints: Array.isArray(this.state.visiblePoints) ? Array.from(this.state.visiblePoints) : this.state.visiblePoints});
+    this.setState({points: Array.isArray(this.state.points) ? Array.from(this.state.points) : this.state.points});
   }
 }
