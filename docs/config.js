@@ -27,6 +27,10 @@ const CONTOUR_LAYER_DATASET_CONFIG = {
   'meteofrance_arome/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'meteofrance_arome_hd/temperature_2m_above_ground': { interval: 2, majorInterval: 10 },
   'meteofrance_arome_hd/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'metoffice_global/temperature_surface': { interval: 2, majorInterval: 10 },
+  'metoffice_global/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
+  'metoffice_uk/temperature_surface': { interval: 2, majorInterval: 10 },
+  'metoffice_uk/pressure_mean_sea_level': { interval: 2, majorInterval: 10 },
   'cmems_sst/sea_surface_temperature': { interval: 2, majorInterval: 10 },
 };
 const HIGH_LOW_LAYER_DATASET_CONFIG = {
@@ -39,6 +43,8 @@ const HIGH_LOW_LAYER_DATASET_CONFIG = {
   'meteofrance_arpege_eu/pressure_mean_sea_level': { radius: 2000 },
   'meteofrance_arome/pressure_mean_sea_level': { radius: 2000 },
   'meteofrance_arome_hd/pressure_mean_sea_level': { radius: 2000 },
+  'metoffice_global/pressure_mean_sea_level': { radius: 2000 },
+  'metoffice_uk/pressure_mean_sea_level': { radius: 2000 },
 };
 const GRID_LAYER_DATASET_CONFIG = {
   'gfs/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
@@ -91,6 +97,12 @@ const GRID_LAYER_DATASET_CONFIG = {
   'meteofrance_mfwam_fr/waves': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'meteofrance_mfwam_fr/swell': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
   'meteofrance_mfwam_fr/swell2': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 35] },
+  'metoffice_global/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'metoffice_global/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'metoffice_global/temperature_surface': { style: WeatherLayers.GridStyle.VALUE },
+  'metoffice_uk/wind_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'metoffice_uk/wind_gust_10m_above_ground': { style: WeatherLayers.GridStyle.WIND_BARB, iconBounds: [0, 100 * 0.51444] }, // 100 kts to m/s
+  'metoffice_uk/temperature_surface': { style: WeatherLayers.GridStyle.VALUE },
   'cmems_phy/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_merged/currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
   'cmems_phy_merged/tidal_currents': { style: WeatherLayers.GridStyle.ARROW, iconBounds: [0, 3] },
@@ -149,6 +161,10 @@ const PARTICLE_LAYER_DATASET_CONFIG = {
   'meteofrance_mfwam_fr/waves': { speedFactor: 2, width: 5 },
   'meteofrance_mfwam_fr/swell': { speedFactor: 2, width: 5 },
   'meteofrance_mfwam_fr/swell2': { speedFactor: 2, width: 5 },
+  'metoffice_global/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'metoffice_global/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
+  'metoffice_uk/wind_10m_above_ground': { speedFactor: 3, width: 2 },
+  'metoffice_uk/wind_gust_10m_above_ground': { speedFactor: 3, width: 2 },
   'cmems_phy/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/currents': { speedFactor: 50, width: 2 },
   'cmems_phy_merged/tidal_currents': { speedFactor: 50, width: 2 },
@@ -206,6 +222,10 @@ const TOOLTIP_CONTROL_DATASET_CONFIG = {
   'meteofrance_mfwam_fr/waves': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_mfwam_fr/swell': { directionType: WeatherLayers.DirectionType.INWARD },
   'meteofrance_mfwam_fr/swell2': { directionType: WeatherLayers.DirectionType.INWARD },
+  'metoffice_global/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'metoffice_global/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'metoffice_uk/wind_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
+  'metoffice_uk/wind_gust_10m_above_ground': { directionType: WeatherLayers.DirectionType.INWARD },
   'cmems_phy/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
   'cmems_phy_merged/tidal_currents': { directionType: WeatherLayers.DirectionType.OUTWARD },
