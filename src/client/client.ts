@@ -8,6 +8,8 @@ import type {ImageUnscale} from '../deck/_utils/image-unscale.js';
 import {UnitSystem} from '../deck/_utils/unit-system.js';
 import type {UnitFormat} from '../deck/_utils/unit-format.js';
 import type {Palette} from '../deck/_utils/palette.js';
+import type {DatasetControlsConfig} from './dataset-controls-config.js';
+import type {DatasetLayersConfig} from './dataset-layers-config.js';
 import {StacProviderRole, StacAssetRole, StacLinkRel} from './stac.js';
 import type {StacCatalog, StacCollections, StacCollection, StacItemCollection, StacItem} from './stac.js';
 
@@ -33,6 +35,8 @@ export interface Dataset {
   datetimeRange: OpenDatetimeISOStringRange;
   datetimes: DatetimeISOString[]; // deprecated, use `loadDatasetSlice` instead
   palette: Palette;
+  layers?: DatasetLayersConfig;
+  controls?: DatasetControlsConfig;
 }
 
 export interface DatasetSlice {
@@ -283,6 +287,8 @@ export class Client {
       datetimeRange: stacCollection.extent.temporal.interval[0],
       datetimes: stacCollection.links.filter(x => x.rel === StacLinkRel.ITEM).map(x => x.datetime).filter(x => !!x) as DatetimeISOString[],
       palette: await this._loadDatasetStacCollectionPalette(dataset),
+      layers: stacCollection['weatherLayers:layers'],
+      controls: stacCollection['weatherLayers:controls'],
     };
   }
 

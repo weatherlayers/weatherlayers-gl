@@ -1,5 +1,7 @@
 import type {ImageType} from '../deck/_utils/image-type.js';
 import type {UnitDefinition} from '../deck/_utils/unit-definition.js';
+import type {DatasetControlsConfig} from './dataset-controls-config.js';
+import type {DatasetLayersConfig} from './dataset-layers-config.js';
 
 export const StacProviderRole = {
   LICENSOR: 'licensor',
@@ -107,6 +109,8 @@ export interface StacCollection {
   'weatherLayers:imageType'?: ImageType; // used by WeatherLayers Cloud Client
   'weatherLayers:imageUnscale'?: [number, number] | null; // used by WeatherLayers Cloud Client
   'weatherLayers:units'?: UnitDefinition[]; // used by WeatherLayers Cloud Client
+  'weatherLayers:layers'?: DatasetLayersConfig; // used by WeatherLayers Cloud Client
+  'weatherLayers:controls'?: DatasetControlsConfig; // used by WeatherLayers Cloud Client
 }
 
 export interface StacItemCollection {
