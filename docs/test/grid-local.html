@@ -80,7 +80,7 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update(forceUpdateDatetime) {
+      async function update(gui, forceUpdate) {
         const width = 5;
         const height = 5;
         const data = new Array(width * height).fill(undefined).map((_, i) => i % 2 === (width % 2 ? 0 : Math.floor(i / width) % 2));

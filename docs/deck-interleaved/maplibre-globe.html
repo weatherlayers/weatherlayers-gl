@@ -51,7 +51,6 @@
     window.addEventListener('DOMContentLoaded', async () => {
       const datasets = await client.loadCatalog();
       const config = await initConfig({ datasets, deckgl: true, webgl2: true, globe: true });
-      let gui;
 
       // Mapbox
       const map = window.map = new maplibregl.Map({
@@ -123,15 +122,38 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update(forceUpdateDatetime) {
+      async function update(gui, forceUpdate) {
         const dataset = config.dataset !== NO_DATA ? config.dataset : undefined;
-        const {title, unitFormat, attribution, bounds, palette} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
+        const {title, unitFormat, attribution, bounds, palette, layers, controls} = await client.loadDataset(dataset, { unitSystem: config.unitSystem });
         const {datetimes} = await client.loadDatasetSlice(dataset, config.datetimeRange.split('/'), { datetimeStep: config.datetimeStep });
-        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] && !forceUpdateDatetime ? config.datetime : datetimes[0];
+        const datetime = config.datetime !== NO_DATA && datetimes[0] <= config.datetime && config.datetime <= datetimes[datetimes.length - 1] && !forceUpdate ? config.datetime : datetimes[0];
         const {image, image2, imageWeight, imageType, imageUnscale} = await client.loadDatasetData(dataset, datetime, { datetimeInterpolate: config.datetimeInterpolate });
 
         config.datetimes = datetimes;
         config.datetime = datetime;
+
+        if (forceUpdate) {
+          config.raster.enabled = true;
+
+          config.contour.enabled = !!layers?.contourLayer;
+          config.contour.interval = layers?.contourLayer?.interval ?? 2;
+          config.contour.majorInterval = layers?.contourLayer?.majorInterval ?? 10;
+
+          config.highLow.enabled = !!layers?.highLowLayer;
+          config.highLow.radius = layers?.highLowLayer?.radius ?? 2000;
+
+          config.grid.enabled = !!layers?.gridLayer;
+          config.grid.style = layers?.gridLayer?.style ?? WeatherLayers.GridStyle.VALUE;
+          config.grid.iconBounds = layers?.gridLayer?.iconBounds ?? null;
+
+          config.particle.enabled = !!layers?.particleLayer;
+          config.particle.speedFactor = layers?.particleLayer?.speedFactor ?? 3;
+          config.particle.width = layers?.particleLayer?.width ?? 2;
+          
+          config.tooltip.directionType = controls?.tooltipControl?.directionType ?? WeatherLayers.DirectionType.INWARD;
+
+          gui.refresh();
+        }
 
         deckLayer.setProps({
           layers: [
@@ -278,8 +300,8 @@
         });
         attributionControl.updateConfig({ attribution });
       }
-      await update();
-      gui = initGui(config, update, { deckgl, webgl2: true, globe: true });
+      const gui = initGui(config, update, { deckgl, webgl2: true, globe: true });
+      await update(gui, true);
     });
   </script>
 </body>

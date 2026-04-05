@@ -55,7 +55,6 @@
       const FRONT_DATA = await (await fetch('./front-data.json')).json();
       
       const config = await initConfig({ deckgl: true, webgl2: true });
-      let gui;
 
       // deck.gl
       const deckgl = window.deckgl = new deck.Deck({
@@ -92,7 +91,7 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update(forceUpdateDatetime) {
+      async function update(gui, forceUpdate) {
         const image = await WeatherLayers.loadTextureData('front-pressure.byte.png');
         const imageType = WeatherLayers.ImageType.SCALAR;
         const imageUnscale = [940, 1080];
@@ -212,8 +211,8 @@
           ],
         });
       }
-      await update();
-      gui = initGui(config, update, { deckgl, webgl2: true });
+      const gui = initGui(config, update, { deckgl, webgl2: true });
+      await update(gui, true);
     });
   </script>
 </body>

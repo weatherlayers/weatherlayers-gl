@@ -80,7 +80,7 @@
       fpsControl.prependTo(document.getElementById('bottom-right'));
 
       // config
-      async function update(forceUpdateDatetime) {
+      async function update(gui, forceUpdate) {
         const resolution = 30; // 1, 2, 3, 6, 9, 18, 30, 45, 90
         const width = 360 / resolution;
         const height = 180 / resolution + 1;
