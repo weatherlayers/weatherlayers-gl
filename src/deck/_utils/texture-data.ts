@@ -111,7 +111,7 @@ async function loadGeotiff(url: string, options?: LoadOptions): Promise<TextureD
       allowFullFile: true,
       blockSize: Number.MAX_SAFE_INTEGER, // larger blockSize helps with errors, see https://github.com/geotiffjs/geotiff/issues/218
       fetch: (url: string, init?: RequestInit) => fetch(url, {...init, headers: {...init?.headers, ...options?.headers}}),
-    }, options?.signal);
+    } as any, options?.signal); // remove any with geotiff@3.1.0, see https://github.com/geotiffjs/geotiff.js/pull/530
   } catch (e) {
     throw new Error(`Image ${url} can't be decoded.`, {cause: e});
   }
