@@ -40,6 +40,9 @@ const modulesGlsl = modules.map(module => `@include "${module.path}"`).join('\n'
 
 async function minifyShader(code, id, minimize) {
   const nomangle = [
+    // don't mangle UBO layout qualifiers
+    'std140',
+
     // don't mangle WebGL2 functions
     'texture',
     'floatBitsToUint',

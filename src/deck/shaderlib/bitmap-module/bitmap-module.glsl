@@ -1,4 +1,4 @@
-uniform bitmap2Uniforms {
+layout(std140) uniform bitmap2Uniforms {
   vec4 bounds;
   bool isRepeatBounds;
   float coordinateConversion;

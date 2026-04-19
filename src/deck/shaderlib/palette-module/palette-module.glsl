@@ -1,6 +1,6 @@
 uniform sampler2D paletteTexture;
 
-uniform paletteUniforms {
+layout(std140) uniform paletteUniforms {
   vec2 paletteBounds;
   vec4 paletteColor;
 } palette;

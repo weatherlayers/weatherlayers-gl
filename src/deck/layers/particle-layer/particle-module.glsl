@@ -1,4 +1,4 @@
-uniform particleUniforms {
+layout(std140) uniform particleUniforms {
   float viewportGlobe;
   vec2 viewportGlobeCenter;
   float viewportGlobeRadius;
