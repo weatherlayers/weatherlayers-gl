@@ -93,6 +93,10 @@ function getTokens(tokenMap) {
 }
 
 function generateCode(result) {
+  // add newlines after semicolon because GLSL_UNIFORM_BLOCK_FIELD_REGEXP doesn't support them, see https://github.com/visgl/luma.gl/blob/master/modules/shadertools/src/lib/shader-module/shader-module-uniform-layout.ts
+  // add newlines after curly braces for readability
+  result.sourceCode = result.sourceCode.replace(/([;{}])(?!\n)/g, '$1\n');
+
   return `
     // eslint-disable
     export const sourceCode = ${JSON.stringify(result.sourceCode)};
