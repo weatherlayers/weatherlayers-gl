@@ -30,7 +30,7 @@ export interface FrontIcon<DataT> {
 
 // see https://github.com/visgl/deck.gl/blob/master/examples/website/collision-filter/calculateLabels.js
 export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT> {
-  const positions = path as GeoJSON.Position[];
+  const positions = path as [number, number][] as GeoJSON.Position[];
   const distances = positions.slice(0, -1).map((_, i) => measureDistance(positions[i], positions[i + 1]));
   const cummulativeDistances = distances.reduce((prev, curr) => [...prev, prev[prev.length - 1] + curr], [0]);
   const totalDistance = cummulativeDistances[cummulativeDistances.length - 1];
@@ -60,7 +60,7 @@ export function getFrontLine<DataT>(d: DataT, path: Position[]): FrontLine<DataT
       const cummulativeDistance = cummulativeDistances[positionStartIndex];
   
       const bearing = initialBearing(positionStart, positionEnd);
-      const position = destinationPoint(positionStart, distance - cummulativeDistance, bearing) as Position;
+      const position = destinationPoint(positionStart, distance - cummulativeDistance, bearing) as [number, number] as Position;
       const direction = 90 - bearing;
       const priority = 100 - depth; // top levels have highest priority
   

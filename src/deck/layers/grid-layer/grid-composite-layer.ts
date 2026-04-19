@@ -120,7 +120,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
         new IconLayer(this.getSubLayerProps({
           id: 'icon',
           data: points,
-          getPosition: d => d.geometry.coordinates as Position,
+          getPosition: d => d.geometry.coordinates as [number, number] as Position,
           getIcon: d => `${Math.min(Math.max(Math.floor(iconBoundsRatio(d.properties.value) * iconCount), 0), iconCount - 1)}`,
           getSize: d => Array.isArray(iconSize) ? iconSize[0] + (iconBoundsRatio(d.properties.value) * iconSizeDelta) : iconSize,
           getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : iconColor,
@@ -141,7 +141,7 @@ export class GridCompositeLayer<ExtraPropsT extends {} = {}> extends CompositeLa
         new TextLayer(this.getSubLayerProps({
           id: 'text',
           data: points,
-          getPosition: d => d.geometry.coordinates as Position,
+          getPosition: d => d.geometry.coordinates as [number, number] as Position,
           getText: d => textFormatFunction(d.properties.value, unitFormat),
           getSize: textSize,
           getColor: d => paletteScale ? paletteColorToGl(paletteScale(d.properties.value).rgba()) : textColor,
