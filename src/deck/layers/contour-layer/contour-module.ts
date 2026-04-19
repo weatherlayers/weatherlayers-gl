@@ -11,9 +11,9 @@ type ContourModuleUniforms = {[K in keyof typeof tokens]: any};
 
 function getUniforms(props: Partial<ContourModuleProps> = {}): ContourModuleUniforms {
   return {
-    [tokens.interval]: props.interval,
-    [tokens.majorInterval]: props.majorInterval,
-    [tokens.width]: props.width,
+    [tokens['interval'] ?? 'interval']: props.interval,
+    [tokens['majorInterval'] ?? 'majorInterval']: props.majorInterval,
+    [tokens['width'] ?? 'width']: props.width,
   };
 }
 
@@ -22,9 +22,9 @@ export const contourModule = {
   vs: sourceCode,
   fs: sourceCode,
   uniformTypes: {
-    [tokens.interval]: 'f32',
-    [tokens.majorInterval]: 'f32',
-    [tokens.width]: 'f32',
+    [tokens['interval'] ?? 'interval']: 'f32',
+    [tokens['majorInterval'] ?? 'majorInterval']: 'f32',
+    [tokens['width'] ?? 'width']: 'f32',
   },
   getUniforms,
 } as const satisfies ShaderModule<ContourModuleProps, ContourModuleUniforms>;

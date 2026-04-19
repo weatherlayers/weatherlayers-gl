@@ -20,18 +20,18 @@ type ParticleModuleUniforms = {[K in keyof typeof tokens]: any};
 
 function getUniforms(props: Partial<ParticleModuleProps> = {}): ParticleModuleUniforms {
   return {
-    [tokens.viewportGlobe]: props.viewportGlobe ? 1 : 0,
-    [tokens.viewportGlobeCenter]: props.viewportGlobeCenter ?? [0, 0],
-    [tokens.viewportGlobeRadius]: props.viewportGlobeRadius ?? 0,
-    [tokens.viewportBounds]: props.viewportBounds ?? [0, 0, 0, 0],
-    [tokens.viewportZoomChangeFactor]: props.viewportZoomChangeFactor ?? 0,
+    [tokens['viewportGlobe'] ?? 'viewportGlobe']: props.viewportGlobe ? 1 : 0,
+    [tokens['viewportGlobeCenter'] ?? 'viewportGlobeCenter']: props.viewportGlobeCenter ?? [0, 0],
+    [tokens['viewportGlobeRadius'] ?? 'viewportGlobeRadius']: props.viewportGlobeRadius ?? 0,
+    [tokens['viewportBounds'] ?? 'viewportBounds']: props.viewportBounds ?? [0, 0, 0, 0],
+    [tokens['viewportZoomChangeFactor'] ?? 'viewportZoomChangeFactor']: props.viewportZoomChangeFactor ?? 0,
 
-    [tokens.numParticles]: props.numParticles,
-    [tokens.maxAge]: props.maxAge,
-    [tokens.speedFactor]: props.speedFactor,
+    [tokens['numParticles'] ?? 'numParticles']: props.numParticles,
+    [tokens['maxAge'] ?? 'maxAge']: props.maxAge,
+    [tokens['speedFactor'] ?? 'speedFactor']: props.speedFactor,
 
-    [tokens.time]: props.time,
-    [tokens.seed]: props.seed,
+    [tokens['time'] ?? 'time']: props.time,
+    [tokens['seed'] ?? 'seed']: props.seed,
   };
 }
 
@@ -40,18 +40,18 @@ export const particleModule = {
   vs: sourceCode,
   fs: sourceCode,
   uniformTypes: {
-    [tokens.viewportGlobe]: 'f32',
-    [tokens.viewportGlobeCenter]: 'vec2<f32>',
-    [tokens.viewportGlobeRadius]: 'f32',
-    [tokens.viewportBounds]: 'vec4<f32>',
-    [tokens.viewportZoomChangeFactor]: 'f32',
+    [tokens['viewportGlobe'] ?? 'viewportGlobe']: 'f32',
+    [tokens['viewportGlobeCenter'] ?? 'viewportGlobeCenter']: 'vec2<f32>',
+    [tokens['viewportGlobeRadius'] ?? 'viewportGlobeRadius']: 'f32',
+    [tokens['viewportBounds'] ?? 'viewportBounds']: 'vec4<f32>',
+    [tokens['viewportZoomChangeFactor'] ?? 'viewportZoomChangeFactor']: 'f32',
 
-    [tokens.numParticles]: 'f32',
-    [tokens.maxAge]: 'f32',
-    [tokens.speedFactor]: 'f32',
+    [tokens['numParticles'] ?? 'numParticles']: 'f32',
+    [tokens['maxAge'] ?? 'maxAge']: 'f32',
+    [tokens['speedFactor'] ?? 'speedFactor']: 'f32',
 
-    [tokens.time]: 'f32',
-    [tokens.seed]: 'f32',
+    [tokens['time'] ?? 'time']: 'f32',
+    [tokens['seed'] ?? 'seed']: 'f32',
   },
   getUniforms,
 } as const satisfies ShaderModule<ParticleModuleProps, ParticleModuleUniforms>;

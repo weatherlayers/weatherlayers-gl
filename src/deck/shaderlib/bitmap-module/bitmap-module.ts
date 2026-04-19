@@ -69,10 +69,10 @@ function getUniforms(props: Partial<BitmapModuleProps> = {}): BitmapModuleUnifor
   const {bounds, coordinateConversion} = _getCoordinateUniforms(props);
 
   return {
-    [tokens.bounds]: bounds,
-    [tokens.isRepeatBounds]: isRepeatBounds(bounds) ? 1 : 0,
-    [tokens.coordinateConversion]: coordinateConversion,
-    [tokens.transparentColor]: props.transparentColor ? deckColorToGl(props.transparentColor) : [0, 0, 0, 0],
+    [tokens['bounds'] ?? 'bounds']: bounds,
+    [tokens['isRepeatBounds'] ?? 'isRepeatBounds']: isRepeatBounds(bounds) ? 1 : 0,
+    [tokens['coordinateConversion'] ?? 'coordinateConversion']: coordinateConversion,
+    [tokens['transparentColor'] ?? 'transparentColor']: props.transparentColor ? deckColorToGl(props.transparentColor) : [0, 0, 0, 0],
   };
 }
 
@@ -81,10 +81,10 @@ export const bitmapModule = {
   vs: sourceCode,
   fs: sourceCode,
   uniformTypes: {
-    [tokens.bounds]: 'vec4<f32>',
-    [tokens.isRepeatBounds]: 'f32',
-    [tokens.coordinateConversion]: 'f32',
-    [tokens.transparentColor]: 'vec4<f32>',
+    [tokens['bounds'] ?? 'bounds']: 'vec4<f32>',
+    [tokens['isRepeatBounds'] ?? 'isRepeatBounds']: 'f32',
+    [tokens['coordinateConversion'] ?? 'coordinateConversion']: 'f32',
+    [tokens['transparentColor'] ?? 'transparentColor']: 'vec4<f32>',
   },
   getUniforms,
 } as const satisfies ShaderModule<BitmapModuleProps, BitmapModuleUniforms>;
