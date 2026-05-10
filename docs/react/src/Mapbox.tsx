@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Map, useControl } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapView } from 'deck.gl';
-import type { DeckProps } from 'deck.gl';
+import { MapView } from '@deck.gl/core';
+import type { DeckProps } from '@deck.gl/core';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ClipExtension } from '@deck.gl/extensions';
 import { RasterLayer, ParticleLayer } from 'weatherlayers-gl';

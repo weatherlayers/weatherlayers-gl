@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Map, useControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { _GlobeView as GlobeView } from 'deck.gl';
-import type { DeckProps } from 'deck.gl';
+import { _GlobeView as GlobeView } from '@deck.gl/core';
+import type { DeckProps } from '@deck.gl/core';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';

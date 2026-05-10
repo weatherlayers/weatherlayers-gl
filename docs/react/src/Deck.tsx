@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { DeckGL, MapView, TileLayer, BitmapLayer } from 'deck.gl';
+import { DeckGL } from '@deck.gl/react';
+import { MapView } from '@deck.gl/core';
+import { TileLayer } from '@deck.gl/geo-layers';
+import { BitmapLayer } from '@deck.gl/layers';
 import { ClipExtension } from '@deck.gl/extensions';
 import { offsetDatetimeRange, RasterLayer, ParticleLayer } from 'weatherlayers-gl';
 import { Client } from 'weatherlayers-gl/client';
