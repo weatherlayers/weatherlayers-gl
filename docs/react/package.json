@@ -23,7 +23,7 @@
     "react-dom": "^19.2.6",
     "react-fps-stats": "^0.3.2",
     "react-map-gl": "^8.1.1",
-    "weatherlayers-gl": "^2026.5.0"
+    "weatherlayers-gl": "^2026.5.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
