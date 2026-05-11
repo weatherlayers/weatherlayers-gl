@@ -88,3 +88,5 @@ export const bitmapModule = {
   },
   getUniforms,
 } as const satisfies ShaderModule<BitmapModuleProps, BitmapModuleUniforms>;
+
+export const coordinateConversionToken = tokens['coordinateConversion'] ?? 'coordinateConversion';

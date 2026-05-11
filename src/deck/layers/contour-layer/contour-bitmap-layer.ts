@@ -11,7 +11,7 @@ import {parsePalette} from '../../_utils/palette.js';
 import type {Palette} from '../../_utils/palette.js';
 import {createPaletteTexture} from '../../_utils/palette-texture.js';
 import {createEmptyTextureCached} from '../../_utils/texture.js';
-import {bitmapModule} from '../../shaderlib/bitmap-module/bitmap-module.js';
+import {bitmapModule, coordinateConversionToken} from '../../shaderlib/bitmap-module/bitmap-module.js';
 import type {BitmapModuleProps} from '../../shaderlib/bitmap-module/bitmap-module.js';
 import {rasterModule} from '../../shaderlib/raster-module/raster-module.js';
 import type {RasterModuleProps} from '../../shaderlib/raster-module/raster-module.js';
@@ -81,8 +81,9 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
 
     return {
       ...parentShaders,
+      vs: parentShaders.vs.replaceAll('bitmap.coordinateConversion', `bitmap2.${coordinateConversionToken}`),
       fs,
-      modules: [...parentShaders.modules, bitmapModule, rasterModule, paletteModule, contourModule],
+      modules: [...parentShaders.modules.filter((module: any) => module.name !== 'bitmap'), bitmapModule, rasterModule, paletteModule, contourModule],
     };
   }
 
