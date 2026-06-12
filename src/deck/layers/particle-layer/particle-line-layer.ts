@@ -361,8 +361,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       sourceBuffer: sourcePositions,
       sourceOffset: 0,
       destinationBuffer: targetPositions,
-      destinationOffset: currentNumParticles * 4 * 3,
-      size: numAgedInstances * 4 * 3,
+      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 3,
+      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 3,
     });
 
     // update particle colors age1-age(N-1)
@@ -372,8 +372,8 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       sourceBuffer: sourceColors,
       sourceOffset: 0,
       destinationBuffer: targetColors,
-      destinationOffset: currentNumParticles * 4 * 4,
-      size: numAgedInstances * 4 * 4,
+      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 4,
+      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 4,
     });
 
     const commandBuffer = commandEncoder.finish();
@@ -383,7 +383,12 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     this._swapTransformFeedback();
 
     // debug logging position buffer content
-    // console.log(new Float32Array(sourcePositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), new Float32Array(targetPositions.readSyncWebGL().slice(0, 4 * 4 * 3).buffer), sourceColors.readSyncWebGL().slice(0, 4 * 4 * 1));
+    // console.log(
+    //   new Float32Array(sourcePositions.readSyncWebGL().slice(0, 4 * Float32Array.BYTES_PER_ELEMENT * 3).buffer),
+    //   new Float32Array(targetPositions.readSyncWebGL().slice(0, 4 * Float32Array.BYTES_PER_ELEMENT * 3).buffer),
+    //   new Float32Array(sourceColors.readSyncWebGL().slice(0, 4 * Float32Array.BYTES_PER_ELEMENT * 4).buffer),
+    //   new Float32Array(targetColors.readSyncWebGL().slice(0, 4 * Float32Array.BYTES_PER_ELEMENT * 4).buffer)
+    // );
 
     this.state.previousViewportZoom = getViewportZoom(viewport);
     this.state.previousTime = time;
