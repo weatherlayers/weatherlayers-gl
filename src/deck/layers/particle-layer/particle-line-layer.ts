@@ -241,6 +241,9 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
 
     const {numParticles, maxAge} = ensureDefaultProps(this.props, defaultProps);
+
+    // ensure numParticles is a multiple of 4 to optimize GPU buffer alignment while copying
+    // (currentNumParticles * Float32Array.BYTES_PER_ELEMENT) or (numAgedInstances * Float32Array.BYTES_PER_ELEMENT) is a multiple of 16 bytes
     const currentNumParticles = Math.max(4, Math.floor(numParticles / 4) * 4);
 
     // sourcePositions/targetPositions buffer layout:
