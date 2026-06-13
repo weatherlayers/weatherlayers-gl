@@ -4,6 +4,7 @@ import {LineLayer} from '@deck.gl/layers';
 import type {LineLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
 import type {Buffer, Texture} from '@luma.gl/core';
 import {BufferTransform} from '@luma.gl/engine';
+import type {WebGLDevice} from '@luma.gl/webgl';
 import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../_utils/image-type.js';
@@ -352,6 +353,15 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       depthReadOnly: true,
       stencilReadOnly: true,
     });
+
+    // GPU-side sync barrier: ensure transform feedback writes are visible to
+    // subsequent copyBufferSubData on GPUs that lack implicit synchronization
+    // (e.g. Xclipse). gl.waitSync is entirely GPU-side — no CPU stall.
+    const gl = (device as WebGLDevice).gl;
+    const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!;
+    gl.flush();
+    gl.waitSync(sync, 0, gl.TIMEOUT_IGNORED);
+    gl.deleteSync(sync);
 
     const commandEncoder = device.createCommandEncoder();
 
