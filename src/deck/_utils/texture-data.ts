@@ -149,6 +149,8 @@ function loadCached<T>(loadFunction: LoadFunction<T>): CachedLoadFunction<T> {
     cache.set(cacheKey, dataPromise);
     dataPromise.then(data => {
       cache.set(cacheKey, data);
+    }).catch(() => {
+      cache.delete(cacheKey);
     });
     return dataPromise;
   };
