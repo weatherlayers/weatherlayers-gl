@@ -136,9 +136,14 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     super.initializeState();
 
     const attributeManager = this.getAttributeManager()!;
-    attributeManager.remove(['instanceSourcePositions', 'instanceTargetPositions', 'instanceColors', 'instanceWidths']);
+    attributeManager.remove(['instanceSourcePositions', 'instanceSourcePositions64Low', 'instanceTargetPositions', 'instanceTargetPositions64Low', 'instanceColors', 'instanceWidths']);
     attributeManager.addInstanced({
       instanceSourcePositions: {
+        size: 3,
+        type: 'float32',
+        noAlloc: true,
+      },
+      instanceSourcePositions64Low: {
         size: 3,
         type: 'float32',
         noAlloc: true,
@@ -148,9 +153,19 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
         type: 'float32',
         noAlloc: true,
       },
+      instanceTargetPositions64Low: {
+        size: 3,
+        type: 'float32',
+        noAlloc: true,
+      },
       instanceColors: {
         size: 4,
         type: 'float32', // unorm8?
+        noAlloc: true,
+      },
+      instanceWidths: {
+        size: 1,
+        type: 'float32',
         noAlloc: true,
       },
       instanceOpacities: {
