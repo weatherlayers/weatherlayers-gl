@@ -325,6 +325,34 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     // speed factor for current zoom level
     const currentSpeedFactor = speedFactor / 2 ** (getViewportZoom(viewport) + 7);
 
+    // copy→TF order (instead of TF→copy) avoids bad performance on Xclipse GPU (Samsung S23 FE, S24 Plus)
+    const commandEncoder = device.createCommandEncoder();
+
+    // update particle positions age1-age(N-1)
+    // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
+    commandEncoder.copyBufferToBuffer({
+      sourceBuffer: sourcePositions,
+      sourceOffset: 0,
+      destinationBuffer: targetPositions,
+      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 3,
+      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 3,
+    });
+
+    // update particle colors age1-age(N-1)
+    // copy age0-age(N-2) colors to age1-age(N-1) colors
+    // needs a duplicate copy buffer, because read and write regions overlap
+    commandEncoder.copyBufferToBuffer({
+      sourceBuffer: sourceColors,
+      sourceOffset: 0,
+      destinationBuffer: targetColors,
+      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 4,
+      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 4,
+    });
+
+    const commandBuffer = commandEncoder.finish();
+    device.submit(commandBuffer);
+    commandEncoder.destroy();
+
     // update particle positions and colors age0
     transform.model.shaderInputs.setProps({
       [bitmapModule.name]: {
@@ -352,33 +380,6 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
       depthReadOnly: true,
       stencilReadOnly: true,
     });
-
-    const commandEncoder = device.createCommandEncoder();
-
-    // update particle positions age1-age(N-1)
-    // copy age0-age(N-2) sourcePositions to age1-age(N-1) targetPositions
-    commandEncoder.copyBufferToBuffer({
-      sourceBuffer: sourcePositions,
-      sourceOffset: 0,
-      destinationBuffer: targetPositions,
-      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 3,
-      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 3,
-    });
-
-    // update particle colors age1-age(N-1)
-    // copy age0-age(N-2) colors to age1-age(N-1) colors
-    // needs a duplicate copy buffer, because read and write regions overlap
-    commandEncoder.copyBufferToBuffer({
-      sourceBuffer: sourceColors,
-      sourceOffset: 0,
-      destinationBuffer: targetColors,
-      destinationOffset: currentNumParticles * Float32Array.BYTES_PER_ELEMENT * 4,
-      size: numAgedInstances * Float32Array.BYTES_PER_ELEMENT * 4,
-    });
-
-    const commandBuffer = commandEncoder.finish();
-    device.submit(commandBuffer);
-    commandEncoder.destroy();
 
     this._swapTransformFeedback();
 
