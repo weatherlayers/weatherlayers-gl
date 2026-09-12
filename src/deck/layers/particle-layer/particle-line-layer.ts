@@ -23,7 +23,6 @@ import {particleModule} from './particle-module.js';
 import type {ParticleModuleProps} from './particle-module.js';
 import {sourceCode as updateVs} from './particle-line-layer-update.vs.glsl';
 
-const FPS = 30;
 const SOURCE_POSITION = 'sourcePosition';
 const TARGET_POSITION = 'targetPosition';
 const SOURCE_COLOR = 'sourceColor';
@@ -49,6 +48,7 @@ type _ParticleLineLayerProps = LineLayerProps<unknown> & {
   numParticles: number;
   maxAge: number;
   speedFactor: number;
+  fps: number;
 
   width: number;
   animate: boolean;
@@ -76,6 +76,7 @@ const defaultProps: DefaultProps<ParticleLineLayerProps> = {
   numParticles: {type: 'number', min: 1, max: 1000000, value: 5000},
   maxAge: {type: 'number', min: 1, max: 255, value: 10},
   speedFactor: {type: 'number', min: 0, max: 50, value: 1},
+  fps: {type: 'number', min: 1, max: 120, value: 30},
 
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
   animate: true,
@@ -319,14 +320,14 @@ export class ParticleLineLayer<ExtraPropsT extends {} = {}> extends LineLayer<un
     }
 
     const {device, viewport, timeline} = this.context;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, color, maxAge, speedFactor} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, color, maxAge, speedFactor, fps} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds, currentNumParticles, numAgedInstances, sourcePositions, targetPositions, sourceColors, targetColors, transform, previousViewportZoom, previousTime} = this.state;
     if (!imageTexture || typeof currentNumParticles !== 'number' || typeof numAgedInstances !== 'number' || !sourcePositions || !targetPositions || !sourceColors || !targetColors || !transform) {
       return;
     }
 
     const time = timeline.getTime();
-    if (typeof previousTime === 'number' && time < previousTime + 1000 / FPS) {
+    if (typeof previousTime === 'number' && time < previousTime + 1000 / fps) {
       return;
     }
 

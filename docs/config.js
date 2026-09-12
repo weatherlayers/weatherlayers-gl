@@ -87,6 +87,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
         numParticles: 5000,
         maxAge: 10,
         speedFactor: 3, // dataset-specific
+        fps: 30,
         width: 2, // dataset-specific
         color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
         palette: false,
@@ -234,6 +235,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
     particle.addBinding(config.particle, 'numParticles', { min: 0, max: 100000, step: 1 }).on('change', updateLast);
     particle.addBinding(config.particle, 'maxAge', { min: 0, max: 255, step: 1 }).on('change', updateLast);
     particle.addBinding(config.particle, 'speedFactor', { min: 0, max: 50, step: 0.1 }).on('change', update);
+    particle.addBinding(config.particle, 'fps', { min: 1, max: 120, step: 1 }).on('change', update);
     particle.addBinding(config.particle, 'color').on('change', update);
     particle.addBinding(config.particle, 'palette').on('change', update);
     particle.addBinding(config.particle, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
