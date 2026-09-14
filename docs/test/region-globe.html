@@ -115,29 +115,6 @@
                 depthCompare: 'always', // disable depth test to avoid conflict with Maplibre globe depth buffer, see https://github.com/visgl/deck.gl/issues/9357
               },
             }),
-            new WeatherLayers.ParticleLayer({
-              id: 'particle',
-              // data properties
-              image,
-              imageSmoothing: config.imageSmoothing,
-              imageInterpolation: config.imageInterpolation,
-              imageType,
-              imageUnscale,
-              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
-              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
-              bounds,
-              // style properties
-              visible: config.particle.enabled,
-              numParticles: config.particle.numParticles,
-              maxAge: config.particle.maxAge,
-              speedFactor: config.particle.speedFactor,
-              fps: config.particle.fps,
-              width: config.particle.width,
-              color: cssToColor(config.particle.color),
-              opacity: config.particle.opacity,
-              animate: config.particle.animate,
-              getPolygonOffset: () => [0, -1000],
-            }),
             new WeatherLayers.GridLayer({
               id: 'grid',
               // data properties
@@ -161,6 +138,28 @@
               iconColor: cssToColor(config.grid.iconColor),
               palette: config.grid.palette ? palette : null,
               opacity: config.grid.opacity,
+            }),
+            new WeatherLayers.ParticleLayer({
+              id: 'particle',
+              // data properties
+              image,
+              imageSmoothing: config.imageSmoothing,
+              imageInterpolation: config.imageInterpolation,
+              imageType,
+              imageUnscale,
+              imageMinValue: config.imageMinValue > 0 ? config.imageMinValue : null,
+              imageMaxValue: config.imageMaxValue > 0 ? config.imageMaxValue : null,
+              bounds,
+              // style properties
+              visible: config.particle.enabled,
+              numParticles: config.particle.numParticles,
+              maxAge: config.particle.maxAge,
+              speedFactor: config.particle.speedFactor,
+              fps: config.particle.fps,
+              width: config.particle.width,
+              color: cssToColor(config.particle.color),
+              opacity: config.particle.opacity,
+              animate: config.particle.animate,
             }),
           ],
         });
