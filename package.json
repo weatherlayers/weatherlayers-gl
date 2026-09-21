@@ -72,8 +72,8 @@
     "@deck.gl/core": "^9.4.0",
     "@deck.gl/extensions": "^9.4.0",
     "@deck.gl/layers": "^9.4.0",
-    "@luma.gl/core": "^9.4.1",
-    "@luma.gl/engine": "^9.4.1",
+    "@luma.gl/core": "^9.4.2",
+    "@luma.gl/engine": "^9.4.2",
     "@rollup/plugin-babel": "^7.1.0",
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-image": "^3.0.3",
@@ -105,8 +105,8 @@
     "@deck.gl/core": "^9.4.0",
     "@deck.gl/extensions": "^9.4.0",
     "@deck.gl/layers": "^9.4.0",
-    "@luma.gl/core": "^9.4.1",
-    "@luma.gl/engine": "^9.4.1",
+    "@luma.gl/core": "^9.4.2",
+    "@luma.gl/engine": "^9.4.2",
     "geotiff": "^3.0.0"
   },
   "peerDependenciesMeta": {
