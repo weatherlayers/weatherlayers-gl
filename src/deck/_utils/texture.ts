@@ -66,16 +66,18 @@ export function createTextureCached(device: Device, image: TextureData, repeat: 
 }
 
 // empty texture required instead of null
-let emptyTexture: Texture | null = null;
+const emptyTextureCache = new WeakMap<Device, Texture>();
 
 export function createEmptyTextureCached(device: Device): Texture {
-  if (!emptyTexture) {
-    emptyTexture = device.createTexture({
+  const texture = emptyTextureCache.get(device) ?? (() => {
+    const texture = device.createTexture({
       width: 1,
       height: 1,
       mipLevels: 1,
     });
-    emptyTexture.copyImageData({data: new Uint8Array([0, 0, 0, 0])});
-  }
-  return emptyTexture;
+    texture.copyImageData({data: new Uint8Array([0, 0, 0, 0])});
+    emptyTextureCache.set(device, texture);
+    return texture;
+  })();
+  return texture;
 }
