@@ -4,7 +4,10 @@ layout(std140) uniform contourUniforms {
   float interval;
   float majorInterval;
   float width;
-  float labelSpacing;
+  float labelGridSize;
+  float labelPixelSize;
+  float labelGlobe;
+  vec2 labelScreenEast;
   vec2 labelTextureSize;
   vec2 labelCellSize;
   float labelPadding;

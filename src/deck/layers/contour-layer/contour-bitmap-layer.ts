@@ -1,4 +1,4 @@
-import type {Color, LayerProps, DefaultProps, UpdateParameters} from '@deck.gl/core';
+import type {Color, LayerProps, DefaultProps, UpdateParameters, Viewport} from '@deck.gl/core';
 import {BitmapLayer} from '@deck.gl/layers';
 import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
 import type {Texture} from '@luma.gl/core';
@@ -7,7 +7,7 @@ import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../_utils/image-type.js';
 import type {ImageUnscale} from '../../_utils/image-unscale.js';
 import type {UnitFormat} from '../../_utils/unit-format.js';
-import {isViewportGlobe, isViewportInZoomBounds} from '../../_utils/viewport.js';
+import {isViewportGlobe, isViewportInZoomBounds, getViewportZoom} from '../../_utils/viewport.js';
 import {parsePalette} from '../../_utils/palette.js';
 import type {Palette} from '../../_utils/palette.js';
 import {createPaletteTexture} from '../../_utils/palette-texture.js';
@@ -23,6 +23,17 @@ import type {ContourModuleProps} from './contour-module.js';
 import {createContourLabelAtlas} from './contour-label-atlas.js';
 import type {ContourLabelAtlas} from './contour-label-atlas.js';
 import {sourceCode as fs} from './contour-bitmap-layer.fs.glsl';
+
+const WORLD_SIZE = 512; // Web Mercator world size in deck.gl common space
+
+// screen direction of east at the viewport center, normalized, y up
+function getViewportScreenEast(viewport: Viewport): [number, number] {
+  const [longitude, latitude] = viewport.unproject([viewport.width / 2, viewport.height / 2]);
+  const [x0, y0] = viewport.project([longitude, latitude]);
+  const [x1, y1] = viewport.project([longitude + 0.01, latitude]);
+  const length = Math.hypot(x1 - x0, y1 - y0);
+  return length > 0 ? [(x1 - x0) / length, -(y1 - y0) / length] : [1, 0];
+}
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
   imageTexture: Texture | null;
@@ -132,9 +143,14 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       // labels are rendered in device pixels, the atlas depends on the pixel ratio
-      // labels are not supported in globe, screen-space extrapolation of texture coordinates is not precise enough there
       const pixelRatio = device.getDefaultCanvasContext().cssToDeviceRatio();
-      const labelAtlas = labelSpacing > 0 && !viewportGlobe ? this._updateLabelAtlas(pixelRatio) : undefined;
+      const labelAtlas = labelSpacing > 0 ? this._updateLabelAtlas(pixelRatio) : undefined;
+
+      // label grid cell size is a power of two fraction of the world size, between labelSpacing and 2 * labelSpacing pixels
+      const zoom = getViewportZoom(viewport);
+      const labelGridLevel = labelSpacing > 0 ? Math.max(0, Math.floor(zoom + Math.log2(WORLD_SIZE / labelSpacing))) : 0;
+      const labelGridSize = WORLD_SIZE / 2 ** labelGridLevel;
+      const labelPixelSize = 1 / (2 ** zoom * pixelRatio);
 
 
       model.shaderInputs.setProps({
@@ -153,7 +169,10 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         [contourModule.name]: {
           interval, majorInterval, width,
           labelTexture: labelAtlas?.texture ?? createEmptyTextureCached(device),
-          labelSpacing: labelAtlas ? labelSpacing * pixelRatio : 0,
+          labelGridSize: labelAtlas ? labelGridSize : 0,
+          labelPixelSize,
+          labelGlobe: viewportGlobe,
+          labelScreenEast: getViewportScreenEast(viewport),
           labelTextureSize: labelAtlas?.size,
           labelCellSize: labelAtlas?.cellSize,
           labelPadding: labelAtlas?.padding,

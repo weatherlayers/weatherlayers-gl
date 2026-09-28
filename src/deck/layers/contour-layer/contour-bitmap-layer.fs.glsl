@@ -19,14 +19,10 @@ const float LABEL_MAX_CHARS = 12.;
 const float LABEL_MAX_DECIMALS = 4.;
 const float LABEL_ATLAS_HEADER_HEIGHT = 2.;
 
-// value at a screen position, extrapolated from the current fragment with texture coordinate derivatives
-// exact for flat maps without pitch, where texture coordinates are affine in screen space
+// value at a Web Mercator position
 // x: value, y: 1 if valid, 0 otherwise
-vec2 getLabelPositionValue(vec2 position, vec2 texCoordDx, vec2 texCoordDy, vec2 texPosDx, vec2 texPosDy) {
-  vec2 offset = position - gl_FragCoord.xy;
-  vec2 texCoord = vTexCoord + texCoordDx * offset.x + texCoordDy * offset.y;
-  vec2 texPos = vTexPos + texPosDx * offset.x + texPosDy * offset.y;
-  vec2 uv = getUVWithCoordinateConversion(texCoord, texPos);
+vec2 getLabelPositionValue(vec2 position) {
+  vec2 uv = getUV(mercator_to_lnglat(position));
   if (uv.y < 0. || uv.y > 1. || (!bitmap2.isRepeatBounds && (uv.x < 0. || uv.x > 1.))) {
     return vec2(0.);
   }
@@ -77,58 +73,58 @@ float getLabelGlyph(float charIndex, float digits, float negative, float intDigi
   return mod(floor(digits / divisor), 10.);
 }
 
-// labels are placed in a staggered screen-space grid, at most one label per cell
-// the cell center is projected to the nearest labeled contour with Newton's method, and the label is oriented along the contour
-// the label is drawn only if it fits into the cell, so that each fragment needs to evaluate its own cell only
+// labels are anchored in Web Mercator space, so that they keep their position while panning and zooming
+// seeds are points of a grid with the cell size of a power of two fraction of the world size, chosen by zoom
+// finer grids contain all points of coarser grids, so that zooming only adds or removes labels
+// each seed is projected to the nearest labeled contour with Newton's method, and the label is oriented along the contour
+// the label is drawn only if it fits into the seed cell, so that each fragment needs to evaluate its nearest seed only
 // x: fill coverage, y: fill + outline coverage, z: contour gap mask, w: label value
-vec4 getLabel(float labelInterval, vec2 texCoordDx, vec2 texCoordDy, vec2 texPosDx, vec2 texPosDy) {
-  float spacing = contour.labelSpacing;
-  if (spacing <= 0.) {
+vec4 getLabel(float labelInterval, vec2 mercator, vec2 mercatorDx, vec2 mercatorDy) {
+  float gridSize = contour.labelGridSize;
+  if (gridSize <= 0.) {
     return vec4(0.);
   }
 
-  // staggered grid
-  vec2 fragCoord = gl_FragCoord.xy;
-  float row = floor(fragCoord.y / spacing);
-  float rowOffset = mod(row, 2.) * 0.5 * spacing;
-  float col = floor((fragCoord.x - rowOffset) / spacing);
-  vec2 cellCenter = vec2((col + 0.5) * spacing + rowOffset, (row + 0.5) * spacing);
+  vec2 seed = floor(mercator / gridSize + 0.5) * gridSize;
 
-  // nearest labeled contour, Newton's method with screen-space gradient
-  // the last step reuses the previous gradient, and its length verifies convergence
-  const float h = 2.;
-  vec2 position = cellCenter;
-  vec2 gradient = vec2(0.);
+  // Mercator units per device pixel at the seed, used for decisions consistent across all fragments of the label
+  float pixelSize = contour.labelPixelSize;
+  if (contour.labelGlobe > 0.5) {
+    pixelSize /= cos(radians(mercator_to_lnglat(seed).y));
+  }
+
+  // Newton's method with Mercator gradient
+  // gradient step is fixed to a fraction of a texel, independently of zoom, so that the anchor is stable
+  // iterate until the step is negligible in Mercator units, independently of zoom, so that zooming doesn't change the result
+  // the Newton path depends only on the seed, the cell size is checked only for the final position
+  float h = 0.25 * abs(bitmap2.bounds[2] - bitmap2.bounds[0]) / raster.imageResolution.x * _TILE_SIZE / 360.;
+  vec2 position = seed;
+  vec2 gradient = vec2(0.); // gradient of the last iteration, practically at the anchor, used for the label orientation
   float labelValue = 0.;
-  float lastStep = 0.;
-  for (float i = 0.; i < 3.; i++) {
-    vec2 value = getLabelPositionValue(position, texCoordDx, texCoordDy, texPosDx, texPosDy);
-    if (value.y == 0.) {
+  bool converged = false;
+  for (float i = 0.; i < 6.; i++) {
+    vec2 value = getLabelPositionValue(position);
+    vec2 valueX = getLabelPositionValue(position + vec2(h, 0.));
+    vec2 valueY = getLabelPositionValue(position + vec2(0., h));
+    if (value.y == 0. || valueX.y == 0. || valueY.y == 0.) {
       return vec4(0.);
     }
     if (i == 0.) {
       labelValue = floor(value.x / labelInterval + 0.5) * labelInterval;
     }
-    if (i < 2.) {
-      vec2 valueX = getLabelPositionValue(position + vec2(h, 0.), texCoordDx, texCoordDy, texPosDx, texPosDy);
-      vec2 valueY = getLabelPositionValue(position + vec2(0., h), texCoordDx, texCoordDy, texPosDx, texPosDy);
-      if (valueX.y == 0. || valueY.y == 0.) {
-        return vec4(0.);
-      }
-      gradient = vec2(valueX.x - value.x, valueY.x - value.x) / h;
-    }
+    gradient = vec2(valueX.x - value.x, valueY.x - value.x) / h;
     float gradientLength2 = dot(gradient, gradient);
     if (gradientLength2 == 0.) {
       return vec4(0.);
     }
     vec2 delta = (value.x - labelValue) * gradient / gradientLength2;
     position -= delta;
-    lastStep = length(delta);
-    if (any(greaterThan(abs(position - cellCenter), vec2(spacing / 2.)))) {
-      return vec4(0.);
+    if (length(delta) < 0.001 * h) {
+      converged = true;
+      break;
     }
   }
-  if (lastStep > 1.) {
+  if (!converged || any(greaterThan(abs(position - seed), vec2(gridSize / 2.)))) {
     return vec4(0.);
   }
 
@@ -167,21 +163,32 @@ vec4 getLabel(float labelInterval, vec2 texCoordDx, vec2 texCoordDy, vec2 texPos
     textWidth += getLabelGlyphAdvance(getLabelGlyph(i, digits, negative, intDigits, decimals));
   }
 
-  // orientation along the contour, upright
+  // orientation along the contour, upright in screen space
   vec2 tangent = normalize(vec2(-gradient.y, gradient.x));
-  if (tangent.x < 0.) {
+  vec2 screenEast = contour.labelScreenEast;
+  vec2 screenNorth = vec2(-screenEast.y, screenEast.x);
+  if (tangent.x * screenEast.x + tangent.y * screenNorth.x < 0.) {
     tangent = -tangent;
   }
   vec2 normal = vec2(-tangent.y, tangent.x);
 
-  // drop labels not fitting into the cell
+  // drop labels not fitting into the seed cell
   vec2 halfSize = vec2(textWidth / 2. + contour.labelPadding, contour.labelCellSize.y / 2.);
-  vec2 extent = abs(tangent) * halfSize.x + abs(normal) * halfSize.y;
-  if (any(greaterThan(abs(position - cellCenter) + extent, vec2(spacing / 2.)))) {
+  vec2 extent = (abs(tangent) * halfSize.x + abs(normal) * halfSize.y) * pixelSize;
+  if (any(greaterThan(abs(position - seed) + extent, vec2(gridSize / 2.)))) {
     return vec4(0.);
   }
 
-  vec2 local = vec2(dot(fragCoord - position, tangent), dot(fragCoord - position, normal));
+  // fragment position relative to the anchor in screen space, with the local inverse Jacobian of the Mercator position
+  float jacobian = mercatorDx.x * mercatorDy.y - mercatorDy.x * mercatorDx.y;
+  if (jacobian == 0.) {
+    return vec4(0.);
+  }
+  mat2 inverseJacobian = mat2(mercatorDy.y, -mercatorDx.y, -mercatorDy.x, mercatorDx.x) / jacobian;
+  vec2 screenOffset = inverseJacobian * (mercator - position);
+  vec2 screenTangent = normalize(inverseJacobian * tangent);
+  vec2 screenNormal = vec2(-screenTangent.y, screenTangent.x);
+  vec2 local = vec2(dot(screenOffset, screenTangent), dot(screenOffset, screenNormal));
   if (abs(local.x) > halfSize.x + 1. || abs(local.y) > halfSize.y) {
     return vec4(0.);
   }
@@ -208,13 +215,12 @@ vec4 getLabel(float labelInterval, vec2 texCoordDx, vec2 texCoordDy, vec2 texPos
 }
 
 void main(void) {
-  // derivatives in uniform control flow, before discard
-  vec2 texCoordDx = dFdx(vTexCoord);
-  vec2 texCoordDy = dFdy(vTexCoord);
-  vec2 texPosDx = dFdx(vTexPos);
-  vec2 texPosDy = dFdy(vTexPos);
-
   vec2 uv = getUVWithCoordinateConversion(vTexCoord, vTexPos);
+
+  // Web Mercator position, derivatives in uniform control flow, before discard
+  vec2 mercator = lnglat_to_mercator(vec2(mix(bitmap2.bounds[0], bitmap2.bounds[2], uv.x), mix(bitmap2.bounds[3], bitmap2.bounds[1], uv.y)));
+  vec2 mercatorDx = dFdx(mercator);
+  vec2 mercatorDy = dFdy(mercator);
 
   vec4 pixel = getPixelSmoothInterpolate(imageTexture, imageTexture2, raster.imageResolution, raster.imageSmoothing, raster.imageInterpolation, raster.imageWeight, bitmap2.isRepeatBounds, uv);
   if (!hasPixelValue(pixel, raster.imageUnscale)) {
@@ -249,7 +255,7 @@ void main(void) {
     contourOpacity = 0.;
   }
 
-  vec4 label = getLabel(contour.interval * majorIntervalRatio, texCoordDx, texCoordDy, texPosDx, texPosDy); // label major contours only
+  vec4 label = getLabel(contour.interval * majorIntervalRatio, mercator, mercatorDx, mercatorDy); // label major contours only
   float contourOpacityMajor = contourOpacity * contourMajor * (1. - label.z); // minor contour: half opacity; gap under the label
 
   // contourOpacityMajor += factor; // debug

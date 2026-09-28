@@ -9,7 +9,10 @@ export type ContourModuleProps = {
   majorInterval: number;
   width: number;
   labelTexture?: Texture;
-  labelSpacing?: number; // device pixels, 0: labels disabled
+  labelGridSize?: number; // Web Mercator units, 0: labels disabled
+  labelPixelSize?: number; // Web Mercator units per device pixel
+  labelGlobe?: boolean;
+  labelScreenEast?: [number, number]; // screen direction of east, y up
   labelTextureSize?: [number, number];
   labelCellSize?: [number, number];
   labelPadding?: number;
@@ -28,7 +31,10 @@ function getUniforms(props: Partial<ContourModuleProps> = {}): ContourModuleUnif
     [tokens['majorInterval'] ?? 'majorInterval']: props.majorInterval,
     [tokens['width'] ?? 'width']: props.width,
     [tokens['labelTexture'] ?? 'labelTexture']: props.labelTexture,
-    [tokens['labelSpacing'] ?? 'labelSpacing']: props.labelSpacing ?? 0,
+    [tokens['labelGridSize'] ?? 'labelGridSize']: props.labelGridSize ?? 0,
+    [tokens['labelPixelSize'] ?? 'labelPixelSize']: props.labelPixelSize ?? 0,
+    [tokens['labelGlobe'] ?? 'labelGlobe']: props.labelGlobe ? 1 : 0,
+    [tokens['labelScreenEast'] ?? 'labelScreenEast']: props.labelScreenEast ?? [1, 0],
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: props.labelTextureSize ?? [1, 1],
     [tokens['labelCellSize'] ?? 'labelCellSize']: props.labelCellSize ?? [1, 1],
     [tokens['labelPadding'] ?? 'labelPadding']: props.labelPadding ?? 0,
@@ -48,7 +54,10 @@ export const contourModule = {
     [tokens['interval'] ?? 'interval']: 'f32',
     [tokens['majorInterval'] ?? 'majorInterval']: 'f32',
     [tokens['width'] ?? 'width']: 'f32',
-    [tokens['labelSpacing'] ?? 'labelSpacing']: 'f32',
+    [tokens['labelGridSize'] ?? 'labelGridSize']: 'f32',
+    [tokens['labelPixelSize'] ?? 'labelPixelSize']: 'f32',
+    [tokens['labelGlobe'] ?? 'labelGlobe']: 'f32',
+    [tokens['labelScreenEast'] ?? 'labelScreenEast']: 'vec2<f32>',
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: 'vec2<f32>',
     [tokens['labelCellSize'] ?? 'labelCellSize']: 'vec2<f32>',
     [tokens['labelPadding'] ?? 'labelPadding']: 'f32',
