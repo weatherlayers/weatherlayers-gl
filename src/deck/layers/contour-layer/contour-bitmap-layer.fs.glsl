@@ -32,7 +32,8 @@ void main(void) {
 
   float majorIntervalRatio = contour.majorInterval > contour.interval ? floor(contour.majorInterval / contour.interval) : 1.; // majorInterval < interval: every contour is a major contour
   float contourValue = value / contour.interval;
-  float contourMajor = (step(fract(contourValue / majorIntervalRatio), 0.1) + 1.) / 2.; // 1: major contour, 0.5: minor contour
+  float contourIndex = floor(contourValue + 0.5); // nearest contour, consistent on both sides of the contour
+  float contourMajor = abs(contourIndex - majorIntervalRatio * floor(contourIndex / majorIntervalRatio + 0.5)) < 0.5 ? 1. : 0.5; // 1: major contour, 0.5: minor contour
   float contourWidth = contour.width * contourMajor; // minor contour: half width
 
   // https://stackoverflow.com/a/30909828/1823988
