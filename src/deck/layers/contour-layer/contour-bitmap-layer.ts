@@ -1,4 +1,4 @@
-import type {Color, LayerProps, DefaultProps, UpdateParameters, Viewport} from '@deck.gl/core';
+import type {Color, LayerProps, DefaultProps, UpdateParameters, Viewport, LayerContext} from '@deck.gl/core';
 import {BitmapLayer} from '@deck.gl/layers';
 import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
 import type {Texture} from '@luma.gl/core';
@@ -22,17 +22,39 @@ import {contourModule} from './contour-module.js';
 import type {ContourModuleProps} from './contour-module.js';
 import {createContourLabelAtlas} from './contour-label-atlas.js';
 import type {ContourLabelAtlas} from './contour-label-atlas.js';
+import {ContourLabelPasses, CONTOUR_LABEL_MAX_GRID_COUNT} from './contour-label-passes.js';
+import type {ContourLabelGridProps} from './contour-label-passes.js';
 import {sourceCode as fs} from './contour-bitmap-layer.fs.glsl';
 
 const WORLD_SIZE = 512; // Web Mercator world size in deck.gl common space
 
-// screen direction of east at the viewport center, normalized, y up
-function getViewportScreenEast(viewport: Viewport): [number, number] {
-  const [longitude, latitude] = viewport.unproject([viewport.width / 2, viewport.height / 2]);
-  const [x0, y0] = viewport.project([longitude, latitude]);
-  const [x1, y1] = viewport.project([longitude + 0.01, latitude]);
-  const length = Math.hypot(x1 - x0, y1 - y0);
-  return length > 0 ? [(x1 - x0) / length, -(y1 - y0) / length] : [1, 0];
+// Mercator direction of screen right, from the map bearing, globe has no bearing
+function getViewportScreenRight(viewport: Viewport): [number, number] {
+  const bearing = ('bearing' in viewport && typeof viewport.bearing === 'number' ? viewport.bearing : 0) * Math.PI / 180;
+  return [Math.cos(bearing), -Math.sin(bearing)];
+}
+
+// Web Mercator bounds of the visible area, sampled with a screen grid, off-globe samples are skipped
+function getViewportMercatorBounds(viewport: Viewport): [number, number, number, number] | null {
+  const MAX_LATITUDE = 85.051129;
+  const SAMPLES = 8;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (let i = 0; i <= SAMPLES; i++) {
+    for (let j = 0; j <= SAMPLES; j++) {
+      const [longitude, latitude] = viewport.unproject([viewport.width * i / SAMPLES, viewport.height * j / SAMPLES]);
+      if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+        continue;
+      }
+      const phi = Math.max(-MAX_LATITUDE, Math.min(MAX_LATITUDE, latitude)) * Math.PI / 180;
+      const x = (longitude + 180) / 360 * WORLD_SIZE;
+      const y = (Math.PI + Math.log(Math.tan(Math.PI / 4 + phi / 2))) / (2 * Math.PI) * WORLD_SIZE;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  return minX < maxX && minY < maxY ? [minX, minY, maxX, maxY] : null;
 }
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
@@ -110,6 +132,8 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     paletteBounds?: [number, number];
     labelAtlas?: ContourLabelAtlas;
     labelAtlasKey?: string;
+    labelPasses?: ContourLabelPasses;
+    labelModuleProps?: ContourLabelGridProps;
   };
 
   getShaders(): any {
@@ -123,6 +147,11 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     };
   }
 
+  shouldUpdateState(params: UpdateParameters<this>): boolean {
+    // labels are selected per viewport
+    return super.shouldUpdateState(params) || (!!this.props.labelEnabled && params.changeFlags.viewportChanged);
+  }
+
   updateState(params: UpdateParameters<this>): void {
     const {palette} = params.props;
 
@@ -131,63 +160,28 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     if (palette !== params.oldProps.palette) {
       this._updatePalette();
     }
+
+    // offscreen passes run in updateState, outside of the deck.gl render pass
+    this._updateLabels();
   }
 
   draw(opts: any): void {
-    const {device, viewport} = this.context;
-    const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelEnabled, labelDensity, labelMinorContours, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
-    const {paletteTexture, paletteBounds} = this.state;
+    const {viewport} = this.context;
+    const {model, labelModuleProps, labelPasses} = this.state;
+    const {imageTexture, minZoom, maxZoom} = ensureDefaultProps(this.props, defaultProps);
     if (!imageTexture) {
       return;
     }
 
-    // viewport
-    const viewportGlobe = isViewportGlobe(viewport);
-
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
-      // labels are rendered in device pixels, the atlas depends on the pixel ratio
-      const pixelRatio = device.getDefaultCanvasContext().cssToDeviceRatio();
-      const labelAtlas = labelEnabled ? this._updateLabelAtlas(pixelRatio) : undefined;
-
-      // label grid zoom is chosen the same as in getViewportGridPositions, the grid matches GridLayer with the same density
-      // grid cell size is between 64 * 2^-labelDensity and 2 * 64 * 2^-labelDensity pixels
-      const zoom = getViewportZoom(viewport);
-      const labelGridLevel = Math.max(0, Math.floor(zoom + labelDensity + 3));
-      const labelGridSize = WORLD_SIZE / 2 ** labelGridLevel;
-      const labelPixelSize = 1 / (2 ** zoom * pixelRatio);
-
-
+      const moduleProps = this._getModuleProps();
       model.shaderInputs.setProps({
-        [bitmapModule.name]: {
-          viewportGlobe, bounds, _imageCoordinateSystem, transparentColor,
-        } satisfies BitmapModuleProps,
-        [rasterModule.name]: {
-          imageTexture: imageTexture ?? createEmptyTextureCached(device),
-          imageTexture2: imageTexture2 ?? createEmptyTextureCached(device),
-          imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue,
-        } satisfies RasterModuleProps,
-        [paletteModule.name]: {
-          paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
-          paletteBounds, paletteColor: color,
-        } satisfies PaletteModuleProps,
+        ...moduleProps,
         [contourModule.name]: {
-          interval, majorInterval, width,
-          labelTexture: labelAtlas?.texture ?? createEmptyTextureCached(device),
-          labelGridSize: labelAtlas ? labelGridSize : 0,
-          labelPixelSize,
-          labelGlobe: viewportGlobe,
-          labelMinorContours,
-          labelScreenEast: getViewportScreenEast(viewport),
-          labelTextureSize: labelAtlas?.size,
-          labelCellSize: labelAtlas?.cellSize,
-          labelPadding: labelAtlas?.padding,
-          labelDecimals: unitFormat?.decimals ?? 0,
-          labelScale: unitFormat?.scale ?? 1,
-          labelOffset: unitFormat?.offset ?? 0,
-          labelColor: textColor,
-          labelOutlineColor: textOutlineColor,
-        } satisfies ContourModuleProps,
+          ...moduleProps[contourModule.name],
+          ...labelModuleProps,
+          ...labelPasses?.getTextures(),
+        },
       });
 
       this.props.image = imageTexture;
@@ -196,10 +190,113 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     }
   }
 
-  finalizeState(context: any): void {
+  finalizeState(context: LayerContext): void {
     super.finalizeState(context);
 
     this.state.labelAtlas?.texture.destroy();
+    this.state.labelPasses?.destroy();
+  }
+
+  private _getModuleProps(): {[bitmapModule.name]: BitmapModuleProps, [rasterModule.name]: RasterModuleProps, [paletteModule.name]: PaletteModuleProps, [contourModule.name]: ContourModuleProps} {
+    const {device, viewport} = this.context;
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, color, interval, majorInterval, width, labelMinorContours, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
+    const {paletteTexture, paletteBounds, labelAtlas} = this.state;
+    const viewportGlobe = isViewportGlobe(viewport);
+
+    return {
+      [bitmapModule.name]: {
+        viewportGlobe, bounds, _imageCoordinateSystem, transparentColor,
+      },
+      [rasterModule.name]: {
+        imageTexture: imageTexture ?? createEmptyTextureCached(device),
+        imageTexture2: imageTexture2 ?? createEmptyTextureCached(device),
+        imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue,
+      },
+      [paletteModule.name]: {
+        paletteTexture: paletteTexture ?? createEmptyTextureCached(device),
+        paletteBounds, paletteColor: color,
+      },
+      [contourModule.name]: {
+        interval, majorInterval, width,
+        labelTexture: labelAtlas?.texture ?? createEmptyTextureCached(device),
+        labelGridSize: 0,
+        labelGlobe: viewportGlobe,
+        labelMinorContours,
+        labelScreenRight: getViewportScreenRight(viewport),
+        labelTextureSize: labelAtlas?.size,
+        labelCellSize: labelAtlas?.cellSize,
+        labelPadding: labelAtlas?.padding,
+        labelDecimals: unitFormat?.decimals ?? 0,
+        labelScale: unitFormat?.scale ?? 1,
+        labelOffset: unitFormat?.offset ?? 0,
+        labelColor: textColor,
+        labelOutlineColor: textOutlineColor,
+      },
+    };
+  }
+
+  private _updateLabels(): void {
+    const {device, viewport} = this.context;
+    const {imageTexture, minZoom, maxZoom, labelEnabled, labelDensity, visible} = ensureDefaultProps(this.props, defaultProps);
+    const viewportBounds = getViewportMercatorBounds(viewport);
+    if (!labelEnabled || !visible || !imageTexture || !viewportBounds || !isViewportInZoomBounds(viewport, minZoom, maxZoom) || !ContourLabelPasses.isSupported(device)) {
+      this.setState({labelModuleProps: undefined});
+      return;
+    }
+
+    // labels are rendered in device pixels, the atlas depends on the pixel ratio
+    const pixelRatio = device.getDefaultCanvasContext().cssToDeviceRatio();
+    const labelAtlas = this._updateLabelAtlas(pixelRatio);
+    const labelPasses = this.state.labelPasses ?? new ContourLabelPasses(device);
+    this.setState({labelPasses});
+
+    // candidate grid zoom is chosen the same as in getViewportGridPositions, the grid matches GridLayer with the same density
+    // grid cell size is between 64 * 2^-labelDensity and 2 * 64 * 2^-labelDensity pixels
+    // the grid is coarsened if the viewport needs more candidates than supported, e.g. in pitched views
+    const zoom = getViewportZoom(viewport);
+    const labelPixelSize = 1 / (2 ** zoom * pixelRatio);
+    let labelGridLevel = Math.max(1, Math.floor(zoom + labelDensity + 3 + (isViewportGlobe(viewport) ? 1 : 0))); // globe +1, same as getViewportGridPositions
+    let labelGridSize: number, labelGridOrigin: [number, number], labelGridCount: [number, number];
+    while (true) {
+      labelGridSize = WORLD_SIZE / 2 ** labelGridLevel;
+      const worldColumns = 2 ** labelGridLevel;
+      const minColumn = Math.floor(viewportBounds[0] / labelGridSize) - 1;
+      const maxColumn = Math.ceil(viewportBounds[2] / labelGridSize) + 1;
+      const minRow = Math.floor(viewportBounds[1] / labelGridSize) - 1;
+      const maxRow = Math.ceil(viewportBounds[3] / labelGridSize) + 1;
+      labelGridOrigin = [minColumn, minRow];
+      labelGridCount = [Math.min(maxColumn - minColumn + 1, worldColumns), maxRow - minRow + 1];
+      if ((labelGridCount[0] <= CONTOUR_LABEL_MAX_GRID_COUNT && labelGridCount[1] <= CONTOUR_LABEL_MAX_GRID_COUNT) || labelGridLevel <= 1) {
+        labelGridCount = [Math.min(labelGridCount[0], CONTOUR_LABEL_MAX_GRID_COUNT), Math.min(labelGridCount[1], CONTOUR_LABEL_MAX_GRID_COUNT)];
+        break;
+      }
+      labelGridLevel--;
+    }
+
+    // approximate widest label, 6 chars
+    const labelMaxHalfWidth = 6 * (labelAtlas.cellSize[0] - 2 * labelAtlas.padding) / 2 + labelAtlas.padding;
+    const labelSearchRadius = Math.min(4, Math.ceil(labelMaxHalfWidth / (labelGridSize / labelPixelSize) + 0.5));
+    const labelTraceStep = Math.max(viewportBounds[2] - viewportBounds[0], viewportBounds[3] - viewportBounds[1]) / 200;
+
+    const labelModuleProps: ContourLabelGridProps = {
+      labelGridSize,
+      labelGridLevel,
+      labelGridOrigin,
+      labelGridCount,
+      labelViewBounds: viewportBounds,
+      labelTraceStep,
+      labelSearchRadius,
+      labelMaxHalfWidth,
+      labelPixelSize,
+    } satisfies Partial<ContourModuleProps>;
+    this.setState({labelModuleProps});
+
+    const moduleProps = this._getModuleProps();
+    labelPasses.run({
+      [bitmapModule.name]: moduleProps[bitmapModule.name],
+      [rasterModule.name]: moduleProps[rasterModule.name],
+      [contourModule.name]: {...moduleProps[contourModule.name], ...labelModuleProps},
+    }, labelGridCount);
   }
 
   private _updateLabelAtlas(pixelRatio: number): ContourLabelAtlas {

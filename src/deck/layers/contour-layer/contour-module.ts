@@ -9,11 +9,20 @@ export type ContourModuleProps = {
   majorInterval: number;
   width: number;
   labelTexture?: Texture;
+  labelAnchorTexture?: Texture;
+  labelVisibleTexture?: Texture;
   labelGridSize?: number; // Web Mercator units, 0: labels disabled
+  labelGridLevel?: number; // log2 of world size / grid size
+  labelGridOrigin?: [number, number]; // column, row of the candidate texture origin
+  labelGridCount?: [number, number]; // candidate texture size
+  labelViewBounds?: [number, number, number, number]; // Web Mercator bounds of the viewport
+  labelTraceStep?: number; // Web Mercator units
+  labelSearchRadius?: number; // grid cells
+  labelMaxHalfWidth?: number; // device pixels
   labelPixelSize?: number; // Web Mercator units per device pixel
   labelGlobe?: boolean;
   labelMinorContours?: boolean;
-  labelScreenEast?: [number, number]; // screen direction of east, y up
+  labelScreenRight?: [number, number]; // Mercator direction of screen right, labels are upright if their tangent points right
   labelTextureSize?: [number, number];
   labelCellSize?: [number, number];
   labelPadding?: number;
@@ -32,11 +41,20 @@ function getUniforms(props: Partial<ContourModuleProps> = {}): ContourModuleUnif
     [tokens['majorInterval'] ?? 'majorInterval']: props.majorInterval,
     [tokens['width'] ?? 'width']: props.width,
     [tokens['labelTexture'] ?? 'labelTexture']: props.labelTexture,
+    [tokens['labelAnchorTexture'] ?? 'labelAnchorTexture']: props.labelAnchorTexture,
+    [tokens['labelVisibleTexture'] ?? 'labelVisibleTexture']: props.labelVisibleTexture,
     [tokens['labelGridSize'] ?? 'labelGridSize']: props.labelGridSize ?? 0,
+    [tokens['labelGridLevel'] ?? 'labelGridLevel']: props.labelGridLevel ?? 0,
+    [tokens['labelGridOrigin'] ?? 'labelGridOrigin']: props.labelGridOrigin ?? [0, 0],
+    [tokens['labelGridCount'] ?? 'labelGridCount']: props.labelGridCount ?? [1, 1],
+    [tokens['labelViewBounds'] ?? 'labelViewBounds']: props.labelViewBounds ?? [0, 0, 0, 0],
+    [tokens['labelTraceStep'] ?? 'labelTraceStep']: props.labelTraceStep ?? 0,
+    [tokens['labelSearchRadius'] ?? 'labelSearchRadius']: props.labelSearchRadius ?? 0,
+    [tokens['labelMaxHalfWidth'] ?? 'labelMaxHalfWidth']: props.labelMaxHalfWidth ?? 0,
     [tokens['labelPixelSize'] ?? 'labelPixelSize']: props.labelPixelSize ?? 0,
     [tokens['labelGlobe'] ?? 'labelGlobe']: props.labelGlobe ? 1 : 0,
     [tokens['labelMinorContours'] ?? 'labelMinorContours']: props.labelMinorContours ? 1 : 0,
-    [tokens['labelScreenEast'] ?? 'labelScreenEast']: props.labelScreenEast ?? [1, 0],
+    [tokens['labelScreenRight'] ?? 'labelScreenRight']: props.labelScreenRight ?? [1, 0],
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: props.labelTextureSize ?? [1, 1],
     [tokens['labelCellSize'] ?? 'labelCellSize']: props.labelCellSize ?? [1, 1],
     [tokens['labelPadding'] ?? 'labelPadding']: props.labelPadding ?? 0,
@@ -57,10 +75,17 @@ export const contourModule = {
     [tokens['majorInterval'] ?? 'majorInterval']: 'f32',
     [tokens['width'] ?? 'width']: 'f32',
     [tokens['labelGridSize'] ?? 'labelGridSize']: 'f32',
+    [tokens['labelGridLevel'] ?? 'labelGridLevel']: 'f32',
+    [tokens['labelGridOrigin'] ?? 'labelGridOrigin']: 'vec2<f32>',
+    [tokens['labelGridCount'] ?? 'labelGridCount']: 'vec2<f32>',
+    [tokens['labelViewBounds'] ?? 'labelViewBounds']: 'vec4<f32>',
+    [tokens['labelTraceStep'] ?? 'labelTraceStep']: 'f32',
+    [tokens['labelSearchRadius'] ?? 'labelSearchRadius']: 'f32',
+    [tokens['labelMaxHalfWidth'] ?? 'labelMaxHalfWidth']: 'f32',
     [tokens['labelPixelSize'] ?? 'labelPixelSize']: 'f32',
     [tokens['labelGlobe'] ?? 'labelGlobe']: 'f32',
     [tokens['labelMinorContours'] ?? 'labelMinorContours']: 'f32',
-    [tokens['labelScreenEast'] ?? 'labelScreenEast']: 'vec2<f32>',
+    [tokens['labelScreenRight'] ?? 'labelScreenRight']: 'vec2<f32>',
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: 'vec2<f32>',
     [tokens['labelCellSize'] ?? 'labelCellSize']: 'vec2<f32>',
     [tokens['labelPadding'] ?? 'labelPadding']: 'f32',
