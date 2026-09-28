@@ -12,6 +12,7 @@ export type ContourModuleProps = {
   labelGridSize?: number; // Web Mercator units, 0: labels disabled
   labelPixelSize?: number; // Web Mercator units per device pixel
   labelGlobe?: boolean;
+  labelMinorContours?: boolean;
   labelScreenEast?: [number, number]; // screen direction of east, y up
   labelTextureSize?: [number, number];
   labelCellSize?: [number, number];
@@ -34,6 +35,7 @@ function getUniforms(props: Partial<ContourModuleProps> = {}): ContourModuleUnif
     [tokens['labelGridSize'] ?? 'labelGridSize']: props.labelGridSize ?? 0,
     [tokens['labelPixelSize'] ?? 'labelPixelSize']: props.labelPixelSize ?? 0,
     [tokens['labelGlobe'] ?? 'labelGlobe']: props.labelGlobe ? 1 : 0,
+    [tokens['labelMinorContours'] ?? 'labelMinorContours']: props.labelMinorContours ? 1 : 0,
     [tokens['labelScreenEast'] ?? 'labelScreenEast']: props.labelScreenEast ?? [1, 0],
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: props.labelTextureSize ?? [1, 1],
     [tokens['labelCellSize'] ?? 'labelCellSize']: props.labelCellSize ?? [1, 1],
@@ -57,6 +59,7 @@ export const contourModule = {
     [tokens['labelGridSize'] ?? 'labelGridSize']: 'f32',
     [tokens['labelPixelSize'] ?? 'labelPixelSize']: 'f32',
     [tokens['labelGlobe'] ?? 'labelGlobe']: 'f32',
+    [tokens['labelMinorContours'] ?? 'labelMinorContours']: 'f32',
     [tokens['labelScreenEast'] ?? 'labelScreenEast']: 'vec2<f32>',
     [tokens['labelTextureSize'] ?? 'labelTextureSize']: 'vec2<f32>',
     [tokens['labelCellSize'] ?? 'labelCellSize']: 'vec2<f32>',

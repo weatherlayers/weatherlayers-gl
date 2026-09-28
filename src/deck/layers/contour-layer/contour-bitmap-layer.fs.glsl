@@ -255,7 +255,8 @@ void main(void) {
     contourOpacity = 0.;
   }
 
-  vec4 label = getLabel(contour.interval * majorIntervalRatio, mercator, mercatorDx, mercatorDy); // label major contours only
+  float labelInterval = contour.labelMinorContours > 0.5 ? contour.interval : contour.interval * majorIntervalRatio;
+  vec4 label = getLabel(labelInterval, mercator, mercatorDx, mercatorDy);
   float contourOpacityMajor = contourOpacity * contourMajor * (1. - label.z); // minor contour: half opacity; gap under the label
 
   // contourOpacityMajor += factor; // debug

@@ -57,6 +57,7 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   width: number;
 
   labelSpacing: number;
+  labelMinorContours: boolean;
   unitFormat: UnitFormat | null;
   textFontFamily: string;
   textSize: number;
@@ -89,6 +90,7 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
 
   labelSpacing: {type: 'number', value: 0}, // 0: labels disabled
+  labelMinorContours: {type: 'boolean', value: false}, // false: label major contours only
   unitFormat: {type: 'object', value: null},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
   textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
@@ -132,7 +134,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const {device, viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelSpacing, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelSpacing, labelMinorContours, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
@@ -172,6 +174,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
           labelGridSize: labelAtlas ? labelGridSize : 0,
           labelPixelSize,
           labelGlobe: viewportGlobe,
+          labelMinorContours,
           labelScreenEast: getViewportScreenEast(viewport),
           labelTextureSize: labelAtlas?.size,
           labelCellSize: labelAtlas?.cellSize,

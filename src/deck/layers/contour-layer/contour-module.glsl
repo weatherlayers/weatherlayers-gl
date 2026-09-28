@@ -7,6 +7,7 @@ layout(std140) uniform contourUniforms {
   float labelGridSize;
   float labelPixelSize;
   float labelGlobe;
+  float labelMinorContours;
   vec2 labelScreenEast;
   vec2 labelTextureSize;
   vec2 labelCellSize;
