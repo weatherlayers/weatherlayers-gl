@@ -45,6 +45,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       width: WeatherLayers.DEFAULT_LINE_WIDTH,
       color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       palette: false,
+      labelSpacing: 250,
       // text config is used for labels in standalone demos
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
       textSize: WeatherLayers.DEFAULT_TEXT_SIZE,
@@ -202,6 +203,11 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   contour.addBinding(config.contour, 'width', { min: 0.5, max: 10, step: 0.5 }).on('change', update);
   contour.addBinding(config.contour, 'color').on('change', update);
   contour.addBinding(config.contour, 'palette').on('change', update);
+  contour.addBinding(config.contour, 'labelSpacing', { min: 0, max: 1000, step: 10 }).on('change', update);
+  contour.addBinding(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
+  contour.addBinding(config.contour, 'textColor').on('change', update);
+  contour.addBinding(config.contour, 'textOutlineWidth', { min: 0, max: 1, step: 0.1 }).on('change', update);
+  contour.addBinding(config.contour, 'textOutlineColor').on('change', update);
   contour.addBinding(config.contour, 'opacity', { min: 0, max: 1, step: 0.01 }).on('change', update);
 
   const highLow = gui.addFolder({ title: 'HighLow layer', expanded: false });

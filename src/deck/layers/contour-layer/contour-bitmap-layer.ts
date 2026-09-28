@@ -2,10 +2,11 @@ import type {Color, LayerProps, DefaultProps, UpdateParameters} from '@deck.gl/c
 import {BitmapLayer} from '@deck.gl/layers';
 import type {BitmapLayerProps, BitmapBoundingBox} from '@deck.gl/layers';
 import type {Texture} from '@luma.gl/core';
-import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
+import {DEFAULT_LINE_WIDTH, DEFAULT_LINE_COLOR, DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_SIZE, DEFAULT_TEXT_COLOR, DEFAULT_TEXT_OUTLINE_WIDTH, DEFAULT_TEXT_OUTLINE_COLOR, ensureDefaultProps} from '../../_utils/props.js';
 import {ImageInterpolation} from '../../_utils/image-interpolation.js';
 import {ImageType} from '../../_utils/image-type.js';
 import type {ImageUnscale} from '../../_utils/image-unscale.js';
+import type {UnitFormat} from '../../_utils/unit-format.js';
 import {isViewportGlobe, isViewportInZoomBounds} from '../../_utils/viewport.js';
 import {parsePalette} from '../../_utils/palette.js';
 import type {Palette} from '../../_utils/palette.js';
@@ -19,6 +20,8 @@ import {paletteModule} from '../../shaderlib/palette-module/palette-module.js';
 import type {PaletteModuleProps} from '../../shaderlib/palette-module/palette-module.js';
 import {contourModule} from './contour-module.js';
 import type {ContourModuleProps} from './contour-module.js';
+import {createContourLabelAtlas} from './contour-label-atlas.js';
+import type {ContourLabelAtlas} from './contour-label-atlas.js';
 import {sourceCode as fs} from './contour-bitmap-layer.fs.glsl';
 
 type _ContourBitmapLayerProps = BitmapLayerProps & {
@@ -41,6 +44,14 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   interval: number;
   majorInterval: number;
   width: number;
+
+  labelSpacing: number;
+  unitFormat: UnitFormat | null;
+  textFontFamily: string;
+  textSize: number;
+  textColor: Color;
+  textOutlineWidth: number;
+  textOutlineColor: Color;
 }
 
 export type ContourBitmapLayerProps = _ContourBitmapLayerProps & LayerProps;
@@ -65,6 +76,14 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   interval: {type: 'number', value: 0},
   majorInterval: {type: 'number', value: 0},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
+
+  labelSpacing: {type: 'number', value: 0}, // 0: labels disabled
+  unitFormat: {type: 'object', value: null},
+  textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
+  textSize: {type: 'number', value: DEFAULT_TEXT_SIZE},
+  textColor: {type: 'color', value: DEFAULT_TEXT_COLOR},
+  textOutlineWidth: {type: 'number', value: DEFAULT_TEXT_OUTLINE_WIDTH},
+  textOutlineColor: {type: 'color', value: DEFAULT_TEXT_OUTLINE_COLOR},
 };
 
 export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer<ExtraPropsT & Required<_ContourBitmapLayerProps>> {
@@ -74,6 +93,8 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   declare state: BitmapLayer['state'] & {
     paletteTexture?: Texture;
     paletteBounds?: [number, number];
+    labelAtlas?: ContourLabelAtlas;
+    labelAtlasKey?: string;
   };
 
   getShaders(): any {
@@ -100,7 +121,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const {device, viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelSpacing, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
@@ -110,6 +131,12 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     const viewportGlobe = isViewportGlobe(viewport);
 
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
+      // labels are rendered in device pixels, the atlas depends on the pixel ratio
+      // labels are not supported in globe, screen-space extrapolation of texture coordinates is not precise enough there
+      const pixelRatio = device.getDefaultCanvasContext().cssToDeviceRatio();
+      const labelAtlas = labelSpacing > 0 && !viewportGlobe ? this._updateLabelAtlas(pixelRatio) : undefined;
+
+
       model.shaderInputs.setProps({
         [bitmapModule.name]: {
           viewportGlobe, bounds, _imageCoordinateSystem, transparentColor,
@@ -125,6 +152,16 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
         } satisfies PaletteModuleProps,
         [contourModule.name]: {
           interval, majorInterval, width,
+          labelTexture: labelAtlas?.texture ?? createEmptyTextureCached(device),
+          labelSpacing: labelAtlas ? labelSpacing * pixelRatio : 0,
+          labelTextureSize: labelAtlas?.size,
+          labelCellSize: labelAtlas?.cellSize,
+          labelPadding: labelAtlas?.padding,
+          labelDecimals: unitFormat?.decimals ?? 0,
+          labelScale: unitFormat?.scale ?? 1,
+          labelOffset: unitFormat?.offset ?? 0,
+          labelColor: textColor,
+          labelOutlineColor: textOutlineColor,
         } satisfies ContourModuleProps,
       });
 
@@ -132,6 +169,29 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
       super.draw(opts);
       this.props.image = null;
     }
+  }
+
+  finalizeState(context: any): void {
+    super.finalizeState(context);
+
+    this.state.labelAtlas?.texture.destroy();
+  }
+
+  private _updateLabelAtlas(pixelRatio: number): ContourLabelAtlas {
+    const {device} = this.context;
+    const {textFontFamily, textSize, textOutlineWidth} = ensureDefaultProps(this.props, defaultProps);
+    const fontSize = Math.round(textSize * pixelRatio);
+    const outlineWidth = textOutlineWidth * fontSize / 6; // relative to font size, default 2px for 12px text
+    const labelAtlasKey = JSON.stringify([textFontFamily, fontSize, outlineWidth]);
+    if (this.state.labelAtlas && this.state.labelAtlasKey === labelAtlasKey) {
+      return this.state.labelAtlas;
+    }
+
+    this.state.labelAtlas?.texture.destroy();
+    const labelAtlas = createContourLabelAtlas(device, {fontFamily: textFontFamily, fontSize, outlineWidth});
+    this.state.labelAtlas = labelAtlas;
+    this.state.labelAtlasKey = labelAtlasKey;
+    return labelAtlas;
   }
 
   private _updatePalette(): void {
