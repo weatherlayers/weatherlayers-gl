@@ -74,7 +74,8 @@ float getLabelGlyph(float charIndex, float digits, float negative, float intDigi
 }
 
 // labels are anchored in Web Mercator space, so that they keep their position while panning and zooming
-// seeds are points of a grid with the cell size of a power of two fraction of the world size, chosen by zoom
+// seeds are points of a triangle grid with the cell size of a power of two fraction of the world size, chosen by zoom
+// the same grid as generateGrid in viewport-grid.ts used by GridLayer, odd columns are shifted by half a cell
 // finer grids contain all points of coarser grids, so that zooming only adds or removes labels
 // each seed is projected to the nearest labeled contour with Newton's method, and the label is oriented along the contour
 // the label is drawn only if it fits into the seed cell, so that each fragment needs to evaluate its nearest seed only
@@ -85,7 +86,10 @@ vec4 getLabel(float labelInterval, vec2 mercator, vec2 mercatorDx, vec2 mercator
     return vec4(0.);
   }
 
-  vec2 seed = floor(mercator / gridSize + 0.5) * gridSize;
+  float seedColumn = floor(mercator.x / gridSize + 0.5);
+  float seedRowOffset = mod(seedColumn, 2.) * 0.5;
+  float seedRow = floor(mercator.y / gridSize - seedRowOffset + 0.5) + seedRowOffset;
+  vec2 seed = vec2(seedColumn, seedRow) * gridSize;
 
   // Mercator units per device pixel at the seed, used for decisions consistent across all fragments of the label
   float pixelSize = contour.labelPixelSize;

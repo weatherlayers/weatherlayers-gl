@@ -149,6 +149,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
       const labelAtlas = labelSpacing > 0 ? this._updateLabelAtlas(pixelRatio) : undefined;
 
       // label grid cell size is a power of two fraction of the world size, between labelSpacing and 2 * labelSpacing pixels
+      // grid zoom is chosen the same as in getViewportGridPositions, labelSpacing = 64 * 2^-density matches GridLayer density
       const zoom = getViewportZoom(viewport);
       const labelGridLevel = labelSpacing > 0 ? Math.max(0, Math.floor(zoom + Math.log2(WORLD_SIZE / labelSpacing))) : 0;
       const labelGridSize = WORLD_SIZE / 2 ** labelGridLevel;
