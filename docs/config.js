@@ -46,7 +46,7 @@ export async function initConfig({ datasets, deckgl, webgl2, globe } = {}) {
       color: colorToCss(WeatherLayers.DEFAULT_LINE_COLOR),
       palette: false,
       labelEnabled: true,
-      labelDensity: -2,
+      labelDensity: 0,
       labelMinorContours: false,
       // text config is used for labels in standalone demos
       textFontFamily: WeatherLayers.DEFAULT_TEXT_FONT_FAMILY,
@@ -206,7 +206,7 @@ export function initGui(config, update, { deckgl, webgl2, globe } = {}) {
   contour.addBinding(config.contour, 'color').on('change', update);
   contour.addBinding(config.contour, 'palette').on('change', update);
   contour.addBinding(config.contour, 'labelEnabled').on('change', update);
-  contour.addBinding(config.contour, 'labelDensity', { min: -4, max: 0, step: 1 }).on('change', update);
+  contour.addBinding(config.contour, 'labelDensity', { min: -2, max: 2, step: 1 }).on('change', update);
   contour.addBinding(config.contour, 'labelMinorContours').on('change', update);
   contour.addBinding(config.contour, 'textSize', { min: 1, max: 20, step: 1 }).on('change', update);
   contour.addBinding(config.contour, 'textColor').on('change', update);

@@ -91,7 +91,7 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
 
   labelEnabled: {type: 'boolean', value: false},
-  labelDensity: {type: 'number', value: -2}, // same as GridLayer density, lower default because labels need more space than grid values
+  labelDensity: {type: 'number', value: 0}, // same as GridLayer density
   labelMinorContours: {type: 'boolean', value: false}, // false: label major contours only
   unitFormat: {type: 'object', value: null},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
