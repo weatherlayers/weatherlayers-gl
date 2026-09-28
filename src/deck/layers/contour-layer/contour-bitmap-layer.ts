@@ -56,7 +56,8 @@ type _ContourBitmapLayerProps = BitmapLayerProps & {
   majorInterval: number;
   width: number;
 
-  labelSpacing: number;
+  labelEnabled: boolean;
+  labelDensity: number;
   labelMinorContours: boolean;
   unitFormat: UnitFormat | null;
   textFontFamily: string;
@@ -89,7 +90,8 @@ const defaultProps: DefaultProps<ContourBitmapLayerProps> = {
   majorInterval: {type: 'number', value: 0},
   width: {type: 'number', value: DEFAULT_LINE_WIDTH},
 
-  labelSpacing: {type: 'number', value: 0}, // 0: labels disabled
+  labelEnabled: {type: 'boolean', value: false},
+  labelDensity: {type: 'number', value: -2}, // same as GridLayer density, lower default because labels need more space than grid values
   labelMinorContours: {type: 'boolean', value: false}, // false: label major contours only
   unitFormat: {type: 'object', value: null},
   textFontFamily: {type: 'object', value: DEFAULT_TEXT_FONT_FAMILY},
@@ -134,7 +136,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
   draw(opts: any): void {
     const {device, viewport} = this.context;
     const {model} = this.state;
-    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelSpacing, labelMinorContours, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
+    const {imageTexture, imageTexture2, imageSmoothing, imageInterpolation, imageWeight, imageType, imageUnscale, imageMinValue, imageMaxValue, bounds, _imageCoordinateSystem, transparentColor, minZoom, maxZoom, color, interval, majorInterval, width, labelEnabled, labelDensity, labelMinorContours, unitFormat, textColor, textOutlineColor} = ensureDefaultProps(this.props, defaultProps);
     const {paletteTexture, paletteBounds} = this.state;
     if (!imageTexture) {
       return;
@@ -146,12 +148,12 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     if (model && isViewportInZoomBounds(viewport, minZoom, maxZoom)) {
       // labels are rendered in device pixels, the atlas depends on the pixel ratio
       const pixelRatio = device.getDefaultCanvasContext().cssToDeviceRatio();
-      const labelAtlas = labelSpacing > 0 ? this._updateLabelAtlas(pixelRatio) : undefined;
+      const labelAtlas = labelEnabled ? this._updateLabelAtlas(pixelRatio) : undefined;
 
-      // label grid cell size is a power of two fraction of the world size, between labelSpacing and 2 * labelSpacing pixels
-      // grid zoom is chosen the same as in getViewportGridPositions, labelSpacing = 64 * 2^-density matches GridLayer density
+      // label grid zoom is chosen the same as in getViewportGridPositions, the grid matches GridLayer with the same density
+      // grid cell size is between 64 * 2^-labelDensity and 2 * 64 * 2^-labelDensity pixels
       const zoom = getViewportZoom(viewport);
-      const labelGridLevel = labelSpacing > 0 ? Math.max(0, Math.floor(zoom + Math.log2(WORLD_SIZE / labelSpacing))) : 0;
+      const labelGridLevel = Math.max(0, Math.floor(zoom + labelDensity + 3));
       const labelGridSize = WORLD_SIZE / 2 ** labelGridLevel;
       const labelPixelSize = 1 / (2 ** zoom * pixelRatio);
 
