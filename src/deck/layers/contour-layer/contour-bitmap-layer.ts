@@ -134,6 +134,7 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     labelAtlasKey?: string;
     labelPasses?: ContourLabelPasses;
     labelModuleProps?: ContourLabelGridProps;
+    labelPassesInputs?: unknown[];
   };
 
   getShaders(): any {
@@ -291,7 +292,16 @@ export class ContourBitmapLayer<ExtraPropsT extends {} = {}> extends BitmapLayer
     } satisfies Partial<ContourModuleProps>;
     this.setState({labelModuleProps});
 
+    // run the passes only if their inputs changed, updateState is called also for unrelated props, e.g. opacity
+    const {bounds, _imageCoordinateSystem, interval, majorInterval, labelMinorContours} = ensureDefaultProps(this.props, defaultProps);
     const moduleProps = this._getModuleProps();
+    const labelPassesInputs = [...Object.values(moduleProps[rasterModule.name]), JSON.stringify(bounds), _imageCoordinateSystem, interval, majorInterval, labelMinorContours, JSON.stringify(labelModuleProps)];
+    const previousInputs = this.state.labelPassesInputs;
+    if (previousInputs && previousInputs.length === labelPassesInputs.length && previousInputs.every((input, i) => input === labelPassesInputs[i])) {
+      return;
+    }
+    this.setState({labelPassesInputs});
+
     labelPasses.run({
       [bitmapModule.name]: moduleProps[bitmapModule.name],
       [rasterModule.name]: moduleProps[rasterModule.name],
