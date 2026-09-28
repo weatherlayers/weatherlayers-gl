@@ -12,12 +12,20 @@ vec4 powers(float x) {
   return vec4(x*x*x, x*x, x, 1.0); 
 }
 
+// exact mix, returns exactly x if x == y
+// built-in mix(x, y, a) = x * (1 - a) + y * a may introduce precision noise in flat areas
+vec4 mixExact(vec4 x, vec4 y, float a) {
+  return x + (y - x) * a;
+}
+
 vec4 spline(vec4 c0, vec4 c1, vec4 c2, vec4 c3, float a) {
+  // relative to c1, weights sum to 1, returns exactly c1 in flat areas
+  // weighted sum of c0..c3 introduces precision noise in flat areas, causing contour artifacts
   vec4 color =
-    c0 * dot(BS_B, powers(a + 1.)) + 
-    c1 * dot(BS_A, powers(a     )) +
-    c2 * dot(BS_A, powers(1. - a)) + 
-    c3 * dot(BS_B, powers(2. - a));
+    c1 +
+    (c0 - c1) * dot(BS_B, powers(a + 1.)) +
+    (c2 - c1) * dot(BS_A, powers(1. - a)) +
+    (c3 - c1) * dot(BS_B, powers(2. - a));
 
   // fix precision loss in alpha channel
   color.a = (c0.a > 0. && c1.a > 0. && c2.a > 0. && c3.a > 0.) ? max(max(max(c0.a, c1.a), c2.a), c3.a) : 0.;
@@ -46,9 +54,9 @@ vec4 getPixelLinear(sampler2D image, vec2 imageDownscaleResolution, vec2 uv) {
   vec2 iuv = floor(tuv);
   vec2 fuv = fract(tuv);
 
-  return mix(
-    mix(getPixel(image, imageDownscaleResolution, iuv, vec2(0, 0)), getPixel(image, imageDownscaleResolution, iuv, vec2(1, 0)), fuv.x),
-    mix(getPixel(image, imageDownscaleResolution, iuv, vec2(0, 1)), getPixel(image, imageDownscaleResolution, iuv, vec2(1, 1)), fuv.x),
+  return mixExact(
+    mixExact(getPixel(image, imageDownscaleResolution, iuv, vec2(0, 0)), getPixel(image, imageDownscaleResolution, iuv, vec2(1, 0)), fuv.x),
+    mixExact(getPixel(image, imageDownscaleResolution, iuv, vec2(0, 1)), getPixel(image, imageDownscaleResolution, iuv, vec2(1, 1)), fuv.x),
     fuv.y
   );
 }
@@ -83,7 +91,7 @@ vec4 getPixelInterpolate(sampler2D image, sampler2D image2, vec2 imageDownscaleR
   if (imageWeight > 0.) {
     vec4 pixel = getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffset);
     vec4 pixel2 = getPixelFilter(image2, imageDownscaleResolution, imageInterpolation, uvWithOffset);
-    return mix(pixel, pixel2, imageWeight);
+    return mixExact(pixel, pixel2, imageWeight);
   } else {
     return getPixelFilter(image, imageDownscaleResolution, imageInterpolation, uvWithOffset);
   }
